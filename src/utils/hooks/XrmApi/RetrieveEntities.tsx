@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Entity } from '../global/requestsType';
+import { Entity } from '../../global/requestsType';
 
 export function RetrieveEntities() {
 
     const [data, setData] = useState<Entity[]>();
 
     useEffect(() => {
+        console.log("RetrieveEntities");
         async function fetchData() {
             const response = await fetch(Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.2/entities?$select=entityid,name,logicalname, originallocalizedname", {
@@ -29,6 +30,7 @@ export function RetrieveEntities() {
 
             setData(entities);
         }
+        setData([])
         fetchData();
 
     }, []);

@@ -31,5 +31,20 @@ export function GetUrl(url: string): string {
 }
 
 export function formatId(guid: string) {
-    return guid.replace('{', '').replace('}', '');
+    return guid?.replace('{', '').replace('}', '');
+}
+
+export function getDifferenceInArrays<T>(a: T[], b: T[]): T[] {
+    return [
+        ...a.filter((element) => {
+            return !b.includes(element);
+        }),
+        ...b.filter((element) => {
+            return !a.includes(element);
+        })
+    ]
+}
+
+export function isArraysEquals<T>(a: T[], b: T[]): boolean {
+    return getDifferenceInArrays(a, b).length == 0
 }

@@ -1,30 +1,39 @@
 
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { ProcessButton, ProcessProps } from '../utils/global/.processClass'
-import { Entity, AttributeMetadata, MSType, MSDateFormat } from '../utils/global/requestsType'
-import { RetrieveEntities } from '../utils/hooks/RetrieveEntities'
-import { RetrievePrimaryAttribute } from '../utils/hooks/RetrievePrimaryAttribute'
-import { formatId } from '../utils/global/common'
+import { Entity, AttributeMetadata, MSType, MSDateFormat, getReadableMSType } from '../utils/global/requestsType'
+import { RetrieveEntities } from '../utils/hooks/XrmApi/RetrieveEntities'
+import { RetrievePrimaryAttribute } from '../utils/hooks/XrmApi/RetrievePrimaryAttribute'
+import { formatId, isArraysEquals } from '../utils/global/common'
 import React from 'react'
-import { RetrieveAttributesMetaData } from '../utils/hooks/RetrieveAttributesMetaData'
-import { RetrieveAttributes } from '../utils/hooks/RetrieveAttributes'
-import { RetrievePicklistValues } from '../utils/hooks/RetrievePicklistValues'
+import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttributesMetaData'
+import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes'
+import { RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
 import SyncIcon from '@mui/icons-material/Sync';
-import { Stack } from '@mui/system'
-import { useBoolean } from 'usehooks-ts'
-import { Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination } from '@mui/material';
+import { useBoolean, useUpdateEffect } from 'usehooks-ts'
+import { Stack, Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination, Skeleton, Tooltip, Chip, Box, Paper, ListItem, Container, createSvgIcon } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, GridColDef, gridPageCountSelector, gridPageSelector, GridToolbar, GridValidRowModel, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
-import { DialogActions } from '@material-ui/core'
-import { RetrieveRecordsDisplayNames } from '../utils/hooks/RetrieveRecordsDisplayNames';
-import { RetrieveAllRecords } from '../utils/hooks/RetrieveAllRecords'
-import { SelectInputProps } from '@mui/material/Select/SelectInput'
+import { DataGrid, GridColDef, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowIdsSelector, GridRowCount, gridRowCountSelector, GridSelectionModel, GridToolbar, GridValidRowModel, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
+import { DialogActions, LinearProgress } from '@material-ui/core'
+import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../utils/hooks/XrmApi/RetrieveRecordsDisplayNames';
+import { RetrieveAllRecords } from '../utils/hooks/XrmApi/RetrieveAllRecords'
 import ClearIcon from '@mui/icons-material/Clear';
+import { NoMaxWidthTooltip } from '../utils/components/updateRecordComponents'
+import ShortTextIcon from '@material-ui/icons/ShortText'
+import NotesIcon from '@mui/icons-material/Notes';
+import NumbersIcon from '@mui/icons-material/Numbers';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ListIcon from '@mui/icons-material/List';
+import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
+import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
+import { DictValueType, useDictionnary } from '../utils/hooks/use/useDictionnary'
+import NumericInput from '../utils/components/NumericInput'
+import '../utils/global/extensions';
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -40,57 +49,152 @@ class UpdateRecordButton extends ProcessButton {
 }
 
 
+
+// declare module '@mui/material/Checkbox' {
+//     interface CheckboxPropsColorOverrides {
+//         contrastChecked: true
+//     }
+// }
+const defaultTheme = createTheme()
+const theme = createTheme({
+    components: {
+        MuiStack: {
+            variants: [
+                {
+                    props: { className: "disabled" },
+                    style: {
+                        backgroundColor: defaultTheme.palette.grey[200],
+                    }
+                }, {
+                    props: { className: "dirty" },
+                    style: {
+                        backgroundColor: defaultTheme.palette.secondary.main
+                    }
+                },
+                {
+                    props: { className: "toupdate" },
+                    style: {
+                        backgroundColor: defaultTheme.palette.primary.dark
+                    }
+                },
+            ]
+        },
+        MuiTypography: {
+            variants: [
+                {
+                    props: { className: "disabled" },
+                    style: {
+                        color: defaultTheme.palette.text.disabled
+                    }
+                },
+                {
+                    props: { className: "dirty" },
+                    style: {
+                        color: defaultTheme.palette.secondary.contrastText
+                    }
+                },
+                {
+                    props: { className: "toupdate" },
+                    style: {
+                        color: defaultTheme.palette.primary.contrastText
+                    }
+                },
+            ]
+        },
+        MuiInputBase: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: "white"
+                }
+            },
+            variants: [
+                {
+                    props: { disabled: true },
+                    style: {
+                        backgroundColor: defaultTheme.palette.grey[100]
+                    }
+                }
+            ]
+        }
+    }
+})
+
+const DecimalIcon = createSvgIcon(
+    <path
+        d="M10 7A3 3 0 0 0 7 10V13A3 3 0 0 0 13 13V10A3 3 0 0 0 10 7M11 13A1 1 0 0 1 9 13V10A1 1 0 0 1 11 10M17 7A3 3 0 0 0 14 10V13A3 3 0 0 0 20 13V10A3 3 0 0 0 17 7M18 13A1 1 0 0 1 16 13V10A1 1 0 0 1 18 10M6 15A1 1 0 1 1 5 14A1 1 0 0 1 6 15Z"
+    />,
+    'Decimal',
+);
+
 function UpdateRecordProcess(props: ProcessProps) {
-    const [entityname, _setEntityname] = useState(Xrm.Page.data.entity.getEntityName())
-    const [recordid, setRecordid] = useState(formatId(Xrm.Page.data.entity.getId().toLowerCase()))
+    const [entityname, _setEntityname] = useState(Xrm.Page.data?.entity.getEntityName())
+    const [recordsIds, setRecordsIds] = useState<string[]>(formatId(Xrm.Page.data?.entity.getId().toLowerCase()) ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : [])
     const [filterAttribute, setFilterAttribute] = useState("")
+    const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({})
+    const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false)
 
     const setEntityname = (entityname: string) => {
+        setRecordsIds([])
         _setEntityname(entityname)
-        setRecordid("")
     }
 
-    const setCurrentRecord = () => {
-        setEntityname(Xrm.Page.data.entity.getEntityName())
-        setRecordid(formatId(Xrm.Page.data.entity.getId().toLowerCase()))
-    }
+    const setCurrentRecord = useCallback(() => {
+        setEntityname(Xrm.Page.data?.entity.getEntityName())
+        const recordid = formatId(Xrm.Page.data?.entity.getId().toLowerCase())
+        setRecordsIds(recordid ? [recordid] : [])
+    }, [])
 
-    // useEffect(() => {
-    //     setCurrentRecord();
-    // }, [])
+    useUpdateEffect(() => {
+        toggleResetTotal()
+    }, [entityname, recordsIds])
+
 
 
     const launchUpdate = () => {
-        console.log("Launch Update for " + entityname + " " + recordid)
+        console.log("Launch Update for " + entityname + " " + recordsIds + " on")
+        console.log(attributesValues)
     }
 
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Stack spacing={"4px"} width="100%" padding="10px">
-                <NavTopBar
-                    setEntityname={setEntityname}
-                    setRecordid={setRecordid}
-                    setCurrentRecord={setCurrentRecord}
-                    launchUpdate={launchUpdate}
-                    setFilterAttribute={setFilterAttribute}
-                    entityname={entityname}
-                    recordid={recordid} />
-                <Divider />
-                <AttributesList entityname={entityname} recordid={recordid} filter={filterAttribute} />
-                {entityname + " / " + recordid}
-            </Stack>
-        </LocalizationProvider>)
+        <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Stack spacing={"4px"} width="100%" padding="10px">
+                    <NavTopBar
+                        setEntityname={setEntityname}
+                        setRecordsIds={setRecordsIds}
+                        setCurrentRecord={setCurrentRecord}
+                        launchUpdate={launchUpdate}
+                        setFilterAttribute={setFilterAttribute}
+                        entityname={entityname}
+                        recordsIds={recordsIds} />
+                    <Divider />
+                    <AttributesList
+                        entityname={entityname}
+                        recordsIds={recordsIds}
+                        filter={filterAttribute}
+                        resetTotal={resetTotal}
+                        attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
+                    />
+                    <Divider />
+                    {entityname + " / " + recordsIds}
+                </Stack>
+            </LocalizationProvider>
+        </ThemeProvider>
+    )
 }
 
 type AttributesListProps = {
     entityname: string,
-    recordid: string,
+    recordsIds: string[],
     filter: string,
+    resetTotal: boolean,
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void }
 }
 function AttributesList(props: AttributesListProps) {
     const entityname = props.entityname
-    const recordid = props.recordid
+    const recordid = props.recordsIds?.length == 1 ? props.recordsIds?.at(0) : undefined
+    const filter = props.filter
 
     const attributesMetadataRetrieved = RetrieveAttributesMetaData(entityname)
     const attributesRetrieved = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
@@ -98,24 +202,44 @@ function AttributesList(props: AttributesListProps) {
         else return "_" + value.LogicalName + "_value"
     }) ?? [])
 
+    return (<>{
+        attributesMetadataRetrieved.length
 
-    return (<Stack spacing={"1px"} overflow="scroll">
-        {attributesMetadataRetrieved?.map((metadata) => {
-            const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
-            // console.log(metadata.LogicalName, metadata.MStype, attributeName)
-            return (metadata.DisplayName.indexOf(props.filter) !== -1 ||
-                metadata.LogicalName.indexOf(props.filter) !== -1 ||
-                metadata.SchemaName.indexOf(props.filter) !== -1)
-                && <AttributeNode disabled={!metadata.IsValidForUpdate} attribute={metadata} entityname={props.entityname} value={attributesRetrieved[attributeName]} />
-        })}
-    </Stack>)
+            ?
+            <Stack spacing={"2px"} overflow="scroll" height="100%">
+                {attributesMetadataRetrieved?.map((metadata) => {
+                    const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
+                    return (
+                        <AttributeNode
+                            disabled={!metadata.IsValidForUpdate}
+                            attribute={metadata}
+                            entityname={props.entityname}
+                            value={attributesRetrieved[attributeName]}
+                            filter={filter}
+                            resetTotal={props.resetTotal}
+                            attributeToUpdateManager={props.attributeToUpdateManager}
+                        />
+                    )
+                })
+                }
+            </Stack>
+
+            :
+            <Stack spacing={"10px"} overflow="hidden">
+                {[...Array(16)].map(() => <Skeleton variant='rounded' height={38} />)}
+            </Stack>
+    }
+    </>)
 }
 
 type AttributeNodeProps = {
     attribute: AttributeMetadata,
     entityname: string,
     value: any,
-    disabled: boolean
+    disabled: boolean,
+    filter: string,
+    resetTotal: boolean,
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void }
 }
 type AttributeProps = {
     attribute: AttributeMetadata,
@@ -124,14 +248,36 @@ type AttributeProps = {
     setToUpdate: () => void,
     reset: boolean,
     manageDirty: { set: () => void, remove: () => void },
-    disabled: boolean
+    disabled: boolean,
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void, isToUpdate: boolean, valueChanged: boolean }
 }
 function AttributeNode(props: AttributeNodeProps) {
     const { value: isDirty, setTrue, setFalse } = useBoolean(false)
     const manageDirty = { setTrue, setFalse }
 
+    const { value: valueChanged, toggle: triggerValueChange } = useBoolean(false)
     const { value: isToUpdate, setTrue: setToUpdate, setFalse: removeToUpdate } = useBoolean(false)
     const { value: toReset, setTrue: setToReset, setFalse: resetToReset } = useBoolean(false)
+
+    const tooltipText = useMemo(() =>
+        <>
+            <Typography variant="button"><strong>{props.attribute.DisplayName}</strong></Typography>
+            <Typography variant="body2"><strong>LogicalName:</strong> {props.attribute.LogicalName}</Typography>
+            <Typography variant="body2"><strong>Type:</strong> {getReadableMSType(props.attribute.MStype)}</Typography>
+            {props.attribute.Parameters.Format && props.attribute.Parameters.Format != MSDateFormat.None && <Typography variant="body2"><strong>Format:</strong> {props.attribute.Parameters.Format}</Typography>}
+            {(props.attribute.Parameters.MaxLength || props.attribute.Parameters.MaxLength === 0) && <Typography variant="body2"><strong>MaxLength:</strong> {props.attribute.Parameters.MaxLength}</Typography>}
+            {(props.attribute.Parameters.MaxValue || props.attribute.Parameters.MaxValue === 0) && <Typography variant="body2"><strong>MaxValue:</strong> {props.attribute.Parameters.MaxValue}</Typography>}
+            {(props.attribute.Parameters.MinValue || props.attribute.Parameters.MinValue === 0) && <Typography variant="body2"><strong>MinValue:</strong> {props.attribute.Parameters.MinValue}</Typography>}
+            {(props.attribute.Parameters.Precision || props.attribute.Parameters.Precision === 0) && <Typography variant="body2"><strong>Precision:</strong> {props.attribute.Parameters.Precision}</Typography>}
+            {props.attribute.Parameters.Target && <Typography variant="body2"><strong>Target:</strong> {props.attribute.Parameters.Target}</Typography>}
+        </>
+        , [props.attribute])
+
+    const isVisible = useMemo(() => {
+        return (props.attribute.DisplayName.indexOf(props.filter) !== -1 ||
+            props.attribute.LogicalName.indexOf(props.filter) !== -1 ||
+            props.attribute.SchemaName.indexOf(props.filter) !== -1)
+    }, [props.filter, props.attribute])
 
     useEffect(() => {
         if (isToUpdate === false) {
@@ -144,36 +290,60 @@ function AttributeNode(props: AttributeNodeProps) {
         }
     }, [resetToReset, toReset])
 
-    return (<Stack direction={"row"} width="100%" alignItems="center" spacing={"2px"}>
-        <Typography
-            onDoubleClick={() => { navigator.clipboard.writeText(props.attribute.LogicalName); setToUpdate() }}
-            key={props.attribute.LogicalName + "_label"}
-            title={props.attribute.DisplayName + "(" + props.attribute.LogicalName + ")"}
-            width="80%"
-            textOverflow="ellipsis"
-            whiteSpace="nowrap"
-            overflow="hidden"
-            color={props.disabled ? "lightgray" : "#666"}
+    useUpdateEffect(() => {
+        removeToUpdate()
+    }, [props.resetTotal])
+
+    return (
+
+        <Stack
+            borderRadius={theme.shape.borderRadius + "px"}
+            direction="row"
+            width="100%"
+            alignItems="center"
+            spacing="2px"
+            className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
+            style={{ display: isVisible ? "flex" : 'none' }}
         >
-            {props.attribute.DisplayName}
-        </Typography>
-        <FormControl size='small' fullWidth>
+            <NoMaxWidthTooltip title={tooltipText} arrow placement='left' disableFocusListener>
+                <Stack
+                    height='100%'
+                    justifyContent='center'
+                    width='80%'
+                    overflow='hidden'
+                    onDoubleClick={() => { navigator.clipboard.writeText(props.attribute.LogicalName); setToUpdate(); triggerValueChange() }}
+                >
+                    <Typography
+                        key={props.attribute.LogicalName + "_label"}
+                        title={props.attribute.DisplayName + "(" + props.attribute.LogicalName + ")"}
+                        // width="80%"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        overflow="hidden"
+                        className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
+                        paddingLeft='5px'
+                    >
+                        {props.attribute.DisplayName}
+                    </Typography>
+                </Stack>
+            </NoMaxWidthTooltip>
+
             <AttributeFactory
                 key={props.attribute.LogicalName}
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={setToUpdate}
+                setToUpdate={() => { if (props.disabled) return; setToUpdate(); triggerValueChange(); }}
                 manageDirty={{ set: manageDirty.setTrue, remove: manageDirty.setFalse }}
                 reset={toReset}
                 disabled={props.disabled}
+                attributeToUpdateManager={{ ...props.attributeToUpdateManager, isToUpdate: isToUpdate, valueChanged: valueChanged }}
             />
-        </FormControl>
-        <IconButton aria-label="delete" onClick={removeToUpdate}>
-            <DeleteIcon fontSize='large' />
-        </IconButton>
-
-    </Stack >)
+            <IconButton aria-label="delete" onClick={removeToUpdate} style={{ visibility: isToUpdate ? "visible" : "hidden" }}>
+                <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
+            </IconButton>
+        </Stack >
+    )
 }
 
 function AttributeFactory(props: AttributeProps) {
@@ -188,6 +358,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.String:
             return (<StringNode
@@ -198,6 +369,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Memo:
             return (<MemoNode
@@ -208,6 +380,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Decimal:
             return (<DecimalNode
@@ -218,6 +391,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Double:
             return (<DoubleNode
@@ -228,6 +402,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Money:
             return (<MoneyNode
@@ -238,6 +413,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Integer:
             return (<IntegerNode
@@ -248,6 +424,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.BigInt:
             return (<BigIntNode
@@ -258,6 +435,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Boolean:
             return (<BooleanNode
@@ -268,6 +446,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.DateTime:
             return (<DateTimeNode
@@ -278,6 +457,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Status:
             return (<PicklistNode
@@ -288,6 +468,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.State:
             return (<PicklistNode
@@ -298,6 +479,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Picklist:
             return (<PicklistNode
@@ -309,10 +491,10 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.MultiSelectPicklist:
-            return (<PicklistNode
-                multiple
+            return (<MultiplePicklistNode
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
@@ -320,6 +502,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Image:
             return (<ImageNode
@@ -330,6 +513,7 @@ function AttributeFactory(props: AttributeProps) {
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 disabled={props.disabled}
+                attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         default:
             return (<></>)
@@ -337,10 +521,22 @@ function AttributeFactory(props: AttributeProps) {
 }
 
 function LookupNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState(props.value)
-    const [value, setValue] = useState(props.value)
-    const setDirty = (newValue?: string) => {
-        if (oldValue !== newValue) {
+    const [oldValue, setOldValue] = useState<string[]>(props.value ? [props.value] : [])
+    const [value, setValue] = useState<string[]>(props.value ? [props.value] : [])
+    const [updatingValue, setUpdatingValue] = useState<string[]>([])
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.at(0) ?? null)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+
+    const setDirty = (newValue: string[]) => {
+        if (!isArraysEquals(oldValue, newValue)) {
             props.manageDirty.set()
         }
         else {
@@ -349,34 +545,48 @@ function LookupNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value)
-        setValue(props.value)
+        setOldValue(props.value ? [props.value] : [])
+        setValue(props.value ? [props.value] : [])
+        setUpdatingValue(props.value ? [props.value] : [])
     }, [props.value])
 
     useEffect(() => {
         if (props.reset) {
             setValue(oldValue)
+            setUpdatingValue(oldValue)
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (newValue?: string) => {
+    useUpdateEffect(() => {
+        if (isArraysEquals(value, updatingValue)) return;
         props.setToUpdate()
-        setValue(newValue)
-        setDirty(newValue)
-    }
+        setValue(updatingValue ? updatingValue : [])
+        setDirty(updatingValue ? updatingValue : [])
+    }, [updatingValue])
+
 
     return <RecordSelector
         entityname={props.attribute.Parameters.Target}
-        recordid={value}
-        setRecordid={onChange}
+        recordsIds={value}
+        setRecordsIds={setUpdatingValue}
         disabled={props.disabled}
     />
 }
 function StringNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState(props.value)
-    const [value, setValue] = useState(props.value)
-    const setDirty = (newValue?: string) => {
+    const [oldValue, setOldValue] = useState<string | null>(props.value ? props.value : null)
+    const [value, setValue] = useState<string | null>(props.value ? props.value : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+    const setDirty = (newValue: string | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
         }
@@ -386,8 +596,8 @@ function StringNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value)
-        setValue(props.value)
+        setOldValue(props.value ? props.value : null)
+        setValue(props.value ? props.value : null)
     }, [props.value])
 
     useEffect(() => {
@@ -397,10 +607,11 @@ function StringNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        let newValue = event.target.value
         props.setToUpdate()
-        setValue(newValue)
-        setDirty(newValue)
+        setValue(newValue ? newValue : null)
+        setDirty(newValue ? newValue : null)
     }
 
     return (<TextField
@@ -408,16 +619,33 @@ function StringNode(props: AttributeProps) {
         size={"small"}
         fullWidth
         inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-        value={value}
+        value={value ?? ''}
         onFocus={props.setToUpdate}
         onChange={onChange}
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <ShortTextIcon />
+                </InputAdornment>
+            )
+        }}
     />)
 }
 function MemoNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState(props.value)
-    const [value, setValue] = useState(props.value)
-    const setDirty = (newValue?: string) => {
+    const [oldValue, setOldValue] = useState<string | null>(props.value ? props.value : null)
+    const [value, setValue] = useState<string | null>(props.value ? props.value : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+    const setDirty = (newValue?: string | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
         }
@@ -427,8 +655,8 @@ function MemoNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value)
-        setValue(props.value)
+        setOldValue(props.value ? props.value : null)
+        setValue(props.value ? props.value : null)
     }, [props.value])
 
     useEffect(() => {
@@ -438,28 +666,47 @@ function MemoNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-        setValue(newValue)
-        setDirty(newValue)
+    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        let newValue = event.target.value
+        props.setToUpdate()
+        setValue(newValue ? newValue : null)
+        setDirty(newValue ? newValue : null)
     }
 
 
     return (<TextField
-        placeholder='Enter a string'
+        placeholder='Enter a multipleline string'
         size={"small"}
         fullWidth
         multiline
         rows={1}
         inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-        value={value}
+        value={value ?? ''}
         onFocus={props.setToUpdate}
         onChange={onChange}
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <NotesIcon />
+                </InputAdornment>
+            )
+        }}
     />)
 }
 function DecimalNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? parseInt(props.value) : null);
-    const [value, setValue] = useState<number | null>(props.value ? parseInt(props.value) : null)
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
@@ -470,8 +717,8 @@ function DecimalNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value ? parseInt(props.value) : null)
-        setValue(props.value ? parseInt(props.value) : null)
+        setOldValue(props.value ? Number(props.value) : null)
+        setValue(props.value ? Number(props.value) : null)
     }, [props.value])
 
     useEffect(() => {
@@ -481,31 +728,56 @@ function DecimalNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
+    const onChange = (newValue: number | null) => {
         props.setToUpdate()
-        setValue(newValue ? parseInt(newValue) : null)
-        setDirty(newValue ? parseInt(newValue) : null)
+        setValue(newValue)
+        setDirty(newValue)
     }
 
-    return (<TextField
-        inputMode='decimal'
-        size={"small"}
+    return (<NumericInput
         fullWidth
         placeholder={"Decimal by " + props.attribute.Parameters.Precision}
-        inputProps={{
-            min: props.attribute.Parameters.MinValue,
-            max: props.attribute.Parameters.MaxValue,
-            step: props.attribute.Parameters.Precision
-        }}
-        value={value?.toString()}
+        value={value}
         onFocus={props.setToUpdate}
         onChange={onChange}
+        variant='outlined'
+        size='small'
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <DecimalIcon />
+                </InputAdornment>
+            )
+        }}
+        numericOptions={{
+            allowDecimalPadding: 'floats',
+            decimalCharacter: '.',
+            decimalPlaces: props.attribute.Parameters.Precision,
+            decimalPlacesRawValue: props.attribute.Parameters.Precision,
+            digitGroupSeparator: ',',
+            modifyValueOnWheel: false,
+            readOnly: props.disabled,
+            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+            selectOnFocus: false,
+            onInvalidPaste:'clamp',
+        }}
     />)
 }
 function DoubleNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? parseInt(props.value) : null);
-    const [value, setValue] = useState<number | null>(props.value ? parseInt(props.value) : null)
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
@@ -516,8 +788,8 @@ function DoubleNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value ? parseInt(props.value) : null)
-        setValue(props.value ? parseInt(props.value) : null)
+        setOldValue(props.value ? Number(props.value) : null)
+        setValue(props.value ? Number(props.value) : null)
     }, [props.value])
 
     useEffect(() => {
@@ -527,31 +799,56 @@ function DoubleNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
+    const onChange = (newValue: number | null) => {
         props.setToUpdate()
-        setValue(newValue ? parseInt(newValue) : null)
-        setDirty(newValue ? parseInt(newValue) : null)
+        setValue(newValue)
+        setDirty(newValue)
     }
 
-    return (<TextField
-        inputMode='decimal'
-        size={"small"}
+    return (<NumericInput
         fullWidth
         placeholder={"Double by " + props.attribute.Parameters.Precision}
-        inputProps={{
-            min: props.attribute.Parameters.MinValue,
-            max: props.attribute.Parameters.MaxValue,
-            step: props.attribute.Parameters.Precision
-        }}
-        value={value?.toString()}
+        value={value}
         onFocus={props.setToUpdate}
         onChange={onChange}
+        variant='outlined'
+        size='small'
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <DecimalIcon />
+                </InputAdornment>
+            )
+        }}
+        numericOptions={{
+            allowDecimalPadding: 'floats',
+            decimalCharacter: '.',
+            decimalPlaces: props.attribute.Parameters.Precision,
+            decimalPlacesRawValue: props.attribute.Parameters.Precision,
+            digitGroupSeparator: ',',
+            modifyValueOnWheel: false,
+            readOnly: props.disabled,
+            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+            selectOnFocus: false,
+            onInvalidPaste:'clamp',
+        }}
     />)
 }
 function MoneyNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? parseInt(props.value) : null);
-    const [value, setValue] = useState<number | null>(props.value ? parseInt(props.value) : null)
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? props.value : null);
+    const [value, setValue] = useState<number | null>(props.value ? props.value : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
@@ -562,8 +859,8 @@ function MoneyNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value ? parseInt(props.value) : null)
-        setValue(props.value ? parseInt(props.value) : null)
+        setOldValue(props.value ? props.value : null)
+        setValue(props.value ? props.value : null)
     }, [props.value])
 
     useEffect(() => {
@@ -573,31 +870,58 @@ function MoneyNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
+    const onChange = (newValue: number | null) => {
         props.setToUpdate()
-        setValue(newValue ? parseInt(newValue) : null)
-        setDirty(newValue ? parseInt(newValue) : null)
+        setValue(newValue)
+        setDirty(newValue)
     }
 
-    return (<TextField
-        inputMode='decimal'
-        size={"small"}
-        fullWidth
-        placeholder={"Money by " + props.attribute.Parameters.Precision}
-        inputProps={{
-            min: props.attribute.Parameters.MinValue,
-            max: props.attribute.Parameters.MaxValue,
-            step: props.attribute.Parameters.Precision
-        }}
-        value={value?.toString()}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        disabled={props.disabled}
-    />)
+    return (
+        <NumericInput
+            fullWidth
+            placeholder={"Money by " + props.attribute.Parameters.Precision}
+            value={value}
+            onFocus={props.setToUpdate}
+            onChange={onChange}
+            variant='outlined'
+            size='small'
+            disabled={props.disabled}
+            InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <AttachMoneyIcon />
+                    </InputAdornment>
+                )
+            }}
+            numericOptions={{
+                allowDecimalPadding: 'floats',
+                decimalCharacter: '.',
+                decimalPlaces: props.attribute.Parameters.Precision,
+                decimalPlacesRawValue: props.attribute.Parameters.Precision,
+                digitGroupSeparator: ',',
+                modifyValueOnWheel: false,
+                readOnly: props.disabled,
+                minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                selectOnFocus: false,
+                onInvalidPaste:'clamp',
+            }}
+        />
+    )
 }
 function IntegerNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? parseInt(props.value) : null);
-    const [value, setValue] = useState<number | null>(props.value ? parseInt(props.value) : null)
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
@@ -608,8 +932,8 @@ function IntegerNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value ? parseInt(props.value) : null)
-        setValue(props.value ? parseInt(props.value) : null)
+        setOldValue(props.value ? Number(props.value) : null)
+        setValue(props.value ? Number(props.value) : null)
     }, [props.value])
 
     useEffect(() => {
@@ -619,31 +943,55 @@ function IntegerNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
+    const onChange = (newValue: number | null) => {
         props.setToUpdate()
-        setValue(newValue ? parseInt(newValue) : null)
-        setDirty(newValue ? parseInt(newValue) : null)
+        setValue(newValue)
+        setDirty(newValue)
     }
 
-    return (<TextField
-        inputMode='numeric'
-        size={"small"}
+    return (<NumericInput
         fullWidth
         placeholder={"Integer"}
-        inputProps={{
-            min: props.attribute.Parameters.MinValue,
-            max: props.attribute.Parameters.MaxValue,
-            step: props.attribute.Parameters.Precision
-        }}
-        value={value?.toString()}
+        value={value}
         onFocus={props.setToUpdate}
         onChange={onChange}
+        variant='outlined'
+        size='small'
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <NumbersIcon />
+                </InputAdornment>
+            )
+        }}
+        numericOptions={{
+            decimalCharacter: '.',
+            decimalPlaces: 0,
+            decimalPlacesRawValue: 0,
+            digitGroupSeparator: ',',
+            modifyValueOnWheel: false,
+            readOnly: props.disabled,
+            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+            selectOnFocus: false,
+            onInvalidPaste:'clamp',
+        }}
     />)
 }
 function BigIntNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? parseInt(props.value) : null);
-    const [value, setValue] = useState<number | null>(props.value ? parseInt(props.value) : null)
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null)
+    const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
             props.manageDirty.set()
@@ -654,8 +1002,8 @@ function BigIntNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(props.value ? parseInt(props.value) : null)
-        setValue(props.value ? parseInt(props.value) : null)
+        setOldValue(props.value ? Number(props.value) : null)
+        setValue(props.value ? Number(props.value) : null)
     }, [props.value])
 
     useEffect(() => {
@@ -665,33 +1013,56 @@ function BigIntNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
+    const onChange = (newValue: number | null) => {
         props.setToUpdate()
-        setValue(newValue ? parseInt(newValue) : null)
-        setDirty(newValue ? parseInt(newValue) : null)
+        setValue(newValue)
+        setDirty(newValue)
     }
 
-    return (<TextField
-        inputMode='numeric'
-        size={"small"}
+    return (<NumericInput
         fullWidth
         placeholder={"BigInt"}
-        inputProps={{
-            min: props.attribute.Parameters.MinValue,
-            max: props.attribute.Parameters.MaxValue,
-            step: props.attribute.Parameters.Precision
-        }}
-        value={value?.toString()}
+        value={value}
         onFocus={props.setToUpdate}
         onChange={onChange}
+        variant='outlined'
+        size='small'
         disabled={props.disabled}
+        InputProps={{
+            startAdornment: (
+                <InputAdornment position="start">
+                    <NumbersIcon />
+                </InputAdornment>
+            )
+        }}
+        numericOptions={{
+            decimalCharacter: '.',
+            decimalPlaces: 0,
+            decimalPlacesRawValue: 0,
+            digitGroupSeparator: ',',
+            modifyValueOnWheel: false,
+            readOnly: props.disabled,
+            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+            selectOnFocus: false,
+            onInvalidPaste:'clamp',
+        }}
     />)
 }
 function BooleanNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState(props.value);
-    const [value, setValue] = useState(props.value)
-    const setDirty = (checked?: boolean) => {
-        console.log("Boolean test: " + oldValue, checked)
+    const [oldValue, setOldValue] = useState<boolean | null>(props.value);
+    const [value, setValue] = useState<boolean | null>(props.value)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+    const setDirty = (checked: boolean | null) => {
         if (oldValue !== checked) {
             props.manageDirty.set()
         }
@@ -712,26 +1083,71 @@ function BooleanNode(props: AttributeProps) {
         }
     }, [oldValue, props.manageDirty, props.reset])
 
-    const onChange = (event: React.ChangeEvent<HTMLElement>, checked?: boolean) => {
-        setValue(checked)
-        setDirty(checked)
+    const onChange = (event: SelectChangeEvent<number>, checked: ReactNode) => {
+        const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null
+        props.setToUpdate()
+        setValue(result)
+        setDirty(result)
     }
 
-    return (<Checkbox
-        size={"small"}
-        checked={value}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        disabled={props.disabled}
-    />)
+    return (
+        <FormControl fullWidth>
+            {/* <Checkbox
+                size={"small"}
+                checked={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                disabled={props.disabled}
+                sx={value && {
+                    color: "white",
+                    '&.Mui-checked': {
+                        color: "white",
+                    },
+                }}
+            /> */}
+            <Select
+                value={value == true ? 1 : value == false ? 0 : -1}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                size={"small"}
+                fullWidth
+                disabled={props.disabled}
+                startAdornment={(
+                    <InputAdornment
+                        position='start'
+                        onClick={() => {
+                            setValue(old => {
+                                props.setToUpdate()
+                                setDirty(!old)
+                                return !old
+                            })
+                        }} sx={{ cursor: 'pointer' }}>
+                        {value ? <CheckBoxOutlinedIcon /> : <CheckBoxOutlineBlankOutlinedIcon />}
+                    </InputAdornment>
+                )}
+            >
+                <MenuItem value={-1}>- - -</MenuItem>
+                <MenuItem value={1}>Yes</MenuItem>
+                <MenuItem value={0}>No</MenuItem>
+            </Select>
+        </FormControl>
+    )
 }
 function DateTimeNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<Dayjs | null>(dayjs(props.value));
-    const [value, setValue] = useState<Dayjs | null>(dayjs(props.value))
-    const setDirty = (date: Dayjs) => {
-        console.log("debug date");
+    const [oldValue, setOldValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
+    const [value, setValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
 
-        if (oldValue !== date) {
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.format("YYYY-MM-DDTHH:mm:ssZ[Z]") ?? null)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+    const setDirty = (date: Dayjs | null) => {
+        if ((oldValue != null || date != null) && !oldValue?.isSame(date)) {
             props.manageDirty.set()
         }
         else {
@@ -740,8 +1156,8 @@ function DateTimeNode(props: AttributeProps) {
     }
 
     useEffect(() => {
-        setOldValue(dayjs(props.value))
-        setValue(dayjs(props.value))
+        setOldValue(props.value ? dayjs(props.value) : null)
+        setValue(props.value ? dayjs(props.value) : null)
     }, [props.value])
 
     useEffect(() => {
@@ -753,18 +1169,40 @@ function DateTimeNode(props: AttributeProps) {
 
     const onChange = (date: Dayjs | null) => {
         props.setToUpdate()
-        setValue(dayjs(date))
-        setDirty(dayjs(date))
+        setValue(date ? dayjs(date) : null)
+        setDirty(date ? dayjs(date) : null)
     }
 
-    const onFormatDate = (date?: Date): string => {
-        return !date ? '' : date.getDate() + '/' + (date.getMonth() + 1) + '/' + (date.getFullYear())
-    }
     return (<>{props.attribute.Parameters.Format === MSDateFormat.DateOnly ?
         <DatePicker
             value={value}
             onChange={onChange}
-            renderInput={(params) => <TextField {...params} size={"small"} fullWidth />}
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    size={"small"}
+                    fullWidth
+                />
+            )}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end"
+                        sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
+                    >
+                        <IconButton
+                            onClick={() => {
+                                onChange(null)
+                            }}
+                        >
+                            <ClearIcon />
+                        </IconButton>
+                    </InputAdornment>
+                )
+            }}
+            InputAdornmentProps={{
+                position: "start",
+                sx: { marginRight: '0px', marginLeft: '4px' }
+            }}
             disabled={props.disabled}
         />
         :
@@ -773,60 +1211,48 @@ function DateTimeNode(props: AttributeProps) {
             onChange={onChange}
             value={value}
             renderInput={(params) => (
-                <TextField {...params} size={"small"} fullWidth />
+                <TextField
+                    {...params}
+                    size={"small"}
+                    fullWidth
+                />
             )}
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end"
+                        sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
+                    >
+                        <IconButton
+                            onClick={() => {
+                                setValue(null)
+                            }}
+                        >
+                            <ClearIcon />
+                        </IconButton>
+                    </InputAdornment>
+                )
+            }}
+            InputAdornmentProps={{
+                position: "start",
+                sx: { marginRight: '0px', marginLeft: '4px' }
+            }}
             disabled={props.disabled}
         />}
     </>)
 }
-// function StatusNode(props: AttributeProps) {
-//     const [oldValue, setOldValue] = useState(props.value);
-//     const [value, setValue] = useState(props.value)
-//     const setDirty = (newOption?: typeof value) => {
-//         if (oldValue !== newOption) {
-//             props.manageDirty.set()
-//         }
-//         else {
-//             props.manageDirty.remove()
-//         }
-//     }
+function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
+    const [oldValue, setOldValue] = useState<number>(props.value ?? -1)
+    const [value, setValue] = useState<number>(props.value ?? -1)
 
-//     useEffect(() => {
-//         setOldValue(props.value)
-//         setValue(props.value)
-//     }, [props.value])
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
 
-//     useEffect(() => {
-//         if (props.reset) {
-//             setValue(oldValue)
-//             props.manageDirty.remove()
-//         }
-//     }, [oldValue, props.manageDirty, props.reset])
-
-//     const onChange = (event: SelectChangeEvent) => {
-//         setValue(event.target.value)
-//         setDirty(event.target.value)
-//     }
-
-//     const statusOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
-//     return (<Select
-//         value={value}
-//         onFocus={props.setToUpdate}
-//         onChange={onChange}
-//         size={"small"}
-//         fullWidth
-//         disabled={props.disabled}
-//     >
-//         {
-//             statusOptions?.map((option) => {
-//                 return <MenuItem value={option.value}>{option.text}</MenuItem>
-//             })
-//         }
-//     </Select>)
-// }
-function PicklistNode(props: AttributeProps & { nullable?: boolean, multiple?: boolean }) {
-    const [oldValue, setOldValue] = useState<number>(props.value);
-    const [value, setValue] = useState<number>(props.value)
     const setDirty = (newOption: typeof value) => {
         if (oldValue !== newOption) {
             props.manageDirty.set()
@@ -837,8 +1263,8 @@ function PicklistNode(props: AttributeProps & { nullable?: boolean, multiple?: b
     }
 
     useEffect(() => {
-        setOldValue(props.value)
-        setValue(props.value)
+        setOldValue(props.value ?? -1)
+        setValue(props.value ?? -1)
     }, [props.value])
 
     useEffect(() => {
@@ -857,143 +1283,129 @@ function PicklistNode(props: AttributeProps & { nullable?: boolean, multiple?: b
 
     const stateOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
 
-    return (<Select
-        multiple={props.multiple}
-        value={value ?? -1}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        size={"small"}
-        fullWidth
-        disabled={props.disabled}
-    >
-        {props.nullable && <MenuItem value={-1}>- - -</MenuItem>}
-        {
-            stateOptions?.map((option) => {
-                return <MenuItem value={option.value}>{option.text}</MenuItem>
-            })
-        }
-    </Select>)
+    return (
+        <FormControl fullWidth>
+            <Select
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                size={"small"}
+                fullWidth
+                disabled={props.disabled}
+                startAdornment={
+                    <InputAdornment position="start">
+                        <ListIcon />
+                    </InputAdornment>
+                }
+            >
+                {props.nullable && <MenuItem value={-1}>- - -</MenuItem>}
+                {
+                    stateOptions?.map((option) => {
+                        return <MenuItem value={option.value}>{option.text}</MenuItem>
+                    })
+                }
+            </Select>
+        </FormControl>
+    )
 }
-// function PicklistNode(props: AttributeProps) {
-//     const [oldValue, setOldValue] = useState(props.value);
-//     const [value, setValue] = useState(props.value)
-//     const setDirty = (newOption?: typeof value) => {
-//         if (oldValue !== newOption) {
-//             props.manageDirty.set()
-//         }
-//         else {
-//             props.manageDirty.remove()
-//         }
-//     }
+function MultiplePicklistNode(props: AttributeProps) {
+    const defaultValues = useMemo(() => {
+        let values: string = props.value
+        return values?.split(",").map<number>((v: string) => {
+            return parseInt(v)
+        }) ?? []
+    }, [props.value])
 
-//     useEffect(() => {
-//         setOldValue(props.value)
-//         setValue(props.value)
-//     }, [props.value])
+    const [oldValue, setOldValue] = useState<number[]>(defaultValues)
+    const [value, setValue] = useState<number[]>(defaultValues)
 
-//     useEffect(() => {
-//         if (props.reset) {
-//             setValue(oldValue)
-//             props.manageDirty.remove()
-//         }
-//     }, [oldValue, props.manageDirty, props.reset])
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value.join(","))
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
 
-//     const onChange = (event: SelectChangeEvent) => {
-//         props.setToUpdate()
-//         setValue(event.target.value)
-//         setDirty(event.target.value)
-//     }
+    const setDirty = (newOption: typeof value) => {
+        if (!isArraysEquals(oldValue, newOption)) {
+            props.manageDirty.set()
+        }
+        else {
+            props.manageDirty.remove()
+        }
+    }
 
-//     const picklistOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
-//     return (<Select
-//         value={value ?? -1}
-//         onFocus={props.setToUpdate}
-//         onChange={onChange}
-//         size={"small"}
-//         fullWidth
-//         disabled={props.disabled}
-//     >
-//         <MenuItem value={-1}>- - -</MenuItem>
-//         {
-//             picklistOptions?.map((option) => {
-//                 return <MenuItem value={option.value}>{option.text}</MenuItem>
-//             })
-//         }
-//     </Select>)
-// }
-// function MultiSelectPicklistNode(props: AttributeProps) {
-//     const [oldValue, setOldValue] = useState<string[]>(props.value?.split(','));
-//     const [valueList, setValue] = useState<string[]>(props.value?.split(','))
-//     const setDirty = (option?: string[]) => {
-//         if (oldValue !== option) {
-//             props.manageDirty.set()
-//         }
-//         else {
-//             props.manageDirty.remove()
-//         }
-//     }
+    useEffect(() => {
+        setOldValue(defaultValues)
+        setValue(defaultValues)
+    }, [defaultValues])
 
-//     useEffect(() => {
-//         setOldValue(props.value?.split(','))
-//         setValue(props.value?.split(','))
-//     }, [props.value])
+    useEffect(() => {
+        if (props.reset) {
+            setValue(oldValue)
+            props.manageDirty.remove()
+        }
+    }, [oldValue, props.manageDirty, props.reset])
 
-//     useEffect(() => {
-//         if (props.reset) {
-//             setValue(oldValue)
-//             props.manageDirty.remove()
-//         }
-//     }, [oldValue, props.manageDirty, props.reset])
+    const onChange = (event: SelectChangeEvent<number[]>) => {
+        props.setToUpdate()
+        const newValue = typeof event.target.value == 'string' ? [] : event.target.value
+        setValue(newValue)
+        setDirty(newValue)
+    }
 
-//     const onChange = (event: SelectChangeEvent<typeof valueList>) => {
-//         props.setToUpdate()
-//         const {
-//             target: { value: value },
-//         } = event;
-//         setValue(typeof value === 'string' ? value.split(',') : value,)
-//         setDirty(typeof value === 'string' ? value.split(',') : value,)
-//     }
+    const stateOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
 
-//     const multiSelectPicklistOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
-//     return (<Select
-//         multiple
-//         value={valueList}
-//         onFocus={props.setToUpdate}
-//         onChange={onChange}
-//         size={"small"}
-//         fullWidth
-//         disabled={props.disabled}
-//     >
-//         {
-//             multiSelectPicklistOptions?.map((option) => {
-//                 return <MenuItem value={option.value}>{option.text}</MenuItem>
-//             })
-//         }
-//     </Select>)
-// }
+    return (
+        <FormControl fullWidth>
+            <Select
+                multiple
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                size={"small"}
+                fullWidth
+                disabled={props.disabled}
+                startAdornment={
+                    <InputAdornment position="start">
+                        <ListIcon />
+                    </InputAdornment>
+                }
+            >
+                {
+                    stateOptions?.map((option) => {
+                        return <MenuItem value={option.value}>{option.text}</MenuItem>
+                    })
+                }
+            </Select>
+        </FormControl>
+    )
+}
 function ImageNode(props: AttributeProps) {
     return (<img />)
 }
 
 type NavBarProps = {
     setEntityname: (str: string) => void,
-    setRecordid: (str: string) => void,
+    setRecordsIds: Dispatch<SetStateAction<string[]>>,
     setCurrentRecord: () => void,
     launchUpdate: () => void,
     setFilterAttribute: (str: string) => void,
     entityname: string,
-    recordid: string
+    recordsIds: string[]
 }
 function NavTopBar(props: NavBarProps) {
 
     return (<Stack key="topbar" spacing={0.5} width="100%">
         <Stack direction={"row"} key="entityrecordselectors" spacing={0.5} width="100%">
             <EntitySelector setEntityname={props.setEntityname} entityname={props.entityname} />
-            <RecordSelector setRecordid={props.setRecordid} entityname={props.entityname} recordid={props.recordid} />
+            <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple />
             <Button onClick={props.setCurrentRecord} >Refresh</Button>
         </Stack>
         <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
-            <FilterInput returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
+            <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
             <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>
         </Stack>
     </Stack>)
@@ -1001,44 +1413,45 @@ function NavTopBar(props: NavBarProps) {
 
 type AttributeFilterInputProps = {
     returnFilterInput: (str: string) => void,
-    placeholder?:string
+    placeholder?: string,
+    fullWidth?: boolean
 }
 export const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: AttributeFilterInputProps) => {
-        const [value, setValue] = useState("")
+    const [value, setValue] = useState("")
 
-        return (<FormControl size='small' fullWidth>
-            <TextField
-                size='small'
-                inputMode='search'
-                value={value}
-                onChange={(e) => {
-                    setValue(e?.target.value ?? "")
-                    props.returnFilterInput(e?.target.value ?? "")
-                }}
-                placeholder={props.placeholder}
-                fullWidth
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <FilterAltIcon />
-                        </InputAdornment>
-                    ),
-                    endAdornment: (
-                        <IconButton
-                            sx={{ visibility: value ? "visible" : "hidden" }}
-                            onClick={()=>{
-                                setValue("")
-                                props.returnFilterInput("")
-                            }}
-                        >
-                            <ClearIcon />
-                        </IconButton>
-                    )
-                }}
+    return (<FormControl size='small' fullWidth={props.fullWidth}>
+        <TextField
+            size='small'
+            inputMode='search'
+            value={value}
+            onChange={(e) => {
+                setValue(e?.target.value ?? "")
+                props.returnFilterInput(e?.target.value ?? "")
+            }}
+            placeholder={props.placeholder}
+            fullWidth={props.fullWidth}
+            InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <FilterAltIcon />
+                    </InputAdornment>
+                ),
+                endAdornment: (
+                    <IconButton
+                        sx={{ visibility: value ? "visible" : "hidden" }}
+                        onClick={() => {
+                            setValue("")
+                            props.returnFilterInput("")
+                        }}
+                    >
+                        <ClearIcon />
+                    </IconButton>
+                )
+            }}
 
-            />
-        </FormControl>)
-    }
+        />
+    </FormControl>)
+}
 
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,
@@ -1088,25 +1501,26 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
 }
 
 type RecordSelectorProps = {
-    setRecordid: (str: string) => void,
+    setRecordsIds: Dispatch<SetStateAction<string[]>>,
     entityname: string,
-    recordid: string,
-    disabled?: boolean
+    recordsIds: string[],
+    disabled?: boolean,
+    multiple?: boolean
 }
 type RecordOption = {
     id: string,
     label: string
 }
 const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => {
-    const { setRecordid, entityname, recordid, disabled } = props;
+    const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;
 
-    const [recordsIds, setRecordsIds] = useState<string[]>([recordid])
+    // const [recordsIds, setRecordsIds] = useState<string[]>(recordid)
     const recordsDisplayNames = RetrieveRecordsDisplayNames(entityname, recordsIds)
     const { value: isDialogOpen, setValue: setDialogOpen, setTrue: openDialog, setFalse: closeDialog, toggle: toggleDialog } = useBoolean(false)
 
-    useEffect(() => {
-        setRecordsIds([recordid])
-    }, [recordid])
+    // useEffect(() => {
+    //     setRecordsIds(recordsIds)
+    // }, [recordsIds])
 
 
     return (<>
@@ -1116,9 +1530,18 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
             placeholder={'Search ' + entityname}
             onClick={openDialog}
             InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <SearchIcon />
+                    </InputAdornment>
+                ),
                 endAdornment: (
                     <InputAdornment position="end">
-                        <SearchIcon />
+                        {
+                            recordsDisplayNames?.length > 1 ?
+                                <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
+                                : null
+                        }
                     </InputAdornment>
                 ),
                 readOnly: true,
@@ -1128,15 +1551,18 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                 style: { cursor: !disabled ? "pointer" : "auto" }
             }}
             sx={{ cursor: !disabled ? "pointer" : "auto" }}
-            value={recordsDisplayNames.map(r => r.displayName).join(", ")}
+            value={recordsDisplayNames.at(0)?.displayName ?? ""}
+            // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
             disabled={disabled}
         />
         {!disabled && <RecordSelectorDialog
             closeDialog={closeDialog}
             entityname={entityname}
             open={isDialogOpen}
-            records={recordsIds}
+            recordsIds={recordsIds}
+            records={recordsDisplayNames}
             setRecordsIds={setRecordsIds}
+            multiple={multiple}
         />}
     </>
     )
@@ -1146,109 +1572,234 @@ type RecordSelectorDialogProps = {
     open: boolean,
     closeDialog: () => void,
     entityname: string,
-    records: string[],
-    setRecordsIds: (records: string[]) => void,
+    recordsIds: string[],
+    records: RecordsDisplayNamesResponse[],
+    setRecordsIds: Dispatch<SetStateAction<string[]>>,
     multiple?: boolean
 }
 const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
-    const { closeDialog, open, entityname, records, setRecordsIds: registerRecords, multiple } = props;
+    const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
 
     const primaryNameLogicalName = RetrievePrimaryAttribute(entityname)
-    const [selectedRecordsIds, setSelectedRecordsIds] = useState<string[]>(records)
+    // const [selectedRecordIds, setSelectedRecordIds] = useState<GridSelectionModel>(records?.map(r => r.id))
     const entityMetadata = RetrieveAttributesMetaData(entityname)
-    const allRecords = RetrieveAllRecords(entityname, entityMetadata?.map((value) => {
-        if (value.MStype !== MSType.Lookup) return value.LogicalName
-        else return "_" + value.LogicalName + "_value"
-    }) ?? [])
+    const [filter, setFilter] = useState<string>("")
+    const [recordsFiltered, setRecordsFiltered] = useState<any[]>([])
+    var click: NodeJS.Timeout
+
+    const { data: allRecords, isFetching } = RetrieveAllRecords(
+        entityname,
+        entityMetadata?.map((value) => {
+            if (value.MStype !== MSType.Lookup) return value.LogicalName
+            else return "_" + value.LogicalName + "_value"
+        }) ?? []
+        // ,
+        // filter ? entityMetadata.filter((value) => value.MStype === MSType.String || value.MStype === MSType.Memo)?.map((value) => {
+        //     return "contains(" + value.LogicalName + ",'" + filter + "')"
+        // }).join(" or ") : ""
+    )
 
     useEffect(() => {
-        setSelectedRecordsIds(records)
-    }, [open])
+        const notSelectedRecords = allRecords?.filter((record) => {
+            return !recordsIds.includes(record[entityname + "id"])
+        })?.filter((record) => {
+            return Object.values(record).some((att: any) => {
+                return att != null && ("" + att).indexOf(filter) != -1
+            }) ?? []
+        })
 
-    const addRecord = (row: GridValidRowModel) => {
-        if (multiple) {
-            setSelectedRecordsIds([...selectedRecordsIds, row[entityname + "id"]])
-        }
-        else {
-            setSelectedRecordsIds([row[entityname + "id"]])
-        }
-    }
+        setRecordsFiltered(notSelectedRecords)
+    }, [allRecords, filter, recordsIds])
 
     const onClose = () => {
         closeDialog();
     }
 
+    const addRecord = (id: string) => {
+        if (multiple)
+            registerRecordIds((old) => [id, ...old])
+        else
+            registerRecordIds([id])
+    }
 
     const columns: GridColDef[] = useMemo(() => {
-        return entityMetadata.map<GridColDef>(meta => {
+        const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName == primaryNameLogicalName) ?? {} as AttributeMetadata
+        const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype == MSType.Uniqueidentifier) ?? {} as AttributeMetadata
+        return [{
+            field: firstColumnsMetadata.LogicalName,
+            headerName: firstColumnsMetadata.DisplayName,
+            resizable: true,
+            hideable: false,
+            hide: false,
+            minWidth: 200
+        }, {
+            field: primaryIdColumnsMetadata.LogicalName,
+            headerName: primaryIdColumnsMetadata.DisplayName,
+            resizable: true,
+            hideable: false,
+            hide: false,
+            minWidth: 200
+        },
+        ...entityMetadata.filter(meta => meta.LogicalName != primaryNameLogicalName && meta.MStype != MSType.Uniqueidentifier).map<GridColDef>(meta => {
             return {
                 field: meta.LogicalName,
                 headerName: meta.DisplayName,
                 resizable: true,
-                hideable: meta.LogicalName != primaryNameLogicalName,
-                hide: meta.LogicalName != primaryNameLogicalName
+                hideable: true,
+                hide: true,
+                minWidth: 100
             }
-        })
-    }, [entityMetadata])
+        })]
+    }, [entityMetadata, primaryNameLogicalName])
 
-    const rows: { id: string }[] = useMemo(() => {
-        return selectedRecordsIds.map(record => {
-            return {
-                id: record
-            }
-        })
-    }, [selectedRecordsIds])
-
-    return (<Dialog onClose={onClose} open={open} maxWidth={false}>
+    return (<Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>
         <DialogTitle>
             <Stack direction={"row"} spacing={"5px"} justifyContent="space-between">
             </Stack>
         </DialogTitle>
-        <DialogContent style={{ height: "55vh", width: "55vw" }}>
+        <DialogContent sx={{ height: "55vh", width: "55vw", overflowY: "inherit" }}>
             <DataGrid
-                rows={allRecords}
+                rows={recordsFiltered}
                 columns={columns}
+                loading={isFetching}
                 pageSize={25}
-                checkboxSelection={multiple ?? false}
+                // checkboxSelection={multiple ?? false}
                 onRowClick={(params) => {
-                    addRecord(params.row)
+                    click = setTimeout(() => {
+                        addRecord(params.id as string)
+                    }, 300)
                 }}
                 onRowDoubleClick={(params) => {
-                    addRecord(params.row)
+                    clearTimeout(click)
+                    addRecord(params.id as string)
+                    onClose()
                 }}
                 components={{
                     Toolbar: CustomToolBar,
-                    Pagination: CustomPagination,
+                    // Pagination: CustomPagination,
+                    LoadingOverlay: LinearProgress,
+                    Footer: CustomFooter
+                }}
+                componentsProps={{
+                    toolbar: {
+                        value: filter,
+                        setFilter: setFilter
+                    },
+                    footer: {
+                        onClose: onClose,
+                        selectedRecordIds: records,
+                        registerRecordIds: registerRecordIds
+                    }
                 }}
                 getRowId={(row) => row[entityname + "id"]}
+            // onSelectionModelChange={(newSelectionModel) => {
+            //     setSelectedRecordIds(newSelectionModel);
+            //     registerRecordIds(selectedRecordIds as string[])
+            // }}
+            // selectionModel={selectedRecordIds}
             />
         </DialogContent>
-        <DialogActions>
+        {/* <DialogActions>
+            <Button onClick={() => registerRecordIds(selectedRecordIds as string[])} variant='contained' >Validate</Button>
             <Button onClick={onClose} variant='contained' >Close</Button>
-        </DialogActions>
+        </DialogActions> */}
     </Dialog>)
 }
-function CustomToolBar() {
-    return (
-        <>
-            <GridToolbar />
-            <FilterInput returnFilterInput={()=>{}} placeholder='Search Records'/>
-        </>
-    )
+type CustomToolBarProps = {
+    setFilter: (str: string) => void
+    value: string
+}
+function CustomToolBar(props: CustomToolBarProps) {
+    return <Stack direction='row' spacing={0.5} justifyContent="space-between">
+        <Box sx={{ width: '100%' }}><GridToolbar /></Box>
+        <FilterInput returnFilterInput={props.setFilter} placeholder='Search Records' fullWidth />
+    </Stack>
 }
 function CustomPagination() {
     const apiRef = useGridApiContext();
     const page = useGridSelector(apiRef, gridPageSelector);
     const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+    const numberRows = useGridSelector(apiRef, gridRowCountSelector);
+    const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
+    const rowsDisplayed = useGridSelector(apiRef, gridPaginatedVisibleSortedGridRowIdsSelector);
+    // const numberRows = useGridSelector(apiRef, GridRowCount);
 
-    return (
+    return (<Stack direction='row' alignItems="center" spacing={0.5}>
+        <div>{pageSize * page}-{pageSize * page + rowsDisplayed.length} of {numberRows}</div>
         <Pagination
             color="primary"
             count={pageCount}
             page={page + 1}
             onChange={(event, value) => apiRef.current.setPage(value - 1)}
         />
+    </Stack>
     );
+}
+type CustomFooterProps = {
+    onClose: () => void
+    selectedRecordIds: RecordsDisplayNamesResponse[],
+    registerRecordIds: Dispatch<SetStateAction<string[]>>
+}
+function CustomFooter(props: CustomFooterProps) {
+    const handleDelete = (chipToDelete: RecordsDisplayNamesResponse) => {
+        const newSelectedRecords = props.selectedRecordIds.filter(r => r.id != chipToDelete.id)
+        props.registerRecordIds(newSelectedRecords.map(r => r.id))
+        setChipsSelected(newSelectedRecords)
+    };
+
+    const [chipsSelected, setChipsSelected] = useState(props.selectedRecordIds)
+    useEffect(() => {
+        if (props.selectedRecordIds && props.selectedRecordIds.length > 0)
+            setChipsSelected(props.selectedRecordIds)
+    }, [props.selectedRecordIds])
+
+
+    return (
+        <Stack direction='row' alignItems="center" justifyContent="space-between" height="55px">
+            <Box
+                sx={{
+                    width: '45%',
+                    height: '44px'
+                }}
+                component='span'
+            >
+                <Paper
+                    sx={{
+                        display: 'flex',
+                        overflowX: 'hidden',
+                        listStyle: 'none',
+                        p: 0.5,
+                        m: '0 10px',
+                        width: '100%',
+                        minHeight: '36px',
+                        flexWrap: 'nowrap',
+                        "&:hover": {
+                            flexWrap: 'wrap'
+                        }
+                    }}
+                    component="ul"
+                >
+                    {
+                        chipsSelected.map((value: RecordsDisplayNamesResponse) =>
+                            <ListItem key={value.id} sx={{
+                                padding: '2px 2px',
+                                width: 'auto'
+                            }}>
+                                <Chip
+                                    label={value.displayName}
+                                    onDelete={() => { handleDelete(value) }}
+                                />
+                            </ListItem>
+                        )
+                    }
+                </Paper>
+            </Box>
+            <DialogActions>
+                <CustomPagination />
+                <Button onClick={props.onClose} variant='contained' >Close</Button>
+            </DialogActions>
+        </Stack>
+    )
 }
 
 let updateRecord = new UpdateRecordButton()

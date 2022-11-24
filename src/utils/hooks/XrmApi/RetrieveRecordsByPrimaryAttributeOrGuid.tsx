@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react'
 
 export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, input: string | null, top: number = 50) {
 
-    const [data, setData] = useState<{ entities: any[] }>();
+    const [data, setData] = useState<{ entities: any[] }>({ entities: [] });
     const filter = input;
 
     useEffect(() => {
-        // if (!entityname || !filter) return;
-
+        console.log("RetrieveRecordsByPrimaryAttributeOrGuid");
         async function fetchData() {
             if (entityname && filter) {
                 const primaryNameLogicalName = (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryNameAttribute;
@@ -29,13 +28,13 @@ export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, inpu
                     );
                 setData(result);
             } else {
-                setData({entities:[]})
+                setData({ entities: [] })
             }
         }
-
+        setData({ entities: [] })
         fetchData();
 
-    }, [entityname, filter, top]);
+    }, [filter]);
 
     return data;
 }

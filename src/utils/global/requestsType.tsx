@@ -3,6 +3,7 @@ export type RequestData = { [id: string]: string };
 export type Entity = { entityid: string, name: string, logicalname: string };
 
 export enum MSType {
+    Uniqueidentifier = "Uniqueidentifier",
     Lookup = "Microsoft.Dynamics.CRM.LookupAttributeMetadata",
     String = "Microsoft.Dynamics.CRM.StringAttributeMetadata",
     Memo = "Microsoft.Dynamics.CRM.MemoAttributeMetadata",
@@ -22,6 +23,8 @@ export enum MSType {
 }
 export function getMSTypeKeyByValue(value: string): MSType {
     switch (value) {
+        case "Uniqueidentifier":
+            return MSType.Uniqueidentifier;
         case "Microsoft.Dynamics.CRM.LookupAttributeMetadata":
             return MSType.Lookup;
         case "Microsoft.Dynamics.CRM.StringAttributeMetadata":
@@ -56,11 +59,49 @@ export function getMSTypeKeyByValue(value: string): MSType {
             return MSType.Null;
     }
 }
+export function getReadableMSType(value: MSType): string {
+    switch (value) {
+        case "Uniqueidentifier":
+            return "Uniqueidentifier";
+        case "Microsoft.Dynamics.CRM.LookupAttributeMetadata":
+            return "Lookup";
+        case "Microsoft.Dynamics.CRM.StringAttributeMetadata":
+            return "String";
+        case "Microsoft.Dynamics.CRM.MemoAttributeMetadata":
+            return "Memo";
+        case "Microsoft.Dynamics.CRM.DecimalAttributeMetadata":
+            return "Decimal";
+        case "Microsoft.Dynamics.CRM.DoubleAttributeMetadata":
+            return "Double";
+        case "Microsoft.Dynamics.CRM.MoneyAttributeMetadata":
+            return "Money";
+        case "Microsoft.Dynamics.CRM.IntegerAttributeMetadata":
+            return "Integer";
+        case "Microsoft.Dynamics.CRM.BigIntAttributeMetadata":
+            return "BigInt";
+        case "Microsoft.Dynamics.CRM.BooleanAttributeMetadata":
+            return "Boolean";
+        case "Microsoft.Dynamics.CRM.DateTimeAttributeMetadata":
+            return "DateTime";
+        case "Microsoft.Dynamics.CRM.StatusAttributeMetadata":
+            return "Status";
+        case "Microsoft.Dynamics.CRM.StateAttributeMetadata":
+            return "State";
+        case "Microsoft.Dynamics.CRM.PicklistAttributeMetadata":
+            return "Picklist";
+        case "Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata":
+            return "MultiSelectPicklist";
+        case "Microsoft.Dynamics.CRM.ImageAttributeMetadata":
+            return "Image";
+        default:
+            return "None";
+    }
+}
 
 export enum MSDateFormat {
     DateOnly = "DateOnly",
     DateAndTime = "DateAndTime",
-    Null = "null",
+    None = "None"
 }
 export function getMSFormatDateKeyByValue(value: string): MSDateFormat {
     switch (value) {
@@ -69,7 +110,7 @@ export function getMSFormatDateKeyByValue(value: string): MSDateFormat {
         case "DateAndTime":
             return MSDateFormat.DateAndTime;
         default:
-            return MSDateFormat.Null;
+            return MSDateFormat.None;
     }
 }
 

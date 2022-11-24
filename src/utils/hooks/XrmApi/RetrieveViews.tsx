@@ -45,15 +45,17 @@ export interface Layout {
 
 export function RetrieveViews(entityname: string) {
 
-    const [data, setData] = useState<ViewRetrieved[]>();
+    const [data, setData] = useState<ViewRetrieved[]>([]);
     const _entityname = entityname;
 
-    useEffect(() => {        
+    useEffect(() => {
+        console.log("RetrieveViews");     
         if (!_entityname) return;
         async function fetchData() {
             const result = await Xrm.WebApi.online.retrieveMultipleRecords("savedquery", "?$select=isdefault,fetchxml,layoutjson,name&$filter=returnedtypecode eq '" + _entityname + "'&$orderby=name asc");
             setData(result?.entities);
         }
+        setData([])
         fetchData();
 
     }, [_entityname]);

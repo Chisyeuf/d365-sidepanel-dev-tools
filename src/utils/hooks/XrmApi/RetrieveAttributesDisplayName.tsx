@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 type AttributesDisplayNameRequest = {
     logicalname: string,
@@ -7,17 +7,21 @@ type AttributesDisplayNameRequest = {
 export function RetrieveAttributesDisplayName(fieldsList: AttributesDisplayNameRequest[]) {
 
     const [data, setData] = useState<{ [field: string]: string }>({});
-    const entityFilter = fieldsList.map(f => {
-        return "LogicalName eq '" + f.relatedentity + "'"
-    }).join(" or ");
-    const fieldFilter = fieldsList.map(f => {
-        return "LogicalName eq '" + f.logicalname + "'"
-    }).join(" or ");
+    const entityFilter = useMemo(() => {
+        return fieldsList.map(f => {
+            return "LogicalName eq '" + f.relatedentity + "'"
+        }).join(" or ")
+    }, [fieldsList]);
+    const fieldFilter = useMemo(() => {
+        return fieldsList.map(f => {
+            return "LogicalName eq '" + f.logicalname + "'"
+        }).join(" or ")
+    }, [fieldsList]);
 
     useEffect(() => {
-
+        console.log("RetrieveAttributesDisplayName");
         if (!fieldFilter || fieldFilter.length == 0 || !entityFilter || entityFilter.length == 0) return;
-        async function fetchData() {            
+        async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.2/EntityDefinitions?$select=LogicalName&$filter=" + entityFilter +
@@ -31,19 +35,6 @@ export function RetrieveAttributesDisplayName(fieldsList: AttributesDisplayNameR
                     "Prefer": "odata.include-annotations=*"
                 }
             });
-            // const response = await fetch(
-            //     Xrm.Utility.getGlobalContext().getClientUrl() +
-            //     "/api/data/v9.2/EntityDefinitions(LogicalName='" +
-            //     entityname + "')/Attributes?$select=DisplayName,SchemaName,LogicalName&$filter=" + filter, {
-            //     method: "GET",
-            //     headers: {
-            //         "OData-MaxVersion": "4.0",
-            //         "OData-Version": "4.0",
-            //         "Content-Type": "application/json; charset=utf-8",
-            //         "Accept": "application/json",
-            //         "Prefer": "odata.include-annotations=*"
-            //     }
-            // });
 
             const results = await response.json();
 
@@ -58,6 +49,7 @@ export function RetrieveAttributesDisplayName(fieldsList: AttributesDisplayNameR
             }
             setData(dataM);
         }
+        setData({})
         fetchData();
 
     }, [fieldFilter, entityFilter]);

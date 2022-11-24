@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { MSType } from '../global/requestsType';
+import { MSType } from '../../global/requestsType';
 
 export function RetrievePicklistValues(entityname: string, type: MSType, fieldname: string) {
 
     const [data, setData] = useState<Xrm.OptionSetValue[]>();
 
     useEffect(() => {
-
+        console.log("RetrievePicklistValues");
         if (!entityname) return;
         async function fetchData() {
             const response = await fetch(
@@ -36,9 +36,10 @@ export function RetrievePicklistValues(entityname: string, type: MSType, fieldna
 
             setData(values);
         }
+        setData([])
         fetchData();
 
-    }, [entityname, fieldname, type]);
+    }, [fieldname, type]);
 
     return data;
 }
