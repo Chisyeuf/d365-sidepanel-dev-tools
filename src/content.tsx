@@ -1,7 +1,11 @@
+import { storageListName } from "./processes/.list"
 
-window.onload = () => {
+window.onload = async () => {
+    const processesList: { [key: string]: any } = await chrome.storage.sync.get(storageListName)
+
     injectScript(chrome.runtime.getURL("static/js/main.js"))
     SaveData(chrome.runtime.getURL(""), "extensionid")
+    SaveData(JSON.stringify(processesList[storageListName]) ?? '', storageListName)
 }
 
 var injectScript = function (file: string): void {

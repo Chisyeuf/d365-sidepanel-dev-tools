@@ -5,7 +5,7 @@
     "version": "1.0",
     "manifest_version": 3,
     "action": {
-        "default_popup": "index.html",
+        "default_popup": "options.html",
         "default_title": "Options"
     },
     "icons": {
@@ -24,6 +24,9 @@
             "resources": ["/static/js/main.js", "/icons/*"],
             "matches": ["https://*.dynamics.com/*"]
         }
+    ],
+    "permissions": [
+        "storage"
     ],
     "start_url": ".",
     "display": "standalone",

@@ -12,6 +12,7 @@ module.exports = {
                 output: {
                     ...webpackConfig.output,
                     filename: 'static/js/[name].js',
+                    asyncChunks: true,
                 },
                 optimization: {
                     ...webpackConfig.optimization,

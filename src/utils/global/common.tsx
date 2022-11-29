@@ -1,4 +1,13 @@
+import { ProcessButton } from './.processClass';
 import { MSType } from './requestsType';
+
+// export function setStorage(processListOrdered : ProcessButton[]) {
+//     chrome.storage.sync.set({processListOrdered: processListOrdered});
+// }
+
+// export function getStorage(): ProcessButton[] {
+//     return (await chrome.storage.sync.get(['processListOrdered']))['processListOrdered'] as ProcessButton[]
+// }
 
 export function waitForElm(selector: string) {
     return new Promise<HTMLElement | null>(resolve => {
@@ -22,7 +31,7 @@ export function waitForElm(selector: string) {
 
 export function GetData(id: string): string {
     var data = document.getElementById(id);
-    return data?.getAttribute("data") ?? "";
+    return data?.getAttribute("data") ?? '';
 }
 
 export function GetUrl(url: string): string {

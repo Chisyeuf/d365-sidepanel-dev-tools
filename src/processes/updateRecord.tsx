@@ -1,5 +1,5 @@
 
-import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { MouseEvent, Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ProcessButton, ProcessProps } from '../utils/global/.processClass'
 import { Entity, AttributeMetadata, MSType, MSDateFormat, getReadableMSType } from '../utils/global/requestsType'
 import { RetrieveEntities } from '../utils/hooks/XrmApi/RetrieveEntities'
@@ -10,8 +10,8 @@ import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttrib
 import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes'
 import { RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
 import SyncIcon from '@mui/icons-material/Sync';
-import { useBoolean, useUpdateEffect } from 'usehooks-ts'
-import { Stack, Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination, Skeleton, Tooltip, Chip, Box, Paper, ListItem, Container, createSvgIcon } from '@mui/material';
+import { useBoolean, useHover, useUpdateEffect } from 'usehooks-ts'
+import { Stack, Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination, Skeleton, Tooltip, Chip, Box, Paper, ListItem, Container, createSvgIcon, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs';
@@ -34,6 +34,9 @@ import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlin
 import { DictValueType, useDictionnary } from '../utils/hooks/use/useDictionnary'
 import NumericInput from '../utils/components/NumericInput'
 import '../utils/global/extensions';
+import CircularProgressOverflow from '../utils/components/CircularProgressOverflow'
+import { loadavg } from 'os'
+import { RetrieveSetName } from '../utils/hooks/XrmApi/RetrieveSetName'
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -196,38 +199,42 @@ function AttributesList(props: AttributesListProps) {
     const recordid = props.recordsIds?.length == 1 ? props.recordsIds?.at(0) : undefined
     const filter = props.filter
 
-    const attributesMetadataRetrieved = RetrieveAttributesMetaData(entityname)
-    const attributesRetrieved = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
+    const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
+    const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
         if (value.MStype !== MSType.Lookup) return value.LogicalName
         else return "_" + value.LogicalName + "_value"
     }) ?? [])
 
     return (<>{
-        attributesMetadataRetrieved.length
-
+        !fetchingMetadata
             ?
-            <Stack spacing={"2px"} overflow="scroll" height="100%">
-                {attributesMetadataRetrieved?.map((metadata) => {
-                    const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
-                    return (
-                        <AttributeNode
-                            disabled={!metadata.IsValidForUpdate}
-                            attribute={metadata}
-                            entityname={props.entityname}
-                            value={attributesRetrieved[attributeName]}
-                            filter={filter}
-                            resetTotal={props.resetTotal}
-                            attributeToUpdateManager={props.attributeToUpdateManager}
-                        />
-                    )
-                })
+
+            <Stack spacing={"2px"} height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} >
+                {
+                    !fetchingValues
+                        ?
+                        attributesMetadataRetrieved?.map((metadata) => {
+                            const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
+                            return (
+                                <AttributeNode
+                                    disabled={!metadata.IsValidForUpdate}
+                                    attribute={metadata}
+                                    entityname={props.entityname}
+                                    value={attributesRetrieved[attributeName]}
+                                    filter={filter}
+                                    resetTotal={props.resetTotal}
+                                    attributeToUpdateManager={props.attributeToUpdateManager}
+                                />
+                            )
+                        })
+                        :
+                        [...Array(15)].map(() => <Skeleton variant='rounded' height='46.625px' />)
                 }
             </Stack>
-
             :
-            <Stack spacing={"10px"} overflow="hidden">
-                {[...Array(16)].map(() => <Skeleton variant='rounded' height={38} />)}
-            </Stack>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <CircularProgress size={100} thickness={4.5} />
+            </div>
     }
     </>)
 }
@@ -258,6 +265,7 @@ function AttributeNode(props: AttributeNodeProps) {
     const { value: valueChanged, toggle: triggerValueChange } = useBoolean(false)
     const { value: isToUpdate, setTrue: setToUpdate, setFalse: removeToUpdate } = useBoolean(false)
     const { value: toReset, setTrue: setToReset, setFalse: resetToReset } = useBoolean(false)
+    const { value: loading, setTrue: isLoading, setFalse: doneLoading } = useBoolean(true)
 
     const tooltipText = useMemo(() =>
         <>
@@ -288,14 +296,18 @@ function AttributeNode(props: AttributeNodeProps) {
         if (toReset === true) {
             resetToReset()
         }
-    }, [resetToReset, toReset])
+    }, [toReset, resetToReset])
 
     useUpdateEffect(() => {
         removeToUpdate()
     }, [props.resetTotal])
 
-    return (
+    useEffect(() => {
+        if (props.value !== undefined)
+            doneLoading()
+    }, props.value)
 
+    const NodeContent: JSX.Element =
         <Stack
             borderRadius={theme.shape.borderRadius + "px"}
             direction="row"
@@ -303,7 +315,7 @@ function AttributeNode(props: AttributeNodeProps) {
             alignItems="center"
             spacing="2px"
             className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
-            style={{ display: isVisible ? "flex" : 'none' }}
+            style={{ display: isVisible ? '' : 'none' }}
         >
             <NoMaxWidthTooltip title={tooltipText} arrow placement='left' disableFocusListener>
                 <Stack
@@ -343,7 +355,18 @@ function AttributeNode(props: AttributeNodeProps) {
                 <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
             </IconButton>
         </Stack >
-    )
+
+
+    return NodeContent
+    // <>{
+    //     loading ?
+    //         <Skeleton animation='wave' variant='rounded' width='100%'>
+    //             {NodeContent}
+    //         </Skeleton>
+    //         :
+    //         NodeContent
+    // }</>
+
 }
 
 function AttributeFactory(props: AttributeProps) {
@@ -525,12 +548,19 @@ function LookupNode(props: AttributeProps) {
     const [value, setValue] = useState<string[]>(props.value ? [props.value] : [])
     const [updatingValue, setUpdatingValue] = useState<string[]>([])
 
+    const pluralName = RetrieveSetName(props.entityname)
+
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
-            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.at(0) ?? null)
+            var val
+            if (value.length)
+                val = "/" + pluralName + "(" + value?.at(0) + ")"
+            else
+                val = null
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName + "@odata.bind", val)
         }
         else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName + "@odata.bind")
         }
     }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
 
@@ -761,7 +791,7 @@ function DecimalNode(props: AttributeProps) {
             minimumValue: props.attribute.Parameters.MinValue.noExponents(),
             maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
             selectOnFocus: false,
-            onInvalidPaste:'clamp',
+            onInvalidPaste: 'clamp',
         }}
     />)
 }
@@ -832,7 +862,7 @@ function DoubleNode(props: AttributeProps) {
             minimumValue: props.attribute.Parameters.MinValue.noExponents(),
             maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
             selectOnFocus: false,
-            onInvalidPaste:'clamp',
+            onInvalidPaste: 'clamp',
         }}
     />)
 }
@@ -904,7 +934,7 @@ function MoneyNode(props: AttributeProps) {
                 minimumValue: props.attribute.Parameters.MinValue.noExponents(),
                 maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
                 selectOnFocus: false,
-                onInvalidPaste:'clamp',
+                onInvalidPaste: 'clamp',
             }}
         />
     )
@@ -975,7 +1005,7 @@ function IntegerNode(props: AttributeProps) {
             minimumValue: props.attribute.Parameters.MinValue.noExponents(),
             maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
             selectOnFocus: false,
-            onInvalidPaste:'clamp',
+            onInvalidPaste: 'clamp',
         }}
     />)
 }
@@ -1045,7 +1075,7 @@ function BigIntNode(props: AttributeProps) {
             minimumValue: props.attribute.Parameters.MinValue.noExponents(),
             maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
             selectOnFocus: false,
-            onInvalidPaste:'clamp',
+            onInvalidPaste: 'clamp',
         }}
     />)
 }
@@ -1136,6 +1166,7 @@ function BooleanNode(props: AttributeProps) {
 function DateTimeNode(props: AttributeProps) {
     const [oldValue, setOldValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
     const [value, setValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
+    const [isHover, setIsHover] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -1182,6 +1213,8 @@ function DateTimeNode(props: AttributeProps) {
                     {...params}
                     size={"small"}
                     fullWidth
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
                 />
             )}
             InputProps={{
@@ -1189,13 +1222,13 @@ function DateTimeNode(props: AttributeProps) {
                     <InputAdornment position="end"
                         sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
                     >
-                        <IconButton
+                        {isHover && !props.disabled && <IconButton
                             onClick={() => {
                                 onChange(null)
                             }}
                         >
                             <ClearIcon />
-                        </IconButton>
+                        </IconButton>}
                     </InputAdornment>
                 )
             }}
@@ -1215,6 +1248,8 @@ function DateTimeNode(props: AttributeProps) {
                     {...params}
                     size={"small"}
                     fullWidth
+                    onMouseEnter={() => setIsHover(true)}
+                    onMouseLeave={() => setIsHover(false)}
                 />
             )}
             InputProps={{
@@ -1222,13 +1257,13 @@ function DateTimeNode(props: AttributeProps) {
                     <InputAdornment position="end"
                         sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
                     >
-                        <IconButton
+                        {isHover && !props.disabled && <IconButton
                             onClick={() => {
                                 setValue(null)
                             }}
                         >
                             <ClearIcon />
-                        </IconButton>
+                        </IconButton>}
                     </InputAdornment>
                 )
             }}
@@ -1507,54 +1542,67 @@ type RecordSelectorProps = {
     disabled?: boolean,
     multiple?: boolean
 }
-type RecordOption = {
-    id: string,
-    label: string
-}
 const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => {
     const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;
 
-    // const [recordsIds, setRecordsIds] = useState<string[]>(recordid)
-    const recordsDisplayNames = RetrieveRecordsDisplayNames(entityname, recordsIds)
+    const [recordsDisplayNames, fetchingDisplayName] = RetrieveRecordsDisplayNames(entityname, recordsIds)
     const { value: isDialogOpen, setValue: setDialogOpen, setTrue: openDialog, setFalse: closeDialog, toggle: toggleDialog } = useBoolean(false)
+    const [isGridLoading, setGridIsLoading] = useState<boolean>(false)
+    const [isHover, setIsHover] = useState<boolean>(false)
 
-    // useEffect(() => {
-    //     setRecordsIds(recordsIds)
-    // }, [recordsIds])
-
+    const ClearButton: JSX.Element =
+        <IconButton
+            onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                setRecordsIds([])
+                e.stopPropagation()
+            }}>
+            <ClearIcon />
+        </IconButton>
 
     return (<>
-        <TextField
-            size='small'
-            fullWidth
-            placeholder={'Search ' + entityname}
+        <CircularProgressOverflow
             onClick={openDialog}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <SearchIcon />
-                    </InputAdornment>
-                ),
-                endAdornment: (
-                    <InputAdornment position="end">
-                        {
-                            recordsDisplayNames?.length > 1 ?
-                                <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
-                                : null
-                        }
-                    </InputAdornment>
-                ),
-                readOnly: true,
-                style: { cursor: !disabled ? "pointer" : "auto" }
-            }}
-            inputProps={{
-                style: { cursor: !disabled ? "pointer" : "auto" }
-            }}
-            sx={{ cursor: !disabled ? "pointer" : "auto" }}
-            value={recordsDisplayNames.at(0)?.displayName ?? ""}
-            // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
-            disabled={disabled}
-        />
+            loading={isGridLoading || fetchingDisplayName}
+            style={{ cursor: !disabled ? "pointer" : "auto" }}
+            disableShrink
+            theme={theme}
+            onHover={setIsHover}
+        >
+            <TextField
+                size='small'
+                fullWidth
+                placeholder={'Search ' + entityname}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            {
+                                recordsDisplayNames?.length > 0 ?
+                                    isHover && !props.disabled ?
+                                        ClearButton
+                                        : recordsDisplayNames?.length > 1 ?
+                                            <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
+                                            : null
+                                    : null
+                            }
+                        </InputAdornment>
+                    ),
+                    readOnly: true,
+                    style: { cursor: !disabled ? "pointer" : "auto" }
+                }}
+                inputProps={{
+                    style: { cursor: !disabled ? "pointer" : "auto" }
+                }}
+                sx={{ cursor: !disabled ? "pointer" : "auto" }}
+                value={recordsDisplayNames.at(0)?.displayName ?? ""}
+                // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
+                disabled={disabled}
+            />
+        </CircularProgressOverflow>
         {!disabled && <RecordSelectorDialog
             closeDialog={closeDialog}
             entityname={entityname}
@@ -1563,6 +1611,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
             records={recordsDisplayNames}
             setRecordsIds={setRecordsIds}
             multiple={multiple}
+            setIsLoading={setGridIsLoading}
         />}
     </>
     )
@@ -1575,14 +1624,14 @@ type RecordSelectorDialogProps = {
     recordsIds: string[],
     records: RecordsDisplayNamesResponse[],
     setRecordsIds: Dispatch<SetStateAction<string[]>>,
-    multiple?: boolean
+    multiple?: boolean,
+    setIsLoading: Dispatch<SetStateAction<boolean>>
 }
 const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
     const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
 
     const primaryNameLogicalName = RetrievePrimaryAttribute(entityname)
-    // const [selectedRecordIds, setSelectedRecordIds] = useState<GridSelectionModel>(records?.map(r => r.id))
-    const entityMetadata = RetrieveAttributesMetaData(entityname)
+    const [entityMetadata, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [filter, setFilter] = useState<string>("")
     const [recordsFiltered, setRecordsFiltered] = useState<any[]>([])
     var click: NodeJS.Timeout
@@ -1610,6 +1659,11 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
 
         setRecordsFiltered(notSelectedRecords)
     }, [allRecords, filter, recordsIds])
+
+    useEffect(() => {
+        props.setIsLoading(fetchingMetadata || isFetching)
+    }, [fetchingMetadata, isFetching])
+
 
     const onClose = () => {
         closeDialog();
@@ -1667,7 +1721,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                 onRowClick={(params) => {
                     click = setTimeout(() => {
                         addRecord(params.id as string)
-                    }, 300)
+                    }, 200)
                 }}
                 onRowDoubleClick={(params) => {
                     clearTimeout(click)

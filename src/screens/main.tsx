@@ -1,27 +1,33 @@
-import React, { } from 'react';
+import React, { useEffect } from 'react';
 import Stack from '@mui/material/Stack';
 
-import Processes from '../processes/.list';
+import Processes, { defaultProcessesList, storageListName, StorageProcessList } from '../processes/.list';
 
 import ReactDOM from 'react-dom';
 
 import reportWebVitals from '../reportWebVitals';
-import { GetUrl, waitForElm } from '../utils/global/common';
+import { GetData, GetUrl, waitForElm } from '../utils/global/common';
+import { useEffectOnce } from 'usehooks-ts';
 
-// const stackTokens: IStackTokens = { childrenGap: 5 };
-// const stackStyles: Partial<IStackStyles> = {
-//     root: {
-//         width: "100%",
-//         padding: "10px"
-//     },
-// }
 
 export const MainScreen: React.FunctionComponent = () => {
+    const processesListString = GetData(storageListName)
+    const processesList: StorageProcessList[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
+
+    useEffect(() => {
+        processesList.filter((processid) => processid.startOnLoad).forEach((processid) => {
+            const process = Processes.find(p => p.id === processid.id)
+            process?.openSidePane(processid.expand)
+        })
+    }, [])
+    
+
     return (
         <Stack spacing={0.5} width={"100%"} padding={"10px"}>
             {
-                Processes.map((value, index) => {
-                    return value.render();
+                processesList?.filter((process) => !process.hidden).map((value, index) => {
+                    const process = Processes.find(p => p.id === value.id)
+                    return process?.render()
                 })
             }
         </Stack>)

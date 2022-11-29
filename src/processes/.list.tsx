@@ -4,10 +4,26 @@ import { ProcessButton } from '../utils/global/.processClass';
 import devTools from './devTools';
 import updateRecord from './updateRecord';
 
-
-
 const Processes: ProcessButton[] = [devTools, updateRecord] ;
 
+
+export type StorageProcessList = {
+    id: string
+    startOnLoad: boolean,
+    hidden: boolean,
+    expand: boolean,
+}
+
+export const defaultProcessesList: StorageProcessList[] = Processes.map(p => {
+    return {
+        id: p.id,
+        startOnLoad: false,
+        hidden: false,
+        expand: false,
+    }
+})
+
+export const storageListName = 'processListOrdered'
 export default Processes;
 
 
@@ -44,4 +60,5 @@ export default Processes;
 //         icon: "icons/relationship.svg",
 //         width: 350,
 //     },
+// chrome.storage.onChanged.addListener
 // ];

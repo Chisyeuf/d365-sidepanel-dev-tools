@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../global/requestsType';
 
-export function RetrieveAttributesMetaData(entityname: string) {
+export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {
 
     const [data, setData] = useState<AttributeMetadata[]>([]);
+    const [isFetching, setIsFetching] = useState<boolean>(false)
     const _entityname = entityname
 
     useEffect(() => {
@@ -34,24 +35,6 @@ export function RetrieveAttributesMetaData(entityname: string) {
                 return a.SchemaName.localeCompare(b.SchemaName);
             });
 
-            // const responsePrimaryId = await fetch(
-            //     Xrm.Utility.getGlobalContext().getClientUrl() +
-            //     "/api/data/v9.2/EntityDefinitions(LogicalName='" +
-            //     _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and AttributeType eq 'Uniqueidentifier'", {
-            //     method: "GET",
-            //     headers: {
-            //         "OData-MaxVersion": "4.0",
-            //         "OData-Version": "4.0",
-            //         "Content-Type": "application/json; charset=utf-8",
-            //         "Accept": "application/json",
-            //         "Prefer": "odata.include-annotations=*"
-            //     }
-            // });
-
-            // const resultsPrimaryId = await responsePrimaryId.json();
-            // const primaryId = resultsPrimaryId.value?.find((r:any) => r?.IsPrimaryId)
-            // results.value?.push(primaryId)
-
             const dataM: AttributeMetadata[] = results.value?.map((attribute: any) => {
                 const t: AttributeMetadata = {
                     LogicalName: attribute.LogicalName,
@@ -73,14 +56,16 @@ export function RetrieveAttributesMetaData(entityname: string) {
                         Format: getMSFormatDateKeyByValue(attribute.Format)
                     }
                 };
-                return t;
+                return t
             });
-            setData(dataM);
+            setData(dataM)
+            setIsFetching(false)
         }
+        setIsFetching(true)
         setData([])
-        fetchData();
+        fetchData()
 
     }, [_entityname]);
 
-    return data;
+    return [data, isFetching];
 }
