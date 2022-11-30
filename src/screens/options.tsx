@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 
 import reportWebVitals from '../reportWebVitals';
 import { waitForElm } from '../utils/global/common';
-import { Button, Checkbox, Container, IconButton, SvgIconProps } from '@mui/material';
+import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -79,6 +79,8 @@ const OptionsGrid = (props: OptionsGridProps) => {
         const arrayCopy = [...currentProcessesList];
         const processPosition = arrayCopy.findIndex(pid => pid.id === row.id);
         arrayCopy[processPosition].startOnLoad = newValue;
+        if (!newValue)
+            arrayCopy[processPosition].expand = false;
         setCurrentProcessesList(arrayCopy);
         props.setProcessList(arrayCopy);
     }
@@ -127,7 +129,7 @@ const OptionsGrid = (props: OptionsGridProps) => {
         {
             field: 'icon',
             headerName: 'Icon',
-            renderCell: (params: GridRenderCellParams<SvgIconProps>) => {
+            renderCell: (params: GridRenderCellParams<JSX.Element>) => {
                 return (
                     params.value
                 )

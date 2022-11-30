@@ -4,14 +4,14 @@ import { ProcessButton, ProcessProps } from '../utils/global/.processClass'
 import { Entity, AttributeMetadata, MSType, MSDateFormat, getReadableMSType } from '../utils/global/requestsType'
 import { RetrieveEntities } from '../utils/hooks/XrmApi/RetrieveEntities'
 import { RetrievePrimaryAttribute } from '../utils/hooks/XrmApi/RetrievePrimaryAttribute'
-import { formatId, isArraysEquals } from '../utils/global/common'
+import { capitalizeFirstLetter, formatId, isArraysEquals } from '../utils/global/common'
 import React from 'react'
 import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttributesMetaData'
 import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes'
 import { RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
 import SyncIcon from '@mui/icons-material/Sync';
 import { useBoolean, useHover, useUpdateEffect } from 'usehooks-ts'
-import { Stack, Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination, Skeleton, Tooltip, Chip, Box, Paper, ListItem, Container, createSvgIcon, CircularProgress } from '@mui/material';
+import { Stack, Autocomplete, Button, Checkbox, createTheme, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Pagination, Skeleton, Tooltip, Chip, Box, Paper, ListItem, Container, createSvgIcon, CircularProgress, Snackbar, SnackbarProps } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs';
@@ -37,6 +37,10 @@ import '../utils/global/extensions';
 import CircularProgressOverflow from '../utils/components/CircularProgressOverflow'
 import { loadavg } from 'os'
 import { RetrieveSetName } from '../utils/hooks/XrmApi/RetrieveSetName'
+import { SnackbarProvider, useSnackbar } from 'notistack'
+import '../utils/components/ReportComplete'
+import ErrorFileSnackbar from '../utils/components/ReportComplete'
+import { errorMonitor } from 'stream'
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -48,6 +52,19 @@ class UpdateRecordButton extends ProcessButton {
             500
         )
         this.process = UpdateRecordProcess
+        this.processContainer = (props) => {
+            return (
+                <ThemeProvider theme={theme}>
+                    <SnackbarProvider Components={{
+                        errorFile: ErrorFileSnackbar
+                    }}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            {props.children}
+                        </LocalizationProvider>
+                    </SnackbarProvider>
+                </ThemeProvider>
+            )
+        }
     }
 }
 
@@ -136,6 +153,8 @@ function UpdateRecordProcess(props: ProcessProps) {
     const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({})
     const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false)
 
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+
     const setEntityname = (entityname: string) => {
         setRecordsIds([])
         _setEntityname(entityname)
@@ -154,36 +173,63 @@ function UpdateRecordProcess(props: ProcessProps) {
 
 
     const launchUpdate = () => {
-        console.log("Launch Update for " + entityname + " " + recordsIds + " on")
-        console.log(attributesValues)
+        console.log("Launch Update for", entityname, recordsIds, "on", attributesValues)
+
+        recordsIds.forEach((recordid) => {
+            Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid)
+            Xrm.WebApi.online.updateRecord(entityname, recordid, attributesValues).then(
+                function success(result) {
+                    Xrm.Utility.closeProgressIndicator()
+                    enqueueSnackbar(
+                        capitalizeFirstLetter(entityname) + " " + recordid + " updated.",
+                        { variant: 'success' }
+                    )
+                    // console.log("Update done for", entityname, recordid)
+                },
+                function (error) {
+                    Xrm.Utility.closeProgressIndicator()
+                    enqueueSnackbar(
+                        capitalizeFirstLetter(entityname) + " " + recordid + " has encountered an error.",
+                        {
+                            variant: 'errorFile',
+                            persist: true,
+                            allowDownload: true,
+                            errorMessage: error.message,
+                            downloadButtonLabel: "Download log file",
+                            errorCode: '0x' + error.errorCode.toString(16),
+                            fileContent: error.raw,
+                            fileName: "ErrorDetails.txt"
+                        }
+                    )
+
+                    console.log(error.message)
+                }
+            );
+        })
     }
 
 
     return (
-        <ThemeProvider theme={theme}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Stack spacing={"4px"} width="100%" padding="10px">
-                    <NavTopBar
-                        setEntityname={setEntityname}
-                        setRecordsIds={setRecordsIds}
-                        setCurrentRecord={setCurrentRecord}
-                        launchUpdate={launchUpdate}
-                        setFilterAttribute={setFilterAttribute}
-                        entityname={entityname}
-                        recordsIds={recordsIds} />
-                    <Divider />
-                    <AttributesList
-                        entityname={entityname}
-                        recordsIds={recordsIds}
-                        filter={filterAttribute}
-                        resetTotal={resetTotal}
-                        attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
-                    />
-                    <Divider />
-                    {entityname + " / " + recordsIds}
-                </Stack>
-            </LocalizationProvider>
-        </ThemeProvider>
+        <Stack spacing={"4px"} width="100%" padding="10px">
+            <NavTopBar
+                setEntityname={setEntityname}
+                setRecordsIds={setRecordsIds}
+                setCurrentRecord={setCurrentRecord}
+                launchUpdate={launchUpdate}
+                setFilterAttribute={setFilterAttribute}
+                entityname={entityname}
+                recordsIds={recordsIds} />
+            <Divider />
+            <AttributesList
+                entityname={entityname}
+                recordsIds={recordsIds}
+                filter={filterAttribute}
+                resetTotal={resetTotal}
+                attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
+            />
+            <Divider />
+            {entityname + " / " + recordsIds}
+        </Stack>
     )
 }
 
@@ -323,7 +369,7 @@ function AttributeNode(props: AttributeNodeProps) {
                     justifyContent='center'
                     width='80%'
                     overflow='hidden'
-                    onDoubleClick={() => { navigator.clipboard.writeText(props.attribute.LogicalName); setToUpdate(); triggerValueChange() }}
+                    onDoubleClick={() => { if (props.disabled) return; navigator.clipboard.writeText(props.attribute.LogicalName); setToUpdate(); triggerValueChange() }}
                 >
                     <Typography
                         key={props.attribute.LogicalName + "_label"}

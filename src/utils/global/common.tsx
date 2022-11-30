@@ -57,3 +57,15 @@ export function getDifferenceInArrays<T>(a: T[], b: T[]): T[] {
 export function isArraysEquals<T>(a: T[], b: T[]): boolean {
     return getDifferenceInArrays(a, b).length == 0
 }
+
+export function capitalizeFirstLetter(str: string) {
+    if (!str) return '';
+
+    var firstCodeUnit = str[0];
+
+    if (firstCodeUnit < '\uD800' || firstCodeUnit > '\uDFFF') {
+        return str[0].toUpperCase() + str.slice(1);
+    }
+
+    return str.slice(0, 2).toUpperCase() + str.slice(2);
+}

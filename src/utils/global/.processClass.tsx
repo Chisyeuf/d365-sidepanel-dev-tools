@@ -13,12 +13,14 @@ import { Button, SvgIconProps } from '@mui/material';
 export abstract class ProcessButton {
     id: string;
     name: string;
-    icon: SvgIconProps;
+    icon: JSX.Element;
+    // icon: SvgIconProps;
     width: number;
 
     process?: React.FunctionComponent<ProcessProps>;
+    processContainer?: React.FunctionComponent<{ children: React.ReactNode | React.ReactNode[] }>;
 
-    constructor(id: string, name: string, icon: SvgIconProps, width: number) {
+    constructor(id: string, name: string, icon: JSX.Element, width: number) {
         this.id = id;
         this.name = name;
         this.icon = icon;
@@ -53,9 +55,15 @@ export abstract class ProcessButton {
         Xrm.App.sidePanes.createPane(paneOption);
 
         waitForElm('#' + this.id + ' > div > div:last-child').then((sidePane) => {
+            let nodeToRender
+            if (this.processContainer)
+                nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} /> : <ErrorProcess />}</this.processContainer>
+            else
+                nodeToRender = this.process ? <this.process id={this.id} /> : <ErrorProcess />
+
             this.reStyleSidePane();
             ReactDOM.render(
-                this.process ? <this.process id={this.id} /> : <ErrorProcess />,
+                nodeToRender,
                 sidePane
             );
         });

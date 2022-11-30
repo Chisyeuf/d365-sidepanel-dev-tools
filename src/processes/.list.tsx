@@ -61,4 +61,5 @@ export default Processes;
 //         width: 350,
 //     },
 // chrome.storage.onChanged.addListener
+// Visualization/Tracking des processus
 // ];
