@@ -4,7 +4,7 @@ import { ProcessButton } from '../utils/global/.processClass';
 import devTools from './devTools';
 import updateRecord from './updateRecord';
 
-const Processes: ProcessButton[] = [devTools, updateRecord] ;
+const Processes: ProcessButton[] = [devTools, updateRecord];
 
 
 export type StorageProcessList = {
@@ -62,4 +62,5 @@ export default Processes;
 //     },
 // chrome.storage.onChanged.addListener
 // Visualization/Tracking des processus
+// lister les environnements
 // ];

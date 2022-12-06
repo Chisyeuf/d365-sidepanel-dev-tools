@@ -14,11 +14,12 @@ export abstract class ProcessButton {
     id: string;
     name: string;
     icon: JSX.Element;
-    // icon: SvgIconProps;
     width: number;
 
     process?: React.FunctionComponent<ProcessProps>;
     processContainer?: React.FunctionComponent<{ children: React.ReactNode | React.ReactNode[] }>;
+
+    // xrmUpdatedCallback?: () => void
 
     constructor(id: string, name: string, icon: JSX.Element, width: number) {
         this.id = id;
@@ -55,7 +56,7 @@ export abstract class ProcessButton {
         Xrm.App.sidePanes.createPane(paneOption);
 
         waitForElm('#' + this.id + ' > div > div:last-child').then((sidePane) => {
-            let nodeToRender
+            let nodeToRender;
             if (this.processContainer)
                 nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} /> : <ErrorProcess />}</this.processContainer>
             else

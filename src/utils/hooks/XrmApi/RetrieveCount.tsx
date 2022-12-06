@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 
-export function RetrieveCount(entityname: string) {
+export function RetrieveCount(entityname: string): number {
 
-    const [data, setData] = useState<number>(-1);
+    const [data, setData] = useState<number>(0);
     const _entityname = entityname;
 
     useEffect(() => {

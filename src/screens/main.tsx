@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom';
 import reportWebVitals from '../reportWebVitals';
 import { GetData, GetUrl, waitForElm } from '../utils/global/common';
 import { useEffectOnce } from 'usehooks-ts';
+import XrmObserver from '../utils/global/XrmObserver';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -64,6 +65,9 @@ function initExtension() {
             mainSidePane
         );
     });
+
+    new XrmObserver();
+    
 }
 
 

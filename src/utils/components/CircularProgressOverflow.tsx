@@ -38,7 +38,7 @@ export type CircularProgressOverflowProps = CircularProgressProps & {
 };
 
 function CircularProgressOverflow(props: CircularProgressOverflowProps) {
-    const { children, onClick, loading, style, theme, onHover, ...circularProgressProps } = props
+    const { children, onClick, loading, sx, theme, onHover, ...circularProgressProps } = props
 
     const [isHover, setIsHover] = useState<boolean>(false)
 
@@ -52,7 +52,7 @@ function CircularProgressOverflow(props: CircularProgressOverflowProps) {
             <Container
                 component={'div'}
                 onClick={onClick}
-                style={{ ...style }}
+                sx={{ ...sx, position: 'relative' }}
                 onMouseEnter={() => setIsHover(true)}
                 onMouseLeave={() => setIsHover(false)}
             >

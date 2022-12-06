@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-export function RetrieveAllRecords(entityname: string, attributesList: string[], pageSize: number = 100) {
+export function RetrieveAllRecords(entityname: string, attributesList: string[], pageSize?: number): [any[], boolean] {
 
     const [data, setData] = useState<any[]>([]);
     const [isFetching, setFetching] = useState<boolean>(false)
@@ -48,5 +48,5 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
         setData([])
     }, [_entityname])
 
-    return { data, isFetching };
+    return [data, isFetching];
 }

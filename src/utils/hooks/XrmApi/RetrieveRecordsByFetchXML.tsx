@@ -1,26 +1,33 @@
 import { useState, useEffect, useMemo } from 'react'
 
-export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) {
+export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) : [any[], boolean] {
 
-    const [data, setData] = useState<any>({});
+    const [data, setData] = useState<any[]>([])
+    const [isFetching, setFetching] = useState<boolean>(false)
     const _entityname = entityname;
     const _fetchXML = useMemo(() => "?fetchXml=" + fetchXML, [fetchXML]);
 
     useEffect(() => {
         console.log("RetrieveRecordsByFetchXML");
-        if (!_entityname || _fetchXML == "?fetchXml=") return;
+        if (!_entityname || _fetchXML == "?fetchXml=") {
+            setFetching(false)
+            setData([])
+            return
+        }
         async function fetchData() {                        
             const results = await Xrm.WebApi.retrieveMultipleRecords(entityname, _fetchXML);
 
             for (let i = 0; i < results.entities.length; i++) {
                 results.entities[i].id = i;
             }            
-            setData(results.entities);
+            setData(results.entities)
+            setFetching(false)
         }
-        setData({})
-        fetchData();
+        setFetching(true)
+        setData([])
+        fetchData()
 
     }, [_fetchXML]);
 
-    return data;
+    return [data, isFetching];
 }

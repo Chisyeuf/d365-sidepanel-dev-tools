@@ -18,7 +18,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, GridColDef, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowIdsSelector, GridRowCount, gridRowCountSelector, GridSelectionModel, GridToolbar, GridValidRowModel, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
+import { DataGrid, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, gridColumnVisibilityModelSelector, GridEventListener, GridFilterModel, GridFilterPanel, GridHeaderCheckbox, GridHeaderSelectionCheckboxParams, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, gridPaginatedVisibleSortedGridRowIdsSelector, GridRenderCellParams, GridRowCount, gridRowCountSelector, GridSelectionModel, GridSortModel, GridState, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValidRowModel, GridValueGetterParams, gridVisibleSortedRowIdsSelector, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridApiEventHandler, useGridApiRef, useGridSelector, visibleGridColumnsSelector } from '@mui/x-data-grid';
 import { DialogActions, LinearProgress } from '@material-ui/core'
 import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../utils/hooks/XrmApi/RetrieveRecordsDisplayNames';
 import { RetrieveAllRecords } from '../utils/hooks/XrmApi/RetrieveAllRecords'
@@ -41,6 +41,16 @@ import { SnackbarProvider, useSnackbar } from 'notistack'
 import '../utils/components/ReportComplete'
 import ErrorFileSnackbar from '../utils/components/ReportComplete'
 import { errorMonitor } from 'stream'
+import { RetrieveCount } from '../utils/hooks/XrmApi/RetrieveCount'
+import { RetrieveAllRecordsByPage } from '../utils/hooks/XrmApi/RetrieveAllRecordsByPage'
+import { stat } from 'fs/promises'
+import { GridToolbarFilterXMLButton } from '../utils/components/GridToolbarFilterXMLButton'
+import { RetrieveRecordsByFetchXML } from '../utils/hooks/XrmApi/RetrieveRecordsByFetchXML'
+import { CustomGridHeaderCheckbox } from '../utils/components/CustomGridHeaderCheckbox'
+import XrmObserver from '../utils/global/XrmObserver'
+import RecordSelector from '../utils/components/RecordSelector'
+import FilterInput from '../utils/components/FilterInput'
+import EntitySelector from '../utils/components/EntitySelector'
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -147,11 +157,12 @@ const DecimalIcon = createSvgIcon(
 );
 
 function UpdateRecordProcess(props: ProcessProps) {
-    const [entityname, _setEntityname] = useState(Xrm.Page.data?.entity.getEntityName())
-    const [recordsIds, setRecordsIds] = useState<string[]>(formatId(Xrm.Page.data?.entity.getId().toLowerCase()) ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : [])
+    const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName())
+    const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : [])
     const [filterAttribute, setFilterAttribute] = useState("")
     const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({})
     const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false)
+    const [xrmUpdated, setXrmUpdated] = useState<boolean>(false)
 
     const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
@@ -169,6 +180,15 @@ function UpdateRecordProcess(props: ProcessProps) {
     useUpdateEffect(() => {
         toggleResetTotal()
     }, [entityname, recordsIds])
+
+    useEffect(() => {
+        XrmObserver.addListener(() => {
+            console.log("Update Records Xrm changes");
+            setXrmUpdated(old => !old)
+            setCurrentRecord()
+        })
+    }, [])
+
 
 
 
@@ -228,7 +248,7 @@ function UpdateRecordProcess(props: ProcessProps) {
                 attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
             />
             <Divider />
-            {entityname + " / " + recordsIds}
+            <span>{entityname + " / " + recordsIds}</span>
         </Stack>
     )
 }
@@ -647,6 +667,7 @@ function LookupNode(props: AttributeProps) {
         recordsIds={value}
         setRecordsIds={setUpdatingValue}
         disabled={props.disabled}
+        theme={theme}
     />
 }
 function StringNode(props: AttributeProps) {
@@ -1482,7 +1503,7 @@ function NavTopBar(props: NavBarProps) {
     return (<Stack key="topbar" spacing={0.5} width="100%">
         <Stack direction={"row"} key="entityrecordselectors" spacing={0.5} width="100%">
             <EntitySelector setEntityname={props.setEntityname} entityname={props.entityname} />
-            <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple />
+            <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple theme={theme} />
             <Button onClick={props.setCurrentRecord} >Refresh</Button>
         </Stack>
         <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
@@ -1492,415 +1513,6 @@ function NavTopBar(props: NavBarProps) {
     </Stack>)
 }
 
-type AttributeFilterInputProps = {
-    returnFilterInput: (str: string) => void,
-    placeholder?: string,
-    fullWidth?: boolean
-}
-export const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: AttributeFilterInputProps) => {
-    const [value, setValue] = useState("")
-
-    return (<FormControl size='small' fullWidth={props.fullWidth}>
-        <TextField
-            size='small'
-            inputMode='search'
-            value={value}
-            onChange={(e) => {
-                setValue(e?.target.value ?? "")
-                props.returnFilterInput(e?.target.value ?? "")
-            }}
-            placeholder={props.placeholder}
-            fullWidth={props.fullWidth}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <FilterAltIcon />
-                    </InputAdornment>
-                ),
-                endAdornment: (
-                    <IconButton
-                        sx={{ visibility: value ? "visible" : "hidden" }}
-                        onClick={() => {
-                            setValue("")
-                            props.returnFilterInput("")
-                        }}
-                    >
-                        <ClearIcon />
-                    </IconButton>
-                )
-            }}
-
-        />
-    </FormControl>)
-}
-
-type EntitySelectorProps = {
-    setEntityname: (str: string) => void,
-    entityname: string
-}
-type EntityOption = {
-    id: string,
-    label: string
-}
-const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => {
-    const entitiesRetrieved = RetrieveEntities()
-    const [entities, setEntities] = useState<Entity[]>()
-    const [value, setValue] = useState<EntityOption>({ id: props.entityname, label: "Loading..." })
-    const [options, setOptions] = useState<EntityOption[]>([])
-
-    const entityname = props.entityname
-
-    useEffect(() => {
-        setEntities(entitiesRetrieved)
-    }, [entitiesRetrieved])
-
-    useEffect(() => {
-        setOptions(entities?.map((value, index, array) => {
-            return { id: value.logicalname, label: value.name }
-        }) ?? [])
-    }, [entities])
-
-    useEffect(() => {
-        setValue(options.find((o) => { return o.id === entityname }) ?? { id: entityname, label: "" })
-    }, [entityname, options])
-
-    return (<FormControl size='small' fullWidth>
-        <Autocomplete
-            size='small'
-            options={options}
-            getOptionLabel={(option: typeof options[0]) => option.label}
-            // styles={comboBoxStyles}
-            // Force re-creating the component when the toggles change (for demo purposes)
-            key='entityselector'
-            placeholder='Search entity'
-            onChange={(event, option, index) => { props.setEntityname(option?.id.toString() ?? "") }}
-            value={value}
-            renderInput={(params) => <TextField {...params} />}
-            fullWidth
-        />
-    </FormControl>)
-}
-
-type RecordSelectorProps = {
-    setRecordsIds: Dispatch<SetStateAction<string[]>>,
-    entityname: string,
-    recordsIds: string[],
-    disabled?: boolean,
-    multiple?: boolean
-}
-const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => {
-    const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;
-
-    const [recordsDisplayNames, fetchingDisplayName] = RetrieveRecordsDisplayNames(entityname, recordsIds)
-    const { value: isDialogOpen, setValue: setDialogOpen, setTrue: openDialog, setFalse: closeDialog, toggle: toggleDialog } = useBoolean(false)
-    const [isGridLoading, setGridIsLoading] = useState<boolean>(false)
-    const [isHover, setIsHover] = useState<boolean>(false)
-
-    const ClearButton: JSX.Element =
-        <IconButton
-            onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                setRecordsIds([])
-                e.stopPropagation()
-            }}>
-            <ClearIcon />
-        </IconButton>
-
-    return (<>
-        <CircularProgressOverflow
-            onClick={openDialog}
-            loading={isGridLoading || fetchingDisplayName}
-            style={{ cursor: !disabled ? "pointer" : "auto" }}
-            disableShrink
-            theme={theme}
-            onHover={setIsHover}
-        >
-            <TextField
-                size='small'
-                fullWidth
-                placeholder={'Search ' + entityname}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon />
-                        </InputAdornment>
-                    ),
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            {
-                                recordsDisplayNames?.length > 0 ?
-                                    isHover && !props.disabled ?
-                                        ClearButton
-                                        : recordsDisplayNames?.length > 1 ?
-                                            <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
-                                            : null
-                                    : null
-                            }
-                        </InputAdornment>
-                    ),
-                    readOnly: true,
-                    style: { cursor: !disabled ? "pointer" : "auto" }
-                }}
-                inputProps={{
-                    style: { cursor: !disabled ? "pointer" : "auto" }
-                }}
-                sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                value={recordsDisplayNames.at(0)?.displayName ?? ""}
-                // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
-                disabled={disabled}
-            />
-        </CircularProgressOverflow>
-        {!disabled && <RecordSelectorDialog
-            closeDialog={closeDialog}
-            entityname={entityname}
-            open={isDialogOpen}
-            recordsIds={recordsIds}
-            records={recordsDisplayNames}
-            setRecordsIds={setRecordsIds}
-            multiple={multiple}
-            setIsLoading={setGridIsLoading}
-        />}
-    </>
-    )
-}
-
-type RecordSelectorDialogProps = {
-    open: boolean,
-    closeDialog: () => void,
-    entityname: string,
-    recordsIds: string[],
-    records: RecordsDisplayNamesResponse[],
-    setRecordsIds: Dispatch<SetStateAction<string[]>>,
-    multiple?: boolean,
-    setIsLoading: Dispatch<SetStateAction<boolean>>
-}
-const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
-    const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
-
-    const primaryNameLogicalName = RetrievePrimaryAttribute(entityname)
-    const [entityMetadata, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
-    const [filter, setFilter] = useState<string>("")
-    const [recordsFiltered, setRecordsFiltered] = useState<any[]>([])
-    var click: NodeJS.Timeout
-
-    const { data: allRecords, isFetching } = RetrieveAllRecords(
-        entityname,
-        entityMetadata?.map((value) => {
-            if (value.MStype !== MSType.Lookup) return value.LogicalName
-            else return "_" + value.LogicalName + "_value"
-        }) ?? []
-        // ,
-        // filter ? entityMetadata.filter((value) => value.MStype === MSType.String || value.MStype === MSType.Memo)?.map((value) => {
-        //     return "contains(" + value.LogicalName + ",'" + filter + "')"
-        // }).join(" or ") : ""
-    )
-
-    useEffect(() => {
-        const notSelectedRecords = allRecords?.filter((record) => {
-            return !recordsIds.includes(record[entityname + "id"])
-        })?.filter((record) => {
-            return Object.values(record).some((att: any) => {
-                return att != null && ("" + att).indexOf(filter) != -1
-            }) ?? []
-        })
-
-        setRecordsFiltered(notSelectedRecords)
-    }, [allRecords, filter, recordsIds])
-
-    useEffect(() => {
-        props.setIsLoading(fetchingMetadata || isFetching)
-    }, [fetchingMetadata, isFetching])
-
-
-    const onClose = () => {
-        closeDialog();
-    }
-
-    const addRecord = (id: string) => {
-        if (multiple)
-            registerRecordIds((old) => [id, ...old])
-        else
-            registerRecordIds([id])
-    }
-
-    const columns: GridColDef[] = useMemo(() => {
-        const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName == primaryNameLogicalName) ?? {} as AttributeMetadata
-        const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype == MSType.Uniqueidentifier) ?? {} as AttributeMetadata
-        return [{
-            field: firstColumnsMetadata.LogicalName,
-            headerName: firstColumnsMetadata.DisplayName,
-            resizable: true,
-            hideable: false,
-            hide: false,
-            minWidth: 200
-        }, {
-            field: primaryIdColumnsMetadata.LogicalName,
-            headerName: primaryIdColumnsMetadata.DisplayName,
-            resizable: true,
-            hideable: false,
-            hide: false,
-            minWidth: 200
-        },
-        ...entityMetadata.filter(meta => meta.LogicalName != primaryNameLogicalName && meta.MStype != MSType.Uniqueidentifier).map<GridColDef>(meta => {
-            return {
-                field: meta.LogicalName,
-                headerName: meta.DisplayName,
-                resizable: true,
-                hideable: true,
-                hide: true,
-                minWidth: 100
-            }
-        })]
-    }, [entityMetadata, primaryNameLogicalName])
-
-    return (<Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>
-        <DialogTitle>
-            <Stack direction={"row"} spacing={"5px"} justifyContent="space-between">
-            </Stack>
-        </DialogTitle>
-        <DialogContent sx={{ height: "55vh", width: "55vw", overflowY: "inherit" }}>
-            <DataGrid
-                rows={recordsFiltered}
-                columns={columns}
-                loading={isFetching}
-                pageSize={25}
-                // checkboxSelection={multiple ?? false}
-                onRowClick={(params) => {
-                    click = setTimeout(() => {
-                        addRecord(params.id as string)
-                    }, 200)
-                }}
-                onRowDoubleClick={(params) => {
-                    clearTimeout(click)
-                    addRecord(params.id as string)
-                    onClose()
-                }}
-                components={{
-                    Toolbar: CustomToolBar,
-                    // Pagination: CustomPagination,
-                    LoadingOverlay: LinearProgress,
-                    Footer: CustomFooter
-                }}
-                componentsProps={{
-                    toolbar: {
-                        value: filter,
-                        setFilter: setFilter
-                    },
-                    footer: {
-                        onClose: onClose,
-                        selectedRecordIds: records,
-                        registerRecordIds: registerRecordIds
-                    }
-                }}
-                getRowId={(row) => row[entityname + "id"]}
-            // onSelectionModelChange={(newSelectionModel) => {
-            //     setSelectedRecordIds(newSelectionModel);
-            //     registerRecordIds(selectedRecordIds as string[])
-            // }}
-            // selectionModel={selectedRecordIds}
-            />
-        </DialogContent>
-        {/* <DialogActions>
-            <Button onClick={() => registerRecordIds(selectedRecordIds as string[])} variant='contained' >Validate</Button>
-            <Button onClick={onClose} variant='contained' >Close</Button>
-        </DialogActions> */}
-    </Dialog>)
-}
-type CustomToolBarProps = {
-    setFilter: (str: string) => void
-    value: string
-}
-function CustomToolBar(props: CustomToolBarProps) {
-    return <Stack direction='row' spacing={0.5} justifyContent="space-between">
-        <Box sx={{ width: '100%' }}><GridToolbar /></Box>
-        <FilterInput returnFilterInput={props.setFilter} placeholder='Search Records' fullWidth />
-    </Stack>
-}
-function CustomPagination() {
-    const apiRef = useGridApiContext();
-    const page = useGridSelector(apiRef, gridPageSelector);
-    const pageCount = useGridSelector(apiRef, gridPageCountSelector);
-    const numberRows = useGridSelector(apiRef, gridRowCountSelector);
-    const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-    const rowsDisplayed = useGridSelector(apiRef, gridPaginatedVisibleSortedGridRowIdsSelector);
-    // const numberRows = useGridSelector(apiRef, GridRowCount);
-
-    return (<Stack direction='row' alignItems="center" spacing={0.5}>
-        <div>{pageSize * page}-{pageSize * page + rowsDisplayed.length} of {numberRows}</div>
-        <Pagination
-            color="primary"
-            count={pageCount}
-            page={page + 1}
-            onChange={(event, value) => apiRef.current.setPage(value - 1)}
-        />
-    </Stack>
-    );
-}
-type CustomFooterProps = {
-    onClose: () => void
-    selectedRecordIds: RecordsDisplayNamesResponse[],
-    registerRecordIds: Dispatch<SetStateAction<string[]>>
-}
-function CustomFooter(props: CustomFooterProps) {
-    const handleDelete = (chipToDelete: RecordsDisplayNamesResponse) => {
-        const newSelectedRecords = props.selectedRecordIds.filter(r => r.id != chipToDelete.id)
-        props.registerRecordIds(newSelectedRecords.map(r => r.id))
-        setChipsSelected(newSelectedRecords)
-    };
-
-    const [chipsSelected, setChipsSelected] = useState(props.selectedRecordIds)
-    useEffect(() => {
-        if (props.selectedRecordIds && props.selectedRecordIds.length > 0)
-            setChipsSelected(props.selectedRecordIds)
-    }, [props.selectedRecordIds])
-
-
-    return (
-        <Stack direction='row' alignItems="center" justifyContent="space-between" height="55px">
-            <Box
-                sx={{
-                    width: '45%',
-                    height: '44px'
-                }}
-                component='span'
-            >
-                <Paper
-                    sx={{
-                        display: 'flex',
-                        overflowX: 'hidden',
-                        listStyle: 'none',
-                        p: 0.5,
-                        m: '0 10px',
-                        width: '100%',
-                        minHeight: '36px',
-                        flexWrap: 'nowrap',
-                        "&:hover": {
-                            flexWrap: 'wrap'
-                        }
-                    }}
-                    component="ul"
-                >
-                    {
-                        chipsSelected.map((value: RecordsDisplayNamesResponse) =>
-                            <ListItem key={value.id} sx={{
-                                padding: '2px 2px',
-                                width: 'auto'
-                            }}>
-                                <Chip
-                                    label={value.displayName}
-                                    onDelete={() => { handleDelete(value) }}
-                                />
-                            </ListItem>
-                        )
-                    }
-                </Paper>
-            </Box>
-            <DialogActions>
-                <CustomPagination />
-                <Button onClick={props.onClose} variant='contained' >Close</Button>
-            </DialogActions>
-        </Stack>
-    )
-}
 
 let updateRecord = new UpdateRecordButton()
 export default updateRecord
