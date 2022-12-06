@@ -1,8 +1,8 @@
 
 import { Button, createTheme, ThemeProvider } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { useEffect, useState } from 'react';
-import { ProcessProps, ProcessButton } from '../utils/global/.processClass';
+import React, { forwardRef, useEffect, useState } from 'react';
+import { ProcessProps, ProcessButton, ProcessRef } from '../utils/global/.processClass';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import HandymanIcon from '@mui/icons-material/Handyman';
@@ -69,21 +69,22 @@ const theme = createTheme({
     },
 });
 
-function DevToolsProcess(props: ProcessProps) {
+const DevToolsProcess = forwardRef<ProcessRef, ProcessProps>(
+    function DevToolsProcess(props: ProcessProps) {
 
-    const [toolsList] = useState([GodMode]);
-    // setToolsList();
+        const [toolsList] = useState([GodMode]);
+        // setToolsList();
 
-    return (<ThemeProvider theme={theme}>
-        <Stack spacing={2} width="100%" padding={"5px"}>
-            {
-                toolsList?.map((SubProcess, index) => {
-                    return <SubProcess />;
-                })
-            }
-        </Stack>
-    </ThemeProvider>);
-}
+        return (<ThemeProvider theme={theme}>
+            <Stack spacing={2} width="100%" padding={"5px"}>
+                {
+                    toolsList?.map((SubProcess, index) => {
+                        return <SubProcess />;
+                    })
+                }
+            </Stack>
+        </ThemeProvider>);
+    });
 
 type SubProcessProps = {
 

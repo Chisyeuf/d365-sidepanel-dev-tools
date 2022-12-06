@@ -16,9 +16,11 @@ export abstract class ProcessButton {
     icon: JSX.Element;
     width: number;
 
-    process?: React.FunctionComponent<ProcessProps>;
+    process?: React.ForwardRefExoticComponent<ProcessProps & React.RefAttributes<ProcessRef>>;
+    // process?: React.FunctionComponent<ProcessProps>;
     processContainer?: React.FunctionComponent<{ children: React.ReactNode | React.ReactNode[] }>;
 
+    ref: React.RefObject<ProcessRef>;
     // xrmUpdatedCallback?: () => void
 
     constructor(id: string, name: string, icon: JSX.Element, width: number) {
@@ -27,14 +29,25 @@ export abstract class ProcessButton {
         this.icon = icon;
         this.width = width;
         this.onClick = this.onClick.bind(this);
+
+        this.ref = React.createRef<ProcessRef>();
+
         // this.reStyleSidePane = this.reStyleSidePane.bind(this);
         // if (this.process === undefined)
         //     this.process = new ErrorProcess();
     }
 
     onClick(): void {
-        this.openSidePane();
+        this.openSidePane(true);
     }
+
+    bindOnClose(callback: () => void): void {
+        var closeButton = document.querySelector<HTMLElement>('#' + this.id + " div:first-child div:first-child button");
+        if (closeButton) {
+            closeButton.addEventListener('click', callback);
+        }
+    }
+
 
     openSidePane(selected: boolean = true): void {
         if (Xrm.App.sidePanes.getPane(this.id))
@@ -58,7 +71,7 @@ export abstract class ProcessButton {
         waitForElm('#' + this.id + ' > div > div:last-child').then((sidePane) => {
             let nodeToRender;
             if (this.processContainer)
-                nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} /> : <ErrorProcess />}</this.processContainer>
+                nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />}</this.processContainer>
             else
                 nodeToRender = this.process ? <this.process id={this.id} /> : <ErrorProcess />
 
@@ -67,6 +80,7 @@ export abstract class ProcessButton {
                 nodeToRender,
                 sidePane
             );
+            this.ref.current?.onClose && this.bindOnClose(this.ref.current?.onClose)
         });
 
         waitForElm('button[aria-controls=' + this.id + '] > span').then((sidePaneOpenButton) => {
@@ -84,7 +98,6 @@ export abstract class ProcessButton {
         });
     };
 
-
     reStyleSidePane(): void {
         return;
     }
@@ -100,4 +113,7 @@ function ErrorProcess() {
 
 export interface ProcessProps {
     id: string;
+}
+export type ProcessRef = {
+    onClose: () => void
 }

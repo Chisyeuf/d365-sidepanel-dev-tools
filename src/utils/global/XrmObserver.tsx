@@ -26,9 +26,11 @@ export default class XrmObserver {
     }
 
     static addListener(xrmUpdatedCallback: () => void) {
-        document.addEventListener('xrmupdated', (e) => {
-            xrmUpdatedCallback && xrmUpdatedCallback();
-        }, false);
+        xrmUpdatedCallback && document.addEventListener('xrmupdated', xrmUpdatedCallback, false);
+    }
+
+    static removeListener(xrmUpdatedCallback: () => void) {
+        xrmUpdatedCallback && document.removeEventListener('xrmupdated', xrmUpdatedCallback, false);
     }
 
 }

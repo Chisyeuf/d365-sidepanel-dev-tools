@@ -90,16 +90,19 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                 disabled={disabled}
             />
         </CircularProgressOverflow>
-        {!disabled && <RecordSelectorDialog
-            closeDialog={closeDialog}
-            entityname={entityname}
-            open={isDialogOpen}
-            recordsIds={recordsIds}
-            records={recordsDisplayNames}
-            setRecordsIds={setRecordsIds}
-            multiple={multiple}
-            setIsLoading={setGridIsLoading}
-        />}
+        {
+            !disabled &&
+            <RecordSelectorDialog
+                closeDialog={closeDialog}
+                entityname={entityname}
+                open={isDialogOpen}
+                recordsIds={recordsIds}
+                records={recordsDisplayNames}
+                setRecordsIds={setRecordsIds}
+                multiple={multiple}
+                setIsLoading={setGridIsLoading}
+            />
+        }
     </>
     )
 }
@@ -234,66 +237,68 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             })]
     }, [entityMetadata, primaryNameLogicalName])
 
-    return (<Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>
-        <DialogTitle>
-            <Stack direction={"row"} spacing={"5px"} justifyContent="space-between">
-            </Stack>
-        </DialogTitle>
-        <DialogContent sx={{ height: "55vh", width: "55vw", overflowY: "inherit" }}>
-            <DataGrid
-                rows={filterXml ? fetchXmlRecords : allRecords}
-                rowCount={filterXml ? fetchXmlRecords.length : maxRowCount}
-                columns={columns}
-                loading={isFetchingAllRecords || isFetchingFetchXML}
-                page={page}
-                pageSize={pageSize}
-                // checkboxSelection={multiple ?? false}
-                onRowClick={(params) => {
-                    // click = setTimeout(() => {
-                    addRecord(params.id as string)
-                    // }, 200)
-                }}
-                onRowDoubleClick={(params) => {
-                    // clearTimeout(click)
-                    addRecord(params.id as string)
-                    onClose()
-                }}
-                components={{
-                    Toolbar: CustomToolBar,
-                    // Pagination: CustomPagination,
-                    LoadingOverlay: LinearProgress,
-                    Footer: CustomFooter,
-                }}
-                componentsProps={{
-                    toolbar: {
-                        value: filterInput,
-                        setFilter: setFilterInput,
-                        filterXMLsetter: setFilterXml
-                    },
-                    footer: {
-                        onClose: onClose,
-                        selectedRecordIds: records,
-                        registerRecordIds: registerRecordIds
-                    }
-                }}
-                getRowId={(row) => row[entityname + "id"]}
-                paginationMode={filterXml ? 'client' : 'server'}
-                pagination
-                onPageChange={(newPage) => setPage(newPage)}
-                onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-                selectionModel={recordsIds}
-                onSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
-                checkboxSelection={multiple}
-                keepNonExistentRowsSelected
-                onStateChange={(state: GridState, event, details) => {
-                    setVisibleColumns(state.columns.columnVisibilityModel);
-                    setFilterModel(state.filter.filterModel)
-                    setSortModel(state.sorting.sortModel)
-                }}
+    return (
+        <Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>
+            <DialogTitle>
+                <Stack direction={"row"} spacing={"5px"} justifyContent="space-between">
+                </Stack>
+            </DialogTitle>
+            <DialogContent sx={{ height: "55vh", width: "55vw", overflowY: "inherit" }}>
+                <DataGrid
+                    rows={filterXml ? fetchXmlRecords : allRecords}
+                    rowCount={filterXml ? fetchXmlRecords.length : maxRowCount}
+                    columns={columns}
+                    loading={isFetchingAllRecords || isFetchingFetchXML}
+                    page={page}
+                    pageSize={pageSize}
+                    // checkboxSelection={multiple ?? false}
+                    onRowClick={(params) => {
+                        // click = setTimeout(() => {
+                        addRecord(params.id as string)
+                        // }, 200)
+                    }}
+                    onRowDoubleClick={(params) => {
+                        // clearTimeout(click)
+                        addRecord(params.id as string)
+                        onClose()
+                    }}
+                    components={{
+                        Toolbar: CustomToolBar,
+                        // Pagination: CustomPagination,
+                        LoadingOverlay: LinearProgress,
+                        Footer: CustomFooter,
+                    }}
+                    componentsProps={{
+                        toolbar: {
+                            value: filterInput,
+                            setFilter: setFilterInput,
+                            filterXMLsetter: setFilterXml
+                        },
+                        footer: {
+                            onClose: onClose,
+                            selectedRecordIds: records,
+                            registerRecordIds: registerRecordIds
+                        }
+                    }}
+                    getRowId={(row) => row[entityname + "id"]}
+                    paginationMode={filterXml ? 'client' : 'server'}
+                    pagination
+                    onPageChange={(newPage) => setPage(newPage)}
+                    onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+                    selectionModel={recordsIds}
+                    onSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
+                    checkboxSelection={multiple}
+                    keepNonExistentRowsSelected
+                    onStateChange={(state: GridState, event, details) => {
+                        setVisibleColumns(state.columns.columnVisibilityModel);
+                        setFilterModel(state.filter.filterModel)
+                        setSortModel(state.sorting.sortModel)
+                    }}
 
-            />
-        </DialogContent>
-    </Dialog>)
+                />
+            </DialogContent>
+        </Dialog>
+    )
 }
 type CustomToolBarProps = {
     setFilter: (str: string) => void

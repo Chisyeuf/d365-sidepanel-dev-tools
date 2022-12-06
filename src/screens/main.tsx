@@ -9,6 +9,7 @@ import reportWebVitals from '../reportWebVitals';
 import { GetData, GetUrl, waitForElm } from '../utils/global/common';
 import { useEffectOnce } from 'usehooks-ts';
 import XrmObserver from '../utils/global/XrmObserver';
+import { ProcessButton } from '../utils/global/.processClass';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -21,17 +22,18 @@ export const MainScreen: React.FunctionComponent = () => {
             process?.openSidePane(processid.expand)
         })
     }, [])
-    
+
 
     return (
         <Stack spacing={0.5} width={"100%"} padding={"10px"}>
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
-                    const process = Processes.find(p => p.id === value.id)
-                    return process?.render()
+                    const Process = Processes.find(p => p.id === value.id)
+                    return Process?.render()
                 })
             }
-        </Stack>)
+        </Stack>
+    )
 }
 
 
@@ -67,7 +69,7 @@ function initExtension() {
     });
 
     new XrmObserver();
-    
+
 }
 
 
