@@ -2,14 +2,14 @@
 import { Dispatch, forwardRef, ReactNode, SetStateAction, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { ProcessButton, ProcessProps, ProcessRef } from '../utils/global/.processClass'
 import { AttributeMetadata, MSType, MSDateFormat, getReadableMSType } from '../utils/global/requestsType'
-import { capitalizeFirstLetter, formatId, isArraysEquals } from '../utils/global/common'
+import { capitalizeFirstLetter, formatId, groupBy, isArraysEquals } from '../utils/global/common'
 import React from 'react'
 import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttributesMetaData'
 import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes'
-import { RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
+import { PickListOption, RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
 import SyncIcon from '@mui/icons-material/Sync';
 import { useBoolean, useUpdateEffect } from 'usehooks-ts'
-import { Stack, Button, createTheme, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Skeleton, createSvgIcon, CircularProgress } from '@mui/material';
+import { Stack, Button, createTheme, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Skeleton, createSvgIcon, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, ListSubheader } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs';
@@ -34,6 +34,7 @@ import XrmObserver from '../utils/global/XrmObserver'
 import RecordSelector from '../utils/components/RecordSelector'
 import FilterInput from '../utils/components/FilterInput'
 import EntitySelector from '../utils/components/EntitySelector'
+import MuiCalculator from '../utils/components/MuiCalculator'
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -153,7 +154,6 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         const [filterAttribute, setFilterAttribute] = useState<string>("")
         const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({})
         const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false)
-        const [xrmUpdated, setXrmUpdated] = useState<boolean>(false)
 
         const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
@@ -173,18 +173,13 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [entityname, recordsIds])
 
         const xrmObserverCallback = () => {
-            if (!Xrm.Page.data) return
-            console.log("Update Records Xrm changes");
-            setXrmUpdated(old => !old)
+            if (!Xrm.Page.data || entityname) return
             setCurrentRecord()
         }
 
         useEffect(() => {
             XrmObserver.addListener(xrmObserverCallback)
         }, [])
-
-
-
 
         const launchUpdate = () => {
             console.log("Launch Update for", entityname, recordsIds, "on", attributesValues)
@@ -544,7 +539,7 @@ function AttributeFactory(props: AttributeProps) {
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />)
         case MSType.Status:
-            return (<PicklistNode
+            return (<GroupedPicklistNode
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
@@ -553,6 +548,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
+                groupBy='State'
             />)
         case MSType.State:
             return (<PicklistNode
@@ -668,6 +664,7 @@ function LookupNode(props: AttributeProps) {
 function StringNode(props: AttributeProps) {
     const [oldValue, setOldValue] = useState<string | null>(props.value ? props.value : null)
     const [value, setValue] = useState<string | null>(props.value ? props.value : null)
+    const [openDialog, setOpenDialog] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -706,27 +703,61 @@ function StringNode(props: AttributeProps) {
         setDirty(newValue ? newValue : null)
     }
 
-    return (<TextField
-        placeholder='Enter a string'
-        size={"small"}
-        fullWidth
-        inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-        value={value ?? ''}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <ShortTextIcon />
-                </InputAdornment>
-            )
-        }}
-    />)
+    return (
+        <>
+            <TextField
+                placeholder='Enter a string'
+                size={"small"}
+                fullWidth
+                inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
+                value={value ?? ''}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setOpenDialog(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <ShortTextIcon />
+                        </InputAdornment>
+                    )
+                }}
+            />
+            {
+                !props.disabled &&
+                <Dialog onClose={() => { setOpenDialog(false) }} open={openDialog} maxWidth={false} >
+                    <DialogTitle>
+                        Text Editor
+                    </DialogTitle>
+                    <DialogContent sx={{ height: "55vh", width: "50vw" }}>
+                        <TextField
+                            multiline
+                            value={value ?? ''}
+                            onChange={onChange}
+                            rows={25}
+                            fullWidth
+                            inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
+                            onFocus={props.setToUpdate}
+                        />
+                    </DialogContent>
+                    <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
+                        <span>{value?.length ?? 0} / {props.attribute.Parameters.MaxLength}</span>
+                        <Button variant='contained' onClick={() => { setOpenDialog(false) }}>
+                            Close
+                        </Button>
+                    </Stack>
+                </Dialog>
+            }
+        </>
+    )
 }
 function MemoNode(props: AttributeProps) {
     const [oldValue, setOldValue] = useState<string | null>(props.value ? props.value : null)
     const [value, setValue] = useState<string | null>(props.value ? props.value : null)
+    const [openDialog, setOpenDialog] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -766,29 +797,63 @@ function MemoNode(props: AttributeProps) {
     }
 
 
-    return (<TextField
-        placeholder='Enter a multipleline string'
-        size={"small"}
-        fullWidth
-        multiline
-        rows={1}
-        inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-        value={value ?? ''}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <NotesIcon />
-                </InputAdornment>
-            )
-        }}
-    />)
+    return (
+        <>
+            <TextField
+                placeholder='Enter a multipleline string'
+                size={"small"}
+                fullWidth
+                multiline
+                rows={1}
+                inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
+                value={value ?? ''}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setOpenDialog(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <NotesIcon />
+                        </InputAdornment>
+                    )
+                }}
+            />
+            {
+                !props.disabled &&
+                <Dialog onClose={() => { setOpenDialog(false) }} open={openDialog} maxWidth={false} >
+                    <DialogTitle>
+                        Text Editor
+                    </DialogTitle>
+                    <DialogContent sx={{ height: "55vh", width: "50vw" }}>
+                        <TextField
+                            multiline
+                            value={value ?? ''}
+                            onChange={onChange}
+                            rows={25}
+                            fullWidth
+                            inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
+                            onFocus={props.setToUpdate}
+                        />
+                    </DialogContent>
+                    <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
+                        <span>{value?.length ?? 0} / {props.attribute.Parameters.MaxLength}</span>
+                        <Button variant='contained' onClick={() => { setOpenDialog(false) }}>
+                            Close
+                        </Button>
+                    </Stack>
+                </Dialog>
+            }
+        </>
+    )
 }
 function DecimalNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null)
     const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+    const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -826,40 +891,61 @@ function DecimalNode(props: AttributeProps) {
         setDirty(newValue)
     }
 
-    return (<NumericInput
-        fullWidth
-        placeholder={"Decimal by " + props.attribute.Parameters.Precision}
-        value={value}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        variant='outlined'
-        size='small'
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <DecimalIcon />
-                </InputAdornment>
-            )
-        }}
-        numericOptions={{
-            allowDecimalPadding: 'floats',
-            decimalCharacter: '.',
-            decimalPlaces: props.attribute.Parameters.Precision,
-            decimalPlacesRawValue: props.attribute.Parameters.Precision,
-            digitGroupSeparator: ',',
-            modifyValueOnWheel: false,
-            readOnly: props.disabled,
-            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
-            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
-            selectOnFocus: false,
-            onInvalidPaste: 'clamp',
-        }}
-    />)
+    return (
+        <>
+            <NumericInput
+                fullWidth
+                placeholder={"Decimal by " + props.attribute.Parameters.Precision}
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                variant='outlined'
+                size='small'
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setCalculatorOpen(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <DecimalIcon />
+                        </InputAdornment>
+                    )
+                }}
+                numericOptions={{
+                    allowDecimalPadding: 'floats',
+                    decimalCharacter: '.',
+                    decimalPlaces: props.attribute.Parameters.Precision,
+                    decimalPlacesRawValue: props.attribute.Parameters.Precision,
+                    digitGroupSeparator: ',',
+                    modifyValueOnWheel: false,
+                    readOnly: props.disabled,
+                    minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                    maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                    selectOnFocus: false,
+                    onInvalidPaste: 'clamp',
+                }}
+            />
+            {
+                calculatorOpen &&
+                <MuiCalculator
+                    value={value}
+                    open={calculatorOpen}
+                    onClose={() => { setCalculatorOpen(false) }}
+                    integer={false}
+                    onChange={onChange}
+                    minimumValue={Number(props.attribute.Parameters.MinValue.noExponents())}
+                    maximumValue={Number(props.attribute.Parameters.MaxValue.noExponents())}
+                />
+            }
+        </>
+    )
 }
 function DoubleNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null)
     const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+    const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -897,40 +983,61 @@ function DoubleNode(props: AttributeProps) {
         setDirty(newValue)
     }
 
-    return (<NumericInput
-        fullWidth
-        placeholder={"Double by " + props.attribute.Parameters.Precision}
-        value={value}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        variant='outlined'
-        size='small'
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <DecimalIcon />
-                </InputAdornment>
-            )
-        }}
-        numericOptions={{
-            allowDecimalPadding: 'floats',
-            decimalCharacter: '.',
-            decimalPlaces: props.attribute.Parameters.Precision,
-            decimalPlacesRawValue: props.attribute.Parameters.Precision,
-            digitGroupSeparator: ',',
-            modifyValueOnWheel: false,
-            readOnly: props.disabled,
-            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
-            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
-            selectOnFocus: false,
-            onInvalidPaste: 'clamp',
-        }}
-    />)
+    return (
+        <>
+            <NumericInput
+                fullWidth
+                placeholder={"Double by " + props.attribute.Parameters.Precision}
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                variant='outlined'
+                size='small'
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setCalculatorOpen(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <DecimalIcon />
+                        </InputAdornment>
+                    )
+                }}
+                numericOptions={{
+                    allowDecimalPadding: 'floats',
+                    decimalCharacter: '.',
+                    decimalPlaces: props.attribute.Parameters.Precision,
+                    decimalPlacesRawValue: props.attribute.Parameters.Precision,
+                    digitGroupSeparator: ',',
+                    modifyValueOnWheel: false,
+                    readOnly: props.disabled,
+                    minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                    maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                    selectOnFocus: false,
+                    onInvalidPaste: 'clamp',
+                }}
+            />
+            {
+                calculatorOpen &&
+                <MuiCalculator
+                    value={value}
+                    open={calculatorOpen}
+                    onClose={() => { setCalculatorOpen(false) }}
+                    integer={false}
+                    onChange={onChange}
+                    minimumValue={Number(props.attribute.Parameters.MinValue.noExponents())}
+                    maximumValue={Number(props.attribute.Parameters.MaxValue.noExponents())}
+                />
+            }
+        </>
+    )
 }
 function MoneyNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? props.value : null);
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? props.value : null)
     const [value, setValue] = useState<number | null>(props.value ? props.value : null)
+    const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -969,41 +1076,60 @@ function MoneyNode(props: AttributeProps) {
     }
 
     return (
-        <NumericInput
-            fullWidth
-            placeholder={"Money by " + props.attribute.Parameters.Precision}
-            value={value}
-            onFocus={props.setToUpdate}
-            onChange={onChange}
-            variant='outlined'
-            size='small'
-            disabled={props.disabled}
-            InputProps={{
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <AttachMoneyIcon />
-                    </InputAdornment>
-                )
-            }}
-            numericOptions={{
-                allowDecimalPadding: 'floats',
-                decimalCharacter: '.',
-                decimalPlaces: props.attribute.Parameters.Precision,
-                decimalPlacesRawValue: props.attribute.Parameters.Precision,
-                digitGroupSeparator: ',',
-                modifyValueOnWheel: false,
-                readOnly: props.disabled,
-                minimumValue: props.attribute.Parameters.MinValue.noExponents(),
-                maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
-                selectOnFocus: false,
-                onInvalidPaste: 'clamp',
-            }}
-        />
+        <>
+            <NumericInput
+                fullWidth
+                placeholder={"Money by " + props.attribute.Parameters.Precision}
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                variant='outlined'
+                size='small'
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setCalculatorOpen(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <AttachMoneyIcon />
+                        </InputAdornment>
+                    )
+                }}
+                numericOptions={{
+                    allowDecimalPadding: 'floats',
+                    decimalCharacter: '.',
+                    decimalPlaces: props.attribute.Parameters.Precision,
+                    decimalPlacesRawValue: props.attribute.Parameters.Precision,
+                    digitGroupSeparator: ',',
+                    modifyValueOnWheel: false,
+                    readOnly: props.disabled,
+                    minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                    maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                    selectOnFocus: false,
+                    onInvalidPaste: 'clamp',
+                }}
+            />
+            {
+                calculatorOpen &&
+                <MuiCalculator
+                    value={value}
+                    open={calculatorOpen}
+                    onClose={() => { setCalculatorOpen(false) }}
+                    integer={false}
+                    onChange={onChange}
+                    minimumValue={Number(props.attribute.Parameters.MinValue.noExponents())}
+                    maximumValue={Number(props.attribute.Parameters.MaxValue.noExponents())}
+                />
+            }
+        </>
     )
 }
 function IntegerNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null);
+    const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null)
     const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+    const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -1041,39 +1167,60 @@ function IntegerNode(props: AttributeProps) {
         setDirty(newValue)
     }
 
-    return (<NumericInput
-        fullWidth
-        placeholder={"Integer"}
-        value={value}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        variant='outlined'
-        size='small'
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <NumbersIcon />
-                </InputAdornment>
-            )
-        }}
-        numericOptions={{
-            decimalCharacter: '.',
-            decimalPlaces: 0,
-            decimalPlacesRawValue: 0,
-            digitGroupSeparator: ',',
-            modifyValueOnWheel: false,
-            readOnly: props.disabled,
-            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
-            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
-            selectOnFocus: false,
-            onInvalidPaste: 'clamp',
-        }}
-    />)
+    return (
+        <>
+            <NumericInput
+                fullWidth
+                placeholder={"Integer"}
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                variant='outlined'
+                size='small'
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setCalculatorOpen(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <NumbersIcon />
+                        </InputAdornment>
+                    )
+                }}
+                numericOptions={{
+                    decimalCharacter: '.',
+                    decimalPlaces: 0,
+                    decimalPlacesRawValue: 0,
+                    digitGroupSeparator: ',',
+                    modifyValueOnWheel: false,
+                    readOnly: props.disabled,
+                    minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                    maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                    selectOnFocus: false,
+                    onInvalidPaste: 'clamp',
+                }}
+            />
+            {
+                calculatorOpen &&
+                <MuiCalculator
+                    value={value}
+                    open={calculatorOpen}
+                    onClose={() => { setCalculatorOpen(false) }}
+                    integer={true}
+                    onChange={onChange}
+                    minimumValue={Number(props.attribute.Parameters.MinValue.noExponents())}
+                    maximumValue={Number(props.attribute.Parameters.MaxValue.noExponents())}
+                />
+            }
+        </>
+    )
 }
 function BigIntNode(props: AttributeProps) {
     const [oldValue, setOldValue] = useState<number | null>(props.value ? Number(props.value) : null)
     const [value, setValue] = useState<number | null>(props.value ? Number(props.value) : null)
+    const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
@@ -1111,38 +1258,58 @@ function BigIntNode(props: AttributeProps) {
         setDirty(newValue)
     }
 
-    return (<NumericInput
-        fullWidth
-        placeholder={"BigInt"}
-        value={value}
-        onFocus={props.setToUpdate}
-        onChange={onChange}
-        variant='outlined'
-        size='small'
-        disabled={props.disabled}
-        InputProps={{
-            startAdornment: (
-                <InputAdornment position="start">
-                    <NumbersIcon />
-                </InputAdornment>
-            )
-        }}
-        numericOptions={{
-            decimalCharacter: '.',
-            decimalPlaces: 0,
-            decimalPlacesRawValue: 0,
-            digitGroupSeparator: ',',
-            modifyValueOnWheel: false,
-            readOnly: props.disabled,
-            minimumValue: props.attribute.Parameters.MinValue.noExponents(),
-            maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
-            selectOnFocus: false,
-            onInvalidPaste: 'clamp',
-        }}
-    />)
+    return (
+        <>
+            <NumericInput
+                fullWidth
+                placeholder={"BigInt"}
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                variant='outlined'
+                size='small'
+                disabled={props.disabled}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment
+                            position="start"
+                            onClick={() => { !props.disabled && setCalculatorOpen(true) }}
+                            sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                        >
+                            <NumbersIcon />
+                        </InputAdornment>
+                    )
+                }}
+                numericOptions={{
+                    decimalCharacter: '.',
+                    decimalPlaces: 0,
+                    decimalPlacesRawValue: 0,
+                    digitGroupSeparator: ',',
+                    modifyValueOnWheel: false,
+                    readOnly: props.disabled,
+                    minimumValue: props.attribute.Parameters.MinValue.noExponents(),
+                    maximumValue: props.attribute.Parameters.MaxValue.noExponents(),
+                    selectOnFocus: false,
+                    onInvalidPaste: 'clamp',
+                }}
+            />
+            {
+                calculatorOpen &&
+                <MuiCalculator
+                    value={value}
+                    open={calculatorOpen}
+                    onClose={() => { setCalculatorOpen(false) }}
+                    integer={true}
+                    onChange={onChange}
+                    minimumValue={Number(props.attribute.Parameters.MinValue.noExponents())}
+                    maximumValue={Number(props.attribute.Parameters.MaxValue.noExponents())}
+                />
+            }
+        </>
+    )
 }
 function BooleanNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<boolean | null>(props.value);
+    const [oldValue, setOldValue] = useState<boolean | null>(props.value)
     const [value, setValue] = useState<boolean | null>(props.value)
 
     useEffect(() => {
@@ -1208,12 +1375,15 @@ function BooleanNode(props: AttributeProps) {
                     <InputAdornment
                         position='start'
                         onClick={() => {
-                            setValue(old => {
-                                props.setToUpdate()
-                                setDirty(!old)
-                                return !old
-                            })
-                        }} sx={{ cursor: 'pointer' }}>
+                            !props.disabled &&
+                                setValue(old => {
+                                    props.setToUpdate()
+                                    setDirty(!old)
+                                    return !old
+                                })
+                        }}
+                        sx={{ cursor: props.disabled ? 'auto' : 'pointer' }}
+                    >
                         {value ? <CheckBoxOutlinedIcon /> : <CheckBoxOutlineBlankOutlinedIcon />}
                     </InputAdornment>
                 )}
@@ -1397,8 +1567,88 @@ function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
             >
                 {props.nullable && <MenuItem value={-1}>- - -</MenuItem>}
                 {
-                    stateOptions?.map((option) => {
+                    stateOptions?.map((optionNode) => {
+                        var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem value={option.value}>{option.text}</MenuItem>
+                    })
+                }
+            </Select>
+        </FormControl>
+    )
+}
+function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean, groupBy: string }) {
+    const [oldValue, setOldValue] = useState<number>(props.value ?? -1)
+    const [value, setValue] = useState<number>(props.value ?? -1)
+
+    useEffect(() => {
+        if (props.attributeToUpdateManager.isToUpdate) {
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null)
+        }
+        else {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        }
+    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+
+    const setDirty = (newOption: typeof value) => {
+        if (oldValue !== newOption) {
+            props.manageDirty.set()
+        }
+        else {
+            props.manageDirty.remove()
+        }
+    }
+
+    useEffect(() => {
+        setOldValue(props.value ?? -1)
+        setValue(props.value ?? -1)
+    }, [props.value])
+
+    useEffect(() => {
+        if (props.reset) {
+            setValue(oldValue)
+            props.manageDirty.remove()
+        }
+    }, [oldValue, props.manageDirty, props.reset])
+
+    const onChange = (event: SelectChangeEvent<number>) => {
+        props.setToUpdate()
+        const newValue = typeof event.target.value == 'string' ? -1 : event.target.value
+        setValue(newValue)
+        setDirty(newValue)
+    }
+
+    const statusCode = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
+    const stateCode = RetrievePicklistValues(props.entityname, MSType.State, 'statecode')
+
+    return (
+        <FormControl fullWidth>
+            <Select
+                value={value}
+                onFocus={props.setToUpdate}
+                onChange={onChange}
+                size={"small"}
+                fullWidth
+                disabled={props.disabled}
+                startAdornment={
+                    <InputAdornment position="start">
+                        <ListIcon />
+                    </InputAdornment>
+                }
+            >
+                {props.nullable && <MenuItem value={-1}>- - -</MenuItem>}
+                {
+                    statusCode && Object.entries(groupBy(statusCode, props.groupBy))?.map(([group, value]) => {
+                        return (
+                            [
+                                <ListSubheader>{stateCode?.find(state => state.Value === Number(group))?.Label.UserLocalizedLabel!.Label}</ListSubheader>,
+                                value.sort((a: PickListOption, b: PickListOption) => {
+                                    return a.Label.UserLocalizedLabel!.Label?.localeCompare(b.Label.UserLocalizedLabel!.Label)
+                                }).map((optionNode) => {
+                                    var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value }
+                                    return <MenuItem value={option.value}>{option.text}</MenuItem>
+                                })
+                            ]
+                        )
                     })
                 }
             </Select>
@@ -1472,7 +1722,8 @@ function MultiplePicklistNode(props: AttributeProps) {
                 }
             >
                 {
-                    stateOptions?.map((option) => {
+                    stateOptions?.map((optionNode) => {
+                        var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem value={option.value}>{option.text}</MenuItem>
                     })
                 }
@@ -1499,7 +1750,16 @@ function NavTopBar(props: NavBarProps) {
         <Stack direction={"row"} key="entityrecordselectors" spacing={0.5} width="100%">
             <EntitySelector setEntityname={props.setEntityname} entityname={props.entityname} />
             <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple theme={theme} />
-            <Button onClick={props.setCurrentRecord} >Refresh</Button>
+            <Button
+                onClick={() => {
+                    props.setRecordsIds([])
+                    setTimeout(() => {
+                        props.setCurrentRecord()
+                    }, 100);
+                }}
+            >
+                Refresh
+            </Button>
         </Stack>
         <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
             <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />

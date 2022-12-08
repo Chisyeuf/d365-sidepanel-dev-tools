@@ -1,11 +1,12 @@
 
 import { Button, createTheme, ThemeProvider } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../utils/global/.processClass';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import HandymanIcon from '@mui/icons-material/Handyman';
+import XrmObserver from '../utils/global/XrmObserver';
 
 class DevToolsButton extends ProcessButton {
     constructor() {
@@ -70,7 +71,16 @@ const theme = createTheme({
 });
 
 const DevToolsProcess = forwardRef<ProcessRef, ProcessProps>(
-    function DevToolsProcess(props: ProcessProps) {
+    function DevToolsProcess(props: ProcessProps, ref) {
+
+        useImperativeHandle(ref, () => ({
+            onClose() {
+                XrmObserver.removeListener(xrmObserverCallback)
+            }
+        }));
+        const xrmObserverCallback = () => {
+            if (!Xrm.Page.data) return
+        }
 
         const [toolsList] = useState([GodMode]);
         // setToolsList();
@@ -84,7 +94,10 @@ const DevToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             </Stack>
         </ThemeProvider>);
-    });
+    }
+);
+
+
 
 type SubProcessProps = {
 

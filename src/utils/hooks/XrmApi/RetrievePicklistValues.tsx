@@ -1,9 +1,41 @@
 import { useState, useEffect } from 'react'
 import { MSType } from '../../global/requestsType';
 
+export interface PickListOption {
+    "@odata.type"?:  string;
+    Value:           number;
+    Color:           null | string;
+    IsManaged:       boolean;
+    ExternalValue:   null | string;
+    ParentValues:    any[];
+    Tag:             null;
+    MetadataId:      null;
+    HasChanged:      null;
+    DefaultStatus?:  number;
+    InvariantName?:  string;
+    Label:           Description;
+    Description:     Description;
+    State?:          number;
+    TransitionData?: string;
+}
+
+export interface Description {
+    LocalizedLabels:    LocalizedLabel[];
+    UserLocalizedLabel: LocalizedLabel | null;
+}
+
+export interface LocalizedLabel {
+    Label:        string;
+    LanguageCode: number;
+    IsManaged:    boolean;
+    MetadataId:   string;
+    HasChanged:   null;
+}
+
+
 export function RetrievePicklistValues(entityname: string, type: MSType, fieldname: string) {
 
-    const [data, setData] = useState<Xrm.OptionSetValue[]>();
+    const [data, setData] = useState<PickListOption[]>();
 
     useEffect(() => {
         console.log("RetrievePicklistValues");
@@ -30,9 +62,7 @@ export function RetrievePicklistValues(entityname: string, type: MSType, fieldna
 
             const results = await response.json();
 
-            const values: Xrm.OptionSetValue[] = results.value?.at(0).OptionSet.Options.map((option: any) => {
-                return { text: option.Label.UserLocalizedLabel.Label, value: option.Value };
-            });
+            const values: PickListOption[] = results.value?.at(0).OptionSet.Options
 
             setData(values);
         }

@@ -69,3 +69,10 @@ export function capitalizeFirstLetter(str: string) {
 
     return str.slice(0, 2).toUpperCase() + str.slice(2);
 }
+
+export const groupBy = function (xs: any[], key: string): { [key: string]: any[] } {
+    return xs.reduce(function (rv, x) {
+        (rv[x[key]] = rv[x[key]] || []).push(x);
+        return rv;
+    }, {});
+};

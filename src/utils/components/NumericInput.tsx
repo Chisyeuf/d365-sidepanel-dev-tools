@@ -24,8 +24,17 @@ function NumericInput(props: NumericInputProps) {
     const [autonumeric, setAutonumeric] = useState<AutoNumeric>()
 
     useEffect(() => {
-        if (inputRef.current)
-            setAutonumeric(new AutoNumeric(inputRef.current, value, numericOptions));
+        if (inputRef.current) {
+            if (numericOptions?.maximumValue && value && value > Number(numericOptions?.maximumValue)) {
+                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.maximumValue, numericOptions));
+            }
+            else if (numericOptions?.minimumValue && value && value < Number(numericOptions?.minimumValue)) {
+                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.minimumValue, numericOptions));
+            }
+            else {
+                setAutonumeric(new AutoNumeric(inputRef.current, value, numericOptions));
+            }
+        }
     }, [inputRef])
 
     useEffect(() => {
@@ -33,7 +42,15 @@ function NumericInput(props: NumericInputProps) {
             autonumeric?.clear();
         }
         else {
-            autonumeric?.set(inputValue);
+            if (numericOptions?.maximumValue && Number(inputValue) > Number(numericOptions?.maximumValue)) {
+                autonumeric?.set(numericOptions?.maximumValue);
+            }
+            else if (numericOptions?.minimumValue && Number(inputValue) < Number(numericOptions?.minimumValue)) {
+                autonumeric?.set(numericOptions?.minimumValue);
+            }
+            else {
+                autonumeric?.set(inputValue);
+            }
         }
     }, [inputValue])
 
