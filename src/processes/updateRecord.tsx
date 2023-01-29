@@ -277,14 +277,14 @@ function AttributesList(props: AttributesListProps) {
                                     attribute={metadata}
                                     entityname={props.entityname}
                                     value={attributesRetrieved[attributeName]}
-                                    filter={filter}
+                                    filter={filter.toLocaleLowerCase()}
                                     resetTotal={props.resetTotal}
                                     attributeToUpdateManager={props.attributeToUpdateManager}
                                 />
                             )
                         })
                         :
-                        [...Array(15)].map(() => <Skeleton variant='rounded' height='46.625px' />)
+                        [...Array(16)].map(() => <Skeleton variant='rounded' height='42.625px' />)
                 }
             </Stack>
             :
@@ -338,9 +338,9 @@ function AttributeNode(props: AttributeNodeProps) {
         , [props.attribute])
 
     const isVisible = useMemo(() => {
-        return (props.attribute.DisplayName.indexOf(props.filter) !== -1 ||
+        return (props.attribute.DisplayName.toLowerCase().indexOf(props.filter) !== -1 ||
             props.attribute.LogicalName.indexOf(props.filter) !== -1 ||
-            props.attribute.SchemaName.indexOf(props.filter) !== -1)
+            props.attribute.SchemaName.toLowerCase().indexOf(props.filter) !== -1)
     }, [props.filter, props.attribute])
 
     useEffect(() => {
@@ -373,7 +373,7 @@ function AttributeNode(props: AttributeNodeProps) {
             className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
             style={{ display: isVisible ? '' : 'none' }}
         >
-            <NoMaxWidthTooltip title={tooltipText} arrow placement='left' disableFocusListener>
+            <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
                 <Stack
                     height='100%'
                     justifyContent='center'
@@ -407,7 +407,7 @@ function AttributeNode(props: AttributeNodeProps) {
                 disabled={props.disabled}
                 attributeToUpdateManager={{ ...props.attributeToUpdateManager, isToUpdate: isToUpdate, valueChanged: valueChanged }}
             />
-            <IconButton aria-label="delete" onClick={removeToUpdate} style={{ visibility: isToUpdate ? "visible" : "hidden" }}>
+            <IconButton aria-label="delete" onClick={removeToUpdate} style={{ visibility: isToUpdate ? "visible" : "hidden" }} sx={{ padding: '6px' }}>
                 <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
             </IconButton>
         </Stack >
@@ -1402,7 +1402,13 @@ function DateTimeNode(props: AttributeProps) {
 
     useEffect(() => {
         if (props.attributeToUpdateManager.isToUpdate) {
-            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.format("YYYY-MM-DDTHH:mm:ssZ[Z]") ?? null)
+            if (props.attribute.Parameters.Format === MSDateFormat.DateOnly) {
+                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.format("YYYY-MM-DD") ?? null)
+            }
+            else {
+                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.toISOString() ?? null)
+            }
+
         }
         else {
             props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
@@ -1440,6 +1446,7 @@ function DateTimeNode(props: AttributeProps) {
         <DatePicker
             value={value}
             onChange={onChange}
+            inputFormat='YYYY/MM/DD'
             renderInput={(params) => (
                 <TextField
                     {...params}
@@ -1475,6 +1482,7 @@ function DateTimeNode(props: AttributeProps) {
             ampm={false}
             onChange={onChange}
             value={value}
+            inputFormat='YYYY/MM/DD'
             renderInput={(params) => (
                 <TextField
                     {...params}
@@ -1747,18 +1755,44 @@ type NavBarProps = {
 function NavTopBar(props: NavBarProps) {
 
     return (<Stack key="topbar" spacing={0.5} width="100%">
+        <Stack direction={"row"} justifyContent='center' spacing={0.5} width="100%" height='1.8em'>
+            <Stack height='100%' justifyContent='center' width='18em'>
+                <Typography variant='button' height='1em' >Refresh:</Typography>
+            </Stack>
+            <Button
+                variant='outlined'
+                fullWidth
+                size='small'
+                onClick={() => {
+                    Xrm.Page.ui.refreshRibbon(true)
+                }}>
+                Ribbon
+            </Button>
+            <Button
+                variant='outlined'
+                fullWidth
+                size='small'
+                onClick={() => {
+                    Xrm.Page.data.refresh(false)
+                }}
+            >
+                Form
+            </Button>
+        </Stack>
+        <Divider variant='middle' />
         <Stack direction={"row"} key="entityrecordselectors" spacing={0.5} width="100%">
             <EntitySelector setEntityname={props.setEntityname} entityname={props.entityname} />
             <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple theme={theme} />
             <Button
                 onClick={() => {
-                    props.setRecordsIds([])
-                    setTimeout(() => {
-                        props.setCurrentRecord()
-                    }, 100);
+                    props.setCurrentRecord()
+                    // props.setRecordsIds([])
+                    // setTimeout(() => {
+                    //     props.setCurrentRecord()
+                    // }, 100);
                 }}
             >
-                Refresh
+                Reload
             </Button>
         </Stack>
         <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">

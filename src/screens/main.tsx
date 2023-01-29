@@ -10,9 +10,27 @@ import { GetData, GetUrl, waitForElm } from '../utils/global/common';
 import { useEffectOnce } from 'usehooks-ts';
 import XrmObserver from '../utils/global/XrmObserver';
 import { ProcessButton } from '../utils/global/.processClass';
+import { createGenerateClassName, createStyles, createTheme, makeStyles, MuiThemeProvider, StylesProvider, Theme, ThemeProvider } from '@material-ui/core';
 
+import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
+
+ClassNameGenerator.configure(
+    // Do something with the componentName
+    (componentName) => `sidepanel-dev-tools-updateRecord-${componentName}`,
+);
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            width: '100%',
+            padding: '10px'
+        },
+    }),
+);
 
 export const MainScreen: React.FunctionComponent = () => {
+    const classes = useStyles();
+
     const processesListString = GetData(storageListName)
     const processesList: StorageProcessList[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
 
@@ -23,9 +41,8 @@ export const MainScreen: React.FunctionComponent = () => {
         })
     }, [])
 
-
     return (
-        <Stack spacing={0.5} width={"100%"} padding={"10px"}>
+        <Stack spacing={0.5} className={classes.root}>
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id)
@@ -50,7 +67,7 @@ function initExtension() {
         paneId: "dynamicsToolsMenu",
         title: "Dynamics Tools Menu",
         canClose: false,
-        imageSrc: GetUrl("icons/favicon.ico"),
+        imageSrc: GetUrl("extensionIcons/MainLogo.png"),
         hideHeader: false,
         isSelected: false,
         width: 200,

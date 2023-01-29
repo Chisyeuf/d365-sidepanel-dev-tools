@@ -1,6 +1,6 @@
 {
-    "short_name": "Mui Dev Tools",
-    "name": "Mui Dynamics Dev Tools",
+    "short_name": "SidePanel Dev Tools",
+    "name": "D365 SidePanel Dev Tools",
     "description": "",
     "version": "1.0",
     "manifest_version": 3,
@@ -9,9 +9,9 @@
         "default_title": "Options"
     },
     "icons": {
-        "16": "icons/favicon.ico",
-        "48": "icons/favicon.ico",
-        "128": "icons/favicon.ico"
+        "16": "extensionIcons/MainLogo.png",
+        "48": "extensionIcons/MainLogo.png",
+        "128": "extensionIcons/MainLogo.png"
     },
     "content_scripts": [
         {
@@ -21,15 +21,11 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["/static/js/main.js", "/icons/*"],
+            "resources": ["/static/js/main.js", "/icons/*", "/extensionIcons/*"],
             "matches": ["https://*.dynamics.com/*"]
         }
     ],
     "permissions": [
         "storage"
-    ],
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#ffffff"
+    ]
 }

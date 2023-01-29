@@ -61,6 +61,12 @@ export default Processes;
 //         width: 350,
 //     },
 // chrome.storage.onChanged.addListener
-// Visualization/Tracking des processus
+
+// Edit JS en temps réel et publier
+// Visualization/Tracking des processus sur le record
+// lister tous les related records
+// lister les users qui ont accès à un enregistrement avec leur niveau d'accès
+// lister les entities pour afficher les grilles de records non présent dans l'apps
 // lister les environnements
+// Impersonnation
 // ];

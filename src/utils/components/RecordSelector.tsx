@@ -85,7 +85,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                     style: { cursor: !disabled ? "pointer" : "auto" }
                 }}
                 sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                value={recordsDisplayNames.at(0)?.displayName ?? ""}
+                value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
                 // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
                 disabled={disabled}
             />

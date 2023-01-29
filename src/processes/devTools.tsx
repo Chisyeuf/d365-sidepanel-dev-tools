@@ -1,12 +1,14 @@
 
-import { Button, createTheme, ThemeProvider } from '@mui/material';
+import { Button, createTheme, ThemeProvider, Tooltip } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../utils/global/.processClass';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import HandymanIcon from '@mui/icons-material/Handyman';
 import XrmObserver from '../utils/global/XrmObserver';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 class DevToolsButton extends ProcessButton {
     constructor() {
@@ -70,26 +72,46 @@ const theme = createTheme({
     },
 });
 
+
+
+const toolsList = [EnableMode, VisibleMode];
+
+type XrmStatus = {
+    isRecord: boolean;
+    entityName?: string;
+    recordId?: string;
+}
+
 const DevToolsProcess = forwardRef<ProcessRef, ProcessProps>(
     function DevToolsProcess(props: ProcessProps, ref) {
+
+        const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
+            isRecord: false,
+        });
 
         useImperativeHandle(ref, () => ({
             onClose() {
                 XrmObserver.removeListener(xrmObserverCallback)
             }
         }));
-        const xrmObserverCallback = () => {
-            if (!Xrm.Page.data) return
-        }
+        const xrmObserverCallback = useCallback(() => {
+            setXrmStatus({
+                isRecord: !!Xrm.Page.data,
+                entityName: Xrm.Page.data?.entity.getEntityName(),
+                recordId: Xrm.Page.data?.entity.getId(),
+            })
+        }, []);
 
-        const [toolsList] = useState([GodMode]);
-        // setToolsList();
+        useEffect(() => {
+            XrmObserver.addListener(xrmObserverCallback);
+        }, [])
+
 
         return (<ThemeProvider theme={theme}>
             <Stack spacing={2} width="100%" padding={"5px"}>
                 {
                     toolsList?.map((SubProcess, index) => {
-                        return <SubProcess />;
+                        return <SubProcess xrmStatus={xrmStatus} />;
                     })
                 }
             </Stack>
@@ -98,93 +120,156 @@ const DevToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 );
 
 
-
-type SubProcessProps = {
-
+type FormControlState<T> = {
+    name: string
+    defaultState: T
 }
-function GodMode(props: SubProcessProps) {
-    const lockedIcon: string = "LockSolid";
-    const unlockedIcon: string = "UnlockSolid";
+type SubProcessProps = {
+    xrmStatus: XrmStatus
+}
+function EnableMode(props: SubProcessProps) {
 
-
-    const [godEnable, setGodEnable] = useState(false);
-    const [formControls, setFormControls] = useState<ReturnType<typeof FormControl | typeof FieldControl>[]>();
+    const [enableModeEnable, setEnableMode] = useState(false);
+    const [enableControls, setEnableControls] = useState<FormControlState<boolean>[]>([]);
 
     const onClick = () => {
-        setGodEnable((prev) => !prev);
+        setEnableMode((prev) => !prev);
     }
 
-    const populateControls = () => {
-        console.log("populate");
-        var formControls: ReturnType<typeof FormControl | typeof FieldControl>[] = [];
-        Xrm.Page.ui.controls?.forEach(function (c) {
-            formControls.push(FieldControl(c));
+    useEffect(() => {
+        console.log(props.xrmStatus);
+        if (props.xrmStatus.isRecord) {
+            getAllControl();
+        }
+    }, [props.xrmStatus]);
+
+    const getAllControl = () => {
+        const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
+        const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
+        const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
+
+        const allcontrols: FormControlState<boolean>[] = controls.map<FormControlState<boolean>>(c => {
+            return {
+                name: c.getName(),
+                defaultState: ((c as any).getDisabled && (c as any).getDisabled()) ?? false,
+                // setFunction: (c as any).setDisabled ?? (() => { }),
+            }
         });
-        Xrm.Page.ui.tabs?.forEach(function (t) {
-            formControls.push(FormControl(t));
-            t.sections?.forEach(function (s) {
-                formControls.push(FormControl(s));
-            });
-        });
-        setFormControls(formControls);
-    };
+
+        setEnableControls(allcontrols);
+    }
+
+    const toggle = () => {
+        enableControls.forEach(c => {
+            const controlTemp:any = Xrm.Page.getControl(c.name) as any;
+            controlTemp.setDisabled && controlTemp.setDisabled(enableModeEnable || c.defaultState);
+        })
+    }
 
     useEffect(() => {
-        const toggleVisible = () => {
-            formControls?.forEach(function (c) {
-                c.toggleVisible(godEnable);
-            });
-        }
+        toggle();
+    }, [enableModeEnable, enableControls])
 
-        const toggleDisabled = () => {
-            formControls?.forEach(function (c) {
-                c.toggleDisabled(godEnable);
-            });
-        }
+    return (
+        <Tooltip title='Enable Mode'>
+            <Button
+                variant="contained"
+                onClick={onClick}
+                startIcon={enableModeEnable ? <LockOpenIcon /> : <LockIcon />}
+            />
+        </Tooltip>
+    );
+}
 
-        toggleVisible();
-        toggleDisabled();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [godEnable])
+function VisibleMode(props: SubProcessProps) {
 
+    const [visibleModeEnable, setVisibleMode] = useState(false);
+    const [visibilityControls, setVisibilityControls] = useState<FormControlState<boolean>[]>([]);
+    const [tabControls, setTabControls] = useState<FormControlState<boolean>[]>([])
+    const [sectionControls, setSectionControls] = useState<FormControlState<boolean>[]>([])
 
+    const onClick = () => {
+        setVisibleMode((prev) => !prev);
+    }
 
     useEffect(() => {
-        populateControls();
-    }, []);
-    return (<Button variant="contained" onClick={onClick} startIcon={godEnable ? <LockOpenIcon /> : <LockIcon />} />);
+        console.log(props.xrmStatus);
+        if (props.xrmStatus.isRecord) {
+            getAllControl();
+        }
+    }, [props.xrmStatus]);
+
+    useEffect(() => {
+    }, [visibleModeEnable]);
+
+
+    const getAllControl = () => {
+        const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
+        const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
+        const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
+        // const allcontrols: FormControlState<boolean>[] = [...controls, ...tabs, ...sections].map<FormControlState<boolean>>(c => {
+        //     return {
+        //         name: c.getName(),
+        //         defaultState: ((c as any).getVisible && (c as any).getVisible()) ?? true,
+        //         // setFunction: (c as any).setVisible ?? (() => { }),
+        //     }
+        // });
+
+        setVisibilityControls(controls.map<FormControlState<boolean>>(c => {
+            return {
+                name: c.getName(),
+                defaultState: ((c as any).getVisible && (c as any).getVisible()) ?? true,
+                // setFunction: (c as any).setVisible ?? (() => { }),
+            }
+        }));
+        setTabControls(tabs.map<FormControlState<boolean>>(c => {
+            return {
+                name: c.getName(),
+                defaultState: ((c as any).getVisible && (c as any).getVisible()) ?? true,
+                // setFunction: (c as any).setVisible ?? (() => { }),
+            }
+        }));
+        setSectionControls(sections.map<FormControlState<boolean>>(c => {
+            return {
+                name: c.getName(),
+                defaultState: ((c as any).getVisible && (c as any).getVisible()) ?? true,
+                // setFunction: (c as any).setVisible ?? (() => { }),
+            }
+        }))
+    }
+
+    const toggle = () => {
+        visibilityControls.forEach(c => {
+            const controlTemp:any = Xrm.Page.getControl(c.name) as any;
+            controlTemp.setDisabled && controlTemp.setDisabled(visibleModeEnable || c.defaultState);
+        });
+        tabControls.forEach(t => {
+            const tabControlTemp = Xrm.Page.ui.tabs.get(t.name);
+            tabControlTemp.setVisible(visibleModeEnable || t.defaultState);
+            sectionControls.forEach(s => {
+                const sectionControlTemp = tabControlTemp.sections.get(s.name);
+                if (sectionControlTemp) {
+                    sectionControlTemp.setVisible(visibleModeEnable || s.defaultState)
+                }
+            })
+        });
+    }
+
+    useEffect(() => {
+        toggle();
+    }, [visibleModeEnable, visibilityControls])
+
+
+    return (
+        <Tooltip title='Visible Mode'>
+            <Button
+                variant="contained"
+                onClick={onClick}
+                startIcon={visibleModeEnable ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            />
+        </Tooltip>
+    );
 }
-
-function FormControl(control: Xrm.Controls.Tab | Xrm.Controls.Section) {
-
-    const originalVisible = control.getVisible();
-
-    var toggleVisible = (godEnable: boolean) => {
-        control.setVisible(godEnable || originalVisible);
-    };
-    var toggleDisabled = () => {
-        return;
-    };
-
-    return { toggleVisible, toggleDisabled };
-}
-
-function FieldControl(c: Xrm.Controls.Control) {
-
-    var control = c as Xrm.Controls.StandardControl & Xrm.Controls.UiCanSetVisibleElement;
-    const originalVisible = control.getVisible();
-    const originalDisabled = control.getDisabled();
-
-    var toggleVisible = (godEnable: boolean) => {
-        control.setVisible(godEnable || originalVisible);
-    };
-    var toggleDisabled = (godEnable: boolean) => {
-        control.setDisabled(godEnable || originalDisabled);
-    };
-
-    return { toggleVisible, toggleDisabled };
-}
-
 
 var devTools = new DevToolsButton();
 export default devTools;
