@@ -1,41 +1,66 @@
 
-import { Dispatch, forwardRef, ReactNode, SetStateAction, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
-import { ProcessButton, ProcessProps, ProcessRef } from '../utils/global/.processClass'
-import { AttributeMetadata, MSType, MSDateFormat, getReadableMSType } from '../utils/global/requestsType'
-import { capitalizeFirstLetter, formatId, groupBy, isArraysEquals } from '../utils/global/common'
-import React from 'react'
-import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttributesMetaData'
-import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes'
-import { PickListOption, RetrievePicklistValues } from '../utils/hooks/XrmApi/RetrievePicklistValues'
-import SyncIcon from '@mui/icons-material/Sync';
-import { useBoolean, useUpdateEffect } from 'usehooks-ts'
-import { Stack, Button, createTheme, Divider, FormControl, IconButton, InputAdornment, MenuItem, Select, SelectChangeEvent, TextField, Typography, ThemeProvider, Skeleton, createSvgIcon, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, ListSubheader } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import '../utils/global/extensions';
+import '../utils/components/ReportComplete';
+
 import dayjs, { Dayjs } from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import React, {
+    Dispatch, forwardRef, ReactNode, SetStateAction, useCallback, useEffect, useImperativeHandle,
+    useMemo, useState
+} from 'react';
+import { useBoolean, useUpdateEffect } from 'usehooks-ts';
+
+import ShortTextIcon from '@material-ui/icons/ShortText';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
+import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
-import { NoMaxWidthTooltip } from '../utils/components/updateRecordComponents'
-import ShortTextIcon from '@material-ui/icons/ShortText'
+import DeleteIcon from '@mui/icons-material/Delete';
+import ListIcon from '@mui/icons-material/List';
 import NotesIcon from '@mui/icons-material/Notes';
 import NumbersIcon from '@mui/icons-material/Numbers';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import ListIcon from '@mui/icons-material/List';
-import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
-import { DictValueType, useDictionnary } from '../utils/hooks/use/useDictionnary'
-import NumericInput from '../utils/components/NumericInput'
-import '../utils/global/extensions';
-import { RetrieveSetName } from '../utils/hooks/XrmApi/RetrieveSetName'
-import { SnackbarProvider, useSnackbar } from 'notistack'
-import '../utils/components/ReportComplete'
-import ErrorFileSnackbar from '../utils/components/ReportComplete'
-import XrmObserver from '../utils/global/XrmObserver'
-import RecordSelector from '../utils/components/RecordSelector'
-import FilterInput from '../utils/components/FilterInput'
-import EntitySelector from '../utils/components/EntitySelector'
-import MuiCalculator from '../utils/components/MuiCalculator'
+import SyncIcon from '@mui/icons-material/Sync';
+import { createSvgIcon, createTheme, ThemeProvider } from '@mui/material';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import ListSubheader from '@mui/material/ListSubheader';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import EntitySelector from '../utils/components/EntitySelector';
+import FilterInput from '../utils/components/FilterInput';
+import MuiCalculator from '../utils/components/MuiCalculator';
+import NumericInput from '../utils/components/NumericInput';
+import RecordSelector from '../utils/components/RecordSelector';
+import { NoMaxWidthTooltip } from '../utils/components/updateRecordComponents';
+import { ProcessButton, ProcessProps, ProcessRef } from '../utils/global/.processClass';
+import { capitalizeFirstLetter, formatId, groupBy, isArraysEquals } from '../utils/global/common';
+import {
+    AttributeMetadata, getReadableMSType, MSDateFormat, MSType
+} from '../utils/global/requestsType';
+import XrmObserver from '../utils/global/XrmObserver';
+import { DictValueType, useDictionnary } from '../utils/hooks/use/useDictionnary';
+import { RetrieveAttributes } from '../utils/hooks/XrmApi/RetrieveAttributes';
+import { RetrieveAttributesMetaData } from '../utils/hooks/XrmApi/RetrieveAttributesMetaData';
+import {
+    PickListOption, RetrievePicklistValues
+} from '../utils/hooks/XrmApi/RetrievePicklistValues';
+import { RetrieveSetName } from '../utils/hooks/XrmApi/RetrieveSetName';
+import ErrorFileSnackbar from '../utils/components/ReportComplete';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {

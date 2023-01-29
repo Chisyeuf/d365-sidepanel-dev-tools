@@ -1,18 +1,21 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { useEffectOnce } from 'usehooks-ts';
+
+import {
+    createGenerateClassName, createStyles, createTheme, makeStyles, MuiThemeProvider,
+    StylesProvider, Theme, ThemeProvider
+} from '@material-ui/core';
+import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
 import Stack from '@mui/material/Stack';
 
-import Processes, { defaultProcessesList, storageListName, StorageProcessList } from '../processes/.list';
-
-import ReactDOM from 'react-dom';
-
+import Processes, {
+    defaultProcessesList, storageListName, StorageProcessList
+} from '../processes/.list';
 import reportWebVitals from '../reportWebVitals';
-import { GetData, GetUrl, waitForElm } from '../utils/global/common';
-import { useEffectOnce } from 'usehooks-ts';
-import XrmObserver from '../utils/global/XrmObserver';
 import { ProcessButton } from '../utils/global/.processClass';
-import { createGenerateClassName, createStyles, createTheme, makeStyles, MuiThemeProvider, StylesProvider, Theme, ThemeProvider } from '@material-ui/core';
-
-import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
+import { GetData, GetUrl, waitForElm } from '../utils/global/common';
+import XrmObserver from '../utils/global/XrmObserver';
 
 ClassNameGenerator.configure(
     // Do something with the componentName

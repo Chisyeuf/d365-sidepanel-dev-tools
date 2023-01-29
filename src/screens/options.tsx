@@ -1,20 +1,20 @@
+import '../utils/global/extensions';
+
 import React, { useEffect, useMemo, useState } from 'react';
-import Stack from '@mui/material/Stack';
-
-import Processes, { defaultProcessesList, storageListName, StorageProcessList } from '../processes/.list';
-
 import ReactDOM from 'react-dom';
 
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+
+import Processes, {
+    defaultProcessesList, storageListName, StorageProcessList
+} from '../processes/.list';
 import reportWebVitals from '../reportWebVitals';
 import { waitForElm } from '../utils/global/common';
-import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-import '../utils/global/extensions';
 import { useStorage } from '../utils/hooks/use/useStorage';
-
 
 const OptionsScreen: React.FunctionComponent = () => {
     const [processesList, setProcessList] = useStorage<StorageProcessList[]>(storageListName, defaultProcessesList)
