@@ -1,8 +1,10 @@
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const smp = new SpeedMeasurePlugin();
 
 module.exports = {
     webpack: {
         configure: (webpackConfig, {env, paths}) => {
-            return {
+            return smp.wrap({
                 ...webpackConfig,
                 entry: {
                     main: [env === 'development' && require.resolve('react-dev-utils/webpackHotDevClient'),paths.appIndexJs].filter(Boolean),
@@ -18,7 +20,7 @@ module.exports = {
                     ...webpackConfig.optimization,
                     runtimeChunk: false,
                 }
-            }
+            })
         },
     }
  }
