@@ -62,6 +62,11 @@ import {
 import { RetrieveSetName } from '../utils/hooks/XrmApi/RetrieveSetName';
 import ErrorFileSnackbar from '../utils/components/ReportComplete';
 
+
+import { useWorker, WORKER_STATUS } from "@koale/useworker";
+
+// import { createContext, useContextSelector } from 'use-context-selector';
+
 class UpdateRecordButton extends ProcessButton {
     constructor() {
         super(
@@ -87,7 +92,7 @@ class UpdateRecordButton extends ProcessButton {
     }
 }
 
-
+const rowHeight = 42.625
 
 // declare module '@mui/material/Checkbox' {
 //     interface CheckboxPropsColorOverrides {
@@ -164,6 +169,14 @@ const DecimalIcon = createSvgIcon(
     />,
     'Decimal',
 );
+
+// type ContextType = {
+//     attributesMetadata: AttributeMetadata[],
+//     attributes: { [key: string]: any },
+//     recordsId: string[],
+//     entityName: string
+// }
+// const updateContext = createContext<ContextType>({ attributesMetadata: [], attributes: {}, recordsId: [], entityName: '' });
 
 const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     function UpdateRecordProcess(props: ProcessProps, ref) {
@@ -280,11 +293,42 @@ function AttributesList(props: AttributesListProps) {
     const recordid = props.recordsIds?.length == 1 ? props.recordsIds?.at(0) : undefined
     const filter = props.filter
 
+    const [attributesMetadataVisible, setAttributesMetadataVisible] = useState<{ isVisible: boolean, metadata: AttributeMetadata }[]>([])
+    const [filteredBy, setFilteredBy] = useState<string | null>(null)
     const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
         if (value.MStype !== MSType.Lookup) return value.LogicalName
         else return "_" + value.LogicalName + "_value"
     }) ?? [])
+
+    const [
+        visibleWorker,
+        { status: visibleWorkerStatus, kill: killWorker }
+    ] = useWorker((attributesMetadataList: AttributeMetadata[], filter: string) => {
+        return attributesMetadataList.map((a) => {
+            return {
+                isVisible: (a.DisplayName.toLowerCase().indexOf(filter) !== -1 ||
+                    a.LogicalName.indexOf(filter) !== -1 ||
+                    a.SchemaName.toLowerCase().indexOf(filter) !== -1),
+                metadata: a
+            }
+        })
+    }, {
+        autoTerminate: false
+    });
+
+    useEffect(() => {
+        // console.log('visibleWorker', attributesMetadataRetrieved, filteredBy, visibleWorkerStatus)
+        if (filter != filteredBy && visibleWorkerStatus != WORKER_STATUS.RUNNING) {
+            visibleWorker(attributesMetadataRetrieved, filter).then((result) => {
+                // console.log('result', result)
+                setAttributesMetadataVisible(result)
+                setFilteredBy(filter)
+            })
+        }
+    }, [attributesMetadataRetrieved, filter, visibleWorkerStatus])
+
+
 
     return (<>{
         !fetchingMetadata
@@ -294,7 +338,8 @@ function AttributesList(props: AttributesListProps) {
                 {
                     !fetchingValues
                         ?
-                        attributesMetadataRetrieved?.map((metadata) => {
+                        attributesMetadataVisible?.map((attribute) => {
+                            const { isVisible, metadata } = attribute
                             const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
                             return (
                                 <AttributeNode
@@ -302,14 +347,14 @@ function AttributesList(props: AttributesListProps) {
                                     attribute={metadata}
                                     entityname={props.entityname}
                                     value={attributesRetrieved[attributeName]}
-                                    filter={filter.toLocaleLowerCase()}
+                                    isVisible={isVisible}
                                     resetTotal={props.resetTotal}
                                     attributeToUpdateManager={props.attributeToUpdateManager}
                                 />
                             )
                         })
                         :
-                        [...Array(16)].map(() => <Skeleton variant='rounded' height='42.625px' />)
+                        [...Array(16)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
                 }
             </Stack>
             :
@@ -325,7 +370,7 @@ type AttributeNodeProps = {
     entityname: string,
     value: any,
     disabled: boolean,
-    filter: string,
+    isVisible: boolean,
     resetTotal: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void }
 }
@@ -362,11 +407,15 @@ function AttributeNode(props: AttributeNodeProps) {
         </>
         , [props.attribute])
 
-    const isVisible = useMemo(() => {
-        return (props.attribute.DisplayName.toLowerCase().indexOf(props.filter) !== -1 ||
-            props.attribute.LogicalName.indexOf(props.filter) !== -1 ||
-            props.attribute.SchemaName.toLowerCase().indexOf(props.filter) !== -1)
-    }, [props.filter, props.attribute])
+    // useEffect(() => {
+    //     (async () => {
+    //         return (props.attribute.DisplayName.toLowerCase().indexOf(props.filter) !== -1 ||
+    //             props.attribute.LogicalName.indexOf(props.filter) !== -1 ||
+    //             props.attribute.SchemaName.toLowerCase().indexOf(props.filter) !== -1)
+    //     })().then(result => {
+    //         setisVisible(result);
+    //     });
+    // }, [props.filter, props.attribute])
 
     useEffect(() => {
         if (isToUpdate === false) {
@@ -396,7 +445,7 @@ function AttributeNode(props: AttributeNodeProps) {
             alignItems="center"
             spacing="2px"
             className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
-            style={{ display: isVisible ? '' : 'none' }}
+            style={{ display: props.isVisible ? '' : 'none' }}
         >
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
                 <Stack
