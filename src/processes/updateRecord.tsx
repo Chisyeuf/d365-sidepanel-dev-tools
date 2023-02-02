@@ -319,7 +319,10 @@ function AttributesList(props: AttributesListProps) {
 
     useEffect(() => {
         // console.log('visibleWorker', attributesMetadataRetrieved, filteredBy, visibleWorkerStatus)
-        if (filter != filteredBy && visibleWorkerStatus != WORKER_STATUS.RUNNING) {
+        if (attributesMetadataRetrieved.length === 0) {
+            setFilteredBy(null)
+        }
+        if (filter != filteredBy && attributesMetadataRetrieved.length > 0 && visibleWorkerStatus != WORKER_STATUS.RUNNING) {
             visibleWorker(attributesMetadataRetrieved, filter).then((result) => {
                 // console.log('result', result)
                 setAttributesMetadataVisible(result)
