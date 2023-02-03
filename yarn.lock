@@ -24,7 +24,7 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.18.6", "@babel/code-frame@^7.8.3":
+"@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.18.6", "@babel/code-frame@^7.8.3":
   version "7.18.6"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.18.6.tgz#3b25d38c89600baa2dcc219edfa88a74eb2c427a"
   integrity sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q==
@@ -2674,6 +2674,11 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.190.tgz#d8e99647af141c63902d0ca53cf2b34d2df33545"
   integrity sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==
 
+"@types/lodash@^4.14.191":
+  version "4.14.191"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.191.tgz#09511e7f7cba275acd8b419ddac8da9a6a79e2fa"
+  integrity sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
+
 "@types/mime@*":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-3.0.1.tgz#5f8f2bca0a5863cb69bc0b0acd88c96cb1d4ae10"
@@ -5277,7 +5282,7 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-enhanced-resolve@^5.10.0:
+enhanced-resolve@^5.0.0, enhanced-resolve@^5.10.0:
   version "5.12.0"
   resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.12.0.tgz#300e1c90228f5b570c4d35babf263f6da7155634"
   integrity sha512-QHTXI/sZQmko1cbDoNAa3mJ5qhWUUNAq3vR0/YiD379fWQrcfuoX1+HW2S0MTt7XmoPLapdaDKUtelUSPic7hQ==
@@ -6021,6 +6026,24 @@ fork-ts-checker-webpack-plugin@^6.5.0:
     schema-utils "2.7.0"
     semver "^7.3.2"
     tapable "^1.0.0"
+
+fork-ts-checker-webpack-plugin@^7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-7.3.0.tgz#a9c984a018493962360d7c7e77a67b44a2d5f3aa"
+  integrity sha512-IN+XTzusCjR5VgntYFgxbxVx3WraPRnKehBFrf00cMSrtUuW9MsG9dhL6MWpY6MkjC3wVwoujfCDgZZCQwbswA==
+  dependencies:
+    "@babel/code-frame" "^7.16.7"
+    chalk "^4.1.2"
+    chokidar "^3.5.3"
+    cosmiconfig "^7.0.1"
+    deepmerge "^4.2.2"
+    fs-extra "^10.0.0"
+    memfs "^3.4.1"
+    minimatch "^3.0.4"
+    node-abort-controller "^3.0.1"
+    schema-utils "^3.1.1"
+    semver "^7.3.5"
+    tapable "^2.2.1"
 
 form-data@^3.0.0:
   version "3.0.1"
@@ -8299,6 +8322,13 @@ memfs@^3.1.2, memfs@^3.4.3:
   dependencies:
     fs-monkey "^1.0.3"
 
+memfs@^3.4.1:
+  version "3.4.13"
+  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.13.tgz#248a8bd239b3c240175cd5ec548de5227fc4f345"
+  integrity sha512-omTM41g3Skpvx5dSYeZIbXKcXoAVc/AoMNwn9TKx++L/gaen/+4TTttmu8ZSch5vfVJ8uJvGbroTsIlslRg6lg==
+  dependencies:
+    fs-monkey "^1.0.3"
+
 meow@^3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/meow/-/meow-3.7.0.tgz#72cb668b425228290abbfa856892587308a801fb"
@@ -8384,7 +8414,7 @@ methods@~1.1.2:
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
   integrity sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==
 
-micromatch@^4.0.2, micromatch@^4.0.4, micromatch@^4.0.5:
+micromatch@^4.0.0, micromatch@^4.0.2, micromatch@^4.0.4, micromatch@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-4.0.5.tgz#bc8999a7cbbf77cdc89f132f6e467051b49090c6"
   integrity sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==
@@ -8568,6 +8598,11 @@ no-case@^3.0.4:
   dependencies:
     lower-case "^2.0.2"
     tslib "^2.0.3"
+
+node-abort-controller@^3.0.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/node-abort-controller/-/node-abort-controller-3.1.1.tgz#a94377e964a9a37ac3976d848cb5c765833b8548"
+  integrity sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==
 
 node-forge@^1:
   version "1.3.1"
@@ -11394,7 +11429,7 @@ tapable@^1.0.0:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
   integrity sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==
 
-tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0:
+tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-2.2.1.tgz#1967a73ef4060a82f12ab96af86d52fdb76eeca0"
   integrity sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==
@@ -11591,6 +11626,16 @@ tryer@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.1.tgz#f2c85406800b9b0f74c9f7465b81eaad241252f8"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
+
+ts-loader@^9.4.2:
+  version "9.4.2"
+  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-9.4.2.tgz#80a45eee92dd5170b900b3d00abcfa14949aeb78"
+  integrity sha512-OmlC4WVmFv5I0PpaxYb+qGeGOdm5giHU7HwDDUjw59emP2UYMHy9fFSDcYgSNoH8sXcj4hGCSEhlDZ9ULeDraA==
+  dependencies:
+    chalk "^4.1.0"
+    enhanced-resolve "^5.0.0"
+    micromatch "^4.0.0"
+    semver "^7.3.4"
 
 ts-node@^10.7.0:
   version "10.9.1"

@@ -1,26 +1,53 @@
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 const smp = new SpeedMeasurePlugin();
 
 module.exports = {
     webpack: {
-        configure: (webpackConfig, {env, paths}) => {
-            return smp.wrap({
+        configure: (webpackConfig, { env, paths }) => {
+            // console.log(webpackConfig.module);
+            // console.log(webpackConfig.module.rules[1]);
+
+            const newWebpack = smp.wrap({
                 ...webpackConfig,
+                module: {
+                    ...webpackConfig.module,
+                    rules: [
+                        {
+                            test: /\.tsx?$/,
+                            loader: 'ts-loader',
+                            // add transpileOnly option if you use ts-loader < 9.3.0
+                            options: {
+                                transpileOnly: true
+                            }
+                        },
+                        webpackConfig.module.rules[1]
+                    ]
+                },
+                plugins: [...webpackConfig.plugins, new ForkTsCheckerWebpackPlugin()],
                 entry: {
-                    main: [env === 'development' && require.resolve('react-dev-utils/webpackHotDevClient'),paths.appIndexJs].filter(Boolean),
+                    main: [
+                        env === 'development' &&
+                            require.resolve('react-dev-utils/webpackHotDevClient'),
+                        paths.appIndexJs
+                    ].filter(Boolean),
                     content: './src/content.tsx',
                     options: './src/screens/options.tsx'
                 },
                 output: {
                     ...webpackConfig.output,
                     filename: 'static/js/[name].js',
-                    asyncChunks: true,
+                    asyncChunks: true
                 },
                 optimization: {
                     ...webpackConfig.optimization,
-                    runtimeChunk: false,
+                    runtimeChunk: false
                 }
-            })
-        },
+            });
+
+            // console.log(newWebpack.module);
+
+            return newWebpack;
+        }
     }
- }
+}
