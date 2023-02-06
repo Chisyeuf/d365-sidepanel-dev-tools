@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
-import devTools from './devTools';
+import formTools from './formTools';
 import updateRecord from './updateRecord';
 
-const Processes: ProcessButton[] = [devTools, updateRecord];
+const Processes: ProcessButton[] = [formTools, updateRecord];
 
 
 export type StorageProcessList = {
