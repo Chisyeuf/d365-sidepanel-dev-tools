@@ -1,5 +1,5 @@
 
-import { Button, createTheme, ThemeProvider, Tooltip } from '@mui/material';
+import { Button, createTheme, IconButton, ThemeProvider, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../utils/global/.processClass';
@@ -9,6 +9,15 @@ import HandymanIcon from '@mui/icons-material/Handyman';
 import XrmObserver from '../utils/global/XrmObserver';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import ComponentContainer from '../utils/components/ComponentContainer';
+import CloudOffIcon from '@mui/icons-material/CloudOff';
+import CloudIcon from '@mui/icons-material/Cloud';
+import VpnKeyOffOutlinedIcon from '@mui/icons-material/VpnKeyOffOutlined';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -74,7 +83,7 @@ const theme = createTheme({
 
 
 
-const toolsList = [EnableMode, VisibleMode];
+const toolsList = [GodMode];
 
 type ExecutionContext = Xrm.Events.DataLoadEventContext | null;
 
@@ -123,7 +132,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (<ThemeProvider theme={theme}>
-            <Stack spacing={2} width="100%" padding={"5px"}>
+            <Stack spacing={1} width="calc(100% - 10px)" padding={"5px"}>
                 {
                     toolsList?.map((SubProcess, index) => {
                         return <SubProcess executionContext={executionContext} />;
@@ -135,17 +144,45 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 );
 
 
+function GodMode(props: SubProcessProps) {
+    return (
+        <ComponentContainer
+            width='100%'
+            Legends={
+                {
+                    top: {
+                        component: (
+                            <IconButton>
+                                <AutoFixHighIcon />
+                            </IconButton>
+                        ),
+                        margin: '30px',
+                        padding: '15px'
+                    },
+                    left: {
+                        component: <div style={{ writingMode: 'vertical-rl' }}>GodMode</div>
+                    }
+                }
+            }
+        >
+            <Stack spacing={1} width="calc(100% - 10px)" padding={"5px"}>
+                <EnableMode executionContext={props.executionContext} />
+                <VisibleMode executionContext={props.executionContext} />
+                <EditableMode executionContext={props.executionContext} />
+            </Stack>
+        </ComponentContainer>
+    );
+}
+
 type FormControlState<T> = {
     name: string
     defaultState: T
 }
-
-
-type EnableModeStateType = FormControlState<boolean>;
 type SubProcessProps = {
     // xrmStatus: XrmStatus
     executionContext: ExecutionContext
 }
+type EnableModeStateType = FormControlState<boolean>;
 function EnableMode(props: SubProcessProps) {
 
     const { executionContext } = props;
@@ -157,16 +194,13 @@ function EnableMode(props: SubProcessProps) {
     }
 
     useEffect(() => {
-        // console.log("executionContext Changed", !!executionContext);
-        toggleControlsDisabled();
+        toggle();
     }, [executionContext]);
 
     const enableableControls = useMemo(async () => {
         if (executionContext) {
 
             const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
-            // const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
-            // const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
 
             const allcontrols: EnableModeStateType[] = controls.map<EnableModeStateType>(c => {
                 return {
@@ -174,35 +208,15 @@ function EnableMode(props: SubProcessProps) {
                     defaultState: ((c as any).getDisabled && (c as any).getDisabled()) ?? false,
                 }
             });
-            // console.log("controls list:", allcontrols.map(c => c.name));
             return allcontrols;
         }
         else {
-            // console.log("controls list: null");
             return null;
         }
 
     }, [executionContext]);
 
-
-    // const getAllControl = () => {
-    //     const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
-    //     const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
-    //     const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
-
-    //     const allcontrols: FormControlState<boolean>[] = controls.map<FormControlState<boolean>>(c => {
-    //         return {
-    //             name: c.getName(),
-    //             defaultState: ((c as any).getDisabled && (c as any).getDisabled()) ?? false,
-    //             // setFunction: (c as any).setDisabled ?? (() => { }),
-    //         }
-    //     });
-
-    //     setEnableControls(allcontrols);
-    // }
-
-    const toggleControlsDisabled = async () => {
-        // console.log("toggleControlsDisabled:", enableableControls?.map(c => c.name) ?? "null");
+    const toggle = async () => {
         enableableControls.then((controls: EnableModeStateType[] | null) => {
             controls?.forEach(c => {
                 const controlTemp: any = Xrm.Page.getControl(c.name) as any;
@@ -212,7 +226,7 @@ function EnableMode(props: SubProcessProps) {
     }
 
     useEffect(() => {
-        toggleControlsDisabled();
+        toggle();
     }, [enableModeEnable, enableableControls]);
 
     return (
@@ -220,7 +234,65 @@ function EnableMode(props: SubProcessProps) {
             <Button
                 variant="contained"
                 onClick={toggleEnableMode}
-                startIcon={enableModeEnable ? <LockOpenIcon /> : <LockIcon />}
+                startIcon={enableModeEnable ? <VpnKeyIcon /> : <VpnKeyOffOutlinedIcon />}
+            />
+        </Tooltip>
+    );
+}
+
+type OptionalModeStateType = FormControlState<Xrm.Attributes.RequirementLevel>;
+function EditableMode(props: SubProcessProps) {
+
+    const { executionContext } = props;
+
+    const [optionalModeEnable, setOptionalMode] = useState(false);
+
+    const toggleMode = () => {
+        setOptionalMode((prev) => !prev);
+    }
+
+    useEffect(() => {
+        toggle();
+    }, [executionContext]);
+
+    const fieldsControls = useMemo(async () => {
+        if (executionContext) {
+
+            const controls: Xrm.Attributes.Attribute<any>[] = Xrm.Page.getAttribute();
+
+            const allcontrols: OptionalModeStateType[] = controls.map<OptionalModeStateType>(c => {
+                return {
+                    name: c.getName(),
+                    defaultState: c.getRequiredLevel(),
+                }
+            });
+            return allcontrols;
+        }
+        else {
+            return null;
+        }
+
+    }, [executionContext]);
+
+    const toggle = async () => {
+        fieldsControls.then((controls: OptionalModeStateType[] | null) => {
+            controls?.forEach(c => {
+                const controlTemp = Xrm.Page.getAttribute(c.name);
+                controlTemp.setRequiredLevel(optionalModeEnable ? 'none' : c.defaultState);
+            })
+        });
+    }
+
+    useEffect(() => {
+        toggle();
+    }, [optionalModeEnable, fieldsControls]);
+
+    return (
+        <Tooltip title='Optional Mode' placement='left'>
+            <Button
+                variant="contained"
+                onClick={toggleMode}
+                startIcon={optionalModeEnable ? <CloudIcon /> : <CloudOffIcon />}
             />
         </Tooltip>
     );
@@ -238,7 +310,6 @@ function VisibleMode(props: SubProcessProps) {
     }
 
     useEffect(() => {
-        // console.log("executionContext Changed", !!executionContext);
         toggle();
     }, [executionContext]);
 
@@ -254,11 +325,9 @@ function VisibleMode(props: SubProcessProps) {
                     defaultState: c.getVisible() ?? true,
                 }
             });
-            // console.log("controls list:", allcontrols.map(c => c.name));
             return allcontrols;
         }
         else {
-            // console.log("controls list: null");
             return null;
         }
 
@@ -275,11 +344,9 @@ function VisibleMode(props: SubProcessProps) {
                     defaultState: t.getVisible() ?? true,
                 }
             });
-            // console.log("controls list:", allcontrols.map(c => c.name));
             return allcontrols;
         }
         else {
-            // console.log("controls list: null");
             return null;
         }
 
@@ -340,7 +407,7 @@ function VisibleMode(props: SubProcessProps) {
             <Button
                 variant="contained"
                 onClick={onClick}
-                startIcon={visibleModeEnable ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                startIcon={visibleModeEnable ? <VisibilityIcon /> : <VisibilityOffOutlinedIcon />}
             />
         </Tooltip>
     );

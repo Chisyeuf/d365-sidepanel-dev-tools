@@ -1,9 +1,10 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { DataType, Property } from 'csstype';
-import { Button, Divider, styled } from "@mui/material";
+import { Button, Divider, Stack, styled } from "@mui/material";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { transform } from "lodash";
+import { StyledProps } from "@mui/styles";
 
 enum Location {
     top = 'top',
@@ -19,10 +20,10 @@ enum Position {
 }
 type PositionType = Position | keyof typeof Position;
 const PositionFlex = {
-    [Position.start]: 'flex-start',
-    [Position.end]: 'flex-end',
-    [Position.center]: 'center'
-};
+    [Position.start]: 'left',
+    [Position.center]: 'center',
+    [Position.end]: 'right',
+} as const;
 
 interface LegendRootProps {
     children: React.ReactNode,
@@ -38,10 +39,6 @@ const LegendContainer = styled('span', {
 })<ComponentContainerProps & LegendRootProps>(({ theme, ...props }) => ({
     backgroundColor: 'white',
     position: "absolute",
-    display: 'flex',
-    alignItems: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
-    justifyContent: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
-    alignContent: 'center',
     top: props.location === Location.top ? '-1px' : 'auto',
     bottom: props.location === Location.bottom ? '-1px' : 'auto',
     left: props.location === Location.left ? '-1px' : (props.location === Location.top || props.location === Location.bottom ? theme.spacing(theme.shape.borderRadius / 2) : 'auto'),
@@ -59,16 +56,18 @@ type TLength = (string & {}) | 0;
 export interface LegendProps {
     component: React.ReactNode,
     position?: PositionType,
+    padding?: Property.Padding,
+    margin?: Property.Margin,
 }
 export interface ComponentContainerProps {
     children: React.ReactNode,
-    title?: string,
+    width?: Property.Width,
     borderStyle?: Property.BorderStyle,
     borderWidth?: Property.BorderWidth<TLength>,
     borderColor?: Property.BorderColor,
     borderRadius?: Property.BorderRadius<TLength>,
     padding?: string | number,
-    Legend?: {
+    Legends?: {
         top?: LegendProps,
         bottom?: LegendProps,
         left?: LegendProps,
@@ -106,73 +105,89 @@ function ComponentContainer(props: ComponentContainerProps) {
             component='div'
             position='relative'
             height='fit-content'
-            width='fit-content'
+            width={props.width ?? 'fit-content'}
             sx={{
                 p: props.padding ?? 0,
                 borderStyle: props.borderStyle ?? 'solid',
                 borderWidth: props.borderWidth ?? '1px',
                 borderColor: (theme) => props.borderColor ?? theme.palette.divider,
-                borderRadius: (theme) => props.borderRadius ?? theme.shape.borderRadius,
-                paddingTop: topComponentHeight/2 + 'px',
-                paddingBottom: bottomComponentHeight/2 + 'px',
-                paddingLeft: leftComponentWidth/2 + 'px',
-                paddingRight: rightComponentWidth/2 + 'px',
-            }}
+                borderRadius: (theme) => props.borderRadius ?? theme.shape.borderRadius + 'px',
+                paddingTop: props.Legends?.top?.padding,
+                paddingBottom: props.Legends?.bottom?.padding,
+                paddingLeft: props.Legends?.left?.padding,
+                paddingRight: props.Legends?.right?.padding,
+                marginTop: props.Legends?.top?.margin,
+                marginBottom: props.Legends?.bottom?.margin,
+                marginLeft: props.Legends?.left?.margin,
+                marginRight: props.Legends?.right?.margin,
+            }
+            }
         >
-            {props.Legend &&
+            {
+                props.Legends &&
                 <>
                     {
-                        props.Legend.top &&
+                        props.Legends.top &&
                         <LegendContainer
                             ref={refTop}
                             location='top'
-                            position={props.Legend.top.position}
+                            position={props.Legends.top.position}
                         >
                             <Box component='span' width='100%'>
-                                <Divider>{props.Legend.top.component}</Divider>
+                                <Divider
+                                    textAlign={props.Legends.top.position ? PositionFlex[props.Legends.top.position] : PositionFlex.center}
+                                    role="presentation"
+                                >
+                                    {props.Legends.top.component}
+                                </Divider>
                             </Box>
                         </LegendContainer>
                     }
                     {
-                        props.Legend?.bottom &&
+                        props.Legends?.bottom &&
                         <LegendContainer
                             ref={refBottom}
                             location='bottom'
-                            position={props.Legend.bottom.position}
+                            position={props.Legends.bottom.position}
                         >
                             <Box component='span' width='100%'>
-                                <Divider>{props.Legend.bottom.component}</Divider>
+                                <Divider
+                                    textAlign={props.Legends.bottom.position ? PositionFlex[props.Legends.bottom.position] : PositionFlex.center}
+                                    role="presentation"
+                                >
+                                    {props.Legends.bottom.component}
+                                </Divider>
                             </Box>
                         </LegendContainer>
                     }
                     {
-                        props.Legend?.left &&
+                        props.Legends?.left &&
                         <LegendContainer
                             ref={refLeft}
                             location='left'
-                            position={props.Legend.left.position}
+                            position={props.Legends.left.position}
                         >
                             <Box component='span' height='100%'>
-                                <Divider orientation='vertical'>{props.Legend.left.component}</Divider>
+                                <Divider role="presentation" orientation='vertical'>{props.Legends.left.component}</Divider>
                             </Box>
                         </LegendContainer>
                     }
                     {
-                        props.Legend?.right &&
+                        props.Legends?.right &&
                         <LegendContainer
                             ref={refRight}
                             location='right'
-                            position={props.Legend.right.position}
+                            position={props.Legends.right.position}
                         >
                             <Box component='span' height='100%'>
-                                <Divider orientation='vertical'>{props.Legend.right.component}</Divider>
+                                <Divider role="presentation" orientation='vertical'>{props.Legends.right.component}</Divider>
                             </Box>
                         </LegendContainer>
                     }
                 </>
             }
             {children}
-        </Box>
+        </Box >
     );
 }
 
@@ -193,10 +208,22 @@ export default ComponentContainer;
 //                 right: { component: <>right</> },
 //             }}
 //         >
-//             {/* <Stack> */}
+//            <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Stack>
 //             <Button>Save</Button>
 //             <Button>Save</Button>
-//             {/* </Stack> */}
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             <Button>Save</Button>
+//             </Stack>
 //         </ComponentContainer>
 //     );
 // }
