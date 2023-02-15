@@ -1,38 +1,20 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useEffectOnce } from 'usehooks-ts';
 
 import {
-    createGenerateClassName, createStyles, createTheme, makeStyles, MuiThemeProvider,
-    StylesProvider, Theme, ThemeProvider
-} from '@material-ui/core';
-import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
+    createStyles, makeStyles, 
+    Theme} from '@material-ui/core';
 import Stack from '@mui/material/Stack';
 
 import Processes, {
     defaultProcessesList, storageListName, StorageProcessList
 } from '../processes/.list';
 import reportWebVitals from '../reportWebVitals';
-import { ProcessButton } from '../utils/global/.processClass';
 import { GetData, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
-// ClassNameGenerator.configure(
-//     // Do something with the componentName
-//     (componentName) => `sidepanel-dev-tools-updateRecord-${componentName}`,
-// );
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            width: '100%',
-            padding: '10px'
-        },
-    }),
-);
 
 export const MainScreen: React.FunctionComponent = () => {
-    const classes = useStyles();
 
     const processesListString = GetData(storageListName)
     const processesList: StorageProcessList[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
@@ -45,7 +27,7 @@ export const MainScreen: React.FunctionComponent = () => {
     }, [])
 
     return (
-        <Stack spacing={0.5} className={classes.root}>
+        <Stack spacing={0.5} width='100%' padding='10px'>
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id)
@@ -92,8 +74,6 @@ function initExtension() {
 
 }
 
-
-// ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
