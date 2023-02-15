@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
-import formTools from './formTools';
-import updateRecord from './updateRecord';
+import formTools from './formTools/main';
+import updateRecord from './updateRecord/main';
 
 const Processes: ProcessButton[] = [formTools, updateRecord];
 

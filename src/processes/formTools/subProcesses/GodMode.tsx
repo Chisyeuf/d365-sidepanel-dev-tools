@@ -2,16 +2,13 @@
 import { Button, createTheme, IconButton, ThemeProvider, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { ProcessProps, ProcessButton, ProcessRef } from '../utils/global/.processClass';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import HandymanIcon from '@mui/icons-material/Handyman';
-import XrmObserver from '../utils/global/XrmObserver';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
-import ComponentContainer from '../utils/components/ComponentContainer';
 import CloudOffIcon from '@mui/icons-material/CloudOff';
 import CloudIcon from '@mui/icons-material/Cloud';
 import VpnKeyOffOutlinedIcon from '@mui/icons-material/VpnKeyOffOutlined';
@@ -19,136 +16,11 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import AutoFixOffIcon from '@mui/icons-material/AutoFixOff';
+import { SubProcessProps } from '../main';
+import ComponentContainer from '../../../utils/components/ComponentContainer';
 
-class FormToolsButton extends ProcessButton {
-    constructor() {
-        super(
-            'formtools',
-            'Form Tools',
-            <HandymanIcon />,
-            56
-        );
-        this.process = FormToolsProcess;
-    }
-
-    reStyleSidePane(): void {
-        var sidePane = document.querySelector<HTMLElement>('#' + this.id);
-        if (sidePane) {
-            sidePane.style.width = this.width + "px";
-            var dev = sidePane.querySelector<HTMLElement>("div:first-child");
-            if (dev) {
-                dev.style.minWidth = "100%";
-                var header = dev.querySelector<HTMLElement>("div:first-child");
-                if (header) {
-                    header.style.flexDirection = "column-reverse";
-                    header.style.paddingLeft = "5px";
-                    header.style.paddingRight = "5px";
-                    header.style.alignItems = "flex-end";
-                    header.style.justifyContent = "flex-end";
-
-                    var h2 = header.querySelector<HTMLElement>("h2");
-                    if (h2) {
-                        h2.style.width = "100%";
-                        h2.style.alignSelf = "unset";
-                        h2.style.maxHeight = "none";
-                        h2.style.writingMode = "vertical-rl";
-                    }
-
-                    var button = header.querySelector<HTMLElement>("button");
-                    if (button) {
-                        button.style.alignSelf = "unset";
-                        button.style.marginRight = "8px";
-                    }
-                }
-            }
-        }
-    }
-}
-
-const theme = createTheme({
-    components: {
-        MuiButton: {
-            styleOverrides: {
-                root: {
-                    maxWidth: "46px",
-                    minWidth: "auto"
-                },
-                startIcon: {
-                    marginLeft: 0,
-                    marginRight: 0
-                }
-            },
-        },
-    },
-});
-
-
-
-const toolsList = [GodMode];
-
-type ExecutionContext = Xrm.Events.DataLoadEventContext | null;
-
-type XrmStatus = {
-    isRecord: boolean;
-    entityName?: string;
-    recordId?: string;
-}
-
-const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
-    function DevToolsProcess(props: ProcessProps, ref) {
-
-        const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
-            isRecord: false,
-        });
-
-        const [executionContext, setExecutionContext] = useState<ExecutionContext>(null);
-
-        useImperativeHandle(ref, () => ({
-            onClose() {
-                XrmObserver.removeListener(xrmObserverCallback)
-            }
-        }));
-        const xrmObserverCallback = useCallback(() => {
-            setXrmStatus({
-                isRecord: !!Xrm.Page.data,
-                entityName: Xrm.Page.data?.entity.getEntityName(),
-                recordId: Xrm.Page.data?.entity.getId(),
-            })
-        }, []);
-
-        useEffect(() => {
-            XrmObserver.addListener(xrmObserverCallback);
-        }, [])
-
-        useEffect(() => {
-            if (Xrm.Page.data) {
-                Xrm.Page.data.addOnLoad((executionContext) => {
-                    setExecutionContext(executionContext);
-                });
-            }
-            else {
-                setExecutionContext(null);
-            }
-        }, [xrmStatus])
-
-
-        return (<ThemeProvider theme={theme}>
-            <Stack spacing={1} width="calc(100% - 10px)" padding={"5px"}>
-                {
-                    toolsList?.map((SubProcess, index) => {
-                        return <SubProcess executionContext={executionContext} />;
-                    })
-                }
-            </Stack>
-        </ThemeProvider>);
-    }
-);
-
-
-type SubProcessProps = {
-    // xrmStatus: XrmStatus
-    executionContext: ExecutionContext
-}
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 
 type GodModeSubProcess = {
     enabled: boolean,
@@ -189,8 +61,8 @@ function GodMode(props: SubProcessProps) {
                     top: {
                         component: (
                             <Tooltip title='Toggle all' placement='left'>
-                                <IconButton color='primary' onClick={toggleAll}>
-                                    {allModeEnabled ? <AutoFixOffIcon /> : <AutoFixHighIcon />}
+                                <IconButton color='primary' onClick={toggleAll} size='small'>
+                                    {allModeEnabled ? <TipsAndUpdatesIcon fontSize="large" /> : <TipsAndUpdatesOutlinedIcon fontSize="large" />}
                                 </IconButton>
                             </Tooltip>
                         ),
@@ -217,7 +89,7 @@ type FormControlState<T> = {
     defaultState: T
 }
 type EnableModeStateType = FormControlState<boolean>;
-function EnableMode(props: SubProcessProps & GodModeSubProcess) {
+export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { executionContext, enabled: enableModeEnable, setEnabled: setEnableMode } = props;
 
@@ -276,7 +148,7 @@ function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 }
 
 type OptionalModeStateType = FormControlState<Xrm.Attributes.RequirementLevel>;
-function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
+export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { executionContext, enabled: optionalModeEnable, setEnabled: setOptionalMode } = props;
 
@@ -334,7 +206,7 @@ function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 }
 
 type VisibleModeStateType = FormControlState<boolean>;
-function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
+export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { executionContext, enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
 
@@ -448,5 +320,5 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
     );
 }
 
-var formTools = new FormToolsButton();
-export default formTools;
+
+export default GodMode;
