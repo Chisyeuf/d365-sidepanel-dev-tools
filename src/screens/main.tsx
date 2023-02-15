@@ -17,10 +17,10 @@ import { ProcessButton } from '../utils/global/.processClass';
 import { GetData, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
-ClassNameGenerator.configure(
-    // Do something with the componentName
-    (componentName) => `sidepanel-dev-tools-updateRecord-${componentName}`,
-);
+// ClassNameGenerator.configure(
+//     // Do something with the componentName
+//     (componentName) => `sidepanel-dev-tools-updateRecord-${componentName}`,
+// );
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

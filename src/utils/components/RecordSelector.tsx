@@ -121,16 +121,15 @@ type RecordSelectorDialogProps = {
 const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
     const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
 
-    const primaryNameLogicalName = RetrievePrimaryNameAttribute(entityname)
     const [entityMetadata, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [filterInput, setFilterInput] = useState<string>("")
     const [visibleColumns, setVisibleColumns] = useState<GridColumnVisibilityModel>()
     const [filterModel, setFilterModel] = useState<GridFilterModel>()
     const [filterXml, setFilterXml] = useState<string | null>(null)
     const [sortModel, setSortModel] = useState<GridSortModel>()
-    // var click: NodeJS.Timeout
 
-    const idAttribute = RetrievePrimaryIdAttribute(props.entityname);
+    const primaryNameLogicalName = RetrievePrimaryNameAttribute(entityname)
+    const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     const maxRowCount = RetrieveCount(entityname)
     const [pageSize, setPageSize] = useState<number>(25)
@@ -170,6 +169,8 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const columns: GridColDef[] = useMemo(() => {
         const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName == primaryNameLogicalName) ?? {} as AttributeMetadata
         const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype == MSType.Uniqueidentifier) ?? {} as AttributeMetadata
+        // console.log("firstColumnsMetadata.LogicalName", firstColumnsMetadata.LogicalName)
+        // console.log("primaryIdColumnsMetadata.LogicalName", primaryIdColumnsMetadata.LogicalName)
         const checkboxes: GridColDef = {
             ...GRID_BOOLEAN_COL_DEF,
             field: "__check__",
@@ -195,15 +196,17 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                 <GridCellCheckboxRenderer {...params} />
             )
         }
-        return [checkboxes, {
-            field: firstColumnsMetadata.LogicalName,
-            headerName: "GUID" ?? firstColumnsMetadata.DisplayName,
-            resizable: true,
-            hideable: false,
-            hide: false,
-            minWidth: 200,
-            type: "string"
-        }, {
+        return [checkboxes,
+            {
+                field: firstColumnsMetadata.LogicalName,
+                headerName: "GUID" ?? firstColumnsMetadata.DisplayName,
+                resizable: true,
+                hideable: false,
+                hide: false,
+                minWidth: 200,
+                type: "string"
+            },
+            {
                 field: primaryIdColumnsMetadata.LogicalName,
                 headerName: primaryIdColumnsMetadata.DisplayName,
                 resizable: true,
@@ -269,7 +272,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                             registerRecordIds: registerRecordIds
                         }
                     }}
-                    getRowId={(row) => row[idAttribute]}
+                    getRowId={(row) => { console.log("idAttribute", idAttribute); return row[idAttribute] }}
                     paginationMode={filterXml ? 'client' : 'server'}
                     pagination
                     onPageChange={(newPage) => setPage(newPage)}
