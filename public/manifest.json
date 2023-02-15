@@ -9,9 +9,9 @@
         "default_title": "Options"
     },
     "icons": {
-        "16": "extensionIcons/MainLogo.png",
-        "48": "extensionIcons/MainLogo.png",
-        "128": "extensionIcons/MainLogo.png"
+        "16": "icons/muiwand.png",
+        "48": "icons/muiwand.png",
+        "128": "icons/muiwand.png"
     },
     "content_scripts": [
         {
@@ -21,7 +21,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["/static/js/main.js", "/icons/*", "/extensionIcons/*"],
+            "resources": ["/static/js/main.js", "/icons/*"],
             "matches": ["https://*.dynamics.com/*"]
         }
     ],

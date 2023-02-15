@@ -70,7 +70,7 @@ function initExtension() {
         paneId: "dynamicsToolsMenu",
         title: "Dynamics Tools Menu",
         canClose: false,
-        imageSrc: GetUrl("extensionIcons/MainLogo.png"),
+        imageSrc: GetUrl("icons/muiwand.png"),
         hideHeader: false,
         isSelected: false,
         width: 200,
