@@ -66,7 +66,7 @@ function GodMode(props: SubProcessProps) {
                                 </IconButton>
                             </Tooltip>
                         ),
-                        margin: '30px',
+                        margin: '15px',
                         padding: '15px'
                     },
                     left: {

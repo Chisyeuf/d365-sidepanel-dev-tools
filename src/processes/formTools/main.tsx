@@ -121,7 +121,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (<ThemeProvider theme={theme}>
-            <Stack spacing={1} width="calc(100% - 10px)" padding={"5px"}>
+            <Stack spacing={1} width='calc(100% - 10px)' padding='10px'>
                 {
                     toolsList?.map((SubProcess, index) => {
                         return <SubProcess executionContext={executionContext} />;
