@@ -18,6 +18,7 @@ import VpnKeyOffOutlinedIcon from '@mui/icons-material/VpnKeyOffOutlined';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import AutoFixOffIcon from '@mui/icons-material/AutoFixOff';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -144,7 +145,42 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 );
 
 
+type SubProcessProps = {
+    // xrmStatus: XrmStatus
+    executionContext: ExecutionContext
+}
+
+type GodModeSubProcess = {
+    enabled: boolean,
+    setEnabled: React.Dispatch<React.SetStateAction<boolean>>
+}
 function GodMode(props: SubProcessProps) {
+
+    const [allModeEnabled, setAllModeEnabled] = useState<boolean>(false);
+
+    const [enableModeEnable, setEnableMode] = useState<boolean>(false);
+    const [optionalModeEnable, setOptionalMode] = useState<boolean>(false);
+    const [visibleModeEnable, setVisibleMode] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (!allModeEnabled && enableModeEnable && optionalModeEnable && visibleModeEnable) {
+            setAllModeEnabled(true);
+            return;
+        }
+        if (allModeEnabled && (!enableModeEnable || !optionalModeEnable || !visibleModeEnable)) {
+            setAllModeEnabled(false);
+            return;
+        }
+    }, [enableModeEnable, optionalModeEnable, visibleModeEnable]);
+
+    const toggleAll = useCallback(() => {
+        const newAllMode = !allModeEnabled;
+        setEnableMode(newAllMode);
+        setOptionalMode(newAllMode);
+        setVisibleMode(newAllMode);
+    }, [allModeEnabled]);
+
+
     return (
         <ComponentContainer
             width='100%'
@@ -152,9 +188,11 @@ function GodMode(props: SubProcessProps) {
                 {
                     top: {
                         component: (
-                            <IconButton>
-                                <AutoFixHighIcon />
-                            </IconButton>
+                            <Tooltip title='Toggle all' placement='left'>
+                                <IconButton color='primary' onClick={toggleAll}>
+                                    {allModeEnabled ? <AutoFixOffIcon /> : <AutoFixHighIcon />}
+                                </IconButton>
+                            </Tooltip>
                         ),
                         margin: '30px',
                         padding: '15px'
@@ -165,10 +203,10 @@ function GodMode(props: SubProcessProps) {
                 }
             }
         >
-            <Stack spacing={1} width="calc(100% - 10px)" padding={"5px"}>
-                <EnableMode executionContext={props.executionContext} />
-                <VisibleMode executionContext={props.executionContext} />
-                <EditableMode executionContext={props.executionContext} />
+            <Stack spacing={1} width='calc(100% - 10px)' padding='5px'>
+                <EnableMode executionContext={props.executionContext} enabled={enableModeEnable} setEnabled={setEnableMode} />
+                <VisibleMode executionContext={props.executionContext} enabled={visibleModeEnable} setEnabled={setVisibleMode} />
+                <OptionalMode executionContext={props.executionContext} enabled={optionalModeEnable} setEnabled={setOptionalMode} />
             </Stack>
         </ComponentContainer>
     );
@@ -178,20 +216,12 @@ type FormControlState<T> = {
     name: string
     defaultState: T
 }
-type SubProcessProps = {
-    // xrmStatus: XrmStatus
-    executionContext: ExecutionContext
-}
 type EnableModeStateType = FormControlState<boolean>;
-function EnableMode(props: SubProcessProps) {
+function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext } = props;
+    const { executionContext, enabled: enableModeEnable, setEnabled: setEnableMode } = props;
 
-    const [enableModeEnable, setEnableMode] = useState(false);
-
-    const toggleEnableMode = () => {
-        setEnableMode((prev) => !prev);
-    }
+    // const [enableModeEnable, setEnableMode] = useState(false);
 
     useEffect(() => {
         toggle();
@@ -216,6 +246,11 @@ function EnableMode(props: SubProcessProps) {
 
     }, [executionContext]);
 
+
+    const toggleEnableMode = () => {
+        setEnableMode((prev) => !prev);
+    }
+
     const toggle = async () => {
         enableableControls.then((controls: EnableModeStateType[] | null) => {
             controls?.forEach(c => {
@@ -232,7 +267,7 @@ function EnableMode(props: SubProcessProps) {
     return (
         <Tooltip title='Enable Mode' placement='left'>
             <Button
-                variant="contained"
+                variant='contained'
                 onClick={toggleEnableMode}
                 startIcon={enableModeEnable ? <VpnKeyIcon /> : <VpnKeyOffOutlinedIcon />}
             />
@@ -241,11 +276,11 @@ function EnableMode(props: SubProcessProps) {
 }
 
 type OptionalModeStateType = FormControlState<Xrm.Attributes.RequirementLevel>;
-function EditableMode(props: SubProcessProps) {
+function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext } = props;
+    const { executionContext, enabled: optionalModeEnable, setEnabled: setOptionalMode } = props;
 
-    const [optionalModeEnable, setOptionalMode] = useState(false);
+    // const [optionalModeEnable, setOptionalMode] = useState(false);
 
     const toggleMode = () => {
         setOptionalMode((prev) => !prev);
@@ -290,7 +325,7 @@ function EditableMode(props: SubProcessProps) {
     return (
         <Tooltip title='Optional Mode' placement='left'>
             <Button
-                variant="contained"
+                variant='contained'
                 onClick={toggleMode}
                 startIcon={optionalModeEnable ? <CloudIcon /> : <CloudOffIcon />}
             />
@@ -299,11 +334,11 @@ function EditableMode(props: SubProcessProps) {
 }
 
 type VisibleModeStateType = FormControlState<boolean>;
-function VisibleMode(props: SubProcessProps) {
+function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext } = props;
+    const { executionContext, enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
 
-    const [visibleModeEnable, setVisibleMode] = useState(false);
+    // const [visibleModeEnable, setVisibleMode] = useState(false);
 
     const onClick = () => {
         setVisibleMode((prev) => !prev);
@@ -405,7 +440,7 @@ function VisibleMode(props: SubProcessProps) {
     return (
         <Tooltip title='Visible Mode' placement='left'>
             <Button
-                variant="contained"
+                variant='contained'
                 onClick={onClick}
                 startIcon={visibleModeEnable ? <VisibilityIcon /> : <VisibilityOffOutlinedIcon />}
             />

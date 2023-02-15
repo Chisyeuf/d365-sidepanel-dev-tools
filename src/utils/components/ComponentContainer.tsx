@@ -32,23 +32,91 @@ interface LegendRootProps {
     selfHeight?: number
 }
 
-const LegendContainer = styled('span', {
-    name: 'LegendContainer',
-    slot: 'Root',
-    overridesResolver: (props, styles) => styles.root,
+const LegendContainer = styled("span", {
+    name: "LegendContainer",
+    slot: "Root",
+    overridesResolver: (props, styles) => styles.root
 })<ComponentContainerProps & LegendRootProps>(({ theme, ...props }) => ({
-    backgroundColor: 'white',
+    // backgroundColor: "white",
     position: "absolute",
-    top: props.location === Location.top ? '-1px' : 'auto',
-    bottom: props.location === Location.bottom ? '-1px' : 'auto',
-    left: props.location === Location.left ? '-1px' : (props.location === Location.top || props.location === Location.bottom ? theme.spacing(theme.shape.borderRadius / 2) : 'auto'),
-    right: props.location === Location.right ? '-1px' : 'auto',
-    width: props.location === Location.top || props.location === Location.bottom ? 'calc(100% - ' + theme.spacing(theme.shape.borderRadius) + ')' : 'auto',
-    height: props.location === Location.left || props.location === Location.right ? 'calc(100% - ' + theme.spacing(theme.shape.borderRadius) + ')' : 'auto',
-    ...(props.location === Location.top && { transform: 'translateY(-50%)' }),
-    ...(props.location === Location.bottom && { transform: 'translateY(50%)' }),
-    ...(props.location === Location.left && { transform: 'translateX(-50%)' }),
-    ...(props.location === Location.right && { transform: 'translateX(50%)' }),
+
+    ...((props.location === Location.left || props.location === Location.right) && {
+        display: 'flex',
+        alignItems: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
+        justifyContent: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
+        alignContent: 'center',
+    }),
+
+    top: props.location === Location.top ? "-1px" : "auto",
+    bottom: props.location === Location.bottom ? "-1px" : "auto",
+    left:
+        props.location === Location.left
+            ? "-1px"
+            : props.location === Location.top || props.location === Location.bottom
+                ? theme.spacing(theme.shape.borderRadius / 2)
+                : "auto",
+    right: props.location === Location.right ? "-1px" : "auto",
+    width:
+        props.location === Location.top || props.location === Location.bottom
+            ? "calc(100% - " + theme.spacing(theme.shape.borderRadius) + ")"
+            : "auto",
+    height:
+        props.location === Location.left || props.location === Location.right
+            ? "calc(100% - " + theme.spacing(theme.shape.borderRadius) + ")"
+            : "auto",
+    ...(props.location === Location.top && { transform: "translateY(-50%)" }),
+    ...(props.location === Location.bottom && { transform: "translateY(50%)" }),
+    ...(props.location === Location.left && { transform: "translateX(-50%)" }),
+    ...(props.location === Location.right && { transform: "translateX(50%)" })
+}));
+
+const LegendContent = styled("span", {
+    name: "LegendContent",
+    slot: "Root",
+    overridesResolver: (props, styles) => styles.root
+})<ComponentContainerProps & LegendRootProps>(({ theme, ...props }) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "white",
+    flexDirection:
+        props.location === Location.left || props.location === Location.right
+            ? "column"
+            : "row",
+    "&::before, &::after": {
+        position: "relative",
+        inlineSize:
+            props.location === Location.left || props.location === Location.right
+                ? "1px"
+                : "initial",
+        blockSize:
+            props.location === Location.left || props.location === Location.right
+                ? "initial"
+                : "1px",
+        content: '""'
+    },
+    "&::before": {
+        marginInlineEnd:
+            props.location === Location.left || props.location === Location.right
+                ? "initial"
+                : theme.spacing(1),
+        marginBlockEnd:
+            props.location === Location.left || props.location === Location.right
+                ? theme.spacing(1)
+                : "initial",
+        flexBasis: "50%"
+    },
+    "&::after": {
+        marginInlineStart:
+            props.location === Location.left || props.location === Location.right
+                ? "initial"
+                : theme.spacing(1),
+        marginBlockStart:
+            props.location === Location.left || props.location === Location.right
+                ? theme.spacing(1)
+                : "initial",
+        flexBasis: "50%"
+    }
 }));
 
 type TLength = (string & {}) | 0;
@@ -123,69 +191,54 @@ function ComponentContainer(props: ComponentContainerProps) {
             }
             }
         >
-            {
-                props.Legends &&
+            {props.Legends && (
                 <>
-                    {
-                        props.Legends.top &&
+                    {props.Legends.top && (
                         <LegendContainer
                             ref={refTop}
-                            location='top'
+                            location="top"
                             position={props.Legends.top.position}
                         >
-                            <Box component='span' width='100%'>
-                                <Divider
-                                    textAlign={props.Legends.top.position ? PositionFlex[props.Legends.top.position] : PositionFlex.center}
-                                    role="presentation"
-                                >
-                                    {props.Legends.top.component}
-                                </Divider>
-                            </Box>
+                            <LegendContent location="top">
+                                {props.Legends.top.component}
+                            </LegendContent>
                         </LegendContainer>
-                    }
-                    {
-                        props.Legends?.bottom &&
+                    )}
+                    {props.Legends?.bottom && (
                         <LegendContainer
                             ref={refBottom}
-                            location='bottom'
+                            location="bottom"
                             position={props.Legends.bottom.position}
                         >
-                            <Box component='span' width='100%'>
-                                <Divider
-                                    textAlign={props.Legends.bottom.position ? PositionFlex[props.Legends.bottom.position] : PositionFlex.center}
-                                    role="presentation"
-                                >
-                                    {props.Legends.bottom.component}
-                                </Divider>
-                            </Box>
+                            <LegendContent location="bottom">
+                                {props.Legends.bottom.component}
+                            </LegendContent>
                         </LegendContainer>
-                    }
-                    {
-                        props.Legends?.left &&
+                    )}
+                    {props.Legends?.left && (
                         <LegendContainer
                             ref={refLeft}
-                            location='left'
+                            location="left"
                             position={props.Legends.left.position}
                         >
-                            <Box component='span' height='100%'>
-                                <Divider role="presentation" orientation='vertical'>{props.Legends.left.component}</Divider>
-                            </Box>
+                            <LegendContent location="left">
+                                {props.Legends.left.component}
+                            </LegendContent>
                         </LegendContainer>
-                    }
-                    {
-                        props.Legends?.right &&
+                    )}
+                    {props.Legends?.right && (
                         <LegendContainer
                             ref={refRight}
-                            location='right'
+                            location="right"
                             position={props.Legends.right.position}
                         >
-                            <Box component='span' height='100%'>
-                                <Divider role="presentation" orientation='vertical'>{props.Legends.right.component}</Divider>
-                            </Box>
+                            <LegendContent location="right">
+                                {props.Legends.right.component}
+                            </LegendContent>
                         </LegendContainer>
-                    }
+                    )}
                 </>
-            }
+            )}
             {children}
         </Box >
     );
