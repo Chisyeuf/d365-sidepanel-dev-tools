@@ -1,7 +1,7 @@
 
 import { MouseEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { AttributeMetadata, MSType, MSDateFormat } from '../global/requestsType'
-import { RetrievePrimaryAttribute } from '../hooks/XrmApi/RetrievePrimaryAttribute'
+import { RetrievePrimaryNameAttribute } from '../hooks/XrmApi/RetrievePrimaryNameAttribute'
 import React from 'react'
 import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMetaData'
 import { useBoolean } from 'usehooks-ts'
@@ -20,6 +20,7 @@ import { GridToolbarFilterXMLButton } from './GridToolbarFilterXMLButton'
 import { RetrieveRecordsByFetchXML } from '../hooks/XrmApi/RetrieveRecordsByFetchXML'
 import { CustomGridHeaderCheckbox } from './CustomGridHeaderCheckbox'
 import FilterInput from './FilterInput'
+import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute'
 
 type RecordSelectorProps = {
     setRecordsIds: Dispatch<SetStateAction<string[]>>,
@@ -120,7 +121,7 @@ type RecordSelectorDialogProps = {
 const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
     const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
 
-    const primaryNameLogicalName = RetrievePrimaryAttribute(entityname)
+    const primaryNameLogicalName = RetrievePrimaryNameAttribute(entityname)
     const [entityMetadata, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [filterInput, setFilterInput] = useState<string>("")
     const [visibleColumns, setVisibleColumns] = useState<GridColumnVisibilityModel>()
@@ -129,7 +130,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const [sortModel, setSortModel] = useState<GridSortModel>()
     // var click: NodeJS.Timeout
 
-    const apiRef = useGridApiRef()
+    const idAttribute = RetrievePrimaryIdAttribute(props.entityname);
 
     const maxRowCount = RetrieveCount(entityname)
     const [pageSize, setPageSize] = useState<number>(25)
@@ -147,18 +148,6 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
         sortModel
     )
     const [fetchXmlRecords, isFetchingFetchXML] = RetrieveRecordsByFetchXML(entityname, filterXml ?? '')
-
-    // useEffect(() => {
-    //     const notSelectedRecords = allRecords?.filter((record) => {
-    //         return !recordsIds.includes(record[entityname + "id"])
-    //     })?.filter((record) => {
-    //         return Object.values(record).some((att: any) => {
-    //             return att != null && ("" + att).indexOf(filter) != -1
-    //         }) ?? []
-    //     })
-
-    //     setRecordsFiltered(notSelectedRecords)
-    // }, [allRecords, filter, recordsIds])
 
     useEffect(() => {
         props.setIsLoading(fetchingMetadata || isFetchingAllRecords || isFetchingFetchXML)
@@ -280,7 +269,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                             registerRecordIds: registerRecordIds
                         }
                     }}
-                    getRowId={(row) => row[entityname + "id"]}
+                    getRowId={(row) => row[idAttribute]}
                     paginationMode={filterXml ? 'client' : 'server'}
                     pagination
                     onPageChange={(newPage) => setPage(newPage)}

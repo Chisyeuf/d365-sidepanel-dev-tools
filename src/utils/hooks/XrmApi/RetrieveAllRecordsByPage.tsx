@@ -1,6 +1,7 @@
 import { GridFilterModel, GridSortDirection, GridSortItem, GridSortModel } from '@mui/x-data-grid'
 import { useState, useEffect, useMemo } from 'react'
-import { RetrievePrimaryAttribute } from './RetrievePrimaryAttribute'
+import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute'
+import { RetrievePrimaryNameAttribute } from './RetrievePrimaryNameAttribute'
 
 
 const skiptokenString = (pageNumber: number | string) => ("&$skiptoken=%3Ccookie%20pagenumber%3D%22" + pageNumber + "%22%20%2F%3E")
@@ -13,19 +14,20 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
     const [data, setData] = useState<any[]>([])
     const [isFetching, setFetching] = useState<boolean>(false)
 
-    const primaryNameLogicalName = RetrievePrimaryAttribute(entityname)
+    const primaryNameLogicalName = RetrievePrimaryNameAttribute(entityname)
+    const idAttribute = RetrievePrimaryIdAttribute(entityname)
 
     const _entityname = entityname
     const _select = useMemo(() => select.join(","), [select])
     const _page = page
     const _pageSize = pageSize
     const _filter = useMemo(() => {
-        if (!filter || filter === '' || !primaryNameLogicalName || primaryNameLogicalName === '') return
+        if (!filter || filter === '' || !primaryNameLogicalName || primaryNameLogicalName === '' || !idAttribute || idAttribute === '') return 
         if (guidregex.test(filter))
-            return entityname + 'id eq ' + filter
+            return idAttribute + ' eq ' + filter
         else
             return "contains(" + primaryNameLogicalName + ",'" + filter + "')"
-    }, [primaryNameLogicalName, filter])
+    }, [primaryNameLogicalName, filter, idAttribute])
     // const _filter = useMemo(() => {
     //     return filter?.items.map(item => {
     //         return item.columnField + " " + item.operatorValue + " " + item.value
@@ -41,14 +43,14 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
 
         if (!_entityname || !_select || _select.length === 0) return;
 
-        if (_select.indexOf(_entityname + "id") == -1) return;
+        // if (_select.indexOf(_entityname + "id") == -1) return;
 
         async function fetchData() {
             console.log("RetrieveAllRecordsByPage");
 
             const options: string =
                 "?$select=" + _select +
-                filterString(_filter) +
+                (_filter ? filterString(_filter) : '') +
                 orderbyString(_orderBy) +
                 skiptokenString(_page + 1)
 

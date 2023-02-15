@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, input: string | null, top: number = 50) {
 
@@ -10,16 +11,19 @@ export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, inpu
         async function fetchData() {
             if (entityname && filter) {
                 const primaryNameLogicalName = (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryNameAttribute;
+                const idAttribute = (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryIdAttribute;
+
                 const guidregex = /^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$/;
+
                 const result = await Xrm.WebApi.online
                     .retrieveMultipleRecords(
                         entityname,
                         "?$select=" +
                         primaryNameLogicalName +
                         "," +
-                        entityname +
-                        "id&$filter=" +
-                        (guidregex.test(filter) ? entityname + "id eq " + filter + " or " : "") +
+                        idAttribute +
+                        "&$filter=" +
+                        (guidregex.test(filter) ? idAttribute + " eq " + filter + " or " : "") +
                         "contains(" +
                         primaryNameLogicalName +
                         ",'" +

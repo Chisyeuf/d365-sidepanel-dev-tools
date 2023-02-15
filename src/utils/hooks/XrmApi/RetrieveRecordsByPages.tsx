@@ -14,7 +14,7 @@ export function RetrieveRecordsByPages(entityname: string, attributesList: strin
     useEffect(() => {
         console.log("RetrieveRecordsByPages");
         if (!_entityname || !attributes || attributes.length === 0) return;
-        if (attributes.indexOf(_entityname + "id") == -1) return;
+        // if (attributes.indexOf(_entityname + "id") == -1) return;
 
         function getPreviousLink(page: number) {
             if (storage.at(page - 1)?.nextLink) {

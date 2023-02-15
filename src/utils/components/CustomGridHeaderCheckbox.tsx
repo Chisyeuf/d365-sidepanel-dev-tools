@@ -4,6 +4,7 @@ import { unstable_composeClasses as composeClasses } from '@mui/utils';
 import { DataGridProcessedProps } from '@mui/x-data-grid/models/props/DataGridProps';
 import { getDataGridUtilityClass, GridColumnHeaderParams, GridEventListener, GridHeaderSelectionCheckboxParams, gridPaginatedVisibleSortedGridRowIdsSelector, gridRowCountSelector, GridRowId, gridSelectionStateSelector, gridTabIndexColumnHeaderSelector, gridVisibleSortedRowIdsSelector, useGridApiContext, useGridApiEventHandler, useGridRootProps, useGridSelector } from '@mui/x-data-grid';
 import { RetrieveAllRecords } from '../hooks/XrmApi/RetrieveAllRecords';
+import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute';
 
 type OwnerState = { classes: DataGridProcessedProps['classes'] };
 type CustomGridHeaderCheckboxProps = {
@@ -38,19 +39,22 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
             apiRef,
             gridPaginatedVisibleSortedGridRowIdsSelector,
         );
-        const [rowsAbleToBeSelected, isFetching] = RetrieveAllRecords(props.entityname, [props.entityname + "id"], props.retieveBatchSize);
+
+        const idAttribute = RetrievePrimaryIdAttribute(props.entityname);
+
+        const [rowsAbleToBeSelected, isFetching] = RetrieveAllRecords(props.entityname, [idAttribute], props.retieveBatchSize);
 
         const handleHeaderSelectionCheckboxChange = React.useCallback(
             (params: GridHeaderSelectionCheckboxParams) => {
                 const rowsToBeSelected = rowsAbleToBeSelected.map((value) => {
-                    return value[props.entityname + 'id']
+                    return value[idAttribute]
                 })
 
                 console.log("handleHeaderSelectionCheckboxChange", rowsToBeSelected);
                 
                 apiRef.current.selectRows(rowsToBeSelected, params.value);
             },
-            [apiRef, rowsAbleToBeSelected, props.entityname, props.retieveBatchSize],
+            [apiRef, rowsAbleToBeSelected, idAttribute, props.retieveBatchSize],
         );
 
         // const filteredSelection = React.useMemo(() => {

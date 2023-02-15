@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react'
 import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../global/requestsType';
+import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {
 
-    const [data, setData] = useState<AttributeMetadata[]>([]);
+    const [data, setData] = useState<AttributeMetadata[]>([])
     const [isFetching, setIsFetching] = useState<boolean>(false)
     const _entityname = entityname
+    const idAttribute = RetrievePrimaryIdAttribute(entityname)
 
     useEffect(() => {
         console.log("RetrieveAttributesMetaData");
-        if (!entityname) return;
+        if (!entityname || !idAttribute) return;
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.2/EntityDefinitions(LogicalName='" +
-                _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + _entityname + "id')", {
+                _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "')", {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",
@@ -65,7 +67,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
         setData([])
         fetchData()
 
-    }, [_entityname]);
+    }, [_entityname, idAttribute]);
 
     return [data, isFetching];
 }

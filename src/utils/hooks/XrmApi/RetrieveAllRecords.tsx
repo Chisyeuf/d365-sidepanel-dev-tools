@@ -13,7 +13,7 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
 
         if (!_entityname || !attributes || attributes.length === 0) return;
         
-        if (attributes.indexOf(_entityname + "id") == -1) return;
+        // if (attributes.indexOf(_entityname + "id") == -1) return;
 
         async function fetchData(link: string = "") {
             console.log("RetrieveAllRecords");

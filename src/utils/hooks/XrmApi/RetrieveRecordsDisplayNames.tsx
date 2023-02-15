@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { RetrievePrimaryAttribute } from './RetrievePrimaryAttribute';
+import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
+import { RetrievePrimaryNameAttribute } from './RetrievePrimaryNameAttribute';
 
 export type RecordsDisplayNamesResponse = {
     id: string,
@@ -7,22 +8,24 @@ export type RecordsDisplayNamesResponse = {
 }
 export function RetrieveRecordsDisplayNames(entityname: string, recordsid: string[]) : [RecordsDisplayNamesResponse[], boolean] {
 
-    const primaryAttribute = RetrievePrimaryAttribute(entityname)
     const [data, setData] = useState<RecordsDisplayNamesResponse[]>([])
     const [fetching, setFetching] = useState<boolean>(false)
+    
+    const primaryAttribute = RetrievePrimaryNameAttribute(entityname)
+    const idAttribute = RetrievePrimaryIdAttribute(entityname)
 
     const _entityname = entityname
     const _recordsid = useMemo(() => {
         return recordsid.map(r => {
-            return r ? _entityname + "id eq " + r : ""
+            return r && idAttribute ? idAttribute + " eq " + r : ''
         }).join(" or ")
-    }, [recordsid])
+    }, [recordsid, idAttribute])
 
 
     useEffect(() => {
         console.log("RetrieveRecordsDisplayNames");
         async function fetchData() {
-            if (!_entityname || !_recordsid || !primaryAttribute) {
+            if (!_entityname || !_recordsid || _recordsid === '' || !primaryAttribute) {
                 setData([])
                 setFetching(false)
                 return;
@@ -32,7 +35,7 @@ export function RetrieveRecordsDisplayNames(entityname: string, recordsid: strin
             const dataProcessed: RecordsDisplayNamesResponse[] = []
             for (let i = 0; i < result?.entities?.length; i++) {
                 const record = result.entities[i];
-                dataProcessed.push({ id: record[_entityname + "id"], displayName: record[primaryAttribute] })
+                dataProcessed.push({ id: record[idAttribute], displayName: record[primaryAttribute] })
             }
             setData(dataProcessed)
             setFetching(false)
@@ -40,7 +43,7 @@ export function RetrieveRecordsDisplayNames(entityname: string, recordsid: strin
         setFetching(true)
         fetchData()
 
-    }, [primaryAttribute, _recordsid]);
+    }, [primaryAttribute, _recordsid, idAttribute]);
 
     return [data, fetching]
 }
