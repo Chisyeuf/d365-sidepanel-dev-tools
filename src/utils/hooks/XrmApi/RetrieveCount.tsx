@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveCount(entityname: string): number {
@@ -8,7 +9,7 @@ export function RetrieveCount(entityname: string): number {
     const idAttribute = RetrievePrimaryIdAttribute(entityname)
 
     useEffect(() => {
-        console.log("RetrieveCount");
+        debugLog("RetrieveCount");
         if (!_entityname || !idAttribute) return;
         async function fetchData() {
             const result = await Xrm.WebApi.retrieveMultipleRecords(_entityname, "?fetchXml=" + "<fetch aggregate=\"true\"> <entity name=\"" + _entityname + "\"> <attribute name=\"" + idAttribute + "\" alias=\"count\" aggregate=\"count\" distinct=\"true\" /> </entity> </fetch>");

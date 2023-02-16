@@ -271,11 +271,9 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
                     defaultState: s.getVisible() ?? true,
                 }
             });
-            // console.log("controls list:", allcontrols.map(c => c.name));
             return allcontrols;
         }
         else {
-            // console.log("controls list: null");
             return null;
         }
 

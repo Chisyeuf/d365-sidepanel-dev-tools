@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../global/requestsType';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
@@ -10,7 +11,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
     const idAttribute = RetrievePrimaryIdAttribute(entityname)
 
     useEffect(() => {
-        console.log("RetrieveAttributesMetaData");
+        debugLog("RetrieveAttributesMetaData");
         if (!entityname || !idAttribute) return;
         async function fetchData() {
             const response = await fetch(

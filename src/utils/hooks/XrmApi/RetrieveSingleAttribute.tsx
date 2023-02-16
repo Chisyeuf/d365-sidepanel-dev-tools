@@ -1,5 +1,6 @@
 import { result } from 'lodash-es';
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveSingleAttribute(entityname: string, recordid: string | undefined, attributeName: string) {
 
@@ -8,7 +9,7 @@ export function RetrieveSingleAttribute(entityname: string, recordid: string | u
     const _entityname = entityname;
 
     useEffect(() => {
-        console.log("RetrieveSingleAttribute");
+        debugLog("RetrieveSingleAttribute");
         if (!_entityname || !_recordid || !attributeName || attributeName.length === 0) {
             setData(undefined)
             return

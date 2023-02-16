@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) : [any[], boolean] {
 
@@ -8,7 +9,7 @@ export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) 
     const _fetchXML = useMemo(() => "?fetchXml=" + fetchXML, [fetchXML]);
 
     useEffect(() => {
-        console.log("RetrieveRecordsByFetchXML");
+        debugLog("RetrieveRecordsByFetchXML");
         if (!_entityname || _fetchXML == "?fetchXml=") {
             setFetching(false)
             setData([])

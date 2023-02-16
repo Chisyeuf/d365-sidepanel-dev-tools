@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 import { MSType } from '../../global/requestsType';
 
 export interface PickListOption {
@@ -38,7 +39,7 @@ export function RetrievePicklistValues(entityname: string, type: MSType, fieldna
     const [data, setData] = useState<PickListOption[]>();
 
     useEffect(() => {
-        console.log("RetrievePicklistValues");
+        debugLog("RetrievePicklistValues");
         if (!entityname) return;
         async function fetchData() {
             const response = await fetch(

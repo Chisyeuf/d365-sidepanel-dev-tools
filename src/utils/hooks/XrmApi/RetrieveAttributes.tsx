@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveAttributes(entityname: string, recordid: string | undefined, attributesList: string[]): [{ [key: string]: any }, boolean] {
 
@@ -9,7 +10,7 @@ export function RetrieveAttributes(entityname: string, recordid: string | undefi
     const _entityname = entityname;
 
     useEffect(() => {
-        console.log("RetrieveAttributes");
+        debugLog("RetrieveAttributes");
         if (!_entityname || !_recordid || !attributes || attributes.length === 0) {
             setData({})
             setIsFetching(false)

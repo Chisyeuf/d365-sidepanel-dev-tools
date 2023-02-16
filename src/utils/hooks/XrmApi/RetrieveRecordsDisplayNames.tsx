@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 import { RetrievePrimaryNameAttribute } from './RetrievePrimaryNameAttribute';
 
@@ -23,7 +24,7 @@ export function RetrieveRecordsDisplayNames(entityname: string, recordsid: strin
 
 
     useEffect(() => {
-        console.log("RetrieveRecordsDisplayNames");
+        debugLog("RetrieveRecordsDisplayNames");
         async function fetchData() {
             if (!_entityname || !_recordsid || _recordsid === '' || !primaryAttribute) {
                 setData([])

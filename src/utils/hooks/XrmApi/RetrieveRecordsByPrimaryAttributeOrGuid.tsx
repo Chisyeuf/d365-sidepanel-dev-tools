@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, input: string | null, top: number = 50) {
@@ -7,7 +8,7 @@ export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, inpu
     const filter = input;
 
     useEffect(() => {
-        console.log("RetrieveRecordsByPrimaryAttributeOrGuid");
+        debugLog("RetrieveRecordsByPrimaryAttributeOrGuid");
         async function fetchData() {
             if (entityname && filter) {
                 const primaryNameLogicalName = (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryNameAttribute;

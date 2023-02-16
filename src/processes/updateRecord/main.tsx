@@ -48,7 +48,7 @@ import NumericInput from '../../utils/components/NumericInput';
 import RecordSelector from '../../utils/components/RecordSelector';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
-import { capitalizeFirstLetter, formatId, groupBy, isArraysEquals } from '../../utils/global/common';
+import { capitalizeFirstLetter, debugLog, formatId, groupBy, isArraysEquals } from '../../utils/global/common';
 import {
     AttributeMetadata, getReadableMSType, MSDateFormat, MSType
 } from '../../utils/global/requestsType';
@@ -215,7 +215,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [])
 
         const launchUpdate = () => {
-            console.log("Launch Update for", entityname, recordsIds, "on", attributesValues)
+            debugLog("Launch Update for", entityname, recordsIds, "on", attributesValues)
 
             recordsIds.forEach((recordid) => {
                 Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid)
@@ -226,7 +226,6 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                             capitalizeFirstLetter(entityname) + " " + recordid + " updated.",
                             { variant: 'success' }
                         )
-                        // console.log("Update done for", entityname, recordid)
                     },
                     function (error) {
                         Xrm.Utility.closeProgressIndicator()
@@ -313,13 +312,11 @@ function AttributesList(props: AttributesListProps) {
     // });
 
     // useEffect(() => {
-    //     // console.log('visibleWorker', attributesMetadataRetrieved, filteredBy, visibleWorkerStatus)
     //     if (attributesMetadataRetrieved.length === 0) {
     //         setFilteredBy(null)
     //     }
     //     if (filter != filteredBy && attributesMetadataRetrieved.length > 0 && visibleWorkerStatus != WORKER_STATUS.RUNNING) {
     //         visibleWorker(attributesMetadataRetrieved, filter).then((result) => {
-    //             // console.log('result', result)
     //             setAttributesMetadataVisible(result)
     //             setFilteredBy(filter)
     //         })

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveSetName(entityname: string) {
 
@@ -6,7 +7,7 @@ export function RetrieveSetName(entityname: string) {
     const _entityname = entityname;
 
     useEffect(() => {
-        console.log("RetrieveViews");     
+        debugLog("RetrieveViews");     
         if (!_entityname) {
             setData(undefined)
             return;

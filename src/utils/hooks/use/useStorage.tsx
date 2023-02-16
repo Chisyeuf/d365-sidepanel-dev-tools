@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { debugLog } from '../../global/common';
 
 export function useStorage<T>(key: string, defaultData: T): [T | null, (data: T) => void] {
 
@@ -14,7 +15,7 @@ export function useStorage<T>(key: string, defaultData: T): [T | null, (data: T)
         async function getData() {
 
             const dataStored = await chrome.storage.sync.get(key);
-            console.log(key, dataStored);
+            debugLog(key, dataStored);
             if (dataStored && dataStored[key]) {
                 setData(dataStored[key]);
             }

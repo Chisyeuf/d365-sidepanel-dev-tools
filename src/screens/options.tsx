@@ -13,20 +13,11 @@ import Processes, {
     defaultProcessesList, storageListName, StorageProcessList
 } from '../processes/.list';
 import reportWebVitals from '../reportWebVitals';
-import { waitForElm } from '../utils/global/common';
+import { debugLog, waitForElm } from '../utils/global/common';
 import { useStorage } from '../utils/hooks/use/useStorage';
 
 const OptionsScreen: React.FunctionComponent = () => {
     const [processesList, setProcessList] = useStorage<StorageProcessList[]>(storageListName, defaultProcessesList)
-
-    // chrome.storage.onChanged.addListener((changes, namespace) => {
-    //     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-    //         console.log(
-    //             `Storage key "${key}" in namespace "${namespace}" changed.`,
-    //             `Old value was "${oldValue}", new value is "${newValue}".`
-    //         );
-    //     }
-    // });
 
     return (
         <Container sx={{ width: '1000px', height: '400px', }}>
@@ -219,4 +210,4 @@ waitForElm('#root').then((rootDiv) => {
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-console.log("Option loaded");
+debugLog("Option loaded");

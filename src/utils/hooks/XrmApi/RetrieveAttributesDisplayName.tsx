@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 type AttributesDisplayNameRequest = {
     logicalname: string,
@@ -19,7 +20,7 @@ export function RetrieveAttributesDisplayName(fieldsList: AttributesDisplayNameR
     }, [fieldsList]);
 
     useEffect(() => {
-        console.log("RetrieveAttributesDisplayName");
+        debugLog("RetrieveAttributesDisplayName");
         if (!fieldFilter || fieldFilter.length == 0 || !entityFilter || entityFilter.length == 0) return;
         async function fetchData() {
             const response = await fetch(

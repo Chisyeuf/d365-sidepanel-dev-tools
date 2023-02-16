@@ -1,5 +1,6 @@
 import { GridFilterModel, GridSortDirection, GridSortItem, GridSortModel } from '@mui/x-data-grid'
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common'
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute'
 import { RetrievePrimaryNameAttribute } from './RetrievePrimaryNameAttribute'
 
@@ -46,7 +47,7 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
         // if (_select.indexOf(_entityname + "id") == -1) return;
 
         async function fetchData() {
-            console.log("RetrieveAllRecordsByPage");
+            debugLog("RetrieveAllRecordsByPage");
 
             const options: string =
                 "?$select=" + _select +

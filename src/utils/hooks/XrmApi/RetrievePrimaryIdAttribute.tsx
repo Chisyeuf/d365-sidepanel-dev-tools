@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrievePrimaryIdAttribute(entityname: string) {
 
     const [data, setData] = useState<string>("");
 
     useEffect(() => {
-        console.log("RetrievePrimaryIdAttribute");
+        debugLog("RetrievePrimaryIdAttribute");
         if (!entityname ) return;
         async function fetchData() {
             const primaryNameLogicalName = (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryIdAttribute;

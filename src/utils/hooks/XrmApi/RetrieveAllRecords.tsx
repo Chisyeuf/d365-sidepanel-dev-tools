@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveAllRecords(entityname: string, attributesList: string[], pageSize?: number): [any[], boolean] {
 
@@ -16,7 +17,7 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
         // if (attributes.indexOf(_entityname + "id") == -1) return;
 
         async function fetchData(link: string = "") {
-            console.log("RetrieveAllRecords");
+            debugLog("RetrieveAllRecords");
             
             const options: string =
                 "?$select=" + attributes +
@@ -24,8 +25,6 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
             //  +(_filter ? "&$filter=" + _filter : "")
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, options, pageSize);
-
-            // console.log(_entityname, result, "for", attributesList);
 
             setData((oldData) => [...oldData, ...(result.entities)]);
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../../global/common';
 
 export function RetrieveRecordsByPages(entityname: string, attributesList: string[], filter: string, page: number, maxRow: number, pageSize: number = 100) {
 
@@ -12,7 +13,7 @@ export function RetrieveRecordsByPages(entityname: string, attributesList: strin
     const _page = page
 
     useEffect(() => {
-        console.log("RetrieveRecordsByPages");
+        debugLog("RetrieveRecordsByPages");
         if (!_entityname || !attributes || attributes.length === 0) return;
         // if (attributes.indexOf(_entityname + "id") == -1) return;
 

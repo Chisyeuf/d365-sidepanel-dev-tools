@@ -76,3 +76,9 @@ export const groupBy = function (xs: any[], key: string): { [key: string]: any[]
         return rv;
     }, {});
 };
+
+export function debugLog(...args: any[]) {
+    if (true) {
+        console.log(...args);
+    }
+}

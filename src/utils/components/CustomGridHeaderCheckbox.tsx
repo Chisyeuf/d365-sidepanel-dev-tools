@@ -5,6 +5,7 @@ import { DataGridProcessedProps } from '@mui/x-data-grid/models/props/DataGridPr
 import { getDataGridUtilityClass, GridColumnHeaderParams, GridEventListener, GridHeaderSelectionCheckboxParams, gridPaginatedVisibleSortedGridRowIdsSelector, gridRowCountSelector, GridRowId, gridSelectionStateSelector, gridTabIndexColumnHeaderSelector, gridVisibleSortedRowIdsSelector, useGridApiContext, useGridApiEventHandler, useGridRootProps, useGridSelector } from '@mui/x-data-grid';
 import { RetrieveAllRecords } from '../hooks/XrmApi/RetrieveAllRecords';
 import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute';
+import { debugLog } from '../global/common';
 
 type OwnerState = { classes: DataGridProcessedProps['classes'] };
 type CustomGridHeaderCheckboxProps = {
@@ -50,7 +51,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
                     return value[idAttribute]
                 })
 
-                console.log("handleHeaderSelectionCheckboxChange", rowsToBeSelected);
+                debugLog("handleHeaderSelectionCheckboxChange", rowsToBeSelected);
                 
                 apiRef.current.selectRows(rowsToBeSelected, params.value);
             },

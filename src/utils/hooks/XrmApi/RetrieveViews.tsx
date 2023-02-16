@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { debugLog } from '../../global/common';
 
 export type ViewRetrieved = {
     isdefault: boolean,
@@ -49,7 +50,7 @@ export function RetrieveViews(entityname: string) {
     const _entityname = entityname;
 
     useEffect(() => {
-        console.log("RetrieveViews");     
+        debugLog("RetrieveViews");     
         if (!_entityname) return;
         async function fetchData() {
             const result = await Xrm.WebApi.online.retrieveMultipleRecords("savedquery", "?$select=isdefault,fetchxml,layoutjson,name&$filter=returnedtypecode eq '" + _entityname + "'&$orderby=name asc");

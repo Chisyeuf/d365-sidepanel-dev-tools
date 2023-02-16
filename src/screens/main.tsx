@@ -10,7 +10,7 @@ import Processes, {
     defaultProcessesList, storageListName, StorageProcessList
 } from '../processes/.list';
 import reportWebVitals from '../reportWebVitals';
-import { GetData, GetUrl, waitForElm } from '../utils/global/common';
+import { debugLog, GetData, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 
@@ -79,4 +79,4 @@ function initExtension() {
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-console.log("Main loaded");
+debugLog("Main loaded");

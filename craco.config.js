@@ -5,8 +5,6 @@ const smp = new SpeedMeasurePlugin();
 module.exports = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
-            // console.log(webpackConfig.module);
-            // console.log(webpackConfig.module.rules[1]);
 
             const newWebpack = smp.wrap({
                 ...webpackConfig,
@@ -44,8 +42,6 @@ module.exports = {
                     runtimeChunk: false
                 }
             });
-
-            // console.log(newWebpack.module);
 
             return newWebpack;
         }

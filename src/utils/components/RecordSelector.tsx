@@ -169,8 +169,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const columns: GridColDef[] = useMemo(() => {
         const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName == primaryNameLogicalName) ?? {} as AttributeMetadata
         const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype == MSType.Uniqueidentifier) ?? {} as AttributeMetadata
-        // console.log("firstColumnsMetadata.LogicalName", firstColumnsMetadata.LogicalName)
-        // console.log("primaryIdColumnsMetadata.LogicalName", primaryIdColumnsMetadata.LogicalName)
+
         const checkboxes: GridColDef = {
             ...GRID_BOOLEAN_COL_DEF,
             field: "__check__",
@@ -272,7 +271,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                             registerRecordIds: registerRecordIds
                         }
                     }}
-                    getRowId={(row) => { console.log("idAttribute", idAttribute); return row[idAttribute] }}
+                    getRowId={(row) => row[idAttribute] }
                     paginationMode={filterXml ? 'client' : 'server'}
                     pagination
                     onPageChange={(newPage) => setPage(newPage)}

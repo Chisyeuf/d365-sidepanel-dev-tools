@@ -105,7 +105,6 @@ export function createDashboardSidePane(paneOptions: Xrm.App.PaneOptions, dashbo
 //     window.addEventListener(
 //         "locationchange",
 //         function () {
-//             console.log(sidePane.paneId);
 //             Xrm.App.sidePanes.getPane(sidePane.paneId)?.close();
 //         },
 //         { once: true }
