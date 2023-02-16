@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
-import {
-    createStyles, makeStyles, 
-    Theme} from '@material-ui/core';
 import Stack from '@mui/material/Stack';
 
 import Processes, {
     defaultProcessesList, storageListName, StorageProcessList
 } from '../processes/.list';
-import reportWebVitals from '../reportWebVitals';
 import { debugLog, GetData, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
@@ -74,9 +70,4 @@ function initExtension() {
 
 }
 
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
 debugLog("Main loaded");
