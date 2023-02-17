@@ -21,6 +21,7 @@ import ComponentContainer from '../../../utils/components/ComponentContainer';
 
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
+import { debugLog } from '../../../utils/global/common';
 
 type GodModeSubProcess = {
     enabled: boolean,
@@ -97,7 +98,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 
     useEffect(() => {
         toggle();
-    }, [executionContext]);
+    }, [executionContext?.getDepth()]);
 
     const enableableControls = useMemo(async () => {
         if (executionContext) {
@@ -116,7 +117,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext]);
+    }, [executionContext?.getDepth()]);
 
 
     const toggleEnableMode = () => {
@@ -142,6 +143,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleEnableMode}
                 startIcon={enableModeEnable ? <VpnKeyIcon /> : <VpnKeyOffOutlinedIcon />}
+                // disabled={!executionContext}
             />
         </Tooltip>
     );
@@ -200,6 +202,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleMode}
                 startIcon={optionalModeEnable ? <CloudIcon /> : <CloudOffIcon />}
+                // disabled={!executionContext}
             />
         </Tooltip>
     );
@@ -313,6 +316,7 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={onClick}
                 startIcon={visibleModeEnable ? <VisibilityIcon /> : <VisibilityOffOutlinedIcon />}
+                // disabled={!executionContext}
             />
         </Tooltip>
     );
