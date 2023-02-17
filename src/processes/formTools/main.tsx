@@ -7,6 +7,7 @@ import HandymanIcon from '@mui/icons-material/Handyman';
 import XrmObserver from '../../utils/global/XrmObserver';
 
 import GodMode from './subProcesses/GodMode';
+import { debugLog } from '../../utils/global/common';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -109,6 +110,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [])
 
         useEffect(() => {
+            debugLog("setExecutionContext", !!Xrm.Page.data);
             if (Xrm.Page.data) {
                 Xrm.Page.data.addOnLoad((executionContext) => {
                     setExecutionContext(executionContext);
@@ -117,7 +119,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             else {
                 setExecutionContext(null);
             }
-        }, [xrmStatus])
+        }, [Xrm.Page.data?.addOnLoad])
 
 
         return (<ThemeProvider theme={theme}>
