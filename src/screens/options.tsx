@@ -12,7 +12,7 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import Processes, {
     defaultProcessesList, storageListName, StorageProcessList
 } from '../processes/.list';
-import reportWebVitals from '../reportWebVitals';
+
 import { debugLog, waitForElm } from '../utils/global/common';
 import { useStorage } from '../utils/hooks/use/useStorage';
 
@@ -205,9 +205,4 @@ waitForElm('#root').then((rootDiv) => {
     );
 });
 
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
 debugLog("Option loaded");
