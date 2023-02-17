@@ -443,7 +443,7 @@ function AttributeNode(props: AttributeNodeProps) {
                 >
                     <Typography
                         key={props.attribute.LogicalName + "_label"}
-                        title={props.attribute.DisplayName + "(" + props.attribute.LogicalName + ")"}
+                        // title={props.attribute.DisplayName + "(" + props.attribute.LogicalName + ")"}
                         // width="80%"
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
