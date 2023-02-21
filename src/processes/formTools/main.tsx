@@ -115,6 +115,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                 Xrm.Page.data.addOnLoad((executionContext) => {
                     setExecutionContext(executionContext);
                 });
+                Xrm.Page.data.refresh(false);
             }
             else {
                 setExecutionContext(null);
