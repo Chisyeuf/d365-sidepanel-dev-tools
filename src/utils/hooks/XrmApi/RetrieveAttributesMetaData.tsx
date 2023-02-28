@@ -68,7 +68,8 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
         setData([])
         fetchData()
 
-    }, [_entityname, idAttribute]);
+    }, [idAttribute]);
+    // }, [_entityname, idAttribute]);
 
     return [data, isFetching];
 }

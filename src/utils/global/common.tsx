@@ -78,7 +78,7 @@ export const groupBy = function (xs: any[], key: string): { [key: string]: any[]
 };
 
 export function debugLog(...args: any[]) {
-    if (true) {
+    if (false) {
         console.log(...args);
     }
 }

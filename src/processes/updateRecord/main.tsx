@@ -2,53 +2,32 @@
 import '../../utils/global/extensions';
 import '../../utils/components/ReportComplete';
 
-import dayjs, { Dayjs } from 'dayjs';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import React, {
-    Dispatch, forwardRef, ReactNode, SetStateAction, useCallback, useEffect, useImperativeHandle,
+    Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
     useMemo, useState
 } from 'react';
 import { useBoolean, useUpdateEffect } from 'usehooks-ts';
 
-import ShortTextIcon from '@material-ui/icons/ShortText';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
-import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ListIcon from '@mui/icons-material/List';
-import NotesIcon from '@mui/icons-material/Notes';
-import NumbersIcon from '@mui/icons-material/Numbers';
 import SyncIcon from '@mui/icons-material/Sync';
-import { createSvgIcon, createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import ListSubheader from '@mui/material/ListSubheader';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import EntitySelector from '../../utils/components/EntitySelector';
 import FilterInput from '../../utils/components/FilterInput';
-import MuiCalculator from '../../utils/components/MuiCalculator';
-import NumericInput from '../../utils/components/NumericInput';
 import RecordSelector from '../../utils/components/RecordSelector';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
-import { capitalizeFirstLetter, debugLog, formatId, groupBy, isArraysEquals } from '../../utils/global/common';
+import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
 import {
     AttributeMetadata, getReadableMSType, MSDateFormat, MSType
 } from '../../utils/global/requestsType';
@@ -56,10 +35,6 @@ import XrmObserver from '../../utils/global/XrmObserver';
 import { DictValueType, useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
-import {
-    PickListOption, RetrievePicklistValues
-} from '../../utils/hooks/XrmApi/RetrievePicklistValues';
-import { RetrieveSetName } from '../../utils/hooks/XrmApi/RetrieveSetName';
 import ErrorFileSnackbar from '../../utils/components/ReportComplete';
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
@@ -196,9 +171,14 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }
 
         const setCurrentRecord = useCallback(() => {
-            setEntityname(Xrm.Page.data?.entity.getEntityName())
+            const entityName = Xrm.Utility.getPageContext().input.entityName;
             const recordid = formatId(Xrm.Page.data?.entity.getId().toLowerCase())
-            setRecordsIds(recordid ? [recordid] : [])
+            if (!entityName) return
+            setEntityname(entityName)
+            setTimeout(() => {
+                setRecordsIds(recordid ? [recordid] : [])
+            }, 100);
+
         }, [])
 
         useUpdateEffect(() => {
@@ -206,8 +186,10 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [entityname, recordsIds])
 
         const xrmObserverCallback = () => {
-            if (!Xrm.Page.data || entityname) return
+            if (entityname) return
+            // if (!XrmObserver.isEntityRecord() || entityname) return
             setCurrentRecord()
+            XrmObserver.removeListener(xrmObserverCallback)
         }
 
         useEffect(() => {
@@ -269,7 +251,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
                 />
                 <Divider />
-                <span>{entityname + " / " + recordsIds}</span>
+                <Typography maxHeight='19px'>{entityname + " / " + recordsIds}</Typography>
             </Stack>
         )
     }

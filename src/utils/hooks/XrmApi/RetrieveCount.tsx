@@ -18,7 +18,8 @@ export function RetrieveCount(entityname: string): number {
         setData(0)
         fetchData();
 
-    }, [entityname, idAttribute]);
+    }, [idAttribute]);
+    // }, [entityname, idAttribute]);
 
     return data;
 }

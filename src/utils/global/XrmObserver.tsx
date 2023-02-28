@@ -33,4 +33,14 @@ export default class XrmObserver {
         xrmUpdatedCallback && document.removeEventListener('xrmupdated', xrmUpdatedCallback, false);
     }
 
+    static getPageType() {
+        return Xrm.Utility.getPageContext().input.pageType;
+    }
+    static isEntityList() {
+        return this.getPageType() === 'entitylist';
+    }
+    static isEntityRecord() {
+        return this.getPageType() === 'entityrecord';
+    }
+
 }
