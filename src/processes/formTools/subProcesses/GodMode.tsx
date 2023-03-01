@@ -77,9 +77,21 @@ function GodMode(props: SubProcessProps) {
             }
         >
             <Stack spacing={1} width='calc(100% - 10px)' padding='5px'>
-                <EnableMode executionContext={props.executionContext} enabled={enableModeEnable} setEnabled={setEnableMode} />
-                <VisibleMode executionContext={props.executionContext} enabled={visibleModeEnable} setEnabled={setVisibleMode} />
-                <OptionalMode executionContext={props.executionContext} enabled={optionalModeEnable} setEnabled={setOptionalMode} />
+                <EnableMode
+                    executionContext={props.executionContext}
+                    executionContextUpdated={props.executionContextUpdated}
+                    enabled={enableModeEnable}
+                    setEnabled={setEnableMode} />
+                <VisibleMode
+                    executionContext={props.executionContext}
+                    executionContextUpdated={props.executionContextUpdated}
+                    enabled={visibleModeEnable}
+                    setEnabled={setVisibleMode} />
+                <OptionalMode
+                    executionContext={props.executionContext}
+                    executionContextUpdated={props.executionContextUpdated}
+                    enabled={optionalModeEnable}
+                    setEnabled={setOptionalMode} />
             </Stack>
         </ComponentContainer>
     );
@@ -92,18 +104,18 @@ type FormControlState<T> = {
 type EnableModeStateType = FormControlState<boolean>;
 export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext, enabled: enableModeEnable, setEnabled: setEnableMode } = props;
+    const { executionContext, executionContextUpdated, enabled: enableModeEnable, setEnabled: setEnableMode } = props;
 
     // const [enableModeEnable, setEnableMode] = useState(false);
 
     useEffect(() => {
         toggle();
-    }, [executionContext?.getDepth()]);
+    }, [executionContextUpdated]);
 
     const enableableControls = useMemo(async () => {
         if (executionContext) {
-
-            const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
+            const formContext = executionContext.getFormContext();
+            const controls: Xrm.Controls.Control[] = formContext.getControl();
 
             const allcontrols: EnableModeStateType[] = controls.map<EnableModeStateType>(c => {
                 return {
@@ -117,7 +129,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext?.getDepth()]);
+    }, [executionContextUpdated]);
 
 
     const toggleEnableMode = () => {
@@ -143,7 +155,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleEnableMode}
                 startIcon={enableModeEnable ? <VpnKeyIcon /> : <VpnKeyOffOutlinedIcon />}
-                // disabled={!executionContext}
+            // disabled={!executionContext}
             />
         </Tooltip>
     );
@@ -152,7 +164,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 type OptionalModeStateType = FormControlState<Xrm.Attributes.RequirementLevel>;
 export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext, enabled: optionalModeEnable, setEnabled: setOptionalMode } = props;
+    const { executionContext, executionContextUpdated, enabled: optionalModeEnable, setEnabled: setOptionalMode } = props;
 
     // const [optionalModeEnable, setOptionalMode] = useState(false);
 
@@ -162,17 +174,17 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 
     useEffect(() => {
         toggle();
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
     const fieldsControls = useMemo(async () => {
         if (executionContext) {
-
-            const controls: Xrm.Attributes.Attribute<any>[] = Xrm.Page.getAttribute();
+            const formContext = executionContext.getFormContext();
+            const controls: Xrm.Controls.Control[] = formContext.getControl();
 
             const allcontrols: OptionalModeStateType[] = controls.map<OptionalModeStateType>(c => {
                 return {
                     name: c.getName(),
-                    defaultState: c.getRequiredLevel(),
+                    defaultState: Xrm.Page.getAttribute(c.getName())?.getRequiredLevel(),
                 }
             });
             return allcontrols;
@@ -181,16 +193,19 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
     const toggle = async () => {
         fieldsControls.then((controls: OptionalModeStateType[] | null) => {
             controls?.forEach(c => {
-                const controlTemp = Xrm.Page.getAttribute(c.name);
-                controlTemp.setRequiredLevel(optionalModeEnable ? 'none' : c.defaultState);
+                const attr = Xrm.Page.getAttribute(c.name);
+                c.defaultState && attr?.setRequiredLevel(optionalModeEnable ? 'none' : c.defaultState);
+                const contr = Xrm.Page.getControl<Xrm.Controls.StandardControl>(c.name);
+                optionalModeEnable && contr?.clearNotification?.();
             })
         });
     }
+
 
     useEffect(() => {
         toggle();
@@ -202,7 +217,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleMode}
                 startIcon={optionalModeEnable ? <CloudIcon /> : <CloudOffIcon />}
-                // disabled={!executionContext}
+            // disabled={!executionContext}
             />
         </Tooltip>
     );
@@ -211,7 +226,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 type VisibleModeStateType = FormControlState<boolean>;
 export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
-    const { executionContext, enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
+    const { executionContext, executionContextUpdated, enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
 
     // const [visibleModeEnable, setVisibleMode] = useState(false);
 
@@ -221,13 +236,13 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
     useEffect(() => {
         toggle();
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
 
     const visibilityControlsFields = useMemo(async () => {
         if (executionContext) {
-
-            const controls: Xrm.Controls.Control[] = Xrm.Page.ui.controls.get();
+            const formContext = executionContext.getFormContext();
+            const controls: Xrm.Controls.Control[] = formContext.getControl();
 
             const allcontrols: VisibleModeStateType[] = controls.map<VisibleModeStateType>(c => {
                 return {
@@ -241,12 +256,12 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
     const visibilityControlsTabs = useMemo(async () => {
         if (executionContext) {
-
-            const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
+            const formContext = executionContext.getFormContext();
+            const tabs: Xrm.Controls.Tab[] = formContext.ui.tabs.get();
 
             const allcontrols: VisibleModeStateType[] = tabs.map<VisibleModeStateType>(t => {
                 return {
@@ -260,12 +275,12 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
     const visibilityControlsSection = useMemo(async () => {
         if (executionContext) {
-
-            const tabs: Xrm.Controls.Tab[] = Xrm.Page.ui.tabs.get();
+            const formContext = executionContext.getFormContext();
+            const tabs: Xrm.Controls.Tab[] = formContext.ui.tabs.get();
             const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
 
             const allcontrols: VisibleModeStateType[] = sections.map<VisibleModeStateType>(s => {
@@ -280,7 +295,7 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
             return null;
         }
 
-    }, [executionContext]);
+    }, [executionContextUpdated]);
 
     const toggle = async () => {
         visibilityControlsFields.then((controls) => {
@@ -316,7 +331,7 @@ export function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={onClick}
                 startIcon={visibleModeEnable ? <VisibilityIcon /> : <VisibilityOffOutlinedIcon />}
-                // disabled={!executionContext}
+            // disabled={!executionContext}
             />
         </Tooltip>
     );
