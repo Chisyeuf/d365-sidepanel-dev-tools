@@ -1,13 +1,20 @@
 
-import { createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, Theme, ThemeProvider, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 import XrmObserver from '../../utils/global/XrmObserver';
 
 import GodMode from './subProcesses/GodMode';
 import { debugLog } from '../../utils/global/common';
+import { useBoolean } from 'usehooks-ts';
+import LabelTools from './subProcesses/LabelTools';
+
+import WifiIcon from '@mui/icons-material/Wifi';
+import WifiOffIcon from '@mui/icons-material/WifiOff';
+import { Tooltip } from '@material-ui/core';
+import ObserveDOM from '../../utils/global/DOMObserver';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -73,7 +80,7 @@ const theme = createTheme({
 
 
 
-const toolsList = [GodMode];
+const toolsList = [GodMode, LabelTools];
 
 type ExecutionContext = Xrm.Events.DataLoadEventContext | null;
 
@@ -91,12 +98,17 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
         });
 
         const [executionContext, setExecutionContext] = useState<ExecutionContext>(null);
+        const { value: executionContextUpdated, toggle: executionContextIsUpdated } = useBoolean(false);
+
+        const [domUpdated, setDomUpdated] = useState<boolean>(false);
 
         useImperativeHandle(ref, () => ({
             onClose() {
-                XrmObserver.removeListener(xrmObserverCallback)
+                XrmObserver.removeListener(xrmObserverCallback);
+                DOMobserver?.disconnect();
             }
         }));
+
         const xrmObserverCallback = useCallback(() => {
             setXrmStatus({
                 isRecord: !!Xrm.Page.data,
@@ -105,29 +117,53 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             })
         }, []);
 
+        const DOMobserver = useMemo(() => {
+            return ObserveDOM(document.querySelector('#shell-container'), () => {
+                debugLog("DOM Updated");
+                setDomUpdated(prev => !prev);
+            });
+        }, []);
+
         useEffect(() => {
             XrmObserver.addListener(xrmObserverCallback);
         }, [])
 
         useEffect(() => {
-            debugLog("setExecutionContext", !!Xrm.Page.data);
-            if (Xrm.Page.data) {
+            debugLog("setExecutionContext", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
+
+            if (Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord') {
                 Xrm.Page.data.addOnLoad((executionContext) => {
                     setExecutionContext(executionContext);
+                    executionContextIsUpdated();
                 });
                 Xrm.Page.data.refresh(false);
             }
             else {
                 setExecutionContext(null);
             }
-        }, [Xrm.Page.data?.addOnLoad])
+        }, [(Xrm.Utility.getPageContext() as any)._pageId])
 
 
         return (<ThemeProvider theme={theme}>
-            <Stack spacing={1} width='calc(100% - 10px)' padding='10px'>
+            <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Tooltip title={executionContext ? 'Context found' : 'Context Unfound. Try to refresh'}>
+                    <Stack alignItems='center'>
+                        {executionContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
+                        <Typography
+                            fontSize='0.6em'
+                            variant='caption'
+                        >{executionContext ? 'Connected' : 'Off'}</Typography>
+                    </Stack>
+                </Tooltip>
                 {
                     toolsList?.map((SubProcess, index) => {
-                        return <SubProcess executionContext={executionContext} />;
+                        return (
+                            <SubProcess
+                                executionContext={executionContext}
+                                executionContextUpdated={executionContextUpdated}
+                                domUpdated={domUpdated}
+                            />
+                        );
                     })
                 }
             </Stack>
@@ -138,7 +174,8 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
 export type SubProcessProps = {
     // xrmStatus: XrmStatus
-    executionContext: ExecutionContext
+    executionContext: ExecutionContext,
+    executionContextUpdated: boolean
 }
 
 
