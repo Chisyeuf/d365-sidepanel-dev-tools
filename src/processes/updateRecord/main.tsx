@@ -697,5 +697,5 @@ function NavTopBar(props: NavBarProps) {
 }
 
 
-let updateRecord = new UpdateRecordButton()
+const updateRecord = new UpdateRecordButton()
 export default updateRecord

@@ -4,16 +4,20 @@ import ReactDOM from 'react-dom';
 import Stack from '@mui/material/Stack';
 
 import Processes, {
-    defaultProcessesList, storageListName, StorageProcessList
+    defaultProcessesList, storageListName, StorageConfiguration
 } from '../processes/.list';
 import { debugLog, GetData, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
+
+import SaveIcon from '@mui/icons-material/Save';
+import { Button } from '@mui/material';
+import { ProcessButton } from '../utils/global/.processClass';
 
 
 export const MainScreen: React.FunctionComponent = () => {
 
     const processesListString = GetData(storageListName)
-    const processesList: StorageProcessList[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
+    const processesList: StorageConfiguration[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
 
     useEffect(() => {
         processesList.filter((processid) => processid.startOnLoad).forEach((processid) => {

@@ -11,6 +11,8 @@ import React from "react";
 import { Button, SvgIconProps } from '@mui/material';
 
 export abstract class ProcessButton {
+    static prefixId: string = 'sidepaneldevtools-';
+
     id: string;
     name: string;
     icon: JSX.Element;
@@ -24,7 +26,7 @@ export abstract class ProcessButton {
     // xrmUpdatedCallback?: () => void
 
     constructor(id: string, name: string, icon: JSX.Element, width: number) {
-        this.id = id;
+        this.id = ProcessButton.prefixId + id;
         this.name = name;
         this.icon = icon;
         this.width = width;
@@ -35,6 +37,10 @@ export abstract class ProcessButton {
         // this.reStyleSidePane = this.reStyleSidePane.bind(this);
         // if (this.process === undefined)
         //     this.process = new ErrorProcess();
+    }
+
+    getConfiguration(): string {
+        return this.id + ".conf";
     }
 
     onClick(): void {

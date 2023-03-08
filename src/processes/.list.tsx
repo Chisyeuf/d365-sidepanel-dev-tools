@@ -2,24 +2,27 @@ import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
 import formTools from './formTools/main';
+import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
 
-const Processes: ProcessButton[] = [formTools, updateRecord];
+const Processes: ProcessButton[] = [formTools, updateRecord, createConfiguration];
 
 
-export type StorageProcessList = {
+export type StorageConfiguration = {
     id: string
     startOnLoad: boolean,
     hidden: boolean,
     expand: boolean,
+    options: any,
 }
 
-export const defaultProcessesList: StorageProcessList[] = Processes.map(p => {
+export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
     return {
         id: p.id,
         startOnLoad: false,
         hidden: false,
         expand: false,
+        options: null,
     }
 })
 

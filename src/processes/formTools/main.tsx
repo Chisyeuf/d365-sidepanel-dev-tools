@@ -180,5 +180,5 @@ export type SubProcessProps = {
 
 
 
-var formTools = new FormToolsButton();
+const formTools = new FormToolsButton();
 export default formTools;

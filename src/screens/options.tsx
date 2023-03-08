@@ -10,14 +10,14 @@ import Stack from '@mui/material/Stack';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import Processes, {
-    defaultProcessesList, storageListName, StorageProcessList
+    defaultProcessesList, storageListName, StorageConfiguration
 } from '../processes/.list';
 
 import { debugLog, waitForElm } from '../utils/global/common';
 import { useStorage } from '../utils/hooks/use/useStorage';
 
 const OptionsScreen: React.FunctionComponent = () => {
-    const [processesList, setProcessList] = useStorage<StorageProcessList[]>(storageListName, defaultProcessesList)
+    const [processesList, setProcessList] = useStorage<StorageConfiguration[]>(storageListName, defaultProcessesList)
 
     return (
         <Container sx={{ width: '1000px', height: '400px', }}>
@@ -40,11 +40,11 @@ type RowProp = {
     expand: boolean,
 }
 type OptionsGridProps = {
-    processList: StorageProcessList[] | null
-    setProcessList: (data: StorageProcessList[]) => void
+    processList: StorageConfiguration[] | null
+    setProcessList: (data: StorageConfiguration[]) => void
 }
 const OptionsGrid = (props: OptionsGridProps) => {
-    const [currentProcessesList, setCurrentProcessesList] = useState<StorageProcessList[]>(props.processList ?? [])
+    const [currentProcessesList, setCurrentProcessesList] = useState<StorageConfiguration[]>(props.processList ?? [])
 
     const MoveUp = (row: RowProp) => {
         if (row.isFirst) {
