@@ -1,9 +1,11 @@
 {
-    "short_name": "SidePanel Dev Tools",
     "name": "D365 SidePanel Dev Tools",
     "description": "",
     "version": "1.0",
     "manifest_version": 3,
+    "background": {
+        "service_worker": "/static/js/background.js"
+    },
     "action": {
         "default_popup": "options.html",
         "default_title": "Options"
@@ -25,7 +27,6 @@
             "matches": ["https://*.dynamics.com/*"]
         }
     ],
-    "permissions": [
-        "storage"
-    ]
+    "host_permissions": ["https://*.dynamics.com/*"],
+    "permissions": ["storage", "declarativeNetRequest"]
 }

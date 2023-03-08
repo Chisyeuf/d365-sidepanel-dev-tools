@@ -5,7 +5,6 @@ const smp = new SpeedMeasurePlugin();
 module.exports = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
-
             const newWebpack = smp.wrap({
                 ...webpackConfig,
                 module: {
@@ -30,7 +29,8 @@ module.exports = {
                         paths.appIndexJs
                     ].filter(Boolean),
                     content: './src/content.tsx',
-                    options: './src/screens/options.tsx'
+                    options: './src/screens/options.tsx',
+                    background: './src/background.tsx'
                 },
                 output: {
                     ...webpackConfig.output,
@@ -39,7 +39,8 @@ module.exports = {
                 },
                 optimization: {
                     ...webpackConfig.optimization,
-                    runtimeChunk: false
+                    runtimeChunk: false,
+                    // minimize: false,
                 }
             });
 
