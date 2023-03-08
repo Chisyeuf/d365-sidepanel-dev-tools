@@ -7,7 +7,7 @@ import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMe
 import { useBoolean } from 'usehooks-ts'
 import { Stack, Button, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Pagination, Chip, Box, Paper, ListItem, Theme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridState, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridApiRef, useGridSelector } from '@mui/x-data-grid';
+import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridState, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
 import { DialogActions, LinearProgress } from '@material-ui/core'
 import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../hooks/XrmApi/RetrieveRecordsDisplayNames';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -34,7 +34,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
     const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;
 
     const [recordsDisplayNames, fetchingDisplayName] = RetrieveRecordsDisplayNames(entityname, recordsIds)
-    const { value: isDialogOpen, setValue: setDialogOpen, setTrue: openDialog, setFalse: closeDialog, toggle: toggleDialog } = useBoolean(false)
+    const { value: isDialogOpen, setTrue: openDialog, setFalse: closeDialog } = useBoolean(false)
     const [isGridLoading, setGridIsLoading] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false)
 
@@ -132,8 +132,12 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     const maxRowCount = RetrieveCount(entityname)
-    const [pageSize, setPageSize] = useState<number>(25)
-    const [page, setPage] = useState<number>(0)
+    // const [pageSize, setPageSize] = useState<number>(25)
+    // const [page, setPage] = useState<number>(0)
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+        pageSize: 25,
+        page: 0,
+    });
 
     const [allRecords, isFetchingAllRecords] = RetrieveAllRecordsByPage(
         entityname,
@@ -141,8 +145,8 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             if (value.MStype !== MSType.Lookup) return value.LogicalName
             else return "_" + value.LogicalName + "_value"
         }) ?? [],
-        page,
-        pageSize,
+        paginationModel.page,
+        paginationModel.pageSize,
         filterInput,
         sortModel
     )
@@ -183,15 +187,15 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             disableReorder: true,
             disableExport: true,
             getApplyQuickFilterFn: undefined,
-            valueGetter: (params: GridValueGetterParams<boolean>) => {
+            valueGetter: (params: GridValueGetterParams<Boolean>) => {
                 const apiRef = useGridApiContext()
                 const selectionLookup = selectedIdsLookupSelector(apiRef.current.state, apiRef.current.instanceId);
                 return selectionLookup[params.id] !== undefined;
             },
-            renderHeader: (params: GridColumnHeaderParams<boolean>) => (
+            renderHeader: (params: GridColumnHeaderParams) => (
                 <CustomGridHeaderCheckbox {...params} entityname={entityname} />
             ),
-            renderCell: (params: GridRenderCellParams<boolean>) => (
+            renderCell: (params: GridRenderCellParams) => (
                 <GridCellCheckboxRenderer {...params} />
             )
         }
@@ -240,8 +244,14 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                     rowCount={filterXml ? fetchXmlRecords.length : maxRowCount}
                     columns={columns}
                     loading={isFetchingAllRecords || isFetchingFetchXML}
-                    page={page}
-                    pageSize={pageSize}
+                    // initialState={{
+                    //     pagination: {
+                    //         paginationModel: {
+                    //             page: page,
+                    //             pageSize: pageSize
+                    //         }
+                    //     }
+                    // }}
                     // checkboxSelection={multiple ?? false}
                     onRowClick={(params) => {
                         // click = setTimeout(() => {
@@ -271,21 +281,30 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                             registerRecordIds: registerRecordIds
                         }
                     }}
-                    getRowId={(row) => row[idAttribute] }
+                    getRowId={(row) => row[idAttribute]}
                     paginationMode={filterXml ? 'client' : 'server'}
                     pagination
-                    onPageChange={(newPage) => setPage(newPage)}
-                    onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-                    selectionModel={recordsIds}
-                    onSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
+                    // onPageChange={(newPage) => setPage(newPage)}
+                    // onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+                    rowSelectionModel={recordsIds}
+                    onRowSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
                     checkboxSelection={multiple}
                     keepNonExistentRowsSelected
-                    onStateChange={(state: GridState, event, details) => {
-                        setVisibleColumns(state.columns.columnVisibilityModel);
-                        setFilterModel(state.filter.filterModel)
-                        setSortModel(state.sorting.sortModel)
-                    }}
+                    // onStateChange={(state: GridState, event, details) => {
+                    //     setVisibleColumns(state.columns.columnVisibilityModel);
+                    //     setFilterModel(state.filter.filterModel)
+                    //     setSortModel(state.sorting.sortModel)
+                    // }}
+                    filterModel={filterModel}
+                    onFilterModelChange={setFilterModel}
 
+                    sortModel={sortModel}
+                    onSortModelChange={setSortModel}
+
+                    columnVisibilityModel={visibleColumns}
+                    onColumnVisibilityModelChange={setVisibleColumns}
                 />
             </DialogContent>
         </Dialog>
@@ -330,12 +349,21 @@ function CustomPagination() {
     </Stack>
     );
 }
-type CustomFooterProps = {
-    onClose: () => void
-    selectedRecordIds: RecordsDisplayNamesResponse[],
-    registerRecordIds: Dispatch<SetStateAction<string[]>>
+
+
+declare module "@mui/x-data-grid" {
+    interface FooterPropsOverrides {
+        onClose: () => void
+        selectedRecordIds: RecordsDisplayNamesResponse[],
+        registerRecordIds: Dispatch<SetStateAction<string[]>>
+    }
 }
-function CustomFooter(props: CustomFooterProps) {
+// type CustomFooterProps = {
+//     onClose: () => void
+//     selectedRecordIds: RecordsDisplayNamesResponse[],
+//     registerRecordIds: Dispatch<SetStateAction<string[]>>
+// }
+function CustomFooter(props: FooterPropsOverrides) {
     const handleDelete = (chipToDelete: RecordsDisplayNamesResponse) => {
         const newSelectedRecords = props.selectedRecordIds.filter(r => r.id != chipToDelete.id)
         props.registerRecordIds(newSelectedRecords.map(r => r.id))
@@ -406,7 +434,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string"
                 }
@@ -418,10 +445,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string",
-                    valueGetter: (params: GridValueGetterParams<string>) => params.row["_" + meta.LogicalName + "_value@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (params: GridValueGetterParams) => params.row["_" + meta.LogicalName + "_value@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.String:
@@ -431,7 +457,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string"
                 }
@@ -443,7 +468,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string"
                 }
@@ -455,7 +479,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "number",
                 }
@@ -467,7 +490,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "number"
                 }
@@ -479,7 +501,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "number"
                 }
@@ -491,7 +512,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "number"
                 }
@@ -503,7 +523,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "number"
                 }
@@ -515,10 +534,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "boolean",
-                    renderCell: (params: GridRenderCellParams<boolean>) => <>{params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]}</>
+                    renderCell: (params: GridRenderCellParams) => <>{params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]}</>
                 }
             );
         case MSType.DateTime:
@@ -530,7 +548,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                             headerName: meta.DisplayName,
                             resizable: true,
                             hideable: true,
-                            hide: true,
                             minWidth: 100,
                             type: "dateTime",
                             valueGetter: ({ value }) => value && new Date(value),
@@ -543,7 +560,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                             headerName: meta.DisplayName,
                             resizable: true,
                             hideable: true,
-                            hide: true,
                             minWidth: 100,
                             type: "date",
                             valueGetter: ({ value }) => value && new Date(value),
@@ -558,10 +574,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams<string>) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.State:
@@ -571,10 +586,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams<string>) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.Picklist:
@@ -584,10 +598,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams<string>) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.MultiSelectPicklist:
@@ -597,10 +610,9 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string",
-                    valueGetter: (params: GridValueGetterParams<string>) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.Image:
@@ -610,7 +622,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     headerName: meta.DisplayName,
                     resizable: true,
                     hideable: true,
-                    hide: true,
                     minWidth: 100,
                     type: "string"
                 }
@@ -624,7 +635,6 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
             headerName: meta.DisplayName,
             resizable: true,
             hideable: true,
-            hide: true,
             minWidth: 100,
             type: "string"
         }

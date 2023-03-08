@@ -2,10 +2,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { unstable_composeClasses as composeClasses } from '@mui/utils';
 import { DataGridProcessedProps } from '@mui/x-data-grid/models/props/DataGridProps';
-import { getDataGridUtilityClass, GridColumnHeaderParams, GridEventListener, GridHeaderSelectionCheckboxParams, gridPaginatedVisibleSortedGridRowIdsSelector, gridRowCountSelector, GridRowId, gridSelectionStateSelector, gridTabIndexColumnHeaderSelector, gridVisibleSortedRowIdsSelector, useGridApiContext, useGridApiEventHandler, useGridRootProps, useGridSelector } from '@mui/x-data-grid';
 import { RetrieveAllRecords } from '../hooks/XrmApi/RetrieveAllRecords';
 import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute';
 import { debugLog } from '../global/common';
+import { getDataGridUtilityClass, GridColumnHeaderParams, GridHeaderSelectionCheckboxParams, gridRowCountSelector, GridRowId, gridTabIndexColumnHeaderSelector, selectedGridRowsCountSelector, useGridApiContext, useGridRootProps, useGridSelector } from '@mui/x-data-grid';
 
 type OwnerState = { classes: DataGridProcessedProps['classes'] };
 type CustomGridHeaderCheckboxProps = {
@@ -33,13 +33,14 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         const ownerState = { classes: rootProps.classes };
         const classes = useUtilityClasses(ownerState);
         const tabIndexState = useGridSelector(apiRef, gridTabIndexColumnHeaderSelector);
-        const selection = useGridSelector(apiRef, gridSelectionStateSelector);
+        // const selection = useGridSelector(apiRef, selectedGridRowsSelector);
+        const currentSelectionSize = useGridSelector(apiRef, selectedGridRowsCountSelector);
         // const selection = useGridSelector(apiRef, gridRowSelectionStateSelector);
-        const visibleRowIds = useGridSelector(apiRef, gridVisibleSortedRowIdsSelector);
-        const paginatedVisibleRowIds = useGridSelector(
-            apiRef,
-            gridPaginatedVisibleSortedGridRowIdsSelector,
-        );
+        // const visibleRowIds = useGridSelector(apiRef, gridVisibleSortedRowIdsSelector);
+        // const paginatedVisibleRowIds = useGridSelector(
+        //     apiRef,
+        //     gridPaginatedVisibleSortedGridRowIdsSelector,
+        // );
 
         const idAttribute = RetrievePrimaryIdAttribute(props.entityname);
 
@@ -53,7 +54,10 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
 
                 debugLog("handleHeaderSelectionCheckboxChange", rowsToBeSelected);
                 
-                apiRef.current.selectRows(rowsToBeSelected, params.value);
+                // apiRef.current.selectRows(rowsToBeSelected, params.value);
+                rowsToBeSelected.forEach(rowToSelect => {
+                    apiRef.current.selectRow(rowToSelect, params.value);
+                });
             },
             [apiRef, rowsAbleToBeSelected, idAttribute, props.retieveBatchSize],
         );
@@ -94,7 +98,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         // ]);
 
         // Amount of rows selected and that are visible in the current page
-        const currentSelectionSize = React.useMemo(() => selection.length, [selection])
+        // const currentSelectionSize = React.useMemo(() => selection.length, [selection])
         // React.useMemo(
         //     () => filteredSelection.filter((id) => selectionCandidates[id]).length,
         //     [filteredSelection, selectionCandidates],
@@ -142,7 +146,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         }, []);
 
         React.useEffect(() => {
-            return apiRef.current.subscribeEvent('selectionChange', handleSelectionChange);
+            return apiRef.current.subscribeEvent('rowSelectionChange', handleSelectionChange);
             // return apiRef.current.subscribeEvent('rowSelectionChange', handleSelectionChange);
         }, [apiRef, handleSelectionChange]);
 
@@ -151,7 +155,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         );
 
         return (
-            <rootProps.components.BaseCheckbox
+            <rootProps.slots.baseCheckbox
                 ref={ref}
                 indeterminate={isIndeterminate}
                 checked={isChecked}
@@ -160,7 +164,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
                 inputProps={{ 'aria-label': label }}
                 tabIndex={tabIndex}
                 onKeyDown={handleKeyDown}
-                {...rootProps.componentsProps?.baseCheckbox}
+                {...rootProps.slotProps?.baseCheckbox}
                 {...other}
                 disable={isFetching}
             />

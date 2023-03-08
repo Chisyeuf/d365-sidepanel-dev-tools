@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { useUpdateEffect } from 'usehooks-ts';
 
-import ShortTextIcon from '@material-ui/icons/ShortText';
+import ShortTextIcon from '@mui/icons-material/ShortText';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
@@ -911,72 +911,104 @@ export function DateTimeNode(props: AttributeProps) {
         <DatePicker
             value={value}
             onChange={onChange}
-            inputFormat='YYYY/MM/DD'
-            renderInput={(params) => (
-                <TextField
-                    {...params}
-                    size={"small"}
-                    fullWidth
-                    onMouseEnter={() => setIsHover(true)}
-                    onMouseLeave={() => setIsHover(false)}
-                />
-            )}
-            InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end"
-                        sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
-                    >
-                        {isHover && !props.disabled && <IconButton
-                            onClick={() => {
-                                onChange(null)
-                            }}
-                        >
-                            <ClearIcon />
-                        </IconButton>}
-                    </InputAdornment>
-                )
+            format='YYYY/MM/DD'
+            slotProps={{
+                // textField: {
+                //     onMouseEnter: () => setIsHover(true),
+                //     onMouseLeave: () => setIsHover(false),
+                // },
+                inputAdornment: {
+                    position: 'start',
+                }
             }}
-            InputAdornmentProps={{
-                position: "start",
-                sx: { marginRight: '0px', marginLeft: '4px' }
+            sx={{
+                width: '100%',
+                '& input': {
+                    padding: '8.5px 14px 8.5px 0px'
+                }
             }}
             disabled={props.disabled}
+
+        // renderInput={(params) => (
+        //     <TextField
+        //         {...params}
+        //         size={"small"}
+        //         fullWidth
+        //         onMouseEnter={() => setIsHover(true)}
+        //         onMouseLeave={() => setIsHover(false)}
+        //     />
+        // )}
+        // InputProps={{
+        //     endAdornment: (
+        //         <InputAdornment position="end"
+        //             sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
+        //         >
+        //             {isHover && !props.disabled && <IconButton
+        //                 onClick={() => {
+        //                     onChange(null)
+        //                 }}
+        //             >
+        //                 <ClearIcon />
+        //             </IconButton>}
+        //         </InputAdornment>
+        //     )
+        // }}
+        // InputAdornmentProps={{
+        //     position: "start",
+        //     sx: { marginRight: '0px', marginLeft: '4px' }
+        // }}
         />
         :
         <DateTimePicker
             ampm={false}
             onChange={onChange}
             value={value}
-            inputFormat='YYYY/MM/DD'
-            renderInput={(params) => (
-                <TextField
-                    {...params}
-                    size={"small"}
-                    fullWidth
-                    onMouseEnter={() => setIsHover(true)}
-                    onMouseLeave={() => setIsHover(false)}
-                />
-            )}
-            InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end"
-                        sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
-                    >
-                        {isHover && !props.disabled && <IconButton
-                            onClick={() => {
-                                setValue(null)
-                            }}
-                        >
-                            <ClearIcon />
-                        </IconButton>}
-                    </InputAdornment>
-                )
+            format='YYYY/MM/DD - hh:mm:ss'
+            slotProps={{
+                // textField: {
+                //     onMouseEnter: () => setIsHover(true),
+                //     onMouseLeave: () => setIsHover(false),
+                // },
+                inputAdornment: {
+                    position: 'start',
+                }
             }}
-            InputAdornmentProps={{
-                position: "start",
-                sx: { marginRight: '0px', marginLeft: '4px' }
+            sx={{
+                width: '100%',
+                '& input': {
+                    padding: '8.5px 14px 8.5px 0px'
+                }
             }}
             disabled={props.disabled}
+
+        // renderInput={(params) => (
+        //     <TextField
+        //         {...params}
+        //         size={"small"}
+        //         fullWidth
+        //         onMouseEnter={() => setIsHover(true)}
+        //         onMouseLeave={() => setIsHover(false)}
+        //     />
+        // )}
+        // InputProps={{
+        //     endAdornment: (
+        //         <InputAdornment position="end"
+        //             sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
+        //         >
+        //             {isHover && !props.disabled && <IconButton
+        //                 onClick={() => {
+        //                     setValue(null)
+        //                 }}
+        //             >
+        //                 <ClearIcon />
+        //             </IconButton>}
+        //         </InputAdornment>
+        //     )
+        // }}
+        // InputAdornmentProps={{
+        //     position: "start",
+        //     sx: { marginRight: '0px', marginLeft: '4px' }
+        // }}
         />}
     </>)
 }

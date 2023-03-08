@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Button, { ButtonProps } from '@mui/material/Button';
-import { gridPreferencePanelStateSelector, GridPreferencePanelsValue, useGridApiContext, useGridRootProps, useGridSelector } from '@mui/x-data-grid';
+import { useGridApiContext, useGridRootProps } from '@mui/x-data-grid';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { Dialog, DialogContent, DialogTitle, OutlinedInput, Stack, OutlinedInputProps, InputBaseComponentProps, InputBaseProps } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import DialogActions from '@mui/material/DialogActions';
@@ -49,16 +49,16 @@ export const GridToolbarFilterXMLButton = React.forwardRef<HTMLButtonElement, Bu
 
         return (
             <>
-                <rootProps.components.BaseButton
+                <rootProps.slots.baseButton
                     ref={ref}
                     size="small"
                     startIcon={filterApplied ? <FilterAltOffIcon /> : <FilterAltIcon />}
                     {...other}
                     onClick={() => { filterApplied ? resetXml() : openDialog() }}
-                    {...rootProps.componentsProps?.baseButton}
+                    {...rootProps.slotProps?.baseButton}
                 >
                     {filterApplied ? "Remove XML" : "Fetch XML"}
-                </rootProps.components.BaseButton>
+                </rootProps.slots.baseButton>
                 <Dialog onClose={onClose} open={open} maxWidth={false} >
                     <DialogTitle>
                         Filter by Fetch XML

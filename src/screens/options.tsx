@@ -135,7 +135,7 @@ const OptionsGrid = (props: OptionsGridProps) => {
         {
             field: 'startOnLoad',
             headerName: 'Start on load',
-            renderCell: (params: GridRenderCellParams<boolean>) => {
+            renderCell: (params: GridRenderCellParams<RowProp>) => {
                 return (
                     <Checkbox
                         checked={params.value}
@@ -147,7 +147,7 @@ const OptionsGrid = (props: OptionsGridProps) => {
         {
             field: 'expand',
             headerName: 'Expand',
-            renderCell: (params: GridRenderCellParams<boolean>) => {
+            renderCell: (params: GridRenderCellParams<RowProp>) => {
                 return (
                     <Checkbox
                         disabled={!params.row.startOnLoad}
@@ -160,7 +160,7 @@ const OptionsGrid = (props: OptionsGridProps) => {
         {
             field: 'hidden',
             headerName: 'Hidden',
-            renderCell: (params: GridRenderCellParams<boolean>) => {
+            renderCell: (params: GridRenderCellParams<RowProp>) => {
                 return (
                     <Checkbox
                         checked={params.value}

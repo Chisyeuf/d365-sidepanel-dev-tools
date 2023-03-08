@@ -1,10 +1,9 @@
 import { FormControl, IconButton, InputAdornment, TextField } from "@mui/material"
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useState } from "react"
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import React from "react";
 
-import { useWorker, WORKER_STATUS } from "@koale/useworker";
 
 type AttributeFilterInputProps = {
     arrayToFilter: string[],

@@ -21,5 +21,5 @@ const rules: chrome.declarativeNetRequest.Rule[] = [
 
 chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: rules.map((rule) => rule.id), // remove existing rules
-    addRules: rules
+    // addRules: rules
 });

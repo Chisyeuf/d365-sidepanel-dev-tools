@@ -413,7 +413,10 @@ function AttributeNode(props: AttributeNodeProps) {
             alignItems="center"
             spacing="2px"
             className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
-            style={{ display: isVisible ? '' : 'none' }}
+            style={{ 
+                display: isVisible ? '' : 'none',
+                backgroundColor: props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : ""))
+            }}
         >
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
                 <Stack
