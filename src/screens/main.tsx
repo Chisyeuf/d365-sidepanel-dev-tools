@@ -27,7 +27,7 @@ export const MainScreen: React.FunctionComponent = () => {
     }, [])
 
     return (
-        <Stack spacing={0.5} width='100%' padding='10px'>
+        <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id)

@@ -28,5 +28,8 @@
         }
     ],
     "host_permissions": ["https://*.dynamics.com/*"],
-    "permissions": ["storage", "declarativeNetRequest"]
+    "permissions": ["storage", "declarativeNetRequest"],
+    "externally_connectable": {
+        "matches": ["https://*.dynamics.com/*"]
+    }
 }

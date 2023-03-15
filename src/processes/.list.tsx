@@ -2,10 +2,11 @@ import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
 import formTools from './formTools/main';
+import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
 
-const Processes: ProcessButton[] = [formTools, updateRecord, createConfiguration];
+const Processes: ProcessButton[] = [formTools, updateRecord, impersonation, createConfiguration];
 
 
 export type StorageConfiguration = {

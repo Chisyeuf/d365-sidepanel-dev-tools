@@ -7,10 +7,11 @@ import React from "react";
 type AttributeFilterInputProps = {
     returnFilterInput: (str: string) => void,
     placeholder?: string,
-    fullWidth?: boolean
+    fullWidth?: boolean,
+    forcedValue?: string,
 }
 const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: AttributeFilterInputProps) => {
-    const [value, setValue] = useState("")
+    const [value, setValue] = useState(props.forcedValue ?? '')
 
     return (
         <FormControl size='small' fullWidth={props.fullWidth}>

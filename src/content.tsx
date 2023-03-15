@@ -4,7 +4,7 @@ window.onload = async () => {
     const processesList: { [key: string]: any } = await chrome.storage.sync.get(storageListName)
 
     injectScript(chrome.runtime.getURL("static/js/main.js"))
-    SaveData(chrome.runtime.getURL(""), "extensionid")
+    SaveData(chrome.runtime.getURL(""), "extensionURL")
     SaveData(JSON.stringify(processesList[storageListName]) ?? '', storageListName)
 }
 

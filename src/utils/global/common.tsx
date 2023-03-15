@@ -34,8 +34,13 @@ export function GetData(id: string): string {
     return data?.getAttribute("data") ?? '';
 }
 
+export function GetExtensionId(): string {
+    var extensionUrl = GetData("extensionURL");
+    return extensionUrl.split('/')[2];
+}
+
 export function GetUrl(url: string): string {
-    var extensionUrl = GetData("extensionid");
+    var extensionUrl = GetData("extensionURL");
     return extensionUrl + url;
 }
 
