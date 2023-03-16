@@ -28,7 +28,7 @@ type RecordSelectorProps = {
     recordsIds: string[],
     disabled?: boolean,
     multiple?: boolean,
-    theme: Theme
+    theme?: Theme
 }
 const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => {
     const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;

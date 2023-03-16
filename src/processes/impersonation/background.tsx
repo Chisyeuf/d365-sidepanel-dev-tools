@@ -25,7 +25,6 @@ const createImpersonationRule = (azureObjectId: string, url: string) => {
         },
         condition: {
             urlFilter: url + '/api/*/GetClientMetadata*',
-            // urlFilter: 'https://*.dynamics.com/api/*/GetClientMetadata*',
             // resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
         }
     };
