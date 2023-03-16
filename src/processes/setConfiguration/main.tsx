@@ -7,15 +7,18 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
-import Processes, { StorageConfiguration } from '../.list';
+import Processes, { storageListName } from '../.list';
 import ReactDOM from 'react-dom';
+import { MessageType } from '../../utils/types/Message';
+import { GetExtensionId } from '../../utils/global/common';
+import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 
 
 class SetConfigurationButton extends ProcessButton {
     constructor() {
         super(
             'createconfiguration',
-            'Create Load Configuration',
+            'Loading Configuration',
             <SaveIcon />,
             56
         );
@@ -49,35 +52,46 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [open, setOpen] = React.useState(true);
 
+        const extensionId = GetExtensionId();
 
         function CreateConfiguration() {
             const allOpenPanes = Xrm.App.sidePanes.getAllPanes().get();
             const selectedPane = Xrm.App.sidePanes.getSelectedPane();
             allOpenPanes.shift();
 
-            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map(openPane => {
+            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane, index) => {
                 return {
                     id: openPane.paneId!,
                     startOnLoad: true,
+                    startOnPosition: index,
                     expand: !!openPane.paneId && openPane.paneId === selectedPane.paneId,
                     hidden: false,
                     options: Processes.find(p => p.id === openPane.paneId)?.getConfiguration(),
                 }
             });
-            const allOpenPanesId = allOpenPanes.map(pane => pane.paneId);
-            const closedConfigurations: StorageConfiguration[] = Processes.filter(process => process.id !== props.id && !allOpenPanesId.includes(process.id)).map(closedPane => {
+
+            const configurations: StorageConfiguration[] = Processes.map(process => {
+                const opened = openConfigurations.find(c => c.id === process.id);
+                if (opened) {
+                    return opened;
+                }
                 return {
-                    id: closedPane.id,
+                    id: process.id,
                     startOnLoad: false,
                     expand: false,
                     hidden: false,
-                    options: closedPane?.getConfiguration(),
+                    options: process?.getConfiguration(),
                 }
-            });
 
-            const configurations: StorageConfiguration[] = [...openConfigurations, ...closedConfigurations];
+            })
 
             console.log(configurations);
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: configurations } },
+                function (response) {
+                    if (response.success) {
+                    }
+                }
+            );
         }
 
         const saveConfiguration = () => {

@@ -1,6 +1,6 @@
 
 import { MouseEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
-import { AttributeMetadata, MSType, MSDateFormat } from '../global/requestsType'
+import { AttributeMetadata, MSType, MSDateFormat } from '../types/requestsType'
 import { RetrievePrimaryNameAttribute } from '../hooks/XrmApi/RetrievePrimaryNameAttribute'
 import React from 'react'
 import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMetaData'

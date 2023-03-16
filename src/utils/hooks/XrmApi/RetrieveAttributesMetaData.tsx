@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
-import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../global/requestsType';
+import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../types/requestsType';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {

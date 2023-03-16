@@ -1,7 +1,7 @@
 import { Autocomplete, FormControl, TextField } from "@mui/material"
 import React from "react"
 import { useEffect, useState } from "react"
-import { Entity } from "../global/requestsType"
+import { Entity } from "../types/requestsType"
 import { RetrieveEntities } from "../hooks/XrmApi/RetrieveEntities"
 
 type EntitySelectorProps = {

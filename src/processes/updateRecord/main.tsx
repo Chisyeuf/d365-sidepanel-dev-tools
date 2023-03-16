@@ -30,7 +30,7 @@ import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.pro
 import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
 import {
     AttributeMetadata, getReadableMSType, MSDateFormat, MSType
-} from '../../utils/global/requestsType';
+} from '../../utils/types/requestsType';
 import XrmObserver from '../../utils/global/XrmObserver';
 import { DictValueType, useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';

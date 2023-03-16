@@ -1,5 +1,5 @@
 import { ProcessButton } from './.processClass';
-import { MSType } from './requestsType';
+import { MSType } from '../types/requestsType';
 
 // export function setStorage(processListOrdered : ProcessButton[]) {
 //     chrome.storage.sync.set({processListOrdered: processListOrdered});

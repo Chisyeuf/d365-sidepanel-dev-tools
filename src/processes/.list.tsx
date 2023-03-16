@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
+import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import formTools from './formTools/main';
 import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
@@ -9,13 +10,6 @@ import updateRecord from './updateRecord/main';
 const Processes: ProcessButton[] = [formTools, updateRecord, impersonation, createConfiguration];
 
 
-export type StorageConfiguration = {
-    id: string
-    startOnLoad: boolean,
-    hidden: boolean,
-    expand: boolean,
-    options: any,
-}
 
 export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
     return {

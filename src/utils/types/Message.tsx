@@ -1,4 +1,6 @@
 export enum MessageType {
     IMPERSONATE = 'impersonate',
-    GETIMPERSONATION = 'getImpersonation'
+    GETIMPERSONATION = 'getImpersonation',
+    SETCONFIGURATION = 'setConfiguration',
+    GETCONFIGURATION = 'getConfiguration',
 }

@@ -7,6 +7,7 @@
 // });
 
 import { getSessionRules, manageImpersonation } from "./processes/impersonation/background";
+import { getExtensionConfiguration, setExtensionConfiguration } from "./processes/setConfiguration/background";
 import { MessageType } from "./utils/types/Message";
 
 chrome.runtime.onMessageExternal.addListener(messagesStation);
@@ -21,6 +22,14 @@ function messagesStation(message: { type: string, data: any }, sender: chrome.ru
         case MessageType.GETIMPERSONATION:
             getSessionRules().then(sendResponse);
             return true;
+        case MessageType.SETCONFIGURATION:
+            setExtensionConfiguration(message.data)
+            return false;
+        case MessageType.GETCONFIGURATION:
+            getExtensionConfiguration(message.data).then(sendResponse);
+            return true;
     }
+
+    return false;
 }
 

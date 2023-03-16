@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
-import { MSType } from '../../global/requestsType';
+import { MSType } from '../../types/requestsType';
 
 export interface PickListOption {
     "@odata.type"?:  string;

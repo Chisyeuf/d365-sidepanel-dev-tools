@@ -1,30 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
 
-import Processes, {
-    defaultProcessesList, storageListName, StorageConfiguration
-} from '../processes/.list';
-import { debugLog, GetData, GetUrl, waitForElm } from '../utils/global/common';
+import Processes, { defaultProcessesList, storageListName } from '../processes/.list';
+import { debugLog, GetData, GetExtensionId, GetUrl, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
-import SaveIcon from '@mui/icons-material/Save';
-import { Button } from '@mui/material';
-import { ProcessButton } from '../utils/global/.processClass';
+import { StorageConfiguration } from '../utils/types/StorageConfiguration';
+import { MessageType } from '../utils/types/Message';
 
 
 export const MainScreen: React.FunctionComponent = () => {
 
-    const processesListString = GetData(storageListName)
-    const processesList: StorageConfiguration[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
+    const extensionId = GetExtensionId();
+
+    const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
 
     useEffect(() => {
-        processesList.filter((processid) => processid.startOnLoad).forEach((processid) => {
-            const process = Processes.find(p => p.id === processid.id)
-            process?.openSidePane(processid.expand)
-        })
-    }, [])
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
+            function (response: StorageConfiguration[]) {
+                if (response.length !== defaultProcessesList.length) {
+                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } },
+                        function () { }
+                    );
+                    setProcessesList(defaultProcessesList);
+                    return;
+                }
+
+                if (response) {
+                    console.log(response);
+                    setProcessesList(response);
+                }
+                else {
+                    console.log(defaultProcessesList);
+                    setProcessesList(defaultProcessesList);
+                }
+
+            }
+        );
+    }, [extensionId]);
+
+
+    // const processesListString = undefined
+    // const processesList: StorageConfiguration[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
+
+    useEffect(() => {
+        processesList.filter((processid) => processid.startOnLoad)
+            .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
+            .forEach((processid) => {
+                const process = Processes.find(p => p.id === processid.id)
+                process?.openSidePane(processid.expand)
+            })
+    }, [processesList]);
 
     return (
         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
@@ -44,7 +72,7 @@ var loading = setInterval(() => {
         clearInterval(loading);
         initExtension();
     }
-}, 100);
+}, 200);
 
 
 function initExtension() {

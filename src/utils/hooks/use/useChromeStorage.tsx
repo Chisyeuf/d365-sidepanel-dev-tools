@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { debugLog } from '../../global/common';
 
-export function useStorage<T>(key: string, defaultData: T): [T | null, (data: T) => void] {
+export function useChromeStorage<T>(key: string, defaultData: T): [T | null, (data: T) => void] {
 
     const [data, setData] = useState<T | null>(null);
 

@@ -37,7 +37,7 @@ import RecordSelector from '../../utils/components/RecordSelector';
 import { groupBy, isArraysEquals } from '../../utils/global/common';
 import {
     AttributeMetadata, MSDateFormat, MSType
-} from '../../utils/global/requestsType';
+} from '../../utils/types/requestsType';
 import { DictValueType } from '../../utils/hooks/use/useDictionnary';
 import {
     PickListOption, RetrievePicklistValues

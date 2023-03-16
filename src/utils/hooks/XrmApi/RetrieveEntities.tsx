@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
-import { Entity } from '../../global/requestsType';
+import { Entity } from '../../types/requestsType';
 
 export function RetrieveEntities() {
 
