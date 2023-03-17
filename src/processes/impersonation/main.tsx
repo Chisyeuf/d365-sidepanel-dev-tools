@@ -1,18 +1,12 @@
 
-import { Box, Button, Checkbox, createTheme, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Skeleton, Theme, ThemeProvider, Typography } from '@mui/material';
+import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
-import HandymanIcon from '@mui/icons-material/Handyman';
-import XrmObserver from '../../utils/global/XrmObserver';
 
-import { debugLog, GetExtensionId } from '../../utils/global/common';
-import { useBoolean } from 'usehooks-ts';
+import { GetExtensionId } from '../../utils/global/common';
 
-import WifiIcon from '@mui/icons-material/Wifi';
-import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { Tooltip } from '@material-ui/core';
-import ObserveDOM from '../../utils/global/DOMObserver';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
 import FilterInput from '../../utils/components/FilterInput';
@@ -67,8 +61,6 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
             if (!activeUsers) return;
             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
                 function (existingRules: chrome.declarativeNetRequest.Rule[]) {
-                    console.log(existingRules);
-
                     const url = Xrm.Utility.getGlobalContext().getClientUrl();
                     const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url));
 

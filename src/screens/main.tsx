@@ -4,11 +4,12 @@ import ReactDOM from 'react-dom';
 import Stack from '@mui/material/Stack';
 
 import Processes, { defaultProcessesList, storageListName } from '../processes/.list';
-import { debugLog, GetData, GetExtensionId, GetUrl, waitForElm } from '../utils/global/common';
+import { debugLog, GetData, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
+import ObserveDOM from '../utils/global/DOMObserver';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -39,18 +40,41 @@ export const MainScreen: React.FunctionComponent = () => {
 
             }
         );
+
+        setStyle({
+            "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
+            "#__flyoutRootNode > div > div": ["z-index: 11"],
+            "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+        });
+        // setPageStyle();
     }, [extensionId]);
 
+    const setPageStyle = async () => {
+        const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane().paneId ?? '');
+        if (openedPane) {
+            setStyle({
+                "div[id^=DialogContainer] > div": [
+                    "width: calc(100% - " +
+                    (document.getElementById(Xrm.App.sidePanes.getSelectedPane().paneId ?? '')?.offsetWidth ?? 0) +
+                    "px)",
+                    "left: 0"
+                ],
+                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
+                "#__flyoutRootNode > div > div": ["z-index: 11"],
+                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+            });
+        }
+    }
 
-    // const processesListString = undefined
-    // const processesList: StorageConfiguration[] = !processesListString || processesListString == '' ? defaultProcessesList : JSON.parse(processesListString)
+    ObserveDOM(document.querySelector<HTMLDivElement>("#panels > div:last-child"), setPageStyle);
 
     useEffect(() => {
         processesList.filter((processid) => processid.startOnLoad)
             .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
             .forEach((processid) => {
-                const process = Processes.find(p => p.id === processid.id)
-                process?.openSidePane(processid.expand)
+                const process = Processes.find(p => p.id === processid.id);
+                process?.openSidePane(processid.expand);
+                // processid.expand && console.log("expand test", processid.id) || setPageStyle();
             })
     }, [processesList]);
 

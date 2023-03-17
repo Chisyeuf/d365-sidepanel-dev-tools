@@ -9,6 +9,26 @@ import { MSType } from '../types/requestsType';
 //     return (await chrome.storage.sync.get(['processListOrdered']))['processListOrdered'] as ProcessButton[]
 // }
 
+export function setStyle(style: { [querySelector: string]: string[] }) {
+    var styleNode = document.querySelector<HTMLStyleElement>("#styleModifier");
+    if (styleNode == null) {
+        styleNode = document.createElement("style");
+        styleNode.id = "styleModifier";
+        document.head.appendChild(styleNode);
+    }
+    let styleText = '';
+    for (var key in style) {
+        var value = style[key];
+        var styleElementsText = "";
+        for (let i = 0; i < value.length; i++) {
+            const styleElement = value[i];
+            styleElementsText += styleElement + ";";
+        }
+        styleText += key + "{" + styleElementsText + "}";
+    }
+    styleNode.innerText = styleText;
+}
+
 export function waitForElm(selector: string) {
     return new Promise<HTMLElement | null>(resolve => {
         if (document.querySelector(selector)) {
