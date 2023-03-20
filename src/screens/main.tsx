@@ -21,20 +21,12 @@ export const MainScreen: React.FunctionComponent = () => {
     useEffect(() => {
         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
             function (response: StorageConfiguration[]) {
-                if (response.length !== defaultProcessesList.length) {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } },
-                        function () { }
-                    );
-                    setProcessesList(defaultProcessesList);
+                if (response && response.length === defaultProcessesList.length) {
+                    setProcessesList(response);
                     return;
                 }
-
-                if (response) {
-                    console.log(response);
-                    setProcessesList(response);
-                }
                 else {
-                    console.log(defaultProcessesList);
+                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
                     setProcessesList(defaultProcessesList);
                 }
 
@@ -50,12 +42,12 @@ export const MainScreen: React.FunctionComponent = () => {
     }, [extensionId]);
 
     const setPageStyle = async () => {
-        const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane().paneId ?? '');
+        const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
         if (openedPane) {
             setStyle({
                 "div[id^=DialogContainer] > div": [
                     "width: calc(100% - " +
-                    (document.getElementById(Xrm.App.sidePanes.getSelectedPane().paneId ?? '')?.offsetWidth ?? 0) +
+                    (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
                     "px)",
                     "left: 0"
                 ],
@@ -66,7 +58,10 @@ export const MainScreen: React.FunctionComponent = () => {
         }
     }
 
-    ObserveDOM(document.querySelector<HTMLDivElement>("#panels > div:last-child"), setPageStyle);
+    waitForElm("#panels > div:last-child").then(elem => {
+        ObserveDOM(elem, setPageStyle);
+    })
+    
 
     useEffect(() => {
         processesList.filter((processid) => processid.startOnLoad)
