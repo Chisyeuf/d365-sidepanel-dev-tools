@@ -23,7 +23,7 @@ type LabelToolsSubProcess = {
 function LabelTools(props: SubProcessProps & { domUpdated: boolean }) {
 
     const [value, copy] = useCopyToClipboard();
-    
+
 
     const [allModeEnabled, setAllModeEnabled] = useState<boolean>(false);
     const [fieldLabelEnabled, setFieldLabelEnabled] = useState<boolean>(false);
@@ -156,6 +156,37 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
         }
     }, [executionContextUpdated]);
 
+    const tabsNode = useMemo(() => {
+        if (!tabs) return [];
+
+        return tabs.map((c) => {
+            const tabName: string = c.getName();
+            const tabNode: Element | null = document.querySelector("li[data-id$=\"tablist-" + tabName + "\"]");
+            const tabFirstChild = tabNode?.firstChild;
+
+            let content;
+            if (tabFirstChild?.nodeName === '#text') {
+                tabFirstChild?.remove();
+                content = document.createElement('div');
+                tabNode?.prepend(content);
+            }
+            else {
+                content = tabNode?.firstElementChild;
+                content && (content.innerHTML = '');
+            }
+
+            const tabDisplayName = tabNode?.lastChild?.textContent;
+
+            return (
+                {
+                    node: content,
+                    displayName: tabDisplayName,
+                    name: tabName
+                }
+            );
+        })
+    }, [tabs]);
+
     const sections = useMemo(() => {
         if (executionContext) {
             const formContext = executionContext.getFormContext();
@@ -168,6 +199,32 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
             return null;
         }
     }, [executionContextUpdated]);
+
+    const sectionsNode = useMemo(() => {
+        if (!sections) return [];
+
+        return sections.map((c) => {
+            const sectionName: string = c.getName();
+            const sectionNode: Element | null = document.querySelector("section[data-id$=\"" + sectionName + "\"]");
+
+            let content;
+            if (sectionNode?.firstElementChild?.hasAttribute('role')) {
+                content = document.createElement('div');
+                sectionNode?.prepend(content);
+            }
+            else {
+                content = sectionNode?.firstElementChild;
+                content && (content.innerHTML = '');
+            }
+
+            return (
+                {
+                    node: content,
+                    name: sectionName
+                }
+            )
+        })
+    }, [sections]);
 
     const toggleLabelDisplay = () => {
         setLabelDisplayed((prev) => !prev);
@@ -182,23 +239,36 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
             />
         </Tooltip>
         <>{
-            tabs?.map((c) => {
-                const tabName: string = c.getName();
-                const tabNode: Element | null = document.querySelector("li[data-id$=\"tablist-" + tabName + "\"]");
-                const tabFirstChild = tabNode?.firstChild;
+            // tabs?.map((c) => {
+            //     const tabName: string = c.getName();
+            //     const tabNode: Element | null = document.querySelector("li[data-id$=\"tablist-" + tabName + "\"]");
+            //     const tabFirstChild = tabNode?.firstChild;
 
-                let content;
-                if (tabFirstChild?.nodeType === 3) {
-                    tabFirstChild?.remove();
-                    content = document.createElement('div');
-                    tabNode?.prepend(content);
-                }
-                else {
-                    content = tabNode?.firstElementChild;
-                }
+            //     if (!tabFirstChild) return null;
 
-                const tabDisplayName = tabNode?.lastChild?.textContent;
+            //     let content;
+            //     if (tabFirstChild?.nodeName === '#text') {
+            //         tabFirstChild?.remove();
+            //         content = document.createElement('div');
+            //         tabNode?.prepend(content);
+            //     }
+            //     else {
+            //         content = tabNode?.firstElementChild;
+            //         content && (content.innerHTML = '');
+            //     }
 
+            //     const tabDisplayName = tabNode?.lastChild?.textContent;
+
+            //     return (
+            //         <Portal container={content}>
+            //             <Stack direction='column'>
+            //                 <>{tabDisplayName}</>
+            //                 {labelDisplayed && <LogicalNameTypography label={tabName} onClick={copyToClipboard} />}
+            //             </Stack>
+            //         </Portal>
+            //     );
+            // })
+            tabsNode.map(({ node: content, displayName: tabDisplayName, name: tabName }) => {
                 return (
                     <Portal container={content}>
                         <Stack direction='column'>
@@ -210,19 +280,26 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
             })
         }</>
         <>{
-            sections?.map((c) => {
-                const sectionName: string = c.getName();
-                const sectionNode: Element | null = document.querySelector("section[data-id$=\"" + sectionName + "\"]");
+            // sections?.map((c) => {
+            //     const sectionName: string = c.getName();
+            //     const sectionNode: Element | null = document.querySelector("section[data-id$=\"" + sectionName + "\"]");
 
-                let content;
-                if (sectionNode?.firstElementChild?.hasAttribute('role')) {
-                    content = document.createElement('div');
-                    sectionNode?.prepend(content);
-                }
-                else {
-                    content = sectionNode?.firstElementChild;
-                }
+            //     let content;
+            //     if (sectionNode?.firstElementChild?.hasAttribute('role')) {
+            //         content = document.createElement('div');
+            //         sectionNode?.prepend(content);
+            //     }
+            //     else {
+            //         content = sectionNode?.firstElementChild;
+            //     }
 
+            //     return (
+            //         <Portal container={content}>
+            //             {labelDisplayed && <LogicalNameTypography label={sectionName} onClick={copyToClipboard} />}
+            //         </Portal>
+            //     );
+            // })
+            sectionsNode.map(({ node: content, name: sectionName }) => {
                 return (
                     <Portal container={content}>
                         {labelDisplayed && <LogicalNameTypography label={sectionName} onClick={copyToClipboard} />}
