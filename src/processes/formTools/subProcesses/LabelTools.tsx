@@ -13,6 +13,7 @@ import LabelIcon from '@mui/icons-material/Label';
 import LabelOutlinedIcon from '@mui/icons-material/LabelOutlined';
 import BookIcon from '@mui/icons-material/Book';
 import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
+import { ControlType } from '../../../utils/types/ControlType';
 
 type LabelToolsSubProcess = {
     enabled: boolean,
@@ -349,18 +350,18 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
                 const type = c.getControlType();
                 let controlNode;
                 switch (type) {
-                    case "iframe":
-                    case "subgrid":
-                    case "webresource":
-                    case "notes":
-                    case "timercontrol":
-                    case "kbsearch":
-                    case "timelinewall":
-                    case "quickform":
+                    case ControlType.IFRAME:
+                    case ControlType.SUBGRID:
+                    case ControlType.WEBRESSOURCE:
+                    case ControlType.NOTES:
+                    case ControlType.TIMER:
+                    case ControlType.KBSEARCH:
+                    case ControlType.TIMELINE:
+                    case ControlType.QUICKFORM:
                         return null;
-                    case 'lookup':
-                    case 'standard':
-                    case 'optionset':
+                    case ControlType.LOOKUP:
+                    case ControlType.STANDARD:
+                    case ControlType.OPTIONSET:
                     default:
                         const controlNodeT = document.querySelector("label[id$=\"" + controlName + "-field-label\"]");
                         controlNode = controlNodeT?.parentElement?.parentElement ?? null;

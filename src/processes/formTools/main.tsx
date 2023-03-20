@@ -15,6 +15,7 @@ import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { Tooltip } from '@material-ui/core';
 import ObserveDOM from '../../utils/global/DOMObserver';
+import OptionSetTool from './subProcesses/OptionSetTool';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -80,7 +81,7 @@ const theme = createTheme({
 
 
 
-const toolsList = [GodMode, LabelTools];
+const toolsList = [GodMode, LabelTools, OptionSetTool];
 
 type ExecutionContext = Xrm.Events.DataLoadEventContext | null;
 

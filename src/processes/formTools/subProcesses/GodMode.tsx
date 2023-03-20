@@ -115,12 +115,12 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
     const enableableControls = useMemo(async () => {
         if (executionContext) {
             const formContext = executionContext.getFormContext();
-            const controls: Xrm.Controls.Control[] = formContext.getControl();
+            const controls: Xrm.Controls.StandardControl[] = formContext.getControl() as Xrm.Controls.StandardControl[];
 
             const allcontrols: EnableModeStateType[] = controls.map<EnableModeStateType>(c => {
                 return {
                     name: c.getName(),
-                    defaultState: ((c as any).getDisabled && (c as any).getDisabled()) ?? false,
+                    defaultState: (c.getDisabled && c.getDisabled()) ?? false,
                 }
             });
             return allcontrols;
