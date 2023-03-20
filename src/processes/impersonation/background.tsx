@@ -50,7 +50,6 @@ const removeImpersonationRules = (azureObjectId: string, url: string) => {
 }
 
 export function getSessionRules() {
-    console.log('getSessionRules', chrome.declarativeNetRequest.getSessionRules());
     return chrome.declarativeNetRequest.getSessionRules();
 }
 

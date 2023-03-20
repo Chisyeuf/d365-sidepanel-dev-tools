@@ -17,6 +17,8 @@ import { useStateCallback } from '../../utils/hooks/use/useStateCallback';
 import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole } from '../../utils/types/SecurityRole';
+import PestControlIcon from '@mui/icons-material/PestControl';
+import { Env } from '../../utils/global/var';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -91,6 +93,17 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
                     <SecurityRoleMenu securityRoleSeclected={securityRoleSeclected} setSecurityRoleSeclected={setSecurityRoleSeclected} />
+                    {Env.DEBUG &&
+                        <IconButton onClick={() => {
+                            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
+                                function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
+                                    existingRules.then((e) => console.log('DEBUG: ', e))
+                                }
+                            );
+                        }}>
+                            <PestControlIcon />
+                        </IconButton>
+                    }
                 </Stack>
                 <Divider />
                 {
