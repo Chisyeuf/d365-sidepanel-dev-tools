@@ -148,12 +148,11 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
         return (<ThemeProvider theme={theme}>
             <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
                 <Tooltip title={executionContext ? 'Context found' : 'Context Unfound. Try to refresh'}>
-                    <Stack alignItems='center'>
+                    <Stack alignItems='center' paddingRight='25%'>
                         {executionContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
                         <Typography
                             fontSize='0.6em'
                             variant='caption'
-                            paddingRight='25%'
                         >
                             {executionContext ? 'Connected' : 'Off'}
                         </Typography>
