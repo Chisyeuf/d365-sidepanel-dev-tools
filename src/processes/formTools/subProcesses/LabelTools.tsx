@@ -71,17 +71,17 @@ function LabelTools(props: SubProcessProps & { domUpdated: boolean }) {
             }
         >
             <Stack spacing={1} width='calc(100% - 10px)' padding='5px'>
-                <ShowFieldLabel
-                    enabled={fieldLabelEnabled}
-                    setEnabled={setFieldLabelEnabled}
+                <ShowTabLabel
+                    enabled={tabLabelEnabled}
+                    setEnabled={setTabLabelEnabled}
                     executionContext={props.executionContext}
                     executionContextUpdated={props.executionContextUpdated}
                     domUpdated={props.domUpdated}
                     copyToClipboard={copy}
                 />
-                <ShowTabLabel
-                    enabled={tabLabelEnabled}
-                    setEnabled={setTabLabelEnabled}
+                <ShowFieldLabel
+                    enabled={fieldLabelEnabled}
+                    setEnabled={setFieldLabelEnabled}
                     executionContext={props.executionContext}
                     executionContextUpdated={props.executionContextUpdated}
                     domUpdated={props.domUpdated}
