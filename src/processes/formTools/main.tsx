@@ -153,7 +153,10 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                         <Typography
                             fontSize='0.6em'
                             variant='caption'
-                        >{executionContext ? 'Connected' : 'Off'}</Typography>
+                            paddingRight='25%'
+                        >
+                            {executionContext ? 'Connected' : 'Off'}
+                        </Typography>
                     </Stack>
                 </Tooltip>
                 {
