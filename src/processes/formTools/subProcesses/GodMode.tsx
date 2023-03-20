@@ -77,6 +77,11 @@ function GodMode(props: SubProcessProps) {
             }
         >
             <Stack spacing={1} width='calc(100% - 10px)' padding='5px'>
+                <OptionalMode
+                    executionContext={props.executionContext}
+                    executionContextUpdated={props.executionContextUpdated}
+                    enabled={optionalModeEnable}
+                    setEnabled={setOptionalMode} />
                 <EnableMode
                     executionContext={props.executionContext}
                     executionContextUpdated={props.executionContextUpdated}
@@ -87,11 +92,6 @@ function GodMode(props: SubProcessProps) {
                     executionContextUpdated={props.executionContextUpdated}
                     enabled={visibleModeEnable}
                     setEnabled={setVisibleMode} />
-                <OptionalMode
-                    executionContext={props.executionContext}
-                    executionContextUpdated={props.executionContextUpdated}
-                    enabled={optionalModeEnable}
-                    setEnabled={setOptionalMode} />
             </Stack>
         </ComponentContainer>
     );
