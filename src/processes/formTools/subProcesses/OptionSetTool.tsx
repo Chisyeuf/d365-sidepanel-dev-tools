@@ -89,9 +89,9 @@ function ShowOptionSetInFields(props: SubProcessProps & OptionSetToolsSubProcess
     }, [executionContextUpdated]);
 
     useEffect(() => {
-        if (!controls) return;
+        if (!controls || !executionContext) return;
 
-        Xrm.Utility.getEntityMetadata('lead', controls.map(c => c.getName())).then(entityMetadata => {
+        Xrm.Utility.getEntityMetadata(executionContext.getFormContext().data.entity.getEntityName(), controls.map(c => c.getName())).then(entityMetadata => {
             const attributes = entityMetadata.Attributes;
             controls.forEach((control) => {
                 const fieldMetadata = attributes.get(control.getName());
@@ -102,7 +102,7 @@ function ShowOptionSetInFields(props: SubProcessProps & OptionSetToolsSubProcess
                         control.addOption({
                             text: (optionsDisplayed ? `${option.value} - ` : '') + option.text,
                             value: option.value
-                        }, index);
+                        }, index + 1);
                     });
                 }
             })
