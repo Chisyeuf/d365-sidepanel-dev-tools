@@ -1074,7 +1074,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
                 {
                     stateOptions?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
-                        return <MenuItem value={option.value}>{option.text}</MenuItem>
+                        return <MenuItem value={option.value}>{option.text} ({option.value})</MenuItem>
                     })
                 }
             </Select>
@@ -1143,14 +1143,15 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
                 {props.nullable && <MenuItem value={-1}>- - -</MenuItem>}
                 {
                     statusCode && Object.entries(groupBy(statusCode, props.groupBy))?.map(([group, value]) => {
+                        const parentOption = stateCode?.find(state => state.Value === Number(group));
                         return (
                             [
-                                <ListSubheader>{stateCode?.find(state => state.Value === Number(group))?.Label.UserLocalizedLabel!.Label}</ListSubheader>,
+                                <ListSubheader>{parentOption?.Label.UserLocalizedLabel!.Label} ({parentOption?.Value})</ListSubheader>,
                                 value.sort((a: PickListOption, b: PickListOption) => {
                                     return a.Label.UserLocalizedLabel!.Label?.localeCompare(b.Label.UserLocalizedLabel!.Label)
                                 }).map((optionNode) => {
                                     var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value }
-                                    return <MenuItem value={option.value}>{option.text}</MenuItem>
+                                    return <MenuItem value={option.value}>{option.text} ({option.value})</MenuItem>
                                 })
                             ]
                         )
@@ -1229,7 +1230,7 @@ export function MultiplePicklistNode(props: AttributeProps) {
                 {
                     stateOptions?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
-                        return <MenuItem value={option.value}>{option.text}</MenuItem>
+                        return <MenuItem value={option.value}>{option.text} ({option.value})</MenuItem>
                     })
                 }
             </Select>
