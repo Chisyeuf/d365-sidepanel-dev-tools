@@ -1,21 +1,23 @@
 
-import { createTheme, Theme, ThemeProvider, Typography } from '@mui/material';
+import { createTheme, ThemeProvider, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
-import XrmObserver from '../../utils/global/XrmObserver';
 
-import GodMode from './subProcesses/GodMode';
+import GodMode from './containers/GodMode';
 import { debugLog } from '../../utils/global/common';
-import { useBoolean } from 'usehooks-ts';
-import LabelTools from './subProcesses/LabelTools';
+import LabelTools from './containers/LabelTools';
 
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { Tooltip } from '@material-ui/core';
-import ObserveDOM from '../../utils/global/DOMObserver';
-import OptionSetTool from './subProcesses/OptionSetTool';
+import DOMObserver from '../../utils/global/DOMObserver';
+import { Env } from '../../utils/global/var';
+import ComponentContainer from '../../utils/components/ComponentContainer';
+import FillFields from './buttons/FillFields';
+import ShowOptionSetInFields from './buttons/ShowOptionSetInFields';
+import OtherTools from './containers/OtherTools';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -79,11 +81,11 @@ const theme = createTheme({
     },
 });
 
+var domObserver: DOMObserver | null = null;
 
+const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodMode, OtherTools /** Blur fields, Dirty fields */];
 
-const toolsList = [GodMode, LabelTools, OptionSetTool];
-
-type ExecutionContext = Xrm.Events.DataLoadEventContext | null;
+type FormContext = Xrm.Page | null;
 
 type XrmStatus = {
     isRecord: boolean;
@@ -92,78 +94,83 @@ type XrmStatus = {
 }
 
 const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
-    function DevToolsProcess(props: ProcessProps, ref) {
+    function FormToolsProcess(props: ProcessProps, ref) {
 
         const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
             isRecord: false,
         });
 
-        const [executionContext, setExecutionContext] = useState<ExecutionContext>(null);
-        const { value: executionContextUpdated, toggle: executionContextIsUpdated } = useBoolean(false);
+        const [currentFormContext, setCurrentFormContext] = useState<FormContext>(null);
 
         const [domUpdated, setDomUpdated] = useState<boolean>(false);
 
-        useImperativeHandle(ref, () => ({
-            onClose() {
-                XrmObserver.removeListener(xrmObserverCallback);
-                DOMobserver?.disconnect();
-            }
-        }));
-
-        const xrmObserverCallback = useCallback(() => {
-            setXrmStatus({
-                isRecord: !!Xrm.Page.data,
-                entityName: Xrm.Page.data?.entity.getEntityName(),
-                recordId: Xrm.Page.data?.entity.getId(),
-            })
-        }, []);
-
-        const DOMobserver = useMemo(() => {
-            return ObserveDOM(document.querySelector('#shell-container'), () => {
-                debugLog("DOM Updated");
-                setDomUpdated(prev => !prev);
+        useImperativeHandle(ref, () => {
+            return ({
+                onClose() {
+                    domObserver?.removeListener(xrmObserverCallback);
+                    // XrmObserver.removeListener(xrmObserverCallback);
+                    // DOMobserver?.disconnect();
+                }
             });
         }, []);
 
+        const xrmObserverCallback = useCallback(() => {
+            debugLog("DOM Updated");
+            setDomUpdated(prev => !prev);
+        }, []);
+
         useEffect(() => {
-            XrmObserver.addListener(xrmObserverCallback);
+            if (!domObserver) {
+                domObserver = new DOMObserver('formtools', document.querySelector('#shell-container'), { childList: true, subtree: true });
+            }
+            domObserver.addListener(xrmObserverCallback);
         }, [])
 
         useEffect(() => {
-            debugLog("setExecutionContext", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
+            console.log("setExecutionContext", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
+
+            setXrmStatus({
+                isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
+                entityName: Xrm.Page.data?.entity.getEntityName(),
+                recordId: Xrm.Page.data?.entity.getId(),
+            });
 
             if (Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord') {
-                Xrm.Page.data.addOnLoad((executionContext) => {
-                    setExecutionContext(executionContext);
-                    executionContextIsUpdated();
-                });
-                Xrm.Page.data.refresh(false);
+                setCurrentFormContext(Xrm.Page);
+                
+                // console.log("1",Xrm.Page);
+                // Xrm.Page.data.addOnLoad(() => {
+                //     setFormContext(Xrm.Page);
+                //     console.log("2",Xrm.Page);
+                // });
             }
             else {
-                setExecutionContext(null);
+                setCurrentFormContext(null);
             }
         }, [(Xrm.Utility.getPageContext() as any)._pageId])
 
 
         return (<ThemeProvider theme={theme}>
             <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
-                <Tooltip title={executionContext ? 'Context found' : 'Context Unfound. Try to refresh'}>
-                    <Stack alignItems='center' paddingRight='25%'>
-                        {executionContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
-                        <Typography
-                            fontSize='0.6em'
-                            variant='caption'
-                        >
-                            {executionContext ? 'Connected' : 'Off'}
-                        </Typography>
-                    </Stack>
-                </Tooltip>
+                {
+                    Env.DEBUG &&
+                    <Tooltip title={currentFormContext ? 'Context found' : 'Context Unfound. Try to refresh'}>
+                        <Stack alignItems='center' paddingRight='25%'>
+                            {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
+                            <Typography
+                                fontSize='0.6em'
+                                variant='caption'
+                            >
+                                {currentFormContext ? 'Connected' : 'Off'}
+                            </Typography>
+                        </Stack>
+                    </Tooltip>
+                }
                 {
                     toolsList?.map((SubProcess, index) => {
                         return (
                             <SubProcess
-                                executionContext={executionContext}
-                                executionContextUpdated={executionContextUpdated}
+                                currentFormContext={currentFormContext}
                                 domUpdated={domUpdated}
                             />
                         );
@@ -177,8 +184,8 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
 export type SubProcessProps = {
     // xrmStatus: XrmStatus
-    executionContext: ExecutionContext,
-    executionContextUpdated: boolean
+    currentFormContext: FormContext,
+    domUpdated?: boolean
 }
 
 

@@ -913,10 +913,6 @@ export function DateTimeNode(props: AttributeProps) {
             onChange={onChange}
             format='YYYY/MM/DD'
             slotProps={{
-                // textField: {
-                //     onMouseEnter: () => setIsHover(true),
-                //     onMouseLeave: () => setIsHover(false),
-                // },
                 inputAdornment: {
                     position: 'start',
                 }
@@ -928,35 +924,6 @@ export function DateTimeNode(props: AttributeProps) {
                 }
             }}
             disabled={props.disabled}
-
-        // renderInput={(params) => (
-        //     <TextField
-        //         {...params}
-        //         size={"small"}
-        //         fullWidth
-        //         onMouseEnter={() => setIsHover(true)}
-        //         onMouseLeave={() => setIsHover(false)}
-        //     />
-        // )}
-        // InputProps={{
-        //     endAdornment: (
-        //         <InputAdornment position="end"
-        //             sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
-        //         >
-        //             {isHover && !props.disabled && <IconButton
-        //                 onClick={() => {
-        //                     onChange(null)
-        //                 }}
-        //             >
-        //                 <ClearIcon />
-        //             </IconButton>}
-        //         </InputAdornment>
-        //     )
-        // }}
-        // InputAdornmentProps={{
-        //     position: "start",
-        //     sx: { marginRight: '0px', marginLeft: '4px' }
-        // }}
         />
         :
         <DateTimePicker
@@ -965,10 +932,6 @@ export function DateTimeNode(props: AttributeProps) {
             value={value}
             format='YYYY/MM/DD - hh:mm:ss'
             slotProps={{
-                // textField: {
-                //     onMouseEnter: () => setIsHover(true),
-                //     onMouseLeave: () => setIsHover(false),
-                // },
                 inputAdornment: {
                     position: 'start',
                 }
@@ -980,35 +943,6 @@ export function DateTimeNode(props: AttributeProps) {
                 }
             }}
             disabled={props.disabled}
-
-        // renderInput={(params) => (
-        //     <TextField
-        //         {...params}
-        //         size={"small"}
-        //         fullWidth
-        //         onMouseEnter={() => setIsHover(true)}
-        //         onMouseLeave={() => setIsHover(false)}
-        //     />
-        // )}
-        // InputProps={{
-        //     endAdornment: (
-        //         <InputAdornment position="end"
-        //             sx={{ visibility: value && !props.disabled ? "visible" : "hidden" }}
-        //         >
-        //             {isHover && !props.disabled && <IconButton
-        //                 onClick={() => {
-        //                     setValue(null)
-        //                 }}
-        //             >
-        //                 <ClearIcon />
-        //             </IconButton>}
-        //         </InputAdornment>
-        //     )
-        // }}
-        // InputAdornmentProps={{
-        //     position: "start",
-        //     sx: { marginRight: '0px', marginLeft: '4px' }
-        // }}
         />}
     </>)
 }

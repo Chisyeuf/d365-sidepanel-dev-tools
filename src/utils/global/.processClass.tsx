@@ -56,8 +56,11 @@ export abstract class ProcessButton {
 
 
     openSidePane(selected: boolean = true): void {
-        if (Xrm.App.sidePanes.getPane(this.id))
+        const paneExist = Xrm.App.sidePanes.getPane(this.id);
+        if (paneExist) {
+            paneExist.select();
             return;
+        }
 
         var paneOption: Xrm.App.PaneOptions = {
             paneId: this.id,
@@ -79,7 +82,7 @@ export abstract class ProcessButton {
             if (this.processContainer)
                 nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />}</this.processContainer>
             else
-                nodeToRender = this.process ? <this.process id={this.id} /> : <ErrorProcess />
+                nodeToRender = this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />
 
             this.reStyleSidePane();
             ReactDOM.render(

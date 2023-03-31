@@ -1,13 +1,6 @@
 import { ProcessButton } from './.processClass';
 import { MSType } from '../types/requestsType';
 
-// export function setStorage(processListOrdered : ProcessButton[]) {
-//     chrome.storage.sync.set({processListOrdered: processListOrdered});
-// }
-
-// export function getStorage(): ProcessButton[] {
-//     return (await chrome.storage.sync.get(['processListOrdered']))['processListOrdered'] as ProcessButton[]
-// }
 
 export function setStyle(style: { [querySelector: string]: string[] }) {
     var styleNode = document.querySelector<HTMLStyleElement>("#styleModifier");
@@ -101,6 +94,30 @@ export const groupBy = function (xs: any[], key: string): { [key: string]: any[]
         return rv;
     }, {});
 };
+
+export function actionWithDisabledSaving(action?: () => any) {
+    if (!Xrm.Page.getAttribute)
+        return;
+
+    const attributes = Xrm.Page.getAttribute();
+
+    const attributesSubmitModeStorage = attributes.map(a => { return { attribute: a, submitMode: a.getSubmitMode() } });
+
+    attributes.forEach(a => {
+        a.setSubmitMode('never');
+    });
+
+    let result;
+    if (action)
+        result = action();
+
+    setTimeout(() => {
+        attributesSubmitModeStorage.forEach(a => {
+            a.attribute.setSubmitMode(a.submitMode);
+        });
+    }, 500);
+    return result;
+}
 
 export function debugLog(...args: any[]) {
     if (false) {

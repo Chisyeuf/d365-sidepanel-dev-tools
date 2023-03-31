@@ -9,7 +9,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import ObserveDOM from '../utils/global/DOMObserver';
+import DOMObserver from '../utils/global/DOMObserver';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -35,7 +35,7 @@ export const MainScreen: React.FunctionComponent = () => {
 
         setStyle({
             "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
-            "#__flyoutRootNode > div > div": ["z-index: 11"],
+            "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
             "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
         });
         // setPageStyle();
@@ -52,14 +52,16 @@ export const MainScreen: React.FunctionComponent = () => {
                     "left: 0"
                 ],
                 "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
-                "#__flyoutRootNode > div > div": ["z-index: 11"],
+                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
             });
         }
     }
 
     waitForElm("#panels > div:last-child").then(elem => {
-        ObserveDOM(elem, setPageStyle);
+        // ObserveDOM(elem, setPageStyle);
+        const domObserver = new DOMObserver('sidepanelinteracted', elem, { childList: true, subtree: true });
+        domObserver.addListener(setPageStyle);
     })
     
 

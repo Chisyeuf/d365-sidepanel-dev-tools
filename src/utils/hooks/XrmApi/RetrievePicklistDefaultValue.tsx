@@ -10,7 +10,7 @@ export function RetrievePicklistDefaultValue(entityname: string, fieldnames: str
         debugLog("RetrievePicklistValues");
         if (!entityname) return;
         async function fetchData() {
-            const response = await Xrm.Utility.getEntityMetadata('account', fieldnames);
+            const response = await Xrm.Utility.getEntityMetadata(entityname, fieldnames);
 
             const attributes = response.Attributes.get();
 
