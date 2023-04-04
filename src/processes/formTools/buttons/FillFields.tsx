@@ -4,7 +4,7 @@ import { SubProcessProps } from '../main';
 
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import { RetrieveAttributesMetaData } from '../../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
-import { AttributeMetadata, MSDateFormat, MSType } from '../../../utils/types/requestsType';
+import { AttributeMetadata, MSDateFormat, MSType, StringAttributeFormat } from '../../../utils/types/requestsType';
 import { LookupValue } from '../../../utils/types/LookupValue';
 
 enum FillFieldsSteps {
@@ -41,7 +41,7 @@ function FillFields(props: SubProcessProps) {
                 return getRandomLookup(metadata.Parameters.Target);
             case MSType.String:
             case MSType.Memo:
-                return getRandomString(metadata.Parameters.MaxLength);
+                return getRandomString(metadata.Parameters.MaxLength, metadata.Parameters.Format);
             case MSType.Decimal:
             case MSType.Double:
             case MSType.Money:
@@ -91,9 +91,9 @@ function FillFields(props: SubProcessProps) {
     }, [step]);
 
     const attributes = useMemo(() => {
+        setStep(null);
         if (currentFormContext) {
             const controls: Xrm.Attributes.Attribute[] = currentFormContext.getAttribute();
-
             return controls;
         }
         else {
@@ -184,10 +184,10 @@ function getRandomNumber(minValue: number, maxValue: number, precision: number =
     return Number(number.toFixed(precision));
 }
 
-function getRandomString(maxLength: number) {
-    const length = getRandomNumber(2, maxLength);
+function getRandomStringGenerator(maxLength: number) {
+    const length = getRandomNumber(1, maxLength);
 
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const charactersLength = characters.length;
 
     let result = '';
@@ -199,15 +199,31 @@ function getRandomString(maxLength: number) {
     return result;
 }
 
+function getRandomString(maxLength: number, format: string) {
+    switch (format) {
+        case StringAttributeFormat.Email:
+            return `${getRandomStringGenerator(Math.min((maxLength / 10), 15))}@${getRandomStringGenerator(Math.min((maxLength / 10), 10))}.${getRandomStringGenerator(3)}`;
+        case StringAttributeFormat.Phone:
+        case StringAttributeFormat.Text:
+        case StringAttributeFormat.TextArea:
+        case StringAttributeFormat.TickerSymbol:
+            return getRandomStringGenerator(Math.min((maxLength / 5), 50));
+        case StringAttributeFormat.URL:
+            return `www.${getRandomStringGenerator(Math.min((maxLength / 10), 20))}.${getRandomStringGenerator(3)}`;
+    }
+    return '';
+}
+
 function getRandomPickList(options: number[]) {
-    const randomIndex = getRandomNumber(0, options.length);
+    const randomIndex = getRandomNumber(0, options.length - 1);
     return options.at(randomIndex);
 }
 
 async function getRandomLookup(target: string): Promise<LookupValue[] | null> {
+    const randomIndex = getRandomNumber(1, 5);
     const primaryIdAttribute = (await Xrm.Utility.getEntityMetadata(target)).PrimaryIdAttribute;
     const primaryNameAttribute = (await Xrm.Utility.getEntityMetadata(target)).PrimaryNameAttribute;
-    const record = (await Xrm.WebApi.online.retrieveMultipleRecords(target, `?$select=${primaryIdAttribute},${primaryNameAttribute}`, 1)).entities.at(0);
+    const record = (await Xrm.WebApi.online.retrieveMultipleRecords(target, `?$select=${primaryIdAttribute},${primaryNameAttribute}`, randomIndex)).entities.at(randomIndex - 1);
     if (!record) return null;
     return [{
         id: record[primaryIdAttribute],
@@ -216,7 +232,7 @@ async function getRandomLookup(target: string): Promise<LookupValue[] | null> {
     }];
 }
 
-function getRandomDate(format: MSDateFormat) {
+function getRandomDate(format: string) {
     const start = new Date(1753, 1, 1);
     const end = new Date(9999, 12, 31);
     return new Date(getRandomNumber(start.getTime(), end.getTime()));

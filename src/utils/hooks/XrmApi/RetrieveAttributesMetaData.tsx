@@ -56,7 +56,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
                         Precision: attribute.Precision,
                         MaxLength: attribute.MaxLength,
                         Target: attribute.Targets?.at(0),
-                        Format: getMSFormatDateKeyByValue(attribute.Format)
+                        Format: attribute.Format
                     }
                 };
                 return t

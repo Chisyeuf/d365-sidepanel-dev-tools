@@ -114,6 +114,15 @@ export function getMSFormatDateKeyByValue(value: string): MSDateFormat {
     }
 }
 
+export const enum StringAttributeFormat {
+    Email = "Email",
+    Phone = "Phone",
+    Text = "Text",
+    TextArea = "TextArea",
+    TickerSymbol = "TickerSymbol",
+    URL = "Url",
+}
+
 export type AttributeMetadata = {
     LogicalName: string,
     DisplayName: string,
@@ -131,6 +140,6 @@ export type AttributeMetadata = {
         Precision: number,
         MaxLength: number,
         Target: string,
-        Format: MSDateFormat
+        Format: string
     }
 }

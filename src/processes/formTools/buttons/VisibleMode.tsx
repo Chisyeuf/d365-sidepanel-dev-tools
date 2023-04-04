@@ -23,57 +23,52 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
 
     const visibilityControlsFields = useMemo(async () => {
-        if (currentFormContext) {
-            const controls: Xrm.Controls.Control[] = currentFormContext.getControl();
-
-            const allcontrols: VisibleModeStateType[] = controls.map<VisibleModeStateType>(c => {
-                return {
-                    name: c.getName(),
-                    defaultState: c.getVisible() ?? true,
-                }
-            });
-            return allcontrols;
-        }
-        else {
+        if (!currentFormContext) {
             return null;
         }
+        const controls: Xrm.Controls.Control[] = currentFormContext.getControl();
+
+        const allcontrols: VisibleModeStateType[] = controls.map<VisibleModeStateType>(c => {
+            return {
+                name: c.getName(),
+                defaultState: c.getVisible() ?? true,
+            }
+        });
+        return allcontrols;
 
     }, [currentFormContext]);
 
     const visibilityControlsTabs = useMemo(async () => {
-        if (currentFormContext) {
-            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
-
-            const allcontrols: VisibleModeStateType[] = tabs.map<VisibleModeStateType>(t => {
-                return {
-                    name: t.getName(),
-                    defaultState: t.getVisible() ?? true,
-                }
-            });
-            return allcontrols;
-        }
-        else {
+        if (!currentFormContext) {
             return null;
         }
+        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
+
+        const allcontrols: VisibleModeStateType[] = tabs.map<VisibleModeStateType>(t => {
+            return {
+                name: t.getName(),
+                defaultState: t.getVisible() ?? true,
+            }
+        });
+        return allcontrols;
 
     }, [currentFormContext]);
 
     const visibilityControlsSection = useMemo(async () => {
-        if (currentFormContext) {
-            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
-            const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
-
-            const allcontrols: VisibleModeStateType[] = sections.map<VisibleModeStateType>(s => {
-                return {
-                    name: s.getName(),
-                    defaultState: s.getVisible() ?? true,
-                }
-            });
-            return allcontrols;
-        }
-        else {
+        if (!currentFormContext) {
             return null;
         }
+        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
+        const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
+
+        const allcontrols: VisibleModeStateType[] = sections.map<VisibleModeStateType>(s => {
+            return {
+                name: s.getName(),
+                defaultState: s.getVisible() ?? true,
+            }
+        });
+        return allcontrols;
+
 
     }, [currentFormContext]);
 
@@ -111,7 +106,6 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={onClick}
                 startIcon={visibleModeEnable ? <VisibilityIcon /> : <VisibilityOffOutlinedIcon />}
-            // disabled={!executionContext}
             />
         </Tooltip>
     );
