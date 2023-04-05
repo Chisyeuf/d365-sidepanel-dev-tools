@@ -1,11 +1,14 @@
-import { Tooltip, Button } from '@mui/material';
+import { Tooltip, Button, Stack, Menu, MenuItem } from '@mui/material';
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { SubProcessProps } from '../main';
 
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import { RetrieveAttributesMetaData } from '../../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
-import { AttributeMetadata, MSDateFormat, MSType, StringAttributeFormat } from '../../../utils/types/requestsType';
+import { AttributeMetadata, MSType, StringAttributeFormat } from '../../../utils/types/requestsType';
 import { LookupValue } from '../../../utils/types/LookupValue';
+import { useBoolean } from 'usehooks-ts';
+
 
 enum FillFieldsSteps {
     Mandatory,
@@ -17,22 +20,72 @@ function FillFields(props: SubProcessProps) {
 
     const { currentFormContext } = props;
 
-    const [step, setStep] = useState<FillFieldsSteps | null>(null);
+
+    const anchorRef = React.useRef(null);
+
+    const { value: open, setValue: setOpen, setFalse: setClose, toggle: toggleOpen } = useBoolean(false);
 
     const [attributeMetadata, isFetching] = RetrieveAttributesMetaData(currentFormContext?.data.entity.getEntityName() ?? '');
 
-    const toggleFieldsValues = () => {
-        setStep((prev) => {
-            console.log("toggleFieldsValues", prev);
-            if (prev === null) {
-                return FillFieldsSteps.Mandatory;
-            }
-            if (prev >= (Object.keys(FillFieldsSteps).length / 2) - 1) {
-                return 0;
-            }
-            return prev + 1;
-        });
+    const executeOnEachAttribute = (f: (attribute: Xrm.Attributes.Attribute) => void) => {
+        if (!attributes) return;
+        attributes.forEach(f);
     }
+
+    const buttons = [
+        {
+            label: "Fill Mandatory fields",
+            function: (attribute: Xrm.Attributes.Attribute) => {
+                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+                if (!metadata) return;
+                if (!metadata.IsValidForUpdate) return;
+
+                if (attribute.getRequiredLevel() === 'required' && !attribute.getValue()) {
+                    getRandomValue(attribute, metadata).then((randomValue) => {
+                        attribute.setValue(randomValue);
+                    });
+                }
+            }
+        },
+        {
+            label: "Fill All fields",
+            function: (attribute: Xrm.Attributes.Attribute) => {
+                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+                if (!metadata) return;
+                if (!metadata.IsValidForUpdate) return;
+
+                if (!attribute.getValue()) {
+                    getRandomValue(attribute, metadata).then((randomValue) => {
+                        if (randomValue !== undefined)
+                            attribute.setValue(randomValue);
+                    });
+                }
+            }
+        },
+        {
+            label: "Clear all fields",
+            function: (attribute: Xrm.Attributes.Attribute) => {
+                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+                if (!metadata) return;
+                if (!metadata.IsValidForUpdate) return;
+
+                if (attribute.getValue()) {
+                    attribute.setValue(null);
+                }
+            }
+        },
+        {
+            label: "Restore original values",
+            function: (attribute: Xrm.Attributes.Attribute) => {
+                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+                if (!metadata) return;
+                if (!metadata.IsValidForUpdate) return;
+
+                const originalValue = originalValues?.find((v) => v.name === attribute.getName());
+                attribute.setValue(originalValue?.value);
+            }
+        },
+    ];
 
     const getRandomValue = async (attribute: Xrm.Attributes.Attribute, metadata: AttributeMetadata) => {
 
@@ -68,30 +121,29 @@ function FillFields(props: SubProcessProps) {
         }
     }
 
-    const title: React.ReactNode = useMemo(() => {
-        const decriptions: string[] = [
-            "Fill Mandatory fields",
-            "Fill All fields",
-            "Clear all fields values",
-            "Original fields values",
-        ];
-        return (
-            <div>
-                <span>Steps:</span><br />
-                {
-                    decriptions.map((d, i) => {
-                        if (step === i) {
-                            return (<>{'🠆 '}<b>{d}</b><br /></>);
-                        }
-                        return (<>{'  '}<i>{d}</i><br /></>);
-                    })
-                }
-            </div>
-        )
-    }, [step]);
+    // const title: React.ReactNode = useMemo(() => {
+    //     const decriptions: string[] = [
+    //         "Fill Mandatory fields",
+    //         "Fill All fields",
+    //         "Clear all fields",
+    //         "Restore original values",
+    //     ];
+    //     return (
+    //         <div>
+    //             <span>Steps:</span><br />
+    //             {
+    //                 decriptions.map((d, i) => {
+    //                     if (step === i) {
+    //                         return (<>{'🠆 '}<b>{d}</b><br /></>);
+    //                     }
+    //                     return (<>{'  '}<i>{d}</i><br /></>);
+    //                 })
+    //             }
+    //         </div>
+    //     )
+    // }, [step]);
 
     const attributes = useMemo(() => {
-        setStep(null);
         if (currentFormContext) {
             const controls: Xrm.Attributes.Attribute[] = currentFormContext.getAttribute();
             return controls;
@@ -112,70 +164,115 @@ function FillFields(props: SubProcessProps) {
     }, [attributes])
 
 
-    useEffect(() => {
-        if (!attributes || !currentFormContext || step == null) return;
+    // useEffect(() => {
+    //     if (!attributes || !currentFormContext || step == null) return;
 
-        const functions = [
-            (attribute: Xrm.Attributes.Attribute) => {
-                console.log("mandatory fields");
-                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-                if (!metadata) return;
-                if (!metadata.IsValidForUpdate) return;
+    //     const functions = [
+    //         (attribute: Xrm.Attributes.Attribute) => {
+    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+    //             if (!metadata) return;
+    //             if (!metadata.IsValidForUpdate) return;
 
-                if (attribute.getRequiredLevel() === 'required' && !attribute.getValue()) {
-                    getRandomValue(attribute, metadata).then((randomValue) => {
-                        attribute.setValue(randomValue);
-                    });
-                }
-            },
-            (attribute: Xrm.Attributes.Attribute) => {
-                console.log("all fields");
-                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-                if (!metadata) return;
-                if (!metadata.IsValidForUpdate) return;
+    //             if (attribute.getRequiredLevel() === 'required' && !attribute.getValue()) {
+    //                 getRandomValue(attribute, metadata).then((randomValue) => {
+    //                     attribute.setValue(randomValue);
+    //                 });
+    //             }
+    //         },
+    //         (attribute: Xrm.Attributes.Attribute) => {
+    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+    //             if (!metadata) return;
+    //             if (!metadata.IsValidForUpdate) return;
 
-                if (!attribute.getValue()) {
-                    getRandomValue(attribute, metadata).then((randomValue) => {
-                        if (randomValue !== undefined)
-                            attribute.setValue(randomValue);
-                    });
-                }
-            },
-            (attribute: Xrm.Attributes.Attribute) => {
-                console.log("clear fields");
-                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-                if (!metadata) return;
-                if (!metadata.IsValidForUpdate) return;
+    //             if (!attribute.getValue()) {
+    //                 getRandomValue(attribute, metadata).then((randomValue) => {
+    //                     if (randomValue !== undefined)
+    //                         attribute.setValue(randomValue);
+    //                 });
+    //             }
+    //         },
+    //         (attribute: Xrm.Attributes.Attribute) => {
+    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+    //             if (!metadata) return;
+    //             if (!metadata.IsValidForUpdate) return;
 
-                if (attribute.getValue()) {
-                    attribute.setValue(null);
-                }
-            },
-            (attribute: Xrm.Attributes.Attribute) => {
-                console.log("original fields");
-                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-                if (!metadata) return;
-                if (!metadata.IsValidForUpdate) return;
+    //             if (attribute.getValue()) {
+    //                 attribute.setValue(null);
+    //             }
+    //         },
+    //         (attribute: Xrm.Attributes.Attribute) => {
+    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+    //             if (!metadata) return;
+    //             if (!metadata.IsValidForUpdate) return;
 
-                const originalValue = originalValues?.find((v) => v.name === attribute.getName());
-                attribute.setValue(originalValue?.value);
-            },
-        ]
+    //             const originalValue = originalValues?.find((v) => v.name === attribute.getName());
+    //             attribute.setValue(originalValue?.value);
+    //         },
+    //     ]
 
-        attributes.forEach(functions[step]);
+    //     attributes.forEach(functions[step]);
 
-    }, [attributes, step, originalValues]);
+    // }, [attributes, step, originalValues]);
 
 
 
     return (
-        <Tooltip title={title} placement='left'>
-            <Button
-                variant='contained'
-                onClick={toggleFieldsValues}
-                startIcon={<FormatPaintIcon />}
-            />
-        </Tooltip>
+        <>
+            <Tooltip title='Fill Fields' placement='left'>
+                <Button
+                    ref={anchorRef}
+                    variant='contained'
+                    onClick={toggleOpen}
+                    startIcon={<FormatPaintIcon />}
+                />
+            </Tooltip>
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorRef.current}
+                open={open}
+                onClose={setClose}
+                onClick={setClose}
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        overflow: 'visible',
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        '&:before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            top: 'calc(50% - 4px)',
+                            right: 0,
+                            width: 10,
+                            height: 10,
+                            bgcolor: 'background.paper',
+                            transform: 'translateX(50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                }}
+            >
+                <Stack direction='column' spacing={0.5}>
+                    {
+                        buttons.map(b => {
+                            return (
+                                <MenuItem onClick={() => executeOnEachAttribute(b.function)}>
+                                    {b.label}
+                                </MenuItem>
+                            )
+                        })
+                    }
+                </Stack>
+            </Menu>
+        </>
     );
 }
 
