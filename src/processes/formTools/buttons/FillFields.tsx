@@ -1,6 +1,6 @@
 import { Tooltip, Button, Stack, Menu, MenuItem } from '@mui/material';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { SubProcessProps } from '../main';
 
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
@@ -9,13 +9,6 @@ import { AttributeMetadata, MSType, StringAttributeFormat } from '../../../utils
 import { LookupValue } from '../../../utils/types/LookupValue';
 import { useBoolean } from 'usehooks-ts';
 
-
-enum FillFieldsSteps {
-    Mandatory,
-    All,
-    Empty,
-    Original,
-}
 function FillFields(props: SubProcessProps) {
 
     const { currentFormContext } = props;
@@ -121,28 +114,6 @@ function FillFields(props: SubProcessProps) {
         }
     }
 
-    // const title: React.ReactNode = useMemo(() => {
-    //     const decriptions: string[] = [
-    //         "Fill Mandatory fields",
-    //         "Fill All fields",
-    //         "Clear all fields",
-    //         "Restore original values",
-    //     ];
-    //     return (
-    //         <div>
-    //             <span>Steps:</span><br />
-    //             {
-    //                 decriptions.map((d, i) => {
-    //                     if (step === i) {
-    //                         return (<>{'🠆 '}<b>{d}</b><br /></>);
-    //                     }
-    //                     return (<>{'  '}<i>{d}</i><br /></>);
-    //                 })
-    //             }
-    //         </div>
-    //     )
-    // }, [step]);
-
     const attributes = useMemo(() => {
         if (currentFormContext) {
             const controls: Xrm.Attributes.Attribute[] = currentFormContext.getAttribute();
@@ -161,60 +132,7 @@ function FillFields(props: SubProcessProps) {
             const value = attribute.getValue();
             return { name, value };
         })
-    }, [attributes])
-
-
-    // useEffect(() => {
-    //     if (!attributes || !currentFormContext || step == null) return;
-
-    //     const functions = [
-    //         (attribute: Xrm.Attributes.Attribute) => {
-    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-    //             if (!metadata) return;
-    //             if (!metadata.IsValidForUpdate) return;
-
-    //             if (attribute.getRequiredLevel() === 'required' && !attribute.getValue()) {
-    //                 getRandomValue(attribute, metadata).then((randomValue) => {
-    //                     attribute.setValue(randomValue);
-    //                 });
-    //             }
-    //         },
-    //         (attribute: Xrm.Attributes.Attribute) => {
-    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-    //             if (!metadata) return;
-    //             if (!metadata.IsValidForUpdate) return;
-
-    //             if (!attribute.getValue()) {
-    //                 getRandomValue(attribute, metadata).then((randomValue) => {
-    //                     if (randomValue !== undefined)
-    //                         attribute.setValue(randomValue);
-    //                 });
-    //             }
-    //         },
-    //         (attribute: Xrm.Attributes.Attribute) => {
-    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-    //             if (!metadata) return;
-    //             if (!metadata.IsValidForUpdate) return;
-
-    //             if (attribute.getValue()) {
-    //                 attribute.setValue(null);
-    //             }
-    //         },
-    //         (attribute: Xrm.Attributes.Attribute) => {
-    //             const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
-    //             if (!metadata) return;
-    //             if (!metadata.IsValidForUpdate) return;
-
-    //             const originalValue = originalValues?.find((v) => v.name === attribute.getName());
-    //             attribute.setValue(originalValue?.value);
-    //         },
-    //     ]
-
-    //     attributes.forEach(functions[step]);
-
-    // }, [attributes, step, originalValues]);
-
-
+    }, [attributes]);
 
     return (
         <>
