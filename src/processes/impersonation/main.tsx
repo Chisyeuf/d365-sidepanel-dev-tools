@@ -97,7 +97,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         <IconButton onClick={() => {
                             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
                                 function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
-                                    existingRules.then((e) => console.log('DEBUG: ', e))
+                                    console.log('DEBUG: ', existingRules)
                                 }
                             );
                         }}>
@@ -106,6 +106,18 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 </Stack>
                 <Divider />
+                {
+                    userSelected && activeUsers.length > 0 &&
+                    <>
+                        <UserItem
+                            user={activeUsers.find(user => user.systemuserid === userSelected.systemuserid)!}
+                            userSelected={userSelected}
+                            handleSelect={handleSelect}
+                        />
+                        <Divider />
+                    </>
+
+                }
                 {
                     isFetching ?
                         [...Array(22)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
@@ -124,57 +136,11 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                         return null;
                                     }
 
-                                    const labelId = `checkbox-list-label-${user.systemuserid}`;
-
                                     return (
-                                        <ListItem
-                                            key={user.systemuserid}
-                                            disablePadding
-                                        >
-                                            <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
-                                                <ListItemIcon
-                                                    sx={{
-                                                        minWidth: '28px'
-                                                    }}
-                                                >
-                                                    <Checkbox
-                                                        edge="start"
-                                                        checked={userSelected?.systemuserid === user.systemuserid}
-                                                        tabIndex={-1}
-                                                        disableRipple
-                                                        inputProps={{ 'aria-labelledby': labelId }}
-                                                        sx={{
-                                                            padding: '3px'
-                                                        }}
-                                                    />
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    id={labelId}
-                                                    primary={user.fullName}
-                                                    secondary={user.emailAddress}
-                                                    sx={{
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        marginTop: '4px',
-                                                        marginBottom: '4px',
-                                                        '& p': {
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap',
-                                                            fontSize: '0.72rem',
-                                                            lineHeight: '1.2',
-                                                            letterSpacing: 'unset',
-                                                        },
-                                                        '& span': {
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap',
-                                                            lineHeight: '1.2',
-                                                        }
-                                                    }} />
-                                            </ListItemButton>
-                                        </ListItem>
+                                        <UserItem
+                                            user={user}
+                                            userSelected={userSelected}
+                                            handleSelect={handleSelect} />
                                     );
                                 })
                             }
@@ -184,6 +150,67 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         );
     }
 );
+
+interface UserItemProps {
+    user: ActiveUser,
+    userSelected: ActiveUser | null,
+    handleSelect: (user: ActiveUser) => () => void
+}
+function UserItem(props: UserItemProps) {
+    const { user, userSelected, handleSelect } = props;
+
+    const labelId = `checkbox-list-label-${user.systemuserid}`;
+    return (
+        <ListItem
+            key={user.systemuserid}
+            disablePadding
+        >
+            <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
+                <ListItemIcon
+                    sx={{
+                        minWidth: '28px'
+                    }}
+                >
+                    <Checkbox
+                        edge="start"
+                        checked={userSelected?.systemuserid === user.systemuserid}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ 'aria-labelledby': labelId }}
+                        sx={{
+                            padding: '3px'
+                        }}
+                    />
+                </ListItemIcon>
+                <ListItemText
+                    id={labelId}
+                    primary={user.fullName}
+                    secondary={user.emailAddress}
+                    sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        marginTop: '4px',
+                        marginBottom: '4px',
+                        '& p': {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.72rem',
+                            lineHeight: '1.2',
+                            letterSpacing: 'unset',
+                        },
+                        '& span': {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            lineHeight: '1.2',
+                        }
+                    }} />
+            </ListItemButton>
+        </ListItem>
+    );
+}
 
 interface SecurityRoleMenuProps {
     securityRoleSeclected: SecurityRole[]
