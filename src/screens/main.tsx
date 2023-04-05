@@ -34,7 +34,7 @@ export const MainScreen: React.FunctionComponent = () => {
         );
 
         setStyle({
-            "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
+            "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
             "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
             "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
         });
@@ -51,7 +51,7 @@ export const MainScreen: React.FunctionComponent = () => {
                     "px)",
                     "left: 0"
                 ],
-                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView]": ["position: relative", "right: 47px"],
+                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
                 "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
             });
