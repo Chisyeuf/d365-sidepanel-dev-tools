@@ -64,7 +64,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
                 function (existingRules: chrome.declarativeNetRequest.Rule[]) {
                     const url = Xrm.Utility.getGlobalContext().getClientUrl();
-                    const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url));
+                    const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url) && r.condition.urlFilter.includes('/api/*/GetClientMetadata*'));
 
                     if (currentRule) {
                         const currentAzureId = currentRule.action.requestHeaders?.at(0)?.value;

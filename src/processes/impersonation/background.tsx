@@ -7,13 +7,15 @@ interface ruleByEnvironment {
     }
 }
 
-const rules: ruleByEnvironment = {};
+// const rules: ruleByEnvironment = {};
 
 const prefixId: number = 56850000;
 
-const createImpersonationRule = (azureObjectId: string, url: string) => {
+const createImpersonationRule = async (azureObjectId: string, url: string) => {
+    const exitingRules = await getSessionRules();
+
     const rule: chrome.declarativeNetRequest.Rule = {
-        id: prefixId + Object.keys(rules).length + 1,
+        id: prefixId + Object.keys(exitingRules).length + 1,
         priority: 1,
         action: {
             type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
@@ -27,30 +29,41 @@ const createImpersonationRule = (azureObjectId: string, url: string) => {
         },
         condition: {
             urlFilter: url + '/api/*/GetClientMetadata*',
+            
             // resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
         }
     };
-    rules[url] = { rule: rule, activated: true };
-    return rules;
+    // rules[url] = { rule: rule, activated: true };
+    return rule;
 }
 
-const updateImpersonationRules = (azureObjectId: string, url: string) => {
-    if (!rules[url]) {
-        createImpersonationRule(azureObjectId, url);
+const updateImpersonationRules = async (azureObjectId: string, url: string) => {
+    const exitingRules = await getSessionRules();
+
+    const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
+
+    if (!ruleByUrl) {
+        const newRule = await createImpersonationRule(azureObjectId, url);
+        exitingRules.push(newRule);
     }
     else {
-        rules[url].rule.action.requestHeaders!.at(0)!.value = azureObjectId;
-        rules[url].activated = true;
+        ruleByUrl.action.requestHeaders!.at(0)!.value = azureObjectId;
+        ruleByUrl.condition.urlFilter = url + '/api/*/GetClientMetadata*';
     }
+
+    return exitingRules;
 }
 
-const removeImpersonationRules = (url: string) => {
-    if (rules[url]) {
-        // removedRules.push(rules[url].rule.id);
-        // delete rules[url];
-        rules[url].activated = false;
+const removeImpersonationRules = async (url: string) => {
+    const exitingRules = await getSessionRules();
+
+    const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
+
+    if (ruleByUrl) {
+        ruleByUrl.condition.urlFilter = url + "/_RemovedAction_";
     }
 
+    return exitingRules;
 }
 
 export function getSessionRules() {
@@ -58,21 +71,21 @@ export function getSessionRules() {
 }
 
 
-export function manageImpersonation(data: { userSelected: ActiveUser, selectedon: Date, url: string }, sender: chrome.runtime.MessageSender) {
+export async function manageImpersonation(data: { userSelected: ActiveUser, selectedon: Date, url: string }, sender: chrome.runtime.MessageSender) {
+    let ruleList: chrome.declarativeNetRequest.Rule[];
     if (!data.userSelected) {
-        removeImpersonationRules(data.url);
+        ruleList = await removeImpersonationRules(data.url);
     }
     else {
-        updateImpersonationRules(data.userSelected.azureObjectId, data.url);
+        ruleList = await updateImpersonationRules(data.userSelected.azureObjectId, data.url);
     }
-
 
     // chrome.declarativeNetRequest.updateSessionRules({
     //     removeRuleIds: [...removedRules, ...Object.values(rules).map((rule) => rule.id)], // remove existing rules
     //     addRules: Object.values(rules)
     chrome.declarativeNetRequest.updateSessionRules({
-        removeRuleIds: Object.values(rules)?.map(r => r.rule.id), // remove existing rules
-        addRules: Object.values(rules).filter(r => r.activated)?.map(r => r.rule)
+        removeRuleIds: ruleList?.map(r => r.id), // remove existing rules
+        addRules: ruleList
     }).then(() => {
         sender.tab && sender.tab.id && chrome.tabs.reload(sender.tab.id, { bypassCache: true });
         // chrome.tabs.query({ url: `${data.url}/*` }, (tabs) => {
