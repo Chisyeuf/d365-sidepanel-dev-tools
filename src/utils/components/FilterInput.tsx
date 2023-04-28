@@ -1,8 +1,9 @@
 import { FormControl, IconButton, InputAdornment, TextField } from "@mui/material"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import React from "react";
+import { useDebounce } from "usehooks-ts";
 
 type AttributeFilterInputProps = {
     returnFilterInput: (str: string) => void,
@@ -11,7 +12,12 @@ type AttributeFilterInputProps = {
     forcedValue?: string,
 }
 const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: AttributeFilterInputProps) => {
-    const [value, setValue] = useState(props.forcedValue ?? '')
+    const [value, setValue] = useState(props.forcedValue ?? '');
+    const debounceValue = useDebounce(value, 250);
+
+    useEffect(() => {
+        props.returnFilterInput(debounceValue);
+    }, [debounceValue]);
 
     return (
         <FormControl size='small' fullWidth={props.fullWidth}>
@@ -21,7 +27,6 @@ const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: 
                 value={value}
                 onChange={(e) => {
                     setValue(e?.target.value ?? "")
-                    props.returnFilterInput(e?.target.value ?? "")
                 }}
                 placeholder={props.placeholder}
                 fullWidth={props.fullWidth}
@@ -36,7 +41,6 @@ const FilterInput: React.FunctionComponent<AttributeFilterInputProps> = (props: 
                             sx={{ visibility: value ? "visible" : "hidden" }}
                             onClick={() => {
                                 setValue("")
-                                props.returnFilterInput("")
                             }}
                         >
                             <ClearIcon />
