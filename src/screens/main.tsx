@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import Stack from '@mui/material/Stack';
 
 import Processes, { defaultProcessesList, storageListName } from '../processes/.list';
-import { debugLog, GetData, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
+import { debugLog, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';

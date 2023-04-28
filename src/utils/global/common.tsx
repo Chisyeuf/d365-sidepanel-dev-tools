@@ -22,15 +22,15 @@ export function setStyle(style: { [querySelector: string]: string[] }) {
     styleNode.innerText = styleText;
 }
 
-export function waitForElm(selector: string) {
-    return new Promise<HTMLElement | null>(resolve => {
+export function waitForElm<T extends HTMLElement>(selector: string) {
+    return new Promise<T | null>(resolve => {
         if (document.querySelector(selector)) {
-            return resolve(document.querySelector<HTMLElement>(selector));
+            return resolve(document.querySelector<T>(selector));
         }
 
         const observer = new MutationObserver(mutations => {
             if (document.querySelector(selector)) {
-                resolve(document.querySelector<HTMLElement>(selector));
+                resolve(document.querySelector<T>(selector));
                 observer.disconnect();
             }
         });

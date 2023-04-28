@@ -3,4 +3,6 @@ export enum MessageType {
     GETIMPERSONATION = 'getImpersonation',
     SETCONFIGURATION = 'setConfiguration',
     GETCONFIGURATION = 'getConfiguration',
+    ENABLEREQUESTINTERCEPTION = 'EnableRequestInterception',
+    DISABLEREQUESTINTERCEPTION = 'DisableRequestInterception',
 }
