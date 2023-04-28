@@ -55,7 +55,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
         const extensionId = GetExtensionId();
 
         function CreateConfiguration() {
-            const allOpenPanes = Xrm.App.sidePanes.getAllPanes().get();
+            const allOpenPanes = Xrm.App.sidePanes.getAllPanes().get(); //getAllPanes(): Collection.ItemCollection<App.PaneObject>;
             const selectedPane = Xrm.App.sidePanes.getSelectedPane();
             allOpenPanes.shift();
 
