@@ -38,7 +38,6 @@ import { groupBy, isArraysEquals } from '../../utils/global/common';
 import {
     AttributeMetadata, MSDateFormat, MSType
 } from '../../utils/types/requestsType';
-import { DictValueType } from '../../utils/hooks/use/useDictionnary';
 import {
     PickListOption, RetrievePicklistValues
 } from '../../utils/hooks/XrmApi/RetrievePicklistValues';
@@ -62,7 +61,7 @@ export type AttributeProps = {
     reset: boolean,
     manageDirty: { set: () => void, remove: () => void },
     disabled: boolean,
-    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void, isToUpdate: boolean, valueChanged: boolean }
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void, isToUpdate: boolean, valueChanged: boolean }
 }
 
 export function LookupNode(props: AttributeProps & { theme: Theme }) {

@@ -1,11 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 
-export type DictType = { [key: string]: DictValueType }
-export type DictValueType = string | number | boolean | null
+export function useDictionnary<DictValueType>(defaultValue: { [key: string]: DictValueType }) {
 
-export function useDictionnary(defaultValue: DictType) {
-
-    const [dict, setDict] = useState<DictType>(defaultValue);
+    const [dict, setDict] = useState<{ [key: string]: DictValueType }>(defaultValue);
 
     const keys: string[] = useMemo(
         () => {

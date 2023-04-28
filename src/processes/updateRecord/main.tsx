@@ -32,16 +32,12 @@ import {
     AttributeMetadata, getReadableMSType, MSDateFormat, MSType
 } from '../../utils/types/requestsType';
 import XrmObserver from '../../utils/global/XrmObserver';
-import { DictValueType, useDictionnary } from '../../utils/hooks/use/useDictionnary';
+import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
 import ErrorFileSnackbar from '../../utils/components/ReportComplete';
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
-
-// import { useWorker, WORKER_STATUS } from "@koale/useworker";
-
-// import { createContext, useContextSelector } from 'use-context-selector';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
@@ -262,50 +258,18 @@ type AttributesListProps = {
     recordsIds: string[],
     filter: string,
     resetTotal: boolean,
-    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void }
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
 function AttributesList(props: AttributesListProps) {
     const entityname = props.entityname
     const recordid = props.recordsIds?.length == 1 ? props.recordsIds?.at(0) : undefined
     const filter = props.filter
 
-    // const [attributesMetadataVisible, setAttributesMetadataVisible] = useState<{ isVisible: boolean, metadata: AttributeMetadata }[]>([])
-    // const [filteredBy, setFilteredBy] = useState<string | null>(null)
     const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
         if (value.MStype !== MSType.Lookup) return value.LogicalName
         else return "_" + value.LogicalName + "_value"
     }) ?? [])
-
-    // const [
-    //     visibleWorker,
-    //     { status: visibleWorkerStatus, kill: killWorker }
-    // ] = useWorker((attributesMetadataList: AttributeMetadata[], filter: string) => {
-    //     return attributesMetadataList.map((a) => {
-    //         return {
-    //             isVisible: (a.DisplayName.toLowerCase().indexOf(filter) !== -1 ||
-    //                 a.LogicalName.indexOf(filter) !== -1 ||
-    //                 a.SchemaName.toLowerCase().indexOf(filter) !== -1),
-    //             metadata: a
-    //         }
-    //     })
-    // }, {
-    //     autoTerminate: false
-    // });
-
-    // useEffect(() => {
-    //     if (attributesMetadataRetrieved.length === 0) {
-    //         setFilteredBy(null)
-    //     }
-    //     if (filter != filteredBy && attributesMetadataRetrieved.length > 0 && visibleWorkerStatus != WORKER_STATUS.RUNNING) {
-    //         visibleWorker(attributesMetadataRetrieved, filter).then((result) => {
-    //             setAttributesMetadataVisible(result)
-    //             setFilteredBy(filter)
-    //         })
-    //     }
-    // }, [attributesMetadataRetrieved, filter, visibleWorkerStatus])
-
-
 
     return (<>{
         !fetchingMetadata
@@ -349,7 +313,7 @@ type AttributeNodeProps = {
     disabled: boolean,
     filter: string,
     resetTotal: boolean,
-    attributeToUpdateManager: { setAttributesValue: (key: string, value: DictValueType) => void, removeAttributesValue: (key: string) => void }
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
 function AttributeNode(props: AttributeNodeProps) {
     const { value: isDirty, setTrue, setFalse } = useBoolean(false)
