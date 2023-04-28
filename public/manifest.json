@@ -28,7 +28,7 @@
         }
     ],
     "host_permissions": ["https://*.dynamics.com/*"],
-    "permissions": ["storage", "declarativeNetRequest"],
+    "permissions": ["storage", "declarativeNetRequest", "debugger"],
     "externally_connectable": {
         "matches": ["https://*.dynamics.com/*"]
     }
