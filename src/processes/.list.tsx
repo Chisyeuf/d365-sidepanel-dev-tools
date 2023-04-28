@@ -6,8 +6,9 @@ import formTools from './formTools/main';
 import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
+import webRessourceEditor from './webRessourceEditor/main';
 
-const Processes: ProcessButton[] = [formTools, updateRecord, impersonation, createConfiguration];
+const Processes: ProcessButton[] = [formTools, updateRecord, impersonation, createConfiguration, webRessourceEditor];
 
 
 
@@ -66,5 +67,5 @@ export default Processes;
 // lister les users qui ont accès à un enregistrement avec leur niveau d'accès
 // lister les entities pour afficher les grilles de records non présent dans l'apps
 // lister les environnements
-// Impersonnation
+// Navigation vers Power Apps et Power Admin et les différent environnement du tenant
 // ];
