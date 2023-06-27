@@ -8,6 +8,9 @@ import { RetrieveAttributesMetaData } from '../../../utils/hooks/XrmApi/Retrieve
 import { AttributeMetadata, MSType, StringAttributeFormat } from '../../../utils/types/requestsType';
 import { LookupValue } from '../../../utils/types/LookupValue';
 import { useBoolean } from 'usehooks-ts';
+import { debugLog } from '../../../utils/global/common';
+
+const excludedFields = ["statecode", "statuscode"];
 
 function FillFields(props: SubProcessProps) {
 
@@ -22,7 +25,8 @@ function FillFields(props: SubProcessProps) {
 
     const executeOnEachAttribute = (f: (attribute: Xrm.Attributes.Attribute) => void) => {
         if (!attributes) return;
-        attributes.forEach(f);
+        const attributesToFill = attributes.filter(attribute => !excludedFields.includes(attribute.getName()));
+        attributesToFill.forEach(f);
     }
 
     const buttons = [
@@ -36,6 +40,7 @@ function FillFields(props: SubProcessProps) {
                 if (attribute.getRequiredLevel() === 'required' && !attribute.getValue()) {
                     getRandomValue(attribute, metadata).then((randomValue) => {
                         attribute.setValue(randomValue);
+                        debugLog("Filled Field:", attribute.getName(), randomValue);
                     });
                 }
             }
@@ -48,9 +53,12 @@ function FillFields(props: SubProcessProps) {
                 if (!metadata.IsValidForUpdate) return;
 
                 if (!attribute.getValue()) {
+                    debugLog("Filled Fields list:");
                     getRandomValue(attribute, metadata).then((randomValue) => {
-                        if (randomValue !== undefined)
+                        if (randomValue !== undefined) {
                             attribute.setValue(randomValue);
+                            debugLog("Filled Field:", attribute.getName(), randomValue);
+                        }
                     });
                 }
             }
@@ -64,6 +72,7 @@ function FillFields(props: SubProcessProps) {
 
                 if (attribute.getValue()) {
                     attribute.setValue(null);
+                    debugLog("Filled Field:", attribute.getName(), null);
                 }
             }
         },
@@ -76,6 +85,8 @@ function FillFields(props: SubProcessProps) {
 
                 const originalValue = originalValues?.find((v) => v.name === attribute.getName());
                 attribute.setValue(originalValue?.value);
+                debugLog("Filled Field:", attribute.getName(), originalValue?.value);
+
             }
         },
     ];
@@ -199,32 +210,54 @@ function getRandomNumber(minValue: number, maxValue: number, precision: number =
     return Number(number.toFixed(precision));
 }
 
-function getRandomStringGenerator(maxLength: number) {
-    const length = getRandomNumber(1, maxLength);
+function getRandomStringGenerator(maxLength: number, allowSpaces = false, forceLowerCase = false) {
+    const length = maxLength;
 
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const characters = 'bcdfghjklmnpqrstvwxyz';
+    const vowels = "aeiou";
     const charactersLength = characters.length;
+    const vowelsLength = vowels.length;
 
     let result = '';
     let counter = 0;
+    let nextCharIsVowel = false;
     while (counter < length) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+
+        if (allowSpaces && Math.random() < 0.1 && counter < length - 3 && result.at(-1) !== ' ') {
+            result += ' ';
+        }
+        else {
+            nextCharIsVowel = characters.includes(result.at(-1) ?? ' ') || (result.at(-1) === ' ' && Math.random() < 0.4);
+            if (nextCharIsVowel)
+                result += vowels.charAt(Math.floor(Math.random() * vowelsLength));
+            else
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
         counter += 1;
     }
-    return result;
+    if (!forceLowerCase) {
+        const arr = result.split(' ');
+        for (var i = 0; i < arr.length; i++) {
+            arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1).toLowerCase();
+        }
+        return arr.join(' ');
+    }
+    else {
+        return result;
+    }
 }
 
 function getRandomString(maxLength: number, format: string) {
     switch (format) {
         case StringAttributeFormat.Email:
-            return `${getRandomStringGenerator(Math.min((maxLength / 10), 15))}@${getRandomStringGenerator(Math.min((maxLength / 10), 10))}.${getRandomStringGenerator(3)}`;
+            return `${getRandomStringGenerator(Math.min((maxLength / 3), 15), false, true)}@${getRandomStringGenerator(Math.min((maxLength / 3), 10), false, true)}.${getRandomStringGenerator(getRandomNumber(2, 3), false, true)}`;
         case StringAttributeFormat.Phone:
         case StringAttributeFormat.Text:
         case StringAttributeFormat.TextArea:
         case StringAttributeFormat.TickerSymbol:
-            return getRandomStringGenerator(Math.min((maxLength / 5), 50));
+            return getRandomStringGenerator(Math.min((maxLength / 3), 50), true);
         case StringAttributeFormat.URL:
-            return `www.${getRandomStringGenerator(Math.min((maxLength / 10), 20))}.${getRandomStringGenerator(3)}`;
+            return `www.${getRandomStringGenerator(Math.min((maxLength / 3), 20))}.${getRandomStringGenerator(3)}`;
     }
     return '';
 }

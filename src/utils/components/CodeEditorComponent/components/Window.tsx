@@ -26,47 +26,6 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
 
     const [cursorSelection, setCursorSelection] = useState<Selection | null>(null);
 
-    // useEffect(() => {
-    //     if (isEditorReady && editorRef.current && onContentChange && onContentSave) {
-
-    //         const editor = editorRef.current;
-
-    //         setRef(ref, editor);
-    //         editor.focus();
-
-    //         if (cursorSelection)
-    //             editor.setSelection(cursorSelection);
-
-    //         editor.onDidChangeCursorSelection((e: editor.ICursorSelectionChangedEvent) => {
-    //             setCursorSelection(e.selection);
-    //         });
-
-    //         editor.onDidChangeModel((e) => {
-    //             const { oldModelUrl, newModelUrl } = e;
-    //             // console.log("onDidChangeModel", oldModelUrl, newModelUrl);
-    //             if (newModelUrl) {
-    //                 // console.log("onChangeRef.current?.dispose();")
-    //                 onChangeRef.current?.dispose();
-    //             }
-    //         });
-
-    //         onChangeRef.current?.dispose();
-    //         onChangeRef.current = editor.onDidChangeModelContent((_) => {
-    //             console.log("onDidChangeModelContent")
-    //             handleEditorChange(editor.getValue());
-    //         });
-
-    //         editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => {
-    //             handleEditorSave();
-    //         });
-
-    //         editor.addCommand(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP, () => {
-    //             handlePublish();
-    //         });
-    //     }
-    // }, [isEditorReady, onContentChange, onContentSave, handlePublish]);
-
-
     const handleEditorChange = useCallback(
         (value: string | undefined) => {
             onContentChange?.(value);
@@ -106,15 +65,6 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
         //     setCursorSelection(e.selection);
         // });
 
-        // editor.onDidChangeModel((e) => {
-        //     const { oldModelUrl, newModelUrl } = e;
-        //     console.log("onDidChangeModel", oldModelUrl, newModelUrl);
-        //     if (newModelUrl) {
-        //         console.log("onChangeRef.current?.dispose();");
-        //         onChangeRef.current?.dispose();
-        //     }
-        // });
-
         const sendNewContentValue = (_:any) => {
             console.log("onDidContent");
             handleEditorChange(editor.getValue());
@@ -144,12 +94,10 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
 
     function handleEditorMount(editor: editor.IStandaloneCodeEditor, monaco: Monaco) {
         editorRef.current = editor;
-        // handleEditorMountGeneric(editor, monaco);
         setEditorMount(prev => !prev);
     }
     function handleDiffEditorMount(editor: editor.IStandaloneDiffEditor, monaco: Monaco) {
         editorRef.current = editor.getModifiedEditor();
-        // handleEditorMountGeneric(editor.getModifiedEditor(), monaco);
         setEditorMount(prev => !prev);
     }
     useEffect(() => {

@@ -1,5 +1,5 @@
 
-import { createTheme, ThemeProvider, Typography } from '@mui/material';
+import { createTheme, ThemeProvider, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
@@ -11,7 +11,6 @@ import LabelTools from './containers/LabelTools';
 
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
-import { Tooltip } from '@material-ui/core';
 import DOMObserver from '../../utils/global/DOMObserver';
 import { Env } from '../../utils/global/var';
 import ComponentContainer from '../../utils/components/ComponentContainer';
@@ -78,6 +77,13 @@ const theme = createTheme({
                 }
             },
         },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    fontSize: '1em'
+                }
+            }
+        }
     },
 });
 
@@ -89,6 +95,7 @@ type FormContext = Xrm.Page | null;
 
 type XrmStatus = {
     isRecord: boolean;
+    pageType?: string;
     entityName?: string;
     recordId?: string;
 }
@@ -124,60 +131,72 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                 domObserver = new DOMObserver('formtools', document.querySelector('#shell-container'), { childList: true, subtree: true });
             }
             domObserver.addListener(xrmObserverCallback);
+            return () => {
+                domObserver?.removeListener(xrmObserverCallback);
+            };
         }, [])
 
         useEffect(() => {
-            console.log("setExecutionContext", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
+            debugLog("setExecutionContext", "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
 
             setXrmStatus({
                 isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
-                entityName: Xrm.Page.data?.entity.getEntityName(),
-                recordId: Xrm.Page.data?.entity.getId(),
+                pageType: Xrm.Utility.getPageContext()?.input?.pageType,
+                entityName: Xrm.Page.data?.entity?.getEntityName(),
+                recordId: Xrm.Page.data?.entity?.getId(),
             });
 
-            if (Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord') {
-                setCurrentFormContext(Xrm.Page);
-                
-                // console.log("1",Xrm.Page);
-                // Xrm.Page.data.addOnLoad(() => {
-                //     setFormContext(Xrm.Page);
-                //     console.log("2",Xrm.Page);
-                // });
-            }
-            else {
-                setCurrentFormContext(null);
-            }
-        }, [(Xrm.Utility.getPageContext() as any)._pageId])
+            setTimeout(() => {
+                if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord') {
+                    setCurrentFormContext(Xrm.Page);
+                    // Xrm.Page.data.addOnLoad(() => {
+                    //     setCurrentFormContext(Xrm.Page);
+                    // });
+                }
+                else {
+                    setCurrentFormContext(null);
+                }
+            }, 1000);
 
 
-        return (<ThemeProvider theme={theme}>
-            <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
-                {
-                    Env.DEBUG &&
-                    <Tooltip title={currentFormContext ? 'Context found' : 'Context Unfound. Try to refresh'}>
-                        <Stack alignItems='center' paddingRight='25%'>
-                            {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
-                            <Typography
-                                fontSize='0.6em'
-                                variant='caption'
-                            >
-                                {currentFormContext ? 'Connected' : 'Off'}
-                            </Typography>
-                        </Stack>
-                    </Tooltip>
-                }
-                {
-                    toolsList?.map((SubProcess, index) => {
-                        return (
-                            <SubProcess
-                                currentFormContext={currentFormContext}
-                                domUpdated={domUpdated}
-                            />
-                        );
-                    })
-                }
-            </Stack>
-        </ThemeProvider>);
+
+            // console.log("1",Xrm.Page);
+            // Xrm.Page.data.addOnLoad(() => {
+            //     setFormContext(Xrm.Page);
+            //     console.log("2",Xrm.Page);
+            // });
+        }, [(Xrm.Utility.getPageContext() as any)._pageId]);
+
+        return (
+            <ThemeProvider theme={theme}>
+                <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
+                    {
+                        Env.DEBUG &&
+                        <Tooltip title={currentFormContext ? 'Context found' : 'Context unfound. Try to refresh'} >
+                            <Stack alignItems='center' paddingRight='25%'>
+                                {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
+                                <Typography
+                                    fontSize='0.6em'
+                                    variant='caption'
+                                >
+                                    {currentFormContext ? 'Active' : 'Inactive'}
+                                </Typography>
+                            </Stack>
+                        </Tooltip>
+                    }
+                    {
+                        toolsList?.map((SubProcess, index) => {
+                            return (
+                                <SubProcess
+                                    currentFormContext={currentFormContext}
+                                    domUpdated={domUpdated}
+                                />
+                            );
+                        })
+                    }
+                </Stack>
+            </ThemeProvider>
+        );
     }
 );
 

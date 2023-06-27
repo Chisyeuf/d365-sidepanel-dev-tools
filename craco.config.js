@@ -5,6 +5,8 @@ const smp = new SpeedMeasurePlugin()
 module.exports = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
+            const isEnvDevelopment = env === 'development'
+            console.log( "isDev",isEnvDevelopment)
             // const newWebpack = smp.wrap({
             //     ...webpackConfig,
             //     module: {
@@ -48,6 +50,9 @@ module.exports = {
             // })
             const newWebpack = {
                 ...webpackConfig,
+                mode: isEnvDevelopment ? 'development' : 'production',
+                devtool: env === 'development' ? 'cheap-module-source-map' : 'source-map',
+                watch: true,
                 module: {
                     ...webpackConfig.module,
                     rules: [
@@ -62,14 +67,19 @@ module.exports = {
                         webpackConfig.module.rules[1]
                     ]
                 },
+                // devServer: {
+                //     devMiddleware: {
+                //         writeToDisk: true
+                //     },
+                //     writeToDisk: true
+                // },
                 plugins: [
                     ...webpackConfig.plugins,
                     new ForkTsCheckerWebpackPlugin(),
-                ],
+                ].filter(Boolean),
                 entry: {
                     main: [
-                        env === 'development' &&
-                            require.resolve('react-dev-utils/webpackHotDevClient'),
+                        isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
                         paths.appIndexJs
                     ].filter(Boolean),
                     content: './src/content.tsx',

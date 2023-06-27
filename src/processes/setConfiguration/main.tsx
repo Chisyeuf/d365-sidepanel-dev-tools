@@ -59,7 +59,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             const selectedPane = Xrm.App.sidePanes.getSelectedPane();
             allOpenPanes.shift();
 
-            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane, index) => {
+            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane: Xrm.App.PaneObject, index:number) => {
                 return {
                     id: openPane.paneId!,
                     startOnLoad: true,

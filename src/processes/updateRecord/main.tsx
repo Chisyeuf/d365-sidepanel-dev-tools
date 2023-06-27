@@ -1,4 +1,6 @@
 
+
+// Import statements
 import '../../utils/global/extensions';
 import '../../utils/components/ReportComplete';
 
@@ -9,8 +11,11 @@ import React, {
 } from 'react';
 import { useBoolean, useUpdateEffect } from 'usehooks-ts';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import SyncIcon from '@mui/icons-material/Sync';
+// Date picker imports
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+
+// Material UI imports
 import { createTheme, ThemeProvider } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -19,24 +24,30 @@ import IconButton from '@mui/material/IconButton';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+// Icon imports
+import DeleteIcon from '@mui/icons-material/Delete';
+import SyncIcon from '@mui/icons-material/Sync';
+
+// Component imports
 import EntitySelector from '../../utils/components/EntitySelector';
 import FilterInput from '../../utils/components/FilterInput';
 import RecordSelector from '../../utils/components/RecordSelector';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
+import ErrorFileSnackbar from '../../utils/components/ReportComplete';
+import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
+
+// Common functions and types
 import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
-import {
-    AttributeMetadata, getReadableMSType, MSDateFormat, MSType
-} from '../../utils/types/requestsType';
+import { AttributeMetadata, getReadableMSType, MSDateFormat, MSType } from '../../utils/types/requestsType';
+
+// Xrm API hooks
 import XrmObserver from '../../utils/global/XrmObserver';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
-import ErrorFileSnackbar from '../../utils/components/ReportComplete';
-import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
+
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -666,3 +677,5 @@ function NavTopBar(props: NavBarProps) {
 
 const updateRecord = new UpdateRecordButton()
 export default updateRecord
+
+

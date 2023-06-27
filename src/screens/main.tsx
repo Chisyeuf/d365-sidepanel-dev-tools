@@ -63,7 +63,7 @@ export const MainScreen: React.FunctionComponent = () => {
         const domObserver = new DOMObserver('sidepanelinteracted', elem, { childList: true, subtree: true });
         domObserver.addListener(setPageStyle);
     })
-    
+
 
     useEffect(() => {
         processesList.filter((processid) => processid.startOnLoad)
@@ -87,13 +87,14 @@ export const MainScreen: React.FunctionComponent = () => {
     )
 }
 
-
-var loading = setInterval(() => {
-    if (Xrm != null) {
-        clearInterval(loading);
-        initExtension();
-    }
-}, 200);
+if (top && top.window === window) {
+    var loading = setInterval(() => {
+        if (!!Xrm) {
+            clearInterval(loading);
+            initExtension();
+        }
+    }, 1000);
+}
 
 
 function initExtension() {

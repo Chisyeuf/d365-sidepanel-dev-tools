@@ -1,5 +1,6 @@
 import { ProcessButton } from './.processClass';
 import { MSType } from '../types/requestsType';
+import { Env } from './var';
 
 
 export function setStyle(style: { [querySelector: string]: string[] }) {
@@ -120,7 +121,7 @@ export function actionWithDisabledSaving(action?: () => any) {
 }
 
 export function debugLog(...args: any[]) {
-    if (false) {
+    if (Env.DEBUG) {
         console.log(...args);
     }
 }

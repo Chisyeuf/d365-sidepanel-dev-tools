@@ -7,8 +7,9 @@ import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
 import webRessourceEditor from './webRessourceEditor/main';
+import allFields from './allFields/main';
 
-const Processes: ProcessButton[] = [formTools, updateRecord, impersonation, createConfiguration, webRessourceEditor];
+const Processes: ProcessButton[] = [formTools, updateRecord, allFields, impersonation, createConfiguration, webRessourceEditor];
 
 
 
