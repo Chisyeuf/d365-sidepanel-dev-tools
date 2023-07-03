@@ -1,7 +1,7 @@
 
 import { Collapse, createTheme, Divider, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, ThemeProvider, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState, } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
@@ -103,6 +103,53 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName, recordId);
 
+        const attributesSet: {
+            [attributeName: string]: {
+                value: any,
+                [x: string]: any;
+            };
+        } = useMemo(() => {
+            return Object.entries(attributes).reduce((previousValue: { [key: string]: any; }, currentValue: [string, any], index) => {
+                const [key, value] = currentValue;
+                const attSplit = key.split("@");
+                const attName = attSplit[0];
+                const attMore = attSplit[1];
+                const subName = attMore?.split(".").at(-1);
+                if (!previousValue[attName]) {
+                    if (attMore && subName) {
+                        return {
+                            ...previousValue,
+                            [attName]: {
+                                [subName]: value
+                            }
+                        };
+                    } else {
+                        return {
+                            ...previousValue,
+                            [attName]: {
+                                value: value
+                            }
+                        };
+                    }
+                } else {
+                    const copy = { ...previousValue };
+                    if (attMore && subName) {
+                        copy[attName] = {
+                            ...copy[attName],
+                            [subName]: value
+                        };
+                    }
+                    else {
+                        copy[attName] = {
+                            ...copy[attName],
+                            value: value
+                        };
+                    }
+                    return copy;
+                }
+            }, {});
+        }, [attributes]);
+
         return (
             <ThemeProvider theme={theme}>
                 <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
@@ -117,7 +164,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         }
                     >
                         {
-                            Object.entries(attributes).map(([key, value], index) => {
+                            Object.entries(attributesSet).map(([key, value], index) => {
                                 return <AttributeListItem key={'attributelistitem' + index} attributeName={key} value={value} />;
                             })
                         }

@@ -6,7 +6,7 @@ import '../../utils/components/ReportComplete';
 
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import React, {
-    Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
+    Dispatch, forwardRef, memo, Profiler, SetStateAction, useCallback, useEffect, useImperativeHandle,
     useMemo, useState
 } from 'react';
 import { useBoolean, useUpdateEffect } from 'usehooks-ts';
@@ -39,7 +39,7 @@ import ErrorFileSnackbar from '../../utils/components/ReportComplete';
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
 // Common functions and types
-import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
+import { capitalizeFirstLetter, debugLog, formatId, GetExtensionId } from '../../utils/global/common';
 import { AttributeMetadata, getReadableMSType, MSDateFormat, MSType } from '../../utils/types/requestsType';
 
 // Xrm API hooks
@@ -47,7 +47,6 @@ import XrmObserver from '../../utils/global/XrmObserver';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
-
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -161,8 +160,22 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         useImperativeHandle(ref, () => ({
             onClose() {
                 XrmObserver.removeListener(xrmObserverCallback)
-            }
-        }))
+            },
+        }));
+
+        // const extensionId = GetExtensionId();
+        // const onMessageCallback = (data: {entityName:string, recordId:string}) => {
+        //     setEntityname(data.entityName);
+        //     setTimeout(() => {
+        //         setRecordsIds([data.recordId]);
+        //     }, 100);
+        // }
+        // chrome.runtime.sendMessage(extensionId, { type: MessageType.REGISTERMESSAGECALLBACK, data: {toolId: props.id, callback: onMessageCallback} },
+        //     function (response) {
+        //         if (response.success) {
+        //         }
+        //     }
+        // );
 
         const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName())
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : [])
@@ -273,16 +286,16 @@ type AttributesListProps = {
 }
 function AttributesList(props: AttributesListProps) {
     const entityname = props.entityname
-    const recordid = props.recordsIds?.length == 1 ? props.recordsIds?.at(0) : undefined
+    const recordid = props.recordsIds?.length === 1 ? props.recordsIds?.at(0) : undefined
     const filter = props.filter
 
     const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
         if (value.MStype !== MSType.Lookup) return value.LogicalName
         else return "_" + value.LogicalName + "_value"
-    }) ?? [])
+    }) ?? []);
 
-    return (<>{
+    const nodeContent = useMemo(() =>
         !fetchingMetadata
             ?
 
@@ -295,6 +308,7 @@ function AttributesList(props: AttributesListProps) {
                             const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
                             return (
                                 <AttributeNode
+                                    key={attributeName}
                                     disabled={!metadata.IsValidForUpdate}
                                     attribute={metadata}
                                     entityname={props.entityname}
@@ -313,8 +327,10 @@ function AttributesList(props: AttributesListProps) {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress size={100} thickness={4.5} />
             </div>
-    }
-    </>)
+        , [fetchingMetadata, fetchingValues]
+    );
+
+    return (nodeContent);
 }
 
 type AttributeNodeProps = {
@@ -341,14 +357,27 @@ function AttributeNode(props: AttributeNodeProps) {
             <Typography variant="button"><strong>{props.attribute.DisplayName}</strong></Typography>
             <Typography variant="body2"><strong>LogicalName:</strong> {props.attribute.LogicalName}</Typography>
             <Typography variant="body2"><strong>Type:</strong> {getReadableMSType(props.attribute.MStype)}</Typography>
-            {props.attribute.Parameters.Format && props.attribute.Parameters.Format != MSDateFormat.None && <Typography variant="body2"><strong>Format:</strong> {props.attribute.Parameters.Format}</Typography>}
+            {props.attribute.Parameters.Format && props.attribute.Parameters.Format !== MSDateFormat.None && <Typography variant="body2"><strong>Format:</strong> {props.attribute.Parameters.Format}</Typography>}
             {(props.attribute.Parameters.MaxLength || props.attribute.Parameters.MaxLength === 0) && <Typography variant="body2"><strong>MaxLength:</strong> {props.attribute.Parameters.MaxLength}</Typography>}
             {(props.attribute.Parameters.MaxValue || props.attribute.Parameters.MaxValue === 0) && <Typography variant="body2"><strong>MaxValue:</strong> {props.attribute.Parameters.MaxValue}</Typography>}
             {(props.attribute.Parameters.MinValue || props.attribute.Parameters.MinValue === 0) && <Typography variant="body2"><strong>MinValue:</strong> {props.attribute.Parameters.MinValue}</Typography>}
             {(props.attribute.Parameters.Precision || props.attribute.Parameters.Precision === 0) && <Typography variant="body2"><strong>Precision:</strong> {props.attribute.Parameters.Precision}</Typography>}
             {props.attribute.Parameters.Target && <Typography variant="body2"><strong>Target:</strong> {props.attribute.Parameters.Target}</Typography>}
         </>
-        , [props.attribute])
+        , [props.attribute]);
+
+    const className: string = useMemo(() =>
+        props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : "")),
+        [props.disabled, isDirty, isToUpdate]);
+
+    const isVisibleStyle: string = useMemo(() =>
+        isVisible ? '' : 'none',
+        [isVisible]);
+
+    const backgroundColorStyle: string = useMemo(() =>
+        props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : "")),
+        [props.disabled, isDirty, isToUpdate]);
+
 
     useEffect(() => {
         (async () => {
@@ -358,39 +387,59 @@ function AttributeNode(props: AttributeNodeProps) {
         })().then(result => {
             setIsVisible(result);
         });
-    }, [props.filter, props.attribute])
+    }, [props.filter, props.attribute]);
 
     useEffect(() => {
         if (isToUpdate === false) {
             setToReset();
         }
-    }, [isToUpdate, setToReset])
+    }, [isToUpdate, setToReset]);
+
     useEffect(() => {
         if (toReset === true) {
             resetToReset()
         }
-    }, [toReset, resetToReset])
+    }, [toReset, resetToReset]);
 
     useUpdateEffect(() => {
         removeToUpdate()
-    }, [props.resetTotal])
+    }, [props.resetTotal]);
 
     useEffect(() => {
         if (props.value !== undefined)
             doneLoading()
-    }, props.value)
+    }, [doneLoading, props.value]);
 
-    const NodeContent: JSX.Element =
+    const setToUpdateCallback = useCallback(
+        () => {
+            if (props.disabled) return;
+            setToUpdate();
+            triggerValueChange();
+        },
+        [props.disabled, setToUpdate, triggerValueChange],
+    );
+
+    const doubleClickCallback = useCallback(
+        () => {
+            navigator.clipboard.writeText(props.attribute.LogicalName);
+            setToUpdateCallback();
+        },
+        [props.attribute, setToUpdateCallback],
+    );
+
+
+
+    const NodeContent: JSX.Element = useMemo(() =>
         <Stack
             borderRadius={theme.shape.borderRadius + "px"}
             direction="row"
             width="100%"
             alignItems="center"
             spacing="2px"
-            className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
-            style={{ 
-                display: isVisible ? '' : 'none',
-                backgroundColor: props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : ""))
+            className={className}
+            style={{
+                display: isVisibleStyle,
+                backgroundColor: backgroundColorStyle
             }}
         >
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
@@ -399,7 +448,7 @@ function AttributeNode(props: AttributeNodeProps) {
                     justifyContent='center'
                     width='80%'
                     overflow='hidden'
-                    onDoubleClick={() => { if (props.disabled) return; navigator.clipboard.writeText(props.attribute.LogicalName); setToUpdate(); triggerValueChange() }}
+                    onDoubleClick={doubleClickCallback}
                 >
                     <Typography
                         key={props.attribute.LogicalName + "_label"}
@@ -408,7 +457,7 @@ function AttributeNode(props: AttributeNodeProps) {
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
                         overflow="hidden"
-                        className={props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : ""))}
+                        className={className}
                         paddingLeft='5px'
                     >
                         {props.attribute.DisplayName}
@@ -421,7 +470,7 @@ function AttributeNode(props: AttributeNodeProps) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={() => { if (props.disabled) return; setToUpdate(); triggerValueChange(); }}
+                setToUpdate={setToUpdateCallback}
                 manageDirty={{ set: manageDirty.setTrue, remove: manageDirty.setFalse }}
                 reset={toReset}
                 disabled={props.disabled}
@@ -431,9 +480,10 @@ function AttributeNode(props: AttributeNodeProps) {
                 <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
             </IconButton>
         </Stack >
+        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, doubleClickCallback, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, setToUpdateCallback, manageDirty.setTrue, manageDirty.setFalse, toReset, isToUpdate, valueChanged, removeToUpdate]);
 
 
-    return NodeContent
+    return NodeContent;
 }
 
 

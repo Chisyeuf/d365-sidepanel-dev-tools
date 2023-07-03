@@ -7,7 +7,7 @@ import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMe
 import { useBoolean } from 'usehooks-ts'
 import { Stack, Button, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Pagination, Chip, Box, Paper, ListItem, Theme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridState, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
+import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector, gridPaginationRowRangeSelector } from '@mui/x-data-grid';
 import { DialogActions, LinearProgress } from '@material-ui/core'
 import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../hooks/XrmApi/RetrieveRecordsDisplayNames';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -21,6 +21,7 @@ import { RetrieveRecordsByFetchXML } from '../hooks/XrmApi/RetrieveRecordsByFetc
 import { CustomGridHeaderCheckbox } from './CustomGridHeaderCheckbox'
 import FilterInput from './FilterInput'
 import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute'
+import RecordContextualMenu from './RecordContextualMenu'
 
 type RecordSelectorProps = {
     setRecordsIds: Dispatch<SetStateAction<string[]>>,
@@ -33,10 +34,31 @@ type RecordSelectorProps = {
 const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => {
     const { setRecordsIds, entityname, recordsIds, disabled, multiple } = props;
 
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [recordsDisplayNames, fetchingDisplayName] = RetrieveRecordsDisplayNames(entityname, recordsIds)
     const { value: isDialogOpen, setTrue: openDialog, setFalse: closeDialog } = useBoolean(false)
+    const { value: isContextualMenuOpen, setTrue: openContextualMenuOpen, setFalse: closeContextualMenuOpen } = useBoolean(false)
     const [isGridLoading, setGridIsLoading] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false)
+
+    const handleOpenContextualMenu = (e: MouseEvent<HTMLSpanElement, globalThis.MouseEvent>) => {
+        openContextualMenuOpen();
+        setAnchorEl(e.currentTarget);
+        e.preventDefault();
+    }
+    const handleCloseContextualMenu = () => {
+        closeContextualMenuOpen();
+        setAnchorEl(null);
+    }
+    // const NavigateToUpdate = () => {
+    //     const extensionId = GetExtensionId();
+    //     chrome.runtime.sendMessage(extensionId, { type: MessageType.CALLMESSAGECALLBACK, data: { toolId: ProcessButton.prefixId + 'updaterecord', data: { entityName: entityname, recordId: recordsIds?.at(0) } } },
+    //         function (response) {
+    //             if (response.success) {
+    //             }
+    //         }
+    //     );
+    // }
 
     const ClearButton: JSX.Element =
         <IconButton
@@ -89,10 +111,18 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                 value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
                 // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
                 disabled={disabled}
+                onContextMenu={handleOpenContextualMenu}
             />
         </CircularProgressOverflow>
+        <RecordContextualMenu
+            open={isContextualMenuOpen}
+            anchorElement={anchorEl}
+            onClose={handleCloseContextualMenu}
+            entityName={entityname}
+            recordId={recordsIds?.at(0)}
+        />
         {
-            !disabled &&
+            !disabled && isDialogOpen &&
             <RecordSelectorDialog
                 closeDialog={closeDialog}
                 entityname={entityname}
@@ -149,7 +179,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
         paginationModel.pageSize,
         filterInput,
         sortModel
-    )
+    );
     const [fetchXmlRecords, isFetchingFetchXML] = RetrieveRecordsByFetchXML(entityname, filterXml ?? '')
 
     useEffect(() => {
@@ -170,9 +200,10 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             registerRecordIds([id])
     }
 
+
     const columns: GridColDef[] = useMemo(() => {
-        const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName == primaryNameLogicalName) ?? {} as AttributeMetadata
-        const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype == MSType.Uniqueidentifier) ?? {} as AttributeMetadata
+        const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName === primaryNameLogicalName) ?? {} as AttributeMetadata
+        const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype === MSType.Uniqueidentifier) ?? {} as AttributeMetadata
 
         const checkboxes: GridColDef = {
             ...GRID_BOOLEAN_COL_DEF,
@@ -188,7 +219,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             disableExport: true,
             getApplyQuickFilterFn: undefined,
             valueGetter: (params: GridValueGetterParams<Boolean>) => {
-                const apiRef = useGridApiContext()
+                const apiRef = useGridApiContext();
                 const selectionLookup = selectedIdsLookupSelector(apiRef.current.state, apiRef.current.instanceId);
                 return selectionLookup[params.id] !== undefined;
             },
@@ -218,7 +249,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                 minWidth: 200,
                 type: "string"
             },
-            ...entityMetadata.filter(meta => meta.LogicalName != primaryNameLogicalName && meta.MStype != MSType.Uniqueidentifier).map<GridColDef>(meta => {
+            ...entityMetadata.filter(meta => meta.LogicalName !== primaryNameLogicalName && meta.MStype !== MSType.Uniqueidentifier).map<GridColDef>(meta => {
                 return GridColDefGenerator(meta)
                 // {
                 //     field: meta.LogicalName,
@@ -230,7 +261,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                 //     type: ConvertMSTypeToGridColDefType(meta.MStype)
                 // }
             })]
-    }, [entityMetadata, primaryNameLogicalName])
+    }, [entityMetadata, entityname, primaryNameLogicalName])
 
     return (
         <Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>
@@ -278,7 +309,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                         footer: {
                             onClose: onClose,
                             selectedRecordIds: records,
-                            registerRecordIds: registerRecordIds
+                            registerRecordIds: registerRecordIds,
                         }
                     }}
                     getRowId={(row) => row[idAttribute]}
@@ -332,21 +363,27 @@ function CustomToolBar(props: CustomToolBarProps) {
 function CustomPagination() {
     const apiRef = useGridApiContext();
     const page = useGridSelector(apiRef, gridPageSelector);
-    const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+    // const pageCount = useGridSelector(apiRef, gridPageCountSelector);
     const numberRows = useGridSelector(apiRef, gridRowCountSelector);
     const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-    const rowsDisplayed = useGridSelector(apiRef, gridPaginatedVisibleSortedGridRowEntriesSelector);
+    // const rowsDisplayed = useGridSelector(apiRef, gridPaginatedVisibleSortedGridRowEntriesSelector);
+    // const rowRange = useGridSelector(apiRef, gridPaginationRowRangeSelector);
     // const numberRows = useGridSelector(apiRef, GridRowCount);
 
-    return (<Stack direction='row' alignItems="center" spacing={0.5}>
-        <div>{pageSize * page}-{pageSize * page + rowsDisplayed.length} of {numberRows}</div>
-        <Pagination
-            color="primary"
-            count={pageCount}
-            page={page + 1}
-            onChange={(event, value) => apiRef.current.setPage(value - 1)}
-        />
-    </Stack>
+    const countMin = pageSize * page;
+    const countMinPlusPageSize = countMin + pageSize;
+    const countMax = countMinPlusPageSize < numberRows ? countMinPlusPageSize : numberRows;
+
+    return (
+        <Stack direction='row' alignItems="center" spacing={0.5}>
+            <div>{countMin}-{countMax} of {numberRows}</div>
+            <Pagination
+                color="primary"
+                count={Math.ceil(numberRows / pageSize)}
+                page={page + 1}
+                onChange={(event, value) => apiRef.current.setPage(value - 1)}
+            />
+        </Stack>
     );
 }
 
@@ -356,6 +393,7 @@ declare module "@mui/x-data-grid" {
         onClose: () => void
         selectedRecordIds: RecordsDisplayNamesResponse[],
         registerRecordIds: Dispatch<SetStateAction<string[]>>
+        recordCount: number
     }
 }
 // type CustomFooterProps = {
@@ -365,7 +403,7 @@ declare module "@mui/x-data-grid" {
 // }
 function CustomFooter(props: FooterPropsOverrides) {
     const handleDelete = (chipToDelete: RecordsDisplayNamesResponse) => {
-        const newSelectedRecords = props.selectedRecordIds.filter(r => r.id != chipToDelete.id)
+        const newSelectedRecords = props.selectedRecordIds.filter(r => r.id !== chipToDelete.id)
         props.registerRecordIds(newSelectedRecords.map(r => r.id))
         setChipsSelected(newSelectedRecords)
     };

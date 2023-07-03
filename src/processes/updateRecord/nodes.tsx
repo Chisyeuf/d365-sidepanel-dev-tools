@@ -13,7 +13,6 @@ import ShortTextIcon from '@mui/icons-material/ShortText';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-import ClearIcon from '@mui/icons-material/Clear';
 import ListIcon from '@mui/icons-material/List';
 import NotesIcon from '@mui/icons-material/Notes';
 import NumbersIcon from '@mui/icons-material/Numbers';
@@ -22,7 +21,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
-import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import ListSubheader from '@mui/material/ListSubheader';
 import MenuItem from '@mui/material/MenuItem';
@@ -75,7 +73,7 @@ export function LookupNode(props: AttributeProps & { theme: Theme }) {
         if (props.attributeToUpdateManager.isToUpdate) {
             var val
             if (value.length)
-                val = "/" + pluralName + "(" + value?.at(0) + ")"
+                val = "/" + pluralName + "(" + value.at(0) + ")"
             else
                 val = null
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName + "@odata.bind", val)
@@ -1171,5 +1169,5 @@ export function MultiplePicklistNode(props: AttributeProps) {
     )
 }
 export function ImageNode(props: AttributeProps) {
-    return (<img />)
+    return (<img alt='' />)
 }

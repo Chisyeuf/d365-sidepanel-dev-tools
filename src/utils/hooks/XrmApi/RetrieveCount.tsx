@@ -15,7 +15,7 @@ export function RetrieveCount(entityname: string): number {
             const result = await Xrm.WebApi.retrieveMultipleRecords(_entityname, "?fetchXml=" + "<fetch aggregate=\"true\"> <entity name=\"" + _entityname + "\"> <attribute name=\"" + idAttribute + "\" alias=\"count\" aggregate=\"count\" distinct=\"true\" /> </entity> </fetch>");
             setData(result?.entities?.at(0)?.count ?? -1);
         }
-        setData(0)
+        setData(0);
         fetchData();
 
     }, [idAttribute]);

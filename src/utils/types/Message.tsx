@@ -5,4 +5,6 @@ export enum MessageType {
     GETCONFIGURATION = 'getConfiguration',
     ENABLEREQUESTINTERCEPTION = 'EnableRequestInterception',
     DISABLEREQUESTINTERCEPTION = 'DisableRequestInterception',
+    REGISTERMESSAGECALLBACK = "RegisterMessageCallback",
+    CALLMESSAGECALLBACK = "CallMessageCallback",
 }

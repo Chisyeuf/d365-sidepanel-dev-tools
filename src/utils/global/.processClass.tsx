@@ -8,7 +8,7 @@
 import { GetUrl, waitForElm } from "./common";
 import ReactDOM from "react-dom";
 import React from "react";
-import { Button, SvgIconProps } from '@mui/material';
+import { Button } from '@mui/material';
 
 export abstract class ProcessButton {
     static prefixId: string = 'sidepaneldevtools-';
@@ -124,5 +124,6 @@ export interface ProcessProps {
     id: string;
 }
 export type ProcessRef = {
-    onClose: () => void
+    onClose?: () => void,
+    // onMessage?: () => void,
 }
