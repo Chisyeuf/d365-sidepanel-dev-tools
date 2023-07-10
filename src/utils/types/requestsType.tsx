@@ -143,3 +143,69 @@ export type AttributeMetadata = {
         Format: string
     }
 }
+
+interface RelationShipMetadataCommon {
+    SchemaName: string,
+    IsCustomRelationship: boolean,
+    IsValidForAdvancedFind: boolean,
+    RelationshipType: RelationshipType,
+}
+
+export interface RelationShipMetadataManyToMany extends RelationShipMetadataCommon {
+    RelationshipType: RelationshipType.ManyToManyRelationship
+    Entity1LogicalName: string,
+    Entity1IntersectAttribute: string,
+    Entity1NavigationPropertyName: string,
+    Entity2LogicalName: string,
+    Entity2IntersectAttribute: string,
+    Entity2NavigationPropertyName: string,
+    IntersectEntityName: string,
+}
+
+interface RelationShipMetadataOneToCommon extends RelationShipMetadataCommon {
+    ReferencedAttribute: string,
+    ReferencedEntity: string,
+    ReferencingAttribute: string,
+    ReferencingEntity: string,
+    ReferencedEntityNavigationPropertyName: string,
+    ReferencingEntityNavigationPropertyName: string,
+    CascadeConfiguration: CascadeConfiguration,
+}
+
+export interface RelationShipMetadataOneToMany extends RelationShipMetadataOneToCommon {
+    RelationshipType: RelationshipType.OneToManyRelationship,
+}
+
+export interface RelationShipMetadataManyToOne extends RelationShipMetadataOneToCommon {
+    RelationshipType: RelationshipType.ManyToOneRelationship,
+}
+
+export type RelationShipMetadata = RelationShipMetadataManyToMany | RelationShipMetadataOneToMany | RelationShipMetadataManyToOne;
+
+
+
+type CascadeConfiguration = {
+    Assign: CascadeConfigurationEnum,
+    Delete: CascadeConfigurationEnum,
+    Archive: CascadeConfigurationEnum,
+    Merge: CascadeConfigurationEnum,
+    Reparent: CascadeConfigurationEnum,
+    Share: CascadeConfigurationEnum,
+    Unshare: CascadeConfigurationEnum,
+    RollupView: CascadeConfigurationEnum,
+}
+
+export enum RelationshipType {
+    ManyToManyRelationship = "ManyToManyRelationship",
+    OneToManyRelationship = "OneToManyRelationship",
+    ManyToOneRelationship = "ManyToOneRelationship",
+}
+
+export type CascadeConfigurationEnum = 'Cascade' | 'NoCascade';
+
+
+export type RelatedRecordRequest = {
+    relationshipSchemaName: string,
+    entityName: string,
+    navigationPropertyName: string
+}

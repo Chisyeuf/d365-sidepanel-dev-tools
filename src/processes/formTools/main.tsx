@@ -115,8 +115,6 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             return ({
                 onClose() {
                     domObserver?.removeListener(xrmObserverCallback);
-                    // XrmObserver.removeListener(xrmObserverCallback);
-                    // DOMobserver?.disconnect();
                 }
             });
         }, []);
@@ -134,7 +132,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             return () => {
                 domObserver?.removeListener(xrmObserverCallback);
             };
-        }, [])
+        }, []);
 
         useEffect(() => {
             debugLog("setExecutionContext", "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
@@ -158,13 +156,6 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             }, 1000);
 
-
-
-            // console.log("1",Xrm.Page);
-            // Xrm.Page.data.addOnLoad(() => {
-            //     setFormContext(Xrm.Page);
-            //     console.log("2",Xrm.Page);
-            // });
         }, [(Xrm.Utility.getPageContext() as any)._pageId]);
 
         return (

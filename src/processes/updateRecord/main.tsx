@@ -47,6 +47,7 @@ import XrmObserver from '../../utils/global/XrmObserver';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
+import RecordSearchBar from '../../utils/components/RecordSearchBar';
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -702,21 +703,9 @@ function NavTopBar(props: NavBarProps) {
             </Button>
         </Stack>
         <Divider variant='middle' />
-        <Stack direction={"row"} key="entityrecordselectors" spacing={0.5} width="100%">
-            <EntitySelector setEntityname={props.setEntityname} entityname={props.entityname} />
-            <RecordSelector setRecordsIds={props.setRecordsIds} entityname={props.entityname} recordsIds={props.recordsIds} multiple theme={theme} />
-            <Button
-                onClick={() => {
-                    props.setCurrentRecord()
-                    // props.setRecordsIds([])
-                    // setTimeout(() => {
-                    //     props.setCurrentRecord()
-                    // }, 100);
-                }}
-            >
-                Reload
-            </Button>
-        </Stack>
+        <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
+            props.setCurrentRecord();
+        }} entityName={props.entityname} recordIds={props.recordsIds} />
         <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
             <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
             <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>

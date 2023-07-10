@@ -125,3 +125,11 @@ export function debugLog(...args: any[]) {
         console.log(...args);
     }
 }
+
+
+export async function GetPrimaryIdAttribute(entityname: string) {
+    return (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryIdAttribute;
+}
+export async function GetPrimaryNameAttribute(entityname: string) {
+    return (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryNameAttribute;
+}

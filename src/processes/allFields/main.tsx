@@ -20,7 +20,7 @@ class AllFieldsButton extends ProcessButton {
             'allfields',
             'All Fields',
             <HandymanIcon />,
-            200
+            350
         );
         this.process = AllFieldsButtonProcess;
     }
