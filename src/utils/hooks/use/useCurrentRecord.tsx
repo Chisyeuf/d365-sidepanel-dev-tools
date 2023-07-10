@@ -42,6 +42,9 @@ export function useCurrentRecord() {
 
     useEffect(() => {
         XrmObserver.addListener(xrmObserverCallback);
+        return () => {
+            XrmObserver.removeListener(xrmObserverCallback);
+        }
     }, []);
 
     // const reset = useCallback(() => {

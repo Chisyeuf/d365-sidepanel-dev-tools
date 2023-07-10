@@ -1,5 +1,5 @@
 
-import { Chip, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, createTheme } from '@mui/material';
+import { Chip, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, Tooltip, Typography, createTheme } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import ShareIcon from '@mui/icons-material/Share';
@@ -20,6 +20,8 @@ import { useHover } from 'usehooks-ts';
 import { unset } from 'lodash';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
+import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
+import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
 
 const theme = createTheme({
     components: {
@@ -40,7 +42,7 @@ class RelatedRecordsButton extends ProcessButton {
             'relatedRecords',
             'Related Records',
             <ShareIcon />,
-            350
+            450
         );
         this.process = RelatedRecordsProcess;
     }
@@ -51,14 +53,29 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const { entityName: currentEntityName, recordId: currentRecordId, isEntityRecord } = useCurrentRecord();
 
-        const [entityName, setEntityName] = useState<string>(currentEntityName ?? '');
+        const [loading, setLoading] = useState<boolean>(true);
+
+        const [entityName, _setEntityName] = useState<string>(currentEntityName ?? '');
         const [recordId, setRecordId] = useState<string[]>([currentRecordId ?? '']);
 
         const resetRecord = useCallback(() => {
-            setEntityName(currentEntityName ?? '');
+            _setEntityName(currentEntityName ?? '');
             setRecordId([currentRecordId ?? '']);
-        }, [currentEntityName, currentRecordId, setEntityName, setRecordId]);
+        }, [currentEntityName, currentRecordId, _setEntityName, setRecordId]);
 
+        useEffect(() => {
+            if (loading) {
+                if (currentEntityName && currentRecordId) {
+                    resetRecord();
+                    setLoading(false);
+                }
+            }
+        }, [currentEntityName, currentRecordId, resetRecord]);
+
+        const setEntityName = useCallback((newValue: string) => {
+            _setEntityName(newValue);
+            setLoading(false);
+        }, []);
 
         // const [entityName, setEntityName] = useState<string>(Xrm.Page.data?.entity.getEntityName())
         // const [recordId, setRecordsIds] = useState<string>(formatId(Xrm.Page.data?.entity.getId().toLowerCase()))
@@ -92,7 +109,7 @@ interface RelationShipListProps<T extends RelationShipMetadata> {
 }
 function RelationShipList<T extends RelationShipMetadata>(props: RelationShipListProps<T>) {
 
-    const { relationShipMetadata, title, entityName, recordId } = props;
+    const { relationShipMetadata: relationShipMetadataList, title, entityName, recordId } = props;
 
     const [open, setOpen] = useState(false);
 
@@ -105,51 +122,13 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
 
     const numberOfRelationshipBig = useMemo(() => {
         if (!relatedRecords) return '?';
-        return relationShipMetadata.length;
+        return relationShipMetadataList.length;
     }, [relatedRecords]);
     const numberOfRelationshipSmall = useMemo(() => {
         if (!relatedRecords) return '?';
         const max = 999;
-        return relationShipMetadata.length > max ? max + '+' : relationShipMetadata.length;
+        return relationShipMetadataList.length > max ? max + '+' : relationShipMetadataList.length;
     }, [relatedRecords]);
-
-    // const relationShipFetchInfo = useMemo(() => relationShipMetadata.map((r: T) => {
-    //     switch (r.RelationshipType) {
-    //         case RelationshipType.ManyToManyRelationship:
-    //             if (r.Entity1LogicalName === entityName) {
-    //                 return {
-    //                     relationshipSchemaName: r.SchemaName,
-    //                     entityName: r.Entity2LogicalName,
-    //                     navigationPropertyName: r.Entity1NavigationPropertyName
-    //                 };
-    //             }
-    //             else {
-    //                 return {
-    //                     relationshipSchemaName: r.SchemaName,
-    //                     entityName: r.Entity1LogicalName,
-    //                     navigationPropertyName: r.Entity2NavigationPropertyName
-    //                 };
-    //             }
-    //         case RelationshipType.OneToManyRelationship:
-    //             return {
-    //                 relationshipSchemaName: r.SchemaName,
-    //                 entityName: r.ReferencingEntity,
-    //                 navigationPropertyName: r.ReferencedEntityNavigationPropertyName
-    //             };
-    //         case RelationshipType.ManyToOneRelationship:
-    //             return {
-    //                 relationshipSchemaName: r.SchemaName,
-    //                 entityName: r.ReferencedEntity,
-    //                 navigationPropertyName: r.ReferencingEntityNavigationPropertyName
-    //             };
-    //     }
-    // }), [relationShipMetadata]);
-    // const [relatedRecords, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
-
-
-    // const relationShipMetadataSorted = useMemo(() => {
-    //     return relationShipMetadata.sort((r1, r2) => relatedRecords[r1.SchemaName]?.length ?? -1 - relatedRecords[r2.SchemaName]?.length ?? -1)
-    // }, [relationShipMetadata, relatedRecords]);
 
 
     return (
@@ -171,7 +150,7 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
             >
                 <Collapse in={open} timeout="auto">
                     {
-                        relationShipMetadata.map(relationShip => {
+                        relationShipMetadataList.map(relationShip => {
                             return <RelationShipItem key={relationShip.SchemaName} relationShipMetadata={relationShip} entityName={entityName} recordId={recordId} />
                         })
                     }
@@ -244,23 +223,71 @@ function RelationShipItem(props: RelationShipItemProps) {
         setOpen(prev => !prev);
     };
 
+
+    const tooltipText = useMemo(() => {
+        var details;
+        switch (relationShipMetadata.RelationshipType) {
+            case RelationshipType.ManyToManyRelationship:
+                details = <>
+                    <Typography variant="body2"><strong>Entity1LogicalName:</strong> {relationShipMetadata.Entity1LogicalName}</Typography>
+                    <Typography variant="body2"><strong>Entity1NavigationPropertyName:</strong> {relationShipMetadata.Entity1NavigationPropertyName}</Typography>
+                    <Typography variant="body2"><strong>Entity1IntersectAttribute:</strong> {relationShipMetadata.Entity1IntersectAttribute}</Typography>
+                    <Typography variant="body2"><strong>Entity2LogicalName:</strong> {relationShipMetadata.Entity2LogicalName}</Typography>
+                    <Typography variant="body2"><strong>Entity2NavigationPropertyName:</strong> {relationShipMetadata.Entity2NavigationPropertyName}</Typography>
+                    <Typography variant="body2"><strong>Entity2IntersectAttribute:</strong> {relationShipMetadata.Entity2IntersectAttribute}</Typography>
+                    <Typography variant="body2"><strong>IntersectEntityName:</strong> {relationShipMetadata.IntersectEntityName}</Typography>
+                </>;
+                break;
+            default:
+                details = <>
+                    <Typography variant="body2"><strong>ReferencedEntity:</strong> {relationShipMetadata.ReferencedEntity}</Typography>
+                    <Typography variant="body2"><strong>ReferencedAttribute:</strong> {relationShipMetadata.ReferencedAttribute}</Typography>
+                    <Typography variant="body2"><strong>ReferencedEntityNavigationPropertyName:</strong> {relationShipMetadata.ReferencedEntityNavigationPropertyName}</Typography>
+                    <Typography variant="body2"><strong>ReferencingEntity:</strong> {relationShipMetadata.ReferencingEntity}</Typography>
+                    <Typography variant="body2"><strong>ReferencingAttribute:</strong> {relationShipMetadata.ReferencingAttribute}</Typography>
+                    <Typography variant="body2"><strong>ReferencingEntityNavigationPropertyName:</strong> {relationShipMetadata.ReferencingEntityNavigationPropertyName}</Typography>
+                    <Divider variant='middle' />
+                    <Typography variant="body2"><strong>CascadeConfiguration:</strong></Typography>
+                    <Typography variant="body2">Archive - {relationShipMetadata.CascadeConfiguration.Archive}</Typography>
+                    <Typography variant="body2">Assign - {relationShipMetadata.CascadeConfiguration.Assign}</Typography>
+                    <Typography variant="body2">Delete - {relationShipMetadata.CascadeConfiguration.Delete}</Typography>
+                    <Typography variant="body2">Merge - {relationShipMetadata.CascadeConfiguration.Merge}</Typography>
+                    <Typography variant="body2">Reparent - {relationShipMetadata.CascadeConfiguration.Reparent}</Typography>
+                    <Typography variant="body2">RollupView - {relationShipMetadata.CascadeConfiguration.RollupView}</Typography>
+                    <Typography variant="body2">Share - {relationShipMetadata.CascadeConfiguration.Share}</Typography>
+                    <Typography variant="body2">Unshare - {relationShipMetadata.CascadeConfiguration.Unshare}</Typography>
+
+                </>;
+                break;
+        }
+        return <>
+            <Typography variant="button"><strong>{relationShipMetadata.SchemaName}</strong></Typography>
+            <Typography variant="body2"><strong>IsCustomRelationship:</strong> {relationShipMetadata.IsCustomRelationship}</Typography>
+            <Typography variant="body2"><strong>IsValidForAdvancedFind:</strong> {relationShipMetadata.IsValidForAdvancedFind}</Typography>
+            {details}
+        </>
+    }
+        , [relationShipMetadata]);
+
     return (
         <>
-            <ListItemButton onClick={handleClick}>
-                <ListItemIcon>
-                    <SubdirectoryArrowRightIcon />
-                    <Chip ref={numberOfRecordsChip} size="small" label={numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall} sx={{ height: 'unset' }} />
-                </ListItemIcon>
-                <ListItemText
-                    primary={relationShipMetadata.SchemaName}
-                    title={relationShipMetadata.SchemaName}
-                    primaryTypographyProps={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}
-                />
-                {numberOfRecordsBig !== '?' && numberOfRecordsBig > 0 ? open ? <ExpandLess /> : <ExpandMore /> : null}
-            </ListItemButton>
+            <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
+                <ListItemButton onClick={handleClick}>
+                    <ListItemIcon>
+                        <SubdirectoryArrowRightIcon />
+                        <Chip ref={numberOfRecordsChip} size="small" label={numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall} sx={{ height: 'unset' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={relationShipMetadata.SchemaName}
+                        title={relationShipMetadata.SchemaName}
+                        primaryTypographyProps={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}
+                    />
+                    {numberOfRecordsBig !== '?' && numberOfRecordsBig > 0 ? open ? <ExpandLess /> : <ExpandMore /> : null}
+                </ListItemButton>
+            </NoMaxWidthTooltip>
             <Collapse in={open} timeout="auto" unmountOnExit>
                 {
                     <List component="div" disablePadding>
@@ -284,12 +311,41 @@ interface RelatedRecordsItemProps {
     displayName?: string,
 }
 function RelatedRecordsItem(props: RelatedRecordsItemProps) {
-    const { displayName, entityName, recordId } = props
+    const { displayName, entityName, recordId } = props;
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleOpenContextualMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorEl(e.currentTarget);
+        e.preventDefault();
+    }
+    const handleCloseContextualMenu = () => {
+        setAnchorEl(null);
+    }
+
+    const handleClick = () => {
+        if (!entityName || !recordId) return;
+        Xrm.Navigation.navigateTo(
+            {
+                pageType: 'entityrecord',
+                entityName: entityName,
+                entityId: recordId,
+            },
+            {
+                target: 2,
+                height: { value: 80, unit: "%" },
+                width: { value: 70, unit: "%" },
+                position: 1
+            });
+    }
 
     return (
-        <ListItemButton sx={{ pl: 4 }}>
-            <ListItemText primary={displayName || `(${recordId})`} />
-        </ListItemButton>
+        <>
+            <ListItemButton sx={{ pl: 4 }} onContextMenu={handleOpenContextualMenu} onClick={handleClick}>
+                <ListItemText primary={displayName || `(${recordId})`} />
+            </ListItemButton>
+            <RecordContextualMenu anchorElement={anchorEl} entityName={entityName} recordId={recordId} open={!!anchorEl} onClose={handleCloseContextualMenu} />
+        </>
     )
 }
 
