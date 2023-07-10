@@ -10,6 +10,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
+import { Checkbox } from '@mui/material';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -17,6 +18,8 @@ export const MainScreen: React.FunctionComponent = () => {
     const extensionId = GetExtensionId();
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
+
+    const [checked, setChecked] = useState(false);
 
     useEffect(() => {
         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
@@ -33,30 +36,52 @@ export const MainScreen: React.FunctionComponent = () => {
             }
         );
 
-        setStyle({
-            "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-            "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-            "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-        });
+        if (!checked) {
+            setStyle({
+                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
+                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+            });
+        }
+        else {
+            setStyle({
+                "[id^=sidepaneldevtools-]": ["position: absolute", "right: 47px"],
+                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+            });
+        }
         // setPageStyle();
     }, [extensionId]);
 
     const setPageStyle = async () => {
         const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
         if (openedPane) {
-            setStyle({
-                "div[id^=DialogContainer] > div": [
-                    "width: calc(100% - " +
-                    (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
-                    "px)",
-                    "left: 0"
-                ],
-                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-            });
+            if (!checked) {
+                setStyle({
+                    "div[id^=DialogContainer] > div": [
+                        "width: calc(100% - " +
+                        (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
+                        "px)",
+                        "left: 0"
+                    ],
+                    "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
+                    "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+                    "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+                });
+            } else {
+                setStyle({
+                    "[id^=sidepaneldevtools-]": ["position: absolute", "right: 47px"],
+                    "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+                    "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+                });
+            }
         }
     }
+
+    useEffect(() => {
+        setPageStyle();
+    }, [checked]);
+
 
     waitForElm("#panels > div:last-child").then(elem => {
         // ObserveDOM(elem, setPageStyle);
@@ -77,6 +102,7 @@ export const MainScreen: React.FunctionComponent = () => {
 
     return (
         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
+            {/* <Checkbox checked={checked} onChange={() => setChecked(prev => !prev)} /> */}
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id)
