@@ -107,6 +107,12 @@ const theme = createTheme({
             ]
         },
         MuiTypography: {
+            // styleOverrides: {
+            //     root: {
+            //         fontSize: '0.85rem',
+            //         lineHeight: '1',
+            //     }
+            // },
             variants: [
                 {
                     props: { className: "disabled" },
@@ -286,9 +292,9 @@ type AttributesListProps = {
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
 function AttributesList(props: AttributesListProps) {
-    const entityname = props.entityname
-    const recordid = props.recordsIds?.length === 1 ? props.recordsIds?.at(0) : undefined
-    const filter = props.filter
+    const entityname = props.entityname;
+    const recordid = props.recordsIds?.length === 1 ? props.recordsIds?.at(0) : undefined;
+    const filter = props.filter;
 
     const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
@@ -328,7 +334,7 @@ function AttributesList(props: AttributesListProps) {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress size={100} thickness={4.5} />
             </div>
-        , [fetchingMetadata, fetchingValues]
+        , [fetchingMetadata, fetchingValues, filter]
     );
 
     return (nodeContent);

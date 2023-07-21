@@ -46,6 +46,21 @@ function FillFields(props: SubProcessProps) {
             }
         },
         {
+            label: "Fill BPF fields",
+            function: (attribute: Xrm.Attributes.Attribute) => {
+                const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
+                if (!metadata) return;
+                if (!metadata.IsValidForUpdate) return;
+
+                if (attribute.controls.get().some(c => c.getName().startsWith('header_process_')) && !attribute.getValue()) {
+                    getRandomValue(attribute, metadata).then((randomValue) => {
+                        attribute.setValue(randomValue);
+                        debugLog("Filled Field:", attribute.getName(), randomValue);
+                    });
+                }
+            }
+        },
+        {
             label: "Fill All fields",
             function: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());

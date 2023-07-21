@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Editor, { DiffEditor, Monaco } from "@monaco-editor/react";
 import { IDisposable, KeyCode, KeyMod, Selection, editor } from 'monaco-editor';
 import { CodeEditorWindowProps } from '../utils/types';
+import { useDebounce } from 'usehooks-ts';
 
 const setRef = (ref: React.ForwardedRef<editor.IStandaloneCodeEditor>, editor: editor.IStandaloneCodeEditor) => {
     if (typeof ref === 'function') {
@@ -17,21 +18,34 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
 
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
     const [editorMount, setEditorMount] = useState<boolean>(false);
-    // const onChangeRef = useRef<IDisposable>();
-    const onPasteRef = useRef<IDisposable>();
-    const onKeyUpRef = useRef<IDisposable>();
-    const onKeyDownRef = useRef<IDisposable>();
-    const onMouseUpRef = useRef<IDisposable>();
-    const onMouseDownRef = useRef<IDisposable>();
 
-    const [cursorSelection, setCursorSelection] = useState<Selection | null>(null);
+    const onChangeRef = useRef<IDisposable>();
+    const onMouseLeaveRef = useRef<IDisposable>();
 
-    const handleEditorChange = useCallback(
-        (value: string | undefined) => {
-            onContentChange?.(value);
+    let timer: NodeJS.Timeout;
+    const handleEditorChangeWithDelay = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            if (editorRef.current) {
+                sendNewContent();
+            }
+        }, 500);
+    }
+    const sendNewContentValue = useCallback(
+        (newValue: string | undefined) => {
+            onContentChange?.(newValue);
         },
         [onContentChange],
     );
+    const sendNewContent = useCallback(
+        () => {
+            if (editorRef.current) {
+                sendNewContentValue(editorRef.current.getValue());
+            }
+        },
+        [sendNewContentValue],
+    );
+
 
     const handleEditorSave = useCallback(
         () => {
@@ -48,7 +62,6 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
     );
 
     useEffect(() => {
-        console.log("editorMount")
         if (editorRef.current)
             handleEditorMountGeneric(editorRef.current);
     }, [editorMount]);
@@ -65,25 +78,17 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
         //     setCursorSelection(e.selection);
         // });
 
-        const sendNewContentValue = (_:any) => {
-            console.log("onDidContent");
-            handleEditorChange(editor.getValue());
+        const sendNewContentValue = (_: any) => {
+            sendNewContentValue(editor.getValue());
         }
-        // onChangeRef.current?.dispose();
-        // onChangeRef.current = editor.onDidChangeModelContent(sendNewContentValue);
-        onPasteRef.current?.dispose();
-        onKeyUpRef.current?.dispose();
-        onKeyDownRef.current?.dispose();
-        onMouseUpRef.current?.dispose();
-        onMouseDownRef.current?.dispose();
+        onChangeRef.current?.dispose();
+        onChangeRef.current = editor.onDidChangeModelContent(handleEditorChangeWithDelay);
 
-        onPasteRef.current = editor.onDidPaste(sendNewContentValue);
-        onKeyUpRef.current = editor.onKeyUp(sendNewContentValue);
-        onKeyDownRef.current = editor.onKeyDown(sendNewContentValue);
-        onMouseUpRef.current = editor.onMouseUp(sendNewContentValue);
-        onMouseDownRef.current = editor.onMouseDown(sendNewContentValue);
+        onMouseLeaveRef.current?.dispose();
+        onMouseLeaveRef.current = editor.onMouseLeave(sendNewContentValue);
 
         editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => {
+            sendNewContent();
             handleEditorSave();
         });
 
@@ -102,7 +107,7 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
     }
     useEffect(() => {
         setEditorMount(prev => !prev);
-    }, [file])
+    }, [file?.id])
 
 
 
@@ -126,8 +131,8 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
                         originalModelPath={file?.path + '_original'}
                         modifiedModelPath={file?.path}
                         theme={theme}
-                        original={file?.originalContent}
                         modified={file?.modifiedContent}
+                        original={file?.originalContent}
                         language={file?.language ?? undefined}
                         onMount={handleDiffEditorMount}
                     />

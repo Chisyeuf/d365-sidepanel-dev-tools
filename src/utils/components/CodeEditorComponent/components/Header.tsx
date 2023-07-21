@@ -1,5 +1,5 @@
-import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Stack, SvgIconTypeMap, Tooltip, Typography, Button, AppBar, Toolbar, Box } from '@mui/material';
-import { ChildrenProp, CodeEditorHeaderProps, CodeEditorTabProps, EditorActionProps } from "../utils/types";
+import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Stack, SvgIconTypeMap, Tooltip, Typography, Button, AppBar, Toolbar, Box, FormControl, Select, SelectChangeEvent } from '@mui/material';
+import { ChildrenProp, CodeEditorHeaderProps, CodeEditorTabProps, EditorActionProps, editorLanguageArray } from "../utils/types";
 import CloseIcon from '@mui/icons-material/Close';
 import { useHover } from "usehooks-ts";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +15,10 @@ import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { Key } from 'ts-key-enum';
 import { useHotkeys } from 'react-hotkeys-hook';
 import React from 'react';
+import { EditorLanguage } from 'monaco-editor/esm/metadata';
+import { capitalizeFirstLetter } from '../../../global/common';
+import { getIcon } from '../utils/icon';
+import { getExtensionByLanguage } from '../utils/fileManagement';
 
 
 function CodeEditorHeader(props: CodeEditorHeaderProps & ChildrenProp) {
@@ -198,6 +202,35 @@ function Tab(props: CodeEditorTabProps) {
                 }
             </Button>
         </Stack>
+    );
+}
+
+export function ChangeLanguage(props: EditorActionProps & { currentLanguage?: EditorLanguage | null, overrideLanguage: ((newLanguage: EditorLanguage | 'text') => void) }) {
+    const { onClick, currentLanguage, overrideLanguage } = props;
+
+    const handleOnChange = (event: SelectChangeEvent<EditorLanguage | 'text'>, child: React.ReactNode) => {
+        overrideLanguage(event.target.value as EditorLanguage | 'text');
+    }
+
+    return (
+        <FormControl sx={{ m: 1, width: '180px' }} size="small">
+            <Select
+                defaultValue='text'
+                value={currentLanguage ?? 'text'}
+                onChange={handleOnChange}
+                onClick={onClick}
+            >
+                <MenuItem value={'text'}>Text</MenuItem>
+                {
+                    editorLanguageArray.map(l => {
+                        const extension = getExtensionByLanguage(l);
+                        let icon = null;
+                        if (extension) icon = getIcon(extension, '');
+                        return <MenuItem value={l}>{icon} {capitalizeFirstLetter(l)}</MenuItem>;
+                    })
+                }
+            </Select>
+        </FormControl>
     );
 }
 

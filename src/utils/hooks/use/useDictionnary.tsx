@@ -8,30 +8,30 @@ export function useDictionnary<DictValueType>(defaultValue: { [key: string]: Dic
         () => {
             return Object.keys(dict)
         }, [dict]
-    )
+    );
     const values: DictValueType[] = useMemo(
         () => {
             return Object.values(dict)
         }, [dict]
-    )
-    const entries: [string, DictValueType][] = useMemo(
-        () => {
-            return Object.entries(dict)
-        }, [dict]
-    )
+    );
+    // const entries: [string, DictValueType][] = useMemo(
+    //     () => {
+    //         return Object.entries(dict)
+    //     }, [dict]
+    // )
 
 
     const setValue = useCallback(
         (key: string, value: DictValueType) => {
-            setDict((oldDict) => { oldDict[key] = value; return oldDict })
-        }, []
-    )
+            setDict((oldDict) => { return {...oldDict, [key]: value} });
+        }, [setDict]
+    );
 
     const removeValue = useCallback(
         (key: string) => {
-            setDict(oldDict => { delete oldDict[key]; return oldDict })
-        }, []
-    )
+            setDict(oldDict => { const { [key]: removedProperty, ...newDict } = oldDict; return newDict; });
+        }, [setDict]
+    );
 
 
     return { dict, keys, values, setDict, setValue, removeValue };

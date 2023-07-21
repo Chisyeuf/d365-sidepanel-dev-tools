@@ -1,13 +1,14 @@
 import { Stack, ThemeProvider, createTheme } from "@mui/material";
-import CodeEditorHeader, { ContextualMenuAction, DiffEditorAction } from './components/Header';
+import CodeEditorHeader, { ChangeLanguage, ContextualMenuAction, DiffEditorAction } from './components/Header';
 import CodeEditorWindow from './components/Window';
-import { CodeEditorProps, CodeEditorFile, CodeEditorDirectory, CodeEditorCommon, Type } from './utils/types';
-import { useEffect, useRef, useState } from "react";
+import { CodeEditorProps, CodeEditorFile, CodeEditorDirectory, CodeEditorCommon, Type, CodeEditorForwardRef } from './utils/types';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { editor } from 'monaco-editor';
 import FileTree from "./components/FileTree";
 import { getDirectories, getFiles, getLanguageByExtension } from "./utils/fileManagement";
 import { ConfirmProvider, useConfirm } from "material-ui-confirm";
 import React from "react";
+import { EditorLanguage } from "monaco-editor/esm/metadata";
 
 const lightTheme = createTheme({
     palette: {
@@ -20,21 +21,31 @@ const darkTheme = createTheme({
     },
 });
 
-function CodeEditor(props: CodeEditorProps) {
-    return <CodeEditorContainer {...props} />
-}
+// const CodeEditor = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: CodeEditorProps, ref) => {
+//     return <CodeEditorContainer {...props} />
+// })
 
-function CodeEditorContainer(props: CodeEditorProps) {
+const CodeEditor = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: CodeEditorProps, ref) => {
+    const editorRef = useRef<CodeEditorForwardRef>(null);
+
+    useImperativeHandle(ref, () => ({
+        selectFile: editorRef.current?.selectFile ?? (() => {console.log("Error in CodeEditor.tsx");})
+    }));
+
     return (
         <ThemeProvider theme={props.theme === 'vs-dark' ? darkTheme : lightTheme}>
             <ConfirmProvider>
-                <CodeEditorComponent {...props} />
+                <CodeEditorComponent ref={editorRef} {...props} />
             </ConfirmProvider>
         </ThemeProvider>
     )
-}
+});
 
-function CodeEditorComponent(props: CodeEditorProps) {
+const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: CodeEditorProps, ref) => {
+
+    useImperativeHandle(ref, () => ({
+        selectFile: OnFileSelect
+    }));
 
     const { root, defaultLanguage, theme, headerHidden, fileTreeHidden, onChange, onSave, onRootUpdate, onClose } = props;
 
@@ -43,6 +54,7 @@ function CodeEditorComponent(props: CodeEditorProps) {
     const openConfirmDialog = useConfirm();
     const [openFiles, setOpenFiles] = useState<CodeEditorFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<CodeEditorFile | null>(null);
+    const [language, setLanguage] = useState<EditorLanguage| null>(null)
     const [selectedTreeElement, setSelectedTreeElement] = useState<CodeEditorCommon>(root);
 
     const [diffEditorEnabled, setDiffEditorEnabled] = useState<boolean>(false);
@@ -101,6 +113,7 @@ function CodeEditorComponent(props: CodeEditorProps) {
 
     useEffect(() => {
         editorRef.current?.focus();
+        setLanguage(selectedFile?.language ?? null);
     }, [selectedFile]);
 
 
@@ -172,33 +185,39 @@ function CodeEditorComponent(props: CodeEditorProps) {
         onRootUpdate?.(newElement, rootCopy);
     }
 
+    const handleOnLanguageChange = (newLanguage: EditorLanguage | 'text') => {
+        if (selectedFile) {
+            const rootCopy = { ...root };
+            const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === selectedFile.id);
+            if (files.length > 0) {
+                files[0].language = newLanguage === 'text' ? null : newLanguage;
+            }
+
+            onChange?.(files[0], rootCopy);
+        }
+    }
+
     const handleOnContentChange = (newContent: string | undefined) => {
         if (selectedFile) {
-            const file: CodeEditorFile = { ...selectedFile };
-            file.modifiedContent = newContent ?? '';
-
             const rootCopy = { ...root };
-            const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === file.id);
+            const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === selectedFile.id);
             if (files.length > 0) {
                 files[0].modifiedContent = newContent ?? '';
             }
 
-            onChange?.(file, rootCopy);
+            onChange?.(files[0], rootCopy);
         }
     }
 
     const handleOnSave = () => {
         if (selectedFile) {
-            const file: CodeEditorFile = { ...selectedFile };
-            file.originalContent = file.modifiedContent;
-
             const rootCopy = { ...root };
-            const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === file.id);
+            const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === selectedFile.id);
             if (files.length > 0) {
                 files[0].originalContent = files[0].modifiedContent;
             }
 
-            onSave?.(file, rootCopy);
+            onSave?.(files[0], rootCopy);
         }
     }
 
@@ -215,6 +234,7 @@ function CodeEditorComponent(props: CodeEditorProps) {
                     fileTreeWidth={fileTreeWidth}
                     fileTreeZoom={fileTreeZoom}
                 >
+                    <ChangeLanguage currentLanguage={selectedFile?.language} overrideLanguage={handleOnLanguageChange}  />
                     <DiffEditorAction onClick={() => setDiffEditorEnabled((prev) => !prev)} />
                     <ContextualMenuAction actions={{
                         Save: handleOnSave,
@@ -261,6 +281,6 @@ function CodeEditorComponent(props: CodeEditorProps) {
             </Stack>
         </>
     )
-}
+});
 
 export default CodeEditor;

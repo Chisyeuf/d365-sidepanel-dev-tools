@@ -94,3 +94,18 @@ export function getLanguageByExtension(extension: string): EditorLanguage | null
     else
         return null;
 }
+
+export function getExtensionByLanguage(language: EditorLanguage): string | null {
+    const cache = new Map<EditorLanguage, string>();
+    cache.set("javascript", "js");
+    cache.set("javascript", "jsx");
+    cache.set("typescript", "ts");
+    cache.set("typescript", "tsx");
+    cache.set("css", "css");
+    cache.set("json", "json");
+    cache.set("html", "html");
+    if (cache.has(language))
+        return cache.get(language) ?? null;
+    else
+        return null;
+}

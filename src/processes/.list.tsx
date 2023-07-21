@@ -1,4 +1,3 @@
-import React from 'react';
 
 import { ProcessButton } from '../utils/global/.processClass';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
@@ -10,7 +9,7 @@ import webRessourceEditor from './webRessourceEditor/main';
 import allFields from './allFields/main';
 import relatedRecords from './relatedRecords/main';
 
-const Processes: ProcessButton[] = [formTools, updateRecord, allFields, relatedRecords, impersonation, createConfiguration, webRessourceEditor];
+const Processes: ProcessButton[] = [formTools, updateRecord, allFields, relatedRecords, impersonation, webRessourceEditor, createConfiguration];
 
 
 

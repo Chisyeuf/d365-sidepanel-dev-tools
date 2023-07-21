@@ -105,8 +105,8 @@ export const MainScreen: React.FunctionComponent = () => {
             {/* <Checkbox checked={checked} onChange={() => setChecked(prev => !prev)} /> */}
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
-                    const Process = Processes.find(p => p.id === value.id)
-                    return Process?.render()
+                    const Process = Processes.find(p => p.id === value.id);
+                    return Process?.render();
                 })
             }
         </Stack>
