@@ -28,8 +28,10 @@ const createImpersonationRule = async (azureObjectId: string, url: string) => {
             ]
         },
         condition: {
-            urlFilter: url + '/api/*/GetClientMetadata*',
-            
+            urlFilter: url + '/api/*',
+            // urlFilter: url + '/api/*/GetClientMetadata*',
+
+
             // resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
         }
     };
@@ -48,7 +50,8 @@ const updateImpersonationRules = async (azureObjectId: string, url: string) => {
     }
     else {
         ruleByUrl.action.requestHeaders!.at(0)!.value = azureObjectId;
-        ruleByUrl.condition.urlFilter = url + '/api/*/GetClientMetadata*';
+        ruleByUrl.condition.urlFilter = url + '/api/*';
+        // ruleByUrl.condition.urlFilter = url + '/api/*/GetClientMetadata*';
     }
 
     return exitingRules;
