@@ -19,6 +19,7 @@
     "resolveJsonModule": true,
     "isolatedModules": false,
     "noEmit": true,
+    "incremental": true,
     "jsx": "react",
     "declaration": true,
     "typeRoots": [
