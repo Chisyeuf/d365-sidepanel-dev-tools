@@ -10,7 +10,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
-import { Checkbox } from '@mui/material';
+import {  Switch } from '@mui/material';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -102,7 +102,7 @@ export const MainScreen: React.FunctionComponent = () => {
 
     return (
         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
-            {/* <Checkbox checked={checked} onChange={() => setChecked(prev => !prev)} /> */}
+            <Switch checked={checked} onChange={() => setChecked(prev => !prev)} />
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id);
