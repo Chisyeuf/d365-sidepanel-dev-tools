@@ -135,7 +135,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
         }, []);
 
         useEffect(() => {
-            debugLog("setExecutionContext", "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord');
+            debugLog("setExecutionContext", "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord', "for", Xrm.Page.data?.entity?.getEntityName(), Xrm.Page.data?.entity?.getId());
 
             setXrmStatus({
                 isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
