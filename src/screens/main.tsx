@@ -3,14 +3,15 @@ import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
 
-import Processes, { defaultProcessesList, storageListName } from '../processes/.list';
+import Processes, { defaultProcessesList, storageForegroundPanes, storageListName } from '../processes/.list';
 import { debugLog, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
-import {  Switch } from '@mui/material';
+import { FormControl, FormControlLabel, Switch } from '@mui/material';
+import { ProcessButton } from '../utils/global/.processClass';
 
 
 export const MainScreen: React.FunctionComponent = () => {
@@ -19,7 +20,7 @@ export const MainScreen: React.FunctionComponent = () => {
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
 
-    const [checked, setChecked] = useState(false);
+    const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
     useEffect(() => {
         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
@@ -36,27 +37,18 @@ export const MainScreen: React.FunctionComponent = () => {
             }
         );
 
-        if (!checked) {
-            setStyle({
-                "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-            });
-        }
-        else {
-            setStyle({
-                "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
-                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-            });
-        }
-        // setPageStyle();
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+            function (response: boolean | null) {
+                setIsForegroundPanes(response ?? false);
+                setPageStyle();
+            }
+        );
     }, [extensionId]);
 
     const setPageStyle = async () => {
-        const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
-        if (openedPane) {
-            if (!checked) {
+        if (!isForegroundPanes) {
+            const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
+            if (openedPane) {
                 setStyle({
                     "div[id^=DialogContainer] > div": [
                         "width: calc(100% - " +
@@ -68,19 +60,28 @@ export const MainScreen: React.FunctionComponent = () => {
                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
                 });
-            } else {
+            }
+            else {
                 setStyle({
-                    "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
+                    "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
                 });
             }
         }
+        else {
+            setStyle({
+                "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
+                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+            });
+        }
     }
 
     useEffect(() => {
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageForegroundPanes, configurations: isForegroundPanes } });
         setPageStyle();
-    }, [checked]);
+    }, [isForegroundPanes]);
 
 
     waitForElm("#panels > div:last-child").then(elem => {
@@ -102,7 +103,11 @@ export const MainScreen: React.FunctionComponent = () => {
 
     return (
         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
-            <Switch checked={checked} onChange={() => setChecked(prev => !prev)} />
+            <FormControl fullWidth sx={{ alignItems: 'center' }}>
+                <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
+            </FormControl>
+
+
             {
                 processesList?.filter((process) => !process.hidden).map((value, index) => {
                     const Process = Processes.find(p => p.id === value.id);
@@ -125,7 +130,7 @@ if (top && top.window === window) {
 
 function initExtension() {
     var paneOption: Xrm.App.PaneOptions = {
-        paneId: "dynamicsToolsMenu",
+        paneId: ProcessButton.prefixId + "dynamicsToolsMenu",
         title: "Dynamics Tools Menu",
         canClose: false,
         imageSrc: GetUrl("icons/muiwand.png"),
@@ -139,7 +144,7 @@ function initExtension() {
 
     Xrm.App.sidePanes.createPane(paneOption);
 
-    waitForElm('#dynamicsToolsMenu > div > div:last-child').then((mainSidePane) => {
+    waitForElm('#' + ProcessButton.prefixId + 'dynamicsToolsMenu > div > div:last-child').then((mainSidePane) => {
         ReactDOM.render(
             <MainScreen />,
             mainSidePane
