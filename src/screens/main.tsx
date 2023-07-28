@@ -45,7 +45,7 @@ export const MainScreen: React.FunctionComponent = () => {
         }
         else {
             setStyle({
-                "[id^=sidepaneldevtools-]": ["position: absolute", "right: 47px"],
+                "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
                 "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
             });
@@ -70,7 +70,7 @@ export const MainScreen: React.FunctionComponent = () => {
                 });
             } else {
                 setStyle({
-                    "[id^=sidepaneldevtools-]": ["position: absolute", "right: 47px"],
+                    "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
                 });
