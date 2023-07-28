@@ -15,33 +15,41 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
     const _referencedRecordid = useMemo(() => recordId, [recordId]);
     const _referencedEntityName = useMemo(() => entityName, [entityName]);
 
-    const { dict: relatedRecordPrimaryAttributes, setValue: setRelatedRecordPrimaryAttributes } = useDictionnary<{ primaryId: string }>({});
+    const { dict: relatedRecordPrimaryAttributes, setDict: setRelatedRecordPrimaryAttributes, setValue: setRelatedRecordPrimaryAttributesItem } = useDictionnary<{ primaryId: string }>({});
+    const [init, setInit] = useState(false);
 
-    const [_relatedRecordsExpand, setRelatedRecordExpand] = useState<string>('');
+    // const [_relatedRecordsExpand, setRelatedRecordExpand] = useState<string>('');
     useEffect(() => {
+        setInit(false);
+        setRelatedRecordPrimaryAttributes({});
         Promise.all(relatedRecords.map(async r => {
             const primaryIdAttribute = await GetPrimaryIdAttribute(r.entityName);
             // const primaryNameAttribute = await GetPrimaryNameAttribute(r.entityName);
-            setRelatedRecordPrimaryAttributes(r.relationshipSchemaName, { primaryId: primaryIdAttribute });
-            return `${r.navigationPropertyName}($select=${primaryIdAttribute ?? ''})`
-        })).then(values => setRelatedRecordExpand(values.join(',')));
+            setRelatedRecordPrimaryAttributesItem(r.navigationPropertyName, { primaryId: primaryIdAttribute });
+            // return `${r.navigationPropertyName}($select=${primaryIdAttribute ?? ''})`
+        })).then(() => {
+            setInit(true)
+        });
     }, [relatedRecords]);
 
     const primaryIdReferencedEntity = RetrievePrimaryIdAttribute(_referencedEntityName);
 
     useEffect(() => {
-        debugLog("RetrieveRelatedRecords");
 
-        if (!_referencedEntityName || !_referencedRecordid || !primaryIdReferencedEntity || !_relatedRecordsExpand) {
+        if (!_referencedEntityName || !_referencedRecordid || !primaryIdReferencedEntity || !init) {
             setData({});
             setIsFetching(false);
             return;
         }
         async function fetchData() {
-            if (!_referencedEntityName || !_referencedRecordid || !primaryIdReferencedEntity || !_relatedRecordsExpand) return;
 
-            const results = await Xrm.WebApi.online.retrieveRecord(_referencedEntityName, _referencedRecordid, "?$select=" + primaryIdReferencedEntity + "&$expand=" + _relatedRecordsExpand);
+            if (!_referencedEntityName || !_referencedRecordid || !primaryIdReferencedEntity || !init) return;
 
+
+            const expand = Object.entries(relatedRecordPrimaryAttributes).map(([key, value]) => `${key}($select=${value.primaryId})`);
+
+            const results = await Xrm.WebApi.online.retrieveRecord(_referencedEntityName, _referencedRecordid, "?$select=" + primaryIdReferencedEntity + "&$expand=" + expand);
+            
             const computedResult: { [relationshipName: string]: LookupValue[] | null } = {};
 
             relatedRecords.forEach(r => {
@@ -79,7 +87,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
         setData({});
         fetchData();
 
-    }, [_referencedRecordid, primaryIdReferencedEntity, _relatedRecordsExpand]);
+    }, [_referencedRecordid, primaryIdReferencedEntity, init]);
 
     return [data, isFetching];
 }

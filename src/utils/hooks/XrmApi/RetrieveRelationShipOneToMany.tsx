@@ -35,24 +35,7 @@ export function RetrieveRelationShipOneToMany(entityname: string): [RelationShip
                 }
                 return a.SchemaName.localeCompare(b.SchemaName);
             });
-
-            // const relationShips: RelationShipMetadataOneToMany[] = results.value?.map((relationShip: any) => {
-            //     const t: RelationShipMetadataOneToMany = {
-            //         CascadeConfiguration: relationShip.CascadeConfiguration,
-            //         IsCustomRelationship: relationShip.IsCustomRelationship,
-            //         IsValidForAdvancedFind: relationShip.IsValidForAdvancedFind,
-            //         ReferencedAttribute: relationShip.ReferencedAttribute,
-            //         ReferencedEntity: relationShip.ReferencedEntity,
-            //         ReferencedEntityNavigationPropertyName: relationShip.ReferencedEntityNavigationPropertyName,
-            //         ReferencingAttribute: relationShip.ReferencingAttribute,
-            //         ReferencingEntity: relationShip.ReferencingEntity,
-            //         ReferencingEntityNavigationPropertyName: relationShip.ReferencingEntityNavigationPropertyName,
-            //         RelationshipType: relationShip.RelationshipType,
-            //         SchemaName: relationShip.Entity1IntersectAttribute,
-                    
-            //     };
-            //     return t;
-            // });
+            
             setData(results.value)
             setIsFetching(false)
         }

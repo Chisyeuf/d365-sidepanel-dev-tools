@@ -11,7 +11,7 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import { RelationShipMetadata, RelationShipMetadataManyToMany, RelationShipMetadataManyToOne, RelationShipMetadataOneToMany, RelationshipType } from '../../utils/types/requestsType';
 import { RetrieveRelatedRecords } from '../../utils/hooks/XrmApi/RetrieveRelatedRecords';
-import { formatId } from '../../utils/global/common';
+import { debugLog, formatId } from '../../utils/global/common';
 import { ThemeProvider } from '@emotion/react';
 import { LookupValue } from '../../utils/types/LookupValue';
 import { RetrievePrimaryIdAttribute } from '../../utils/hooks/XrmApi/RetrievePrimaryIdAttribute';
@@ -165,44 +165,46 @@ interface RelationShipItemProps {
     entityName: string,
     recordId: string,
 }
-function RelationShipItem(props: RelationShipItemProps) {
+const RelationShipItem = React.memo((props: RelationShipItemProps) => {
     const { relationShipMetadata, entityName, recordId } = props;
 
     const [open, setOpen] = useState(false);
 
 
     const relationShipFetchInfo = useMemo(() => {
+        debugLog("relationShipFetchInfo", relationShipMetadata.SchemaName, relationShipMetadata.RelationshipType);
         switch (relationShipMetadata.RelationshipType) {
             case RelationshipType.ManyToManyRelationship:
                 if (relationShipMetadata.Entity1LogicalName === entityName) {
-                    return {
+                    return [{
                         relationshipSchemaName: relationShipMetadata.SchemaName,
                         entityName: relationShipMetadata.Entity2LogicalName,
                         navigationPropertyName: relationShipMetadata.Entity1NavigationPropertyName
-                    };
+                    }];
                 }
                 else {
-                    return {
+                    return [{
                         relationshipSchemaName: relationShipMetadata.SchemaName,
                         entityName: relationShipMetadata.Entity1LogicalName,
                         navigationPropertyName: relationShipMetadata.Entity2NavigationPropertyName
-                    };
+                    }];
                 }
             case RelationshipType.OneToManyRelationship:
-                return {
+                return [{
                     relationshipSchemaName: relationShipMetadata.SchemaName,
                     entityName: relationShipMetadata.ReferencingEntity,
                     navigationPropertyName: relationShipMetadata.ReferencedEntityNavigationPropertyName
-                };
+                }];
             case RelationshipType.ManyToOneRelationship:
-                return {
+                return [{
                     relationshipSchemaName: relationShipMetadata.SchemaName,
                     entityName: relationShipMetadata.ReferencedEntity,
                     navigationPropertyName: relationShipMetadata.ReferencingEntityNavigationPropertyName
-                };
+                }];
         }
     }, [relationShipMetadata]);
-    const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, [relationShipFetchInfo]);
+
+    const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
     const relatedRecords = useMemo(() => relatedRecordsDict[relationShipMetadata.SchemaName], [relatedRecordsDict]);
 
 
@@ -229,8 +231,8 @@ function RelationShipItem(props: RelationShipItemProps) {
         switch (relationShipMetadata.RelationshipType) {
             case RelationshipType.ManyToManyRelationship:
                 details = <>
-                    <Typography variant="body2"><strong>Entity1LogicalName:</strong> {relationShipMetadata.Entity1LogicalName}</Typography>
-                    <Typography variant="body2"><strong>Entity1NavigationPropertyName:</strong> {relationShipMetadata.Entity1NavigationPropertyName}</Typography>
+                    <Typography variant="body2"><strong>Entity1LogicalName:</strong> {'' + relationShipMetadata.Entity1LogicalName}</Typography>
+                    <Typography variant="body2"><strong>Entity1NavigationPropertyName:</strong> {'' + relationShipMetadata.Entity1NavigationPropertyName}</Typography>
                     <Typography variant="body2"><strong>Entity1IntersectAttribute:</strong> {relationShipMetadata.Entity1IntersectAttribute}</Typography>
                     <Typography variant="body2"><strong>Entity2LogicalName:</strong> {relationShipMetadata.Entity2LogicalName}</Typography>
                     <Typography variant="body2"><strong>Entity2NavigationPropertyName:</strong> {relationShipMetadata.Entity2NavigationPropertyName}</Typography>
@@ -288,9 +290,9 @@ function RelationShipItem(props: RelationShipItemProps) {
                     {numberOfRecordsBig !== '?' && numberOfRecordsBig > 0 ? open ? <ExpandLess /> : <ExpandMore /> : null}
                 </ListItemButton>
             </NoMaxWidthTooltip>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-                {
-                    <List component="div" disablePadding>
+            {
+                <List component="div" disablePadding>
+                    <Collapse in={open} timeout="auto">
                         {
                             relatedRecords?.map(relatedRecord => {
                                 return (
@@ -298,19 +300,19 @@ function RelationShipItem(props: RelationShipItemProps) {
                                 );
                             })
                         }
-                    </List>
-                }
-            </Collapse>
+                    </Collapse>
+                </List>
+            }
         </>
     );
-}
+});
 
 interface RelatedRecordsItemProps {
     entityName: string,
     recordId: string,
     displayName?: string,
 }
-function RelatedRecordsItem(props: RelatedRecordsItemProps) {
+const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
     const { displayName, entityName, recordId } = props;
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -347,7 +349,7 @@ function RelatedRecordsItem(props: RelatedRecordsItemProps) {
             <RecordContextualMenu anchorElement={anchorEl} entityName={entityName} recordId={recordId} open={!!anchorEl} onClose={handleCloseContextualMenu} />
         </>
     )
-}
+});
 
 
 const relatedRecords = new RelatedRecordsButton();
