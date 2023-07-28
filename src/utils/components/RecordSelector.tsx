@@ -60,7 +60,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
     //     );
     // }
 
-    const ClearButton: JSX.Element =
+    const ClearButton: JSX.Element = useMemo(() =>
         <IconButton
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
                 setRecordsIds([])
@@ -68,74 +68,80 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
             }}>
             <ClearIcon />
         </IconButton>
+        , [setRecordsIds]);
 
-    return (<>
-        <CircularProgressOverflow
-            onClick={openDialog}
-            loading={isGridLoading || fetchingDisplayName}
-            sx={{ cursor: !disabled ? "pointer" : "auto" }}
-            disableShrink
-            theme={props.theme}
-            onHover={setIsHover}
-        >
-            <TextField
-                size='small'
-                fullWidth
-                placeholder={'Search ' + entityname}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon />
-                        </InputAdornment>
-                    ),
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            {
-                                recordsDisplayNames?.length > 0 ?
-                                    isHover && !props.disabled ?
-                                        ClearButton
-                                        : recordsDisplayNames?.length > 1 ?
-                                            <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
+    const renderElement = useMemo(() => {
+        return (
+            <>
+                <CircularProgressOverflow
+                    onClick={openDialog}
+                    loading={isGridLoading || fetchingDisplayName}
+                    sx={{ cursor: !disabled ? "pointer" : "auto" }}
+                    disableShrink
+                    theme={props.theme}
+                    onHover={setIsHover}
+                >
+                    <TextField
+                        size='small'
+                        fullWidth
+                        placeholder={'Search ' + entityname}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    {
+                                        recordsDisplayNames?.length > 0 ?
+                                            isHover && !props.disabled ?
+                                                ClearButton
+                                                : recordsDisplayNames?.length > 1 ?
+                                                    <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
+                                                    : null
                                             : null
-                                    : null
-                            }
-                        </InputAdornment>
-                    ),
-                    readOnly: true,
-                    style: { cursor: !disabled ? "pointer" : "auto" }
-                }}
-                inputProps={{
-                    style: { cursor: !disabled ? "pointer" : "auto" }
-                }}
-                sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
-                // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
-                disabled={disabled}
-                onContextMenu={handleOpenContextualMenu}
-            />
-        </CircularProgressOverflow>
-        <RecordContextualMenu
-            open={isContextualMenuOpen}
-            anchorElement={anchorEl}
-            onClose={handleCloseContextualMenu}
-            entityName={entityname}
-            recordId={recordsIds?.at(0)}
-        />
-        {
-            !disabled && isDialogOpen &&
-            <RecordSelectorDialog
-                closeDialog={closeDialog}
-                entityname={entityname}
-                open={isDialogOpen}
-                recordsIds={recordsIds}
-                records={recordsDisplayNames}
-                setRecordsIds={setRecordsIds}
-                multiple={multiple}
-                setIsLoading={setGridIsLoading}
-            />
-        }
-    </>
-    )
+                                    }
+                                </InputAdornment>
+                            ),
+                            readOnly: true,
+                            style: { cursor: !disabled ? "pointer" : "auto" }
+                        }}
+                        inputProps={{
+                            style: { cursor: !disabled ? "pointer" : "auto" }
+                        }}
+                        sx={{ cursor: !disabled ? "pointer" : "auto" }}
+                        value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
+                        // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
+                        disabled={disabled}
+                        onContextMenu={handleOpenContextualMenu}
+                    />
+                </CircularProgressOverflow>
+                <RecordContextualMenu
+                    open={isContextualMenuOpen}
+                    anchorElement={anchorEl}
+                    onClose={handleCloseContextualMenu}
+                    entityName={entityname}
+                    recordId={recordsIds?.at(0)}
+                />
+                {
+                    !disabled && isDialogOpen &&
+                    <RecordSelectorDialog
+                        closeDialog={closeDialog}
+                        entityname={entityname}
+                        open={isDialogOpen}
+                        recordsIds={recordsIds}
+                        records={recordsDisplayNames}
+                        setRecordsIds={setRecordsIds}
+                        multiple={multiple}
+                        setIsLoading={setGridIsLoading}
+                    />
+                }
+            </>
+        );
+    }, [ClearButton, anchorEl, closeDialog, disabled, entityname, fetchingDisplayName, handleCloseContextualMenu, handleOpenContextualMenu, isContextualMenuOpen, isDialogOpen, isGridLoading, isHover, multiple, openDialog, props.disabled, props.theme, recordsDisplayNames, recordsIds, setRecordsIds]);
+
+    return renderElement;
 }
 
 type RecordSelectorDialogProps = {

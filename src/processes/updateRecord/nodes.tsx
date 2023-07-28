@@ -189,7 +189,7 @@ export function StringNode(props: AttributeProps) {
                 }}
             />
             {
-                !props.disabled &&
+                !props.disabled && openDialog &&
                 <Dialog onClose={() => { setOpenDialog(false) }} open={openDialog} maxWidth={false} >
                     <DialogTitle>
                         Text Editor
@@ -285,7 +285,7 @@ export function MemoNode(props: AttributeProps) {
                 }}
             />
             {
-                !props.disabled &&
+                !props.disabled && openDialog &&
                 <Dialog onClose={() => { setOpenDialog(false) }} open={openDialog} maxWidth={false} >
                     <DialogTitle>
                         Text Editor
@@ -813,19 +813,6 @@ export function BooleanNode(props: AttributeProps) {
 
     return (
         <FormControl fullWidth>
-            {/* <Checkbox
-                size={"small"}
-                checked={value}
-                onFocus={props.setToUpdate}
-                onChange={onChange}
-                disabled={props.disabled}
-                sx={value && {
-                    color: "white",
-                    '&.Mui-checked': {
-                        color: "white",
-                    },
-                }}
-            /> */}
             <Select
                 value={value == true ? 1 : value == false ? 0 : -1}
                 onFocus={props.setToUpdate}
@@ -904,43 +891,45 @@ export function DateTimeNode(props: AttributeProps) {
         setDirty(date ? dayjs(date) : null)
     }
 
-    return (<>{props.attribute.Parameters.Format === MSDateFormat.DateOnly ?
-        <DatePicker
-            value={value}
-            onChange={onChange}
-            format='YYYY/MM/DD'
-            slotProps={{
-                inputAdornment: {
-                    position: 'start',
-                }
-            }}
-            sx={{
-                width: '100%',
-                '& input': {
-                    padding: '8.5px 14px 8.5px 0px'
-                }
-            }}
-            disabled={props.disabled}
-        />
-        :
-        <DateTimePicker
-            ampm={false}
-            onChange={onChange}
-            value={value}
-            format='YYYY/MM/DD - hh:mm:ss'
-            slotProps={{
-                inputAdornment: {
-                    position: 'start',
-                }
-            }}
-            sx={{
-                width: '100%',
-                '& input': {
-                    padding: '8.5px 14px 8.5px 0px'
-                }
-            }}
-            disabled={props.disabled}
-        />}
+    return (<>
+        {props.attribute.Parameters.Format === MSDateFormat.DateOnly ?
+            <DatePicker
+                value={value}
+                onChange={onChange}
+                format='YYYY/MM/DD'
+                slotProps={{
+                    inputAdornment: {
+                        position: 'start',
+                    }
+                }}
+                sx={{
+                    width: '100%',
+                    '& input': {
+                        padding: '8.5px 14px 8.5px 0px'
+                    }
+                }}
+                disabled={props.disabled}
+            />
+            :
+            <DateTimePicker
+                ampm={false}
+                onChange={onChange}
+                value={value}
+                format='YYYY/MM/DD - hh:mm:ss'
+                slotProps={{
+                    inputAdornment: {
+                        position: 'start',
+                    }
+                }}
+                sx={{
+                    width: '100%',
+                    '& input': {
+                        padding: '8.5px 14px 8.5px 0px'
+                    }
+                }}
+                disabled={props.disabled}
+            />
+        }
     </>)
 }
 export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {

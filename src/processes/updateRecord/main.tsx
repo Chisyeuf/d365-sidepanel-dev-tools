@@ -166,78 +166,64 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useImperativeHandle(ref, () => ({
             onClose() {
-                XrmObserver.removeListener(xrmObserverCallback)
+                XrmObserver.removeListener(xrmObserverCallback);
             },
         }));
 
-        // const extensionId = GetExtensionId();
-        // const onMessageCallback = (data: {entityName:string, recordId:string}) => {
-        //     setEntityname(data.entityName);
-        //     setTimeout(() => {
-        //         setRecordsIds([data.recordId]);
-        //     }, 100);
-        // }
-        // chrome.runtime.sendMessage(extensionId, { type: MessageType.REGISTERMESSAGECALLBACK, data: {toolId: props.id, callback: onMessageCallback} },
-        //     function (response) {
-        //         if (response.success) {
-        //         }
-        //     }
-        // );
+        const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName());
+        const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : []);
+        const [filterAttribute, setFilterAttribute] = useState<string>("");
+        const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({});
+        const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false);
 
-        const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName())
-        const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : [])
-        const [filterAttribute, setFilterAttribute] = useState<string>("")
-        const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({})
-        const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false)
-
-        const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+        const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
         const setEntityname = (entityname: string) => {
-            setRecordsIds([])
-            _setEntityname(entityname)
+            setRecordsIds([]);
+            _setEntityname(entityname);
         }
 
         const setCurrentRecord = useCallback(() => {
             const entityName = Xrm.Utility.getPageContext().input.entityName;
-            const recordid = formatId(Xrm.Page.data?.entity.getId().toLowerCase())
-            if (!entityName) return
-            setEntityname(entityName)
+            const recordid = formatId(Xrm.Page.data?.entity.getId().toLowerCase());
+            if (!entityName) return;
+            setEntityname(entityName);
             setTimeout(() => {
-                setRecordsIds(recordid ? [recordid] : [])
+                setRecordsIds(recordid ? [recordid] : []);
             }, 100);
 
-        }, [])
+        }, []);
 
         useUpdateEffect(() => {
-            toggleResetTotal()
-        }, [entityname, recordsIds])
+            toggleResetTotal();
+        }, [entityname, recordsIds]);
 
         const xrmObserverCallback = () => {
             if (entityname) return
             // if (!XrmObserver.isEntityRecord() || entityname) return
-            setCurrentRecord()
-            XrmObserver.removeListener(xrmObserverCallback)
+            setCurrentRecord();
+            XrmObserver.removeListener(xrmObserverCallback);
         }
 
         useEffect(() => {
-            XrmObserver.addListener(xrmObserverCallback)
-        }, [])
+            XrmObserver.addListener(xrmObserverCallback);
+        }, []);
 
         const launchUpdate = () => {
-            debugLog("Launch Update for", entityname, recordsIds, "on", attributesValues)
+            debugLog("Launch Update for", entityname, recordsIds, "on", attributesValues);
 
             recordsIds.forEach((recordid) => {
-                Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid)
+                Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid);
                 Xrm.WebApi.online.updateRecord(entityname, recordid, attributesValues).then(
                     function success(result) {
-                        Xrm.Utility.closeProgressIndicator()
+                        Xrm.Utility.closeProgressIndicator();
                         enqueueSnackbar(
                             capitalizeFirstLetter(entityname) + " " + recordid + " updated.",
                             { variant: 'success' }
-                        )
+                        );
                     },
                     function (error) {
-                        Xrm.Utility.closeProgressIndicator()
+                        Xrm.Utility.closeProgressIndicator();
                         enqueueSnackbar(
                             capitalizeFirstLetter(entityname) + " " + recordid + " has encountered an error.",
                             {
@@ -250,9 +236,9 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                                 fileContent: error.raw,
                                 fileName: "ErrorDetails.txt"
                             }
-                        )
+                        );
 
-                        console.log(error.message)
+                        console.log(error.message);
                     }
                 );
             })
@@ -280,9 +266,9 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                 <Divider />
                 <Typography maxHeight='19px'>{entityname + " / " + recordsIds}</Typography>
             </Stack>
-        )
+        );
     }
-)
+);
 
 type AttributesListProps = {
     entityname: string,
@@ -349,7 +335,7 @@ type AttributeNodeProps = {
     resetTotal: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
-function AttributeNode(props: AttributeNodeProps) {
+const AttributeNode = React.memo((props: AttributeNodeProps) => {
     const { value: isDirty, setTrue, setFalse } = useBoolean(false)
     const manageDirty = { setTrue, setFalse }
 
@@ -487,11 +473,11 @@ function AttributeNode(props: AttributeNodeProps) {
                 <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
             </IconButton>
         </Stack >
-        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, doubleClickCallback, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, setToUpdateCallback, manageDirty.setTrue, manageDirty.setFalse, toReset, isToUpdate, valueChanged, removeToUpdate]);
-
+        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, doubleClickCallback, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, setToUpdateCallback, manageDirty.setTrue, manageDirty.setFalse, toReset, isToUpdate, valueChanged, removeToUpdate]
+    );
 
     return NodeContent;
-}
+});
 
 
 function AttributeFactory(props: AttributeProps) {
@@ -508,7 +494,7 @@ function AttributeFactory(props: AttributeProps) {
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
                 theme={theme}
-            />)
+            />);
         case MSType.String:
             return (<StringNode
                 attribute={props.attribute}
@@ -519,7 +505,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Memo:
             return (<MemoNode
                 attribute={props.attribute}
@@ -530,7 +516,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Decimal:
             return (<DecimalNode
                 attribute={props.attribute}
@@ -541,7 +527,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Double:
             return (<DoubleNode
                 attribute={props.attribute}
@@ -552,7 +538,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Money:
             return (<MoneyNode
                 attribute={props.attribute}
@@ -563,7 +549,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Integer:
             return (<IntegerNode
                 attribute={props.attribute}
@@ -574,7 +560,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.BigInt:
             return (<BigIntNode
                 attribute={props.attribute}
@@ -585,7 +571,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Boolean:
             return (<BooleanNode
                 attribute={props.attribute}
@@ -596,7 +582,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.DateTime:
             return (<DateTimeNode
                 attribute={props.attribute}
@@ -607,7 +593,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Status:
             return (<GroupedPicklistNode
                 attribute={props.attribute}
@@ -619,7 +605,7 @@ function AttributeFactory(props: AttributeProps) {
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
                 groupBy='State'
-            />)
+            />);
         case MSType.State:
             return (<PicklistNode
                 attribute={props.attribute}
@@ -630,7 +616,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Picklist:
             return (<PicklistNode
                 nullable
@@ -642,7 +628,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.MultiSelectPicklist:
             return (<MultiplePicklistNode
                 attribute={props.attribute}
@@ -653,7 +639,7 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         case MSType.Image:
             return (<ImageNode
                 attribute={props.attribute}
@@ -664,9 +650,9 @@ function AttributeFactory(props: AttributeProps) {
                 reset={props.reset}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
-            />)
+            />);
         default:
-            return (<></>)
+            return (<></>);
     }
 }
 
@@ -683,44 +669,46 @@ type NavBarProps = {
 }
 function NavTopBar(props: NavBarProps) {
 
-    return (<Stack key="topbar" spacing={0.5} width="100%">
-        <Stack direction={"row"} justifyContent='center' spacing={0.5} width="100%" height='1.8em'>
-            <Stack height='100%' justifyContent='center' width='18em'>
-                <Typography variant='button' height='1em' >Refresh:</Typography>
+    return (
+        <Stack key="topbar" spacing={0.5} width="100%">
+            <Stack direction={"row"} justifyContent='center' spacing={0.5} width="100%" height='1.8em'>
+                <Stack height='100%' justifyContent='center' width='18em'>
+                    <Typography variant='button' height='1em' >Refresh:</Typography>
+                </Stack>
+                <Button
+                    variant='outlined'
+                    fullWidth
+                    size='small'
+                    onClick={() => {
+                        Xrm.Page.ui.refreshRibbon(true)
+                    }}>
+                    Ribbon
+                </Button>
+                <Button
+                    variant='outlined'
+                    fullWidth
+                    size='small'
+                    onClick={() => {
+                        Xrm.Page.data.refresh(false)
+                    }}
+                >
+                    Form
+                </Button>
             </Stack>
-            <Button
-                variant='outlined'
-                fullWidth
-                size='small'
-                onClick={() => {
-                    Xrm.Page.ui.refreshRibbon(true)
-                }}>
-                Ribbon
-            </Button>
-            <Button
-                variant='outlined'
-                fullWidth
-                size='small'
-                onClick={() => {
-                    Xrm.Page.data.refresh(false)
-                }}
-            >
-                Form
-            </Button>
+            <Divider variant='middle' />
+            <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
+                props.setCurrentRecord();
+            }} entityName={props.entityname} recordIds={props.recordsIds} />
+            <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
+                <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
+                <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>
+            </Stack>
         </Stack>
-        <Divider variant='middle' />
-        <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
-            props.setCurrentRecord();
-        }} entityName={props.entityname} recordIds={props.recordsIds} />
-        <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
-            <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
-            <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>
-        </Stack>
-    </Stack>)
+    );
 }
 
 
-const updateRecord = new UpdateRecordButton()
-export default updateRecord
+const updateRecord = new UpdateRecordButton();
+export default updateRecord;
 
 
