@@ -10,7 +10,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
-import { FormControl, FormControlLabel, Switch } from '@mui/material';
+import { Divider, FormControl, FormControlLabel, Switch, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
 
 
@@ -107,13 +107,19 @@ export const MainScreen: React.FunctionComponent = () => {
                 <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
             </FormControl>
 
+            <Divider />
 
-            {
-                processesList?.filter((process) => !process.hidden).map((value, index) => {
-                    const Process = Processes.find(p => p.id === value.id);
-                    return Process?.render();
-                })
-            }
+            <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
+                {
+                    processesList?.filter((process) => !process.hidden).map((value, index) => {
+                        const Process = Processes.find(p => p.id === value.id);
+                        return Process?.render();
+                    })
+                }
+            </Stack>
+
+            {/* <Divider /> */}
+            {/* <Typography maxHeight='19px'>Created by Sofiane GUEZZAR</Typography> */}
         </Stack>
     )
 }
