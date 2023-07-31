@@ -9,6 +9,7 @@ import webRessourceEditor from './webRessourceEditor/main';
 import allFields from './allFields/main';
 import relatedRecords from './relatedRecords/main';
 import myUserRecord from './myUserRecord/main';
+import commandDebugger from './commandDebugger/main';
 
 const Processes: ProcessButton[] = [
     formTools,
@@ -18,10 +19,11 @@ const Processes: ProcessButton[] = [
     webRessourceEditor,
     impersonation,
     myUserRecord,
-    createConfiguration
+    commandDebugger,
+    createConfiguration,
 ];
 
-
+// Xrm.Internal.addPopupNotification({entityLookUpValue:"", title:"dzf", acceptAction:{}, declineAction:{} })
 
 export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
     return {

@@ -15,7 +15,6 @@ class MyUserRecordButton extends ProcessButton {
             <AccountCircleIcon />,
             350
         );
-        // this.process = MyUserRecordProcess;
     }
 
     openSidePane(selected: boolean = true): void {
