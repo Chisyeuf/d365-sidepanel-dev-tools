@@ -19,6 +19,7 @@ import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
 import { Env } from '../../utils/global/var';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -47,16 +48,20 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const extensionId = GetExtensionId();
 
         const handleSelect = (user: typeof activeUsers[0]) => () => {
-            setUserSelected((oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
-                (newUser) => {
-                    const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl() };
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
-                        function (response) {
-                            if (response.success) {
-                            }
-                        }
-                    );
-                });
+            setUserSelected(
+                (oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
+                sendNewUserToBackground
+            );
+        }
+
+        const sendNewUserToBackground = (newUser: ActiveUser | null) => {
+            const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl() };
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
+                function (response) {
+                    if (response.success) {
+                    }
+                }
+            );
         }
 
         useEffect(() => {
@@ -92,7 +97,17 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
             <Stack direction='column' spacing={0.5} width="-webkit-fill-available" padding="10px">
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
+                    
                     <SecurityRoleMenu securityRoleSeclected={securityRoleSeclected} setSecurityRoleSeclected={setSecurityRoleSeclected} />
+
+                    <Tooltip title={'Hard Reset'}>
+                        <IconButton
+                            onClick={() => sendNewUserToBackground(null)}
+                        >
+                            <RestartAltIcon />
+                        </IconButton>
+                    </Tooltip>
+
                     {Env.DEBUG &&
                         <IconButton onClick={() => {
                             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
@@ -156,7 +171,7 @@ interface UserItemProps {
     userSelected: ActiveUser | null,
     handleSelect: (user: ActiveUser) => () => void
 }
-function UserItem(props: UserItemProps) {
+const UserItem = React.memo((props: UserItemProps) => {
     const { user, userSelected, handleSelect } = props;
 
     const labelId = `checkbox-list-label-${user.systemuserid}`;
@@ -210,7 +225,7 @@ function UserItem(props: UserItemProps) {
             </ListItemButton>
         </ListItem>
     );
-}
+});
 
 interface SecurityRoleMenuProps {
     securityRoleSeclected: SecurityRole[]
@@ -246,41 +261,41 @@ function SecurityRoleMenu(props: SecurityRoleMenuProps) {
 
 
     return (
-        <Tooltip title={'Select security roles'}>
-            <>
+        <>
+            <Tooltip title={'Select security roles'}>
                 <IconButton
                     onClick={handleClick}
                 >
                     <SecurityIcon />
                 </IconButton>
-                <Drawer
-                    anchor={'right'}
-                    open={open}
-                    onClose={handleClose}
-                    sx={{
-                        width: '25%'
-                    }}
+            </Tooltip>
+            <Drawer
+                anchor={'right'}
+                open={open}
+                onClose={handleClose}
+                sx={{
+                    width: '25%'
+                }}
+            >
+                <Box
+                    padding={1}
                 >
-                    <Box
-                        padding={1}
-                    >
-                        <FilterInput fullWidth placeholder='Filter users by name or email address' returnFilterInput={setFilter} forcedValue={filter} />
-                    </Box>
-                    <Divider />
-                    <List sx={{ width: '25vw', overflowY: 'scroll' }}>
-                        {
-                            securityRoles.map(role => {
-                                if (!role.name.toLowerCase().includes(filter.toLowerCase())) {
-                                    return null;
-                                }
+                    <FilterInput fullWidth placeholder='Filter by name' returnFilterInput={setFilter} forcedValue={filter} />
+                </Box>
+                <Divider />
+                <List sx={{ width: '25vw', overflowY: 'scroll' }}>
+                    {
+                        securityRoles.map(role => {
+                            if (!role.name.toLowerCase().includes(filter.toLowerCase())) {
+                                return null;
+                            }
 
-                                return <SecurityRoleItem handleSelect={handleSelect} role={role} securityRoleSeclected={securityRoleSeclected} />;
-                            })
-                        }
-                    </List>
-                </Drawer>
-            </>
-        </Tooltip>
+                            return <SecurityRoleItem handleSelect={handleSelect} role={role} securityRoleSeclected={securityRoleSeclected} />;
+                        })
+                    }
+                </List>
+            </Drawer>
+        </>
     );
 }
 interface SecurityRoleItemProps {
@@ -288,7 +303,7 @@ interface SecurityRoleItemProps {
     handleSelect: (role: SecurityRole) => () => void
     securityRoleSeclected: SecurityRole[]
 }
-function SecurityRoleItem(props: SecurityRoleItemProps) {
+const SecurityRoleItem = React.memo((props: SecurityRoleItemProps) => {
     const { role, handleSelect, securityRoleSeclected } = props;
 
     return (
@@ -317,7 +332,7 @@ function SecurityRoleItem(props: SecurityRoleItemProps) {
             </ListItemButton>
         </ListItem>
     )
-}
+});
 
 const impersonation = new ImpersonationButton();
 export default impersonation;
