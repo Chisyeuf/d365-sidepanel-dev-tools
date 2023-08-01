@@ -29,9 +29,20 @@ export function useCurrentRecord() {
         if (recordId !== currentRecordId) setRecordId(currentRecordId);
     }, [xrmUpdated]);
 
+    const forceRefresh = useCallback(() => {
+        setEntityName(undefined);
+        setRecordId(undefined);
+        setTimeout(() => {
+            const { entityname: currentEntityname, recordid: currentRecordId } = getCurrentRecord();
+            setEntityName(currentEntityname);
+            setRecordId(currentRecordId);
+        }, 500);
+    }, [setEntityName, setRecordId, getCurrentRecord]);
+
     return {
         isEntityRecord: isEntityRecord,
         entityName: entityName,
         recordId: recordId,
+        forceRefresh: forceRefresh
     };
 }
