@@ -50,7 +50,13 @@ export abstract class ProcessButton {
     bindOnClose(callback: () => void): void {
         var closeButton = document.querySelector<HTMLElement>('#' + this.id + " div:first-child div:first-child button");
         if (closeButton) {
-            closeButton.addEventListener('click', callback);
+            closeButton.addEventListener('click', () => {
+                callback();
+                const node = document.querySelector('#' + this.id + ' > div > div:last-child');
+                if (node) {
+                    ReactDOM.unmountComponentAtNode(node);
+                }
+            });
         }
     }
 
