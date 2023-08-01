@@ -3,11 +3,11 @@ import { MSType } from '../types/requestsType';
 import { Env } from './var';
 
 
-export function setStyle(style: { [querySelector: string]: string[] }) {
-    var styleNode = document.querySelector<HTMLStyleElement>("#styleModifier");
+export function setStyle(selector: string, style: { [querySelector: string]: string[] }) {
+    var styleNode = document.querySelector<HTMLStyleElement>("#" + selector);
     if (styleNode == null) {
         styleNode = document.createElement("style");
-        styleNode.id = "styleModifier";
+        styleNode.id = selector;
         document.head.appendChild(styleNode);
     }
     let styleText = '';
