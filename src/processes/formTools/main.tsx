@@ -120,23 +120,17 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
         }, []);
 
         const xrmObserverCallback = useCallback(() => {
-            debugLog("DOM Updated");
             setDomUpdated(prev => !prev);
         }, []);
 
         useEffect(() => {
             if (!domObserver) {
-                domObserver = new DOMObserver('formtools', document.querySelector('#shell-container'), { childList: true, subtree: true });
+                domObserver = new DOMObserver('formtools-domupdated', document.querySelector('#shell-container'), { childList: true, subtree: true });
             }
             domObserver.addListener(xrmObserverCallback);
-            return () => {
-                domObserver?.removeListener(xrmObserverCallback);
-            };
         }, []);
 
         useEffect(() => {
-            debugLog("setExecutionContext", "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType == 'entityrecord', "for", Xrm.Page.data?.entity?.getEntityName(), Xrm.Page.data?.entity?.getId());
-
             setXrmStatus({
                 isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
                 pageType: Xrm.Utility.getPageContext()?.input?.pageType,
