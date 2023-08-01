@@ -49,7 +49,7 @@ export const MainScreen: React.FunctionComponent = () => {
         if (!isForegroundPanes) {
             const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
             if (openedPane) {
-                setStyle({
+                setStyle('styleModifier-main', {
                     "div[id^=DialogContainer] > div": [
                         "width: calc(100% - " +
                         (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
@@ -62,7 +62,7 @@ export const MainScreen: React.FunctionComponent = () => {
                 });
             }
             else {
-                setStyle({
+                setStyle('styleModifier-main', {
                     "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
@@ -70,7 +70,7 @@ export const MainScreen: React.FunctionComponent = () => {
             }
         }
         else {
-            setStyle({
+            setStyle('styleModifier-main', {
                 "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
                 "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
@@ -136,8 +136,8 @@ if (top && top.window === window) {
 
 function initExtension() {
     var paneOption: Xrm.App.PaneOptions = {
-        paneId: ProcessButton.prefixId + "dynamicsToolsMenu",
-        title: "Dynamics Tools Menu",
+        paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
+        title: "Dynamics Side Tools Menu",
         canClose: false,
         imageSrc: GetUrl("icons/muiwand.png"),
         hideHeader: false,
@@ -150,7 +150,7 @@ function initExtension() {
 
     Xrm.App.sidePanes.createPane(paneOption);
 
-    waitForElm('#' + ProcessButton.prefixId + 'dynamicsToolsMenu > div > div:last-child').then((mainSidePane) => {
+    waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
         ReactDOM.render(
             <MainScreen />,
             mainSidePane
