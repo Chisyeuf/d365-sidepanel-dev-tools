@@ -10,11 +10,13 @@ import allFields from './allFields/main';
 import relatedRecords from './relatedRecords/main';
 import myUserRecord from './myUserRecord/main';
 import commandDebugger from './commandDebugger/main';
+import dirtyFields from './dirtyFields/main';
 
 const Processes: ProcessButton[] = [
     formTools,
     updateRecord,
     allFields,
+    dirtyFields,
     relatedRecords,
     webRessourceEditor,
     impersonation,

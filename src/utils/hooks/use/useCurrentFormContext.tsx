@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { debugLog, formatId } from "../../global/common";
 import { useXrmUpdated } from "./useXrmUpdated";
-
-type FormContext = Xrm.Page | null;
+import { FormContext } from "../../types/FormContext";
 
 export function useCurrentFormContext() {
 
