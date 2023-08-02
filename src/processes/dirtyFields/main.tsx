@@ -73,7 +73,6 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            console.log("1. change dirty");
             const currentDirty = currentFormContext?.getAttribute(a => a.getIsDirty());
             if (currentDirty && dirtyAttributes) {
                 const isUnchanged = isArraysEquals(currentDirty.map(a => a.getName()), dirtyAttributes.map(a => a.getName()))
@@ -81,7 +80,6 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                     return;
                 }
             }
-            console.log("2. change dirty!");
             setDirtyAttributes(currentDirty);
 
         }, [currentFormContext, domUpdated]);
@@ -89,7 +87,6 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         useEffect(() => {
             if (squareFormEnabled) {
                 const selector = dirtyAttributes?.flatMap(attribute => attribute.controls.get().map(control => `[data-control-name='${control.getName()}']>div`)).join(',');
-                console.log("selector", selector);
                 if (selector !== undefined) {
                     setStyle('styleModifier-dirtyfields', {
                         [selector]: ['outline: 2px dashed #ff2500', "outline-offset: -2px"]
