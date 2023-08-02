@@ -54,7 +54,11 @@ export abstract class ProcessButton {
                 callback();
                 const node = document.querySelector('#' + this.id + ' > div > div:last-child');
                 if (node) {
-                    ReactDOM.unmountComponentAtNode(node);
+                    try {
+                        ReactDOM.unmountComponentAtNode(node);
+                    }
+                    catch {
+                    }
                 }
             });
         }

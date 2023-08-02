@@ -74,7 +74,7 @@ export function getDifferenceInArrays<T>(a: T[], b: T[]): T[] {
 }
 
 export function isArraysEquals<T>(a: T[], b: T[]): boolean {
-    return getDifferenceInArrays(a, b).length == 0
+    return getDifferenceInArrays(a, b).length === 0
 }
 
 export function capitalizeFirstLetter(str: string) {
