@@ -94,7 +94,7 @@ export abstract class ProcessButton {
             else
                 nodeToRender = this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />
 
-            this.reStyleSidePane();
+            this._reStyleSidePane();
             ReactDOM.render(
                 nodeToRender,
                 sidePane
@@ -117,9 +117,44 @@ export abstract class ProcessButton {
         });
     };
 
-    reStyleSidePane(): void {
+    _reStyleSidePane(): void {
+        const sidePane = document.querySelector<HTMLElement>('#' + this.id);
+        const sidePaneContent = sidePane?.querySelector<HTMLElement>("div:first-child");
+        const header = sidePaneContent?.querySelector<HTMLElement>("div:first-child");
+        const h2 = header?.querySelector<HTMLElement>("h2");
+        const button = header?.querySelector<HTMLElement>("button");
+
+        if (this.width < 300) {
+            if (sidePane) {
+                sidePane.style.width = this.width + "px";
+                if (sidePaneContent) {
+                    sidePaneContent.style.minWidth = "100%";
+                    if (header) {
+                        header.style.flexDirection = "column-reverse";
+                        header.style.paddingLeft = "5px";
+                        header.style.paddingRight = "5px";
+                        header.style.alignItems = "flex-end";
+                        header.style.justifyContent = "flex-end";
+
+                        if (h2) {
+                            h2.style.width = "100%";
+                        }
+
+                        if (button) {
+                            button.style.alignSelf = "unset";
+                            button.style.marginRight = "8px";
+                        }
+                    }
+                }
+            }
+        }
+        this.reStyleSidePane(sidePane, sidePaneContent, header, h2, button);
+    }
+
+    reStyleSidePane(sidePane: HTMLElement | null, sidePaneContent?: HTMLElement | null, header?: HTMLElement | null, title?: HTMLElement | null, closeButton?: HTMLElement | null): void {
         return;
     }
+
     render(): React.ReactNode {
         return <Button variant="contained" size="medium" fullWidth onClick={this.onClick} endIcon={this.icon} >{this.name}</Button>
         // <Icon styles={ProcessButton.iconStyles} iconName={this.icon} />

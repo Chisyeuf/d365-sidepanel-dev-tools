@@ -29,36 +29,11 @@ class FormToolsButton extends ProcessButton {
         this.process = FormToolsProcess;
     }
 
-    reStyleSidePane(): void {
-        var sidePane = document.querySelector<HTMLElement>('#' + this.id);
-        if (sidePane) {
-            sidePane.style.width = this.width + "px";
-            var dev = sidePane.querySelector<HTMLElement>("div:first-child");
-            if (dev) {
-                dev.style.minWidth = "100%";
-                var header = dev.querySelector<HTMLElement>("div:first-child");
-                if (header) {
-                    header.style.flexDirection = "column-reverse";
-                    header.style.paddingLeft = "5px";
-                    header.style.paddingRight = "5px";
-                    header.style.alignItems = "flex-end";
-                    header.style.justifyContent = "flex-end";
-
-                    var h2 = header.querySelector<HTMLElement>("h2");
-                    if (h2) {
-                        h2.style.width = "100%";
-                        h2.style.alignSelf = "unset";
-                        h2.style.maxHeight = "none";
-                        h2.style.writingMode = "vertical-rl";
-                    }
-
-                    var button = header.querySelector<HTMLElement>("button");
-                    if (button) {
-                        button.style.alignSelf = "unset";
-                        button.style.marginRight = "8px";
-                    }
-                }
-            }
+    reStyleSidePane(sidePane: HTMLElement | null, sidePaneContent?: HTMLElement | null, header?: HTMLElement | null, title?: HTMLElement | null, closeButton?: HTMLElement | null): void {
+        if (title) {
+            title.style.alignSelf = "unset";
+            title.style.maxHeight = "none";
+            title.style.writingMode = "vertical-rl";
         }
     }
 }
@@ -139,7 +114,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             });
 
             setTimeout(() => {
-                
+
                 if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
                     setCurrentFormContext(Xrm.Page);
                     // Xrm.Page.data.addOnLoad(() => {
