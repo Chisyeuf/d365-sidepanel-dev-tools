@@ -132,14 +132,15 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useEffect(() => {
             setXrmStatus({
-                isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
+                isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName(),
                 pageType: Xrm.Utility.getPageContext()?.input?.pageType,
                 entityName: Xrm.Page.data?.entity?.getEntityName(),
                 recordId: Xrm.Page.data?.entity?.getId(),
             });
 
             setTimeout(() => {
-                if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord') {
+                
+                if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
                     setCurrentFormContext(Xrm.Page);
                     // Xrm.Page.data.addOnLoad(() => {
                     //     setCurrentFormContext(Xrm.Page);
