@@ -243,7 +243,7 @@ const AttributeListItem = React.memo((props: AttributeListItemProps) => {
     };
 
     const valueDisplay = useMemo(() => {
-        return value?.value || value.value === false || value.value === 0 ? value.value + '' : <i>null</i>
+        return !!value?.value || value?.value === false || value?.value === 0 ? value.value + '' : <i>null</i>
     }, [value]);
 
 
