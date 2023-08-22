@@ -11,6 +11,7 @@ import relatedRecords from './relatedRecords/main';
 import myUserRecord from './myUserRecord/main';
 import commandDebugger from './commandDebugger/main';
 import dirtyFields from './dirtyFields/main';
+import navigation from './navigation/main';
 
 const Processes: ProcessButton[] = [
     formTools,
@@ -21,6 +22,7 @@ const Processes: ProcessButton[] = [
     webRessourceEditor,
     impersonation,
     myUserRecord,
+    navigation,
     commandDebugger,
     createConfiguration,
 ];

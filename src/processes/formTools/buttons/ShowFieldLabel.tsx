@@ -76,7 +76,6 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
             controls?.map((c) => {
                 const controlName = c.getName();
                 const controlNodeT = document.querySelector(`[data-id="${controlName}"] label`);
-                // const controlNodeT = document.querySelector("label[id$=\"" + controlName + "-field-label\"]");
                 const controlNode = controlNodeT?.parentElement?.parentElement ?? null;
                 return (
                     <Portal container={controlNode}>

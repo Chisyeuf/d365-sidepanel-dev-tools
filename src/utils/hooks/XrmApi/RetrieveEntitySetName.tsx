@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { debugLog } from '../../global/common';
 
-export function RetrieveAttributes(entityname: string, recordid: string | undefined, attributesList: string[]): [{ [key: string]: any }, boolean] {
+export function RetrieveEntitySetName(entityname: string, recordid: string | undefined, attributesList: string[]): [{ [key: string]: any }, boolean] {
 
     const [data, setData] = useState<{ [key: string]: any }>({})
     const [isFetching, setIsFetching] = useState<boolean>(false)
@@ -10,7 +10,7 @@ export function RetrieveAttributes(entityname: string, recordid: string | undefi
     const _entityname = entityname;
 
     useEffect(() => {
-        debugLog("RetrieveAttributes");
+        debugLog("RetrieveEntitySetName");
         if (!_entityname || !_recordid || !attributes || attributes.length === 0) {
             setData({})
             setIsFetching(false)
