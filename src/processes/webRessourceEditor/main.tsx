@@ -22,7 +22,7 @@ class WebRessourceEditor extends ProcessButton {
             'webressourceeditor',
             'WebRessources Editor',
             <CodeIcon />,
-            100
+            300
         );
         this.process = WebRessourceEditorProcess;
     }
