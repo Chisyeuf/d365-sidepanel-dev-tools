@@ -17,6 +17,7 @@ import ComponentContainer from '../../utils/components/ComponentContainer';
 import FillFields from './buttons/FillFields';
 import ShowOptionSetInFields from './buttons/ShowOptionSetInFields';
 import OtherTools from './containers/OtherTools';
+import RefreshButtons from './containers/RefreshButtons';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -64,7 +65,7 @@ const theme = createTheme({
 
 var domObserver: DOMObserver | null = null;
 
-const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodMode, OtherTools /** Blur fields, Dirty fields */];
+const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodMode, RefreshButtons, OtherTools /** Blur fields, Dirty fields */];
 
 type FormContext = Xrm.Page | null;
 

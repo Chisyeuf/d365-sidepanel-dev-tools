@@ -5,7 +5,6 @@ import { SubProcessProps } from '../main';
 import { useCopyToClipboard } from 'usehooks-ts';
 import ShowOptionSetInFields from '../buttons/ShowOptionSetInFields';
 import FillFields from '../buttons/FillFields';
-import { FillOnClick } from '../buttons/FillOnClick';
 
 
 const toolList: ((props: SubProcessProps) => JSX.Element)[] = [ShowOptionSetInFields, FillFields];
