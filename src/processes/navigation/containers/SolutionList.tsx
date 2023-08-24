@@ -1,7 +1,7 @@
 
 import { Box, Button, Divider, Drawer, List, ListItemButton, ListItemText, Tooltip } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { useMemo, useState, } from 'react';
+import React, { useMemo, useRef, useState, } from 'react';
 
 // import NavigationIcon from '@mui/icons-material/Navigation';
 
@@ -9,7 +9,7 @@ import ComponentContainer from '../../../utils/components/ComponentContainer';
 import { OldSolutionIcon, PowerAppsIcon } from './../icons';
 import { RetrieveSolutions } from '../../../utils/hooks/XrmApi/RetrieveSolutions';
 import { useBoolean } from 'usehooks-ts';
-import FilterInput from '../../../utils/components/FilterInput';
+import FilterInput, { AttributeFilterInputRef } from '../../../utils/components/FilterInput';
 import { SolutionItem } from '../../../utils/types/SolutionItem';
 
 function SolutionList(props: any) {
@@ -19,6 +19,8 @@ function SolutionList(props: any) {
     const [selectedSolution, setSelectedSolution] = useState<SolutionItem | null>(null);
     const { value: dialogOpened, setTrue: setDialogOpenedTrue, setFalse: setDialogOpenedFalse } = useBoolean(false);
     const [filter, setFilter] = useState<string>('');
+
+    const inputRef = useRef<AttributeFilterInputRef>(null);
 
     function handleClickPowerApps() {
         const environmentId = (Xrm.Utility.getGlobalContext().organizationSettings as any).bapEnvironmentId;
@@ -52,7 +54,7 @@ function SolutionList(props: any) {
             <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Solutions', padding: '5px' } }}>
                 <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'>
 
-                    <Tooltip title='Solution List in old interface'>
+                    <Tooltip placement='top' title='Solution List in old interface'>
                         <Button
                             variant='contained'
                             onClick={handleClickOldSolution}
@@ -60,7 +62,7 @@ function SolutionList(props: any) {
                         />
                     </Tooltip>
 
-                    <Tooltip title='Solution List in PowerApps'>
+                    <Tooltip placement='top' title='Solution List in PowerApps'>
                         <Button
                             variant='outlined'
                             onClick={handleClickPowerApps}
@@ -74,7 +76,12 @@ function SolutionList(props: any) {
                             maxWidth: 'unset',
                             fontSize: '0.7em'
                         }}
-                        onClick={setDialogOpenedTrue}
+                        onClick={() => {
+                            setDialogOpenedTrue();
+                            setTimeout(() => {
+                                inputRef.current?.focus();
+                            }, 500);
+                        }}
                     >
                         Select Solution
                     </Button>
@@ -92,11 +99,11 @@ function SolutionList(props: any) {
                 <Box
                     padding={1}
                 >
-                    <FilterInput fullWidth placeholder='Filter by name' returnFilterInput={setFilter} forcedValue={filter} />
+                    <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} forcedValue={filter} />
                 </Box>
                 <Divider />
                 <List sx={{ width: '25vw', overflowY: 'scroll' }}>
-                    <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse() }} dense>
+                    <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
                         <ListItemText
                             primary={"---"}
                         />
@@ -110,7 +117,7 @@ function SolutionList(props: any) {
                             return (
                                 <ListItemButton
                                     sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
-                                    onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse() }}
+                                    onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}
                                     dense
                                 >
                                     <ListItemText

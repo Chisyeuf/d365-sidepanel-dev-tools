@@ -99,7 +99,7 @@ export abstract class ProcessButton {
                 nodeToRender,
                 sidePane
             );
-            this.ref.current?.onClose && this.bindOnClose(this.ref.current?.onClose)
+            this.ref.current?.onClose && this.bindOnClose(this.ref.current?.onClose);
         });
 
         waitForElm('button[aria-controls=' + this.id + '] > span').then((sidePaneOpenButton) => {
