@@ -53,66 +53,73 @@ const DecimalIcon = createSvgIcon(
 
 export type AttributeProps = {
     attribute: AttributeMetadata,
-    entityname: string,
+    // entityname: string,
     value: any,
-    setToUpdate: () => void,
+    // setToUpdate: () => void,
     reset: boolean,
+    remove: boolean,
     manageDirty: { set: () => void, remove: () => void },
     disabled: boolean,
-    attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void, isToUpdate: boolean, valueChanged: boolean }
+    attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
 
 export function LookupNode(props: AttributeProps & { theme: Theme }) {
-    const [oldValue, setOldValue] = useState<string[]>(props.value ? [props.value] : [])
-    const [value, setValue] = useState<string[]>(props.value ? [props.value] : [])
-    const [updatingValue, setUpdatingValue] = useState<string[]>([])
+    const [oldValue, setOldValue] = useState<string[]>(props.value ? [props.value] : []);
+    const [value, setValue] = useState<string[]>(props.value ? [props.value] : []);
+    const [updatingValue, setUpdatingValue] = useState<string[]>([]);
 
-    const pluralName = RetrieveSetName(props.entityname)
+    const pluralName = RetrieveSetName(props.attribute.Parameters.Target);
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
-            var val
-            if (value.length)
-                val = "/" + pluralName + "(" + value.at(0) + ")"
-            else
-                val = null
-            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName + "@odata.bind", val)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName + "@odata.bind")
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // if (props.attributeToUpdateManager.isToUpdate) {
+        var val;
+        if (value.length)
+            val = "/" + pluralName + "(" + value.at(0) + ")";
+        else
+            val = null;
+        props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName + "@odata.bind", val);
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName + "@odata.bind");
+        // }
+    }, [pluralName, value]);
 
 
     const setDirty = (newValue: string[]) => {
         if (!isArraysEquals(oldValue, newValue)) {
-            props.manageDirty.set()
+            props.manageDirty.set();
         }
         else {
-            props.manageDirty.remove()
+            props.manageDirty.remove();
         }
     }
 
     useEffect(() => {
-        setOldValue(props.value ? [props.value] : [])
-        setValue(props.value ? [props.value] : [])
-        setUpdatingValue(props.value ? [props.value] : [])
+        setOldValue(props.value ? [props.value] : []);
+        setValue(props.value ? [props.value] : []);
+        setUpdatingValue(props.value ? [props.value] : []);
     }, [props.value])
 
     useEffect(() => {
         if (props.reset) {
-            setValue(oldValue)
-            setUpdatingValue(oldValue)
-            props.manageDirty.remove()
+            setValue(oldValue);
+            setUpdatingValue(oldValue);
+            props.manageDirty.remove();
         }
-    }, [oldValue, props.manageDirty, props.reset])
+    }, [oldValue, props.manageDirty, props.reset]);
+
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName + "@odata.bind");
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     useUpdateEffect(() => {
         if (isArraysEquals(value, updatingValue)) return;
-        props.setToUpdate()
-        setValue(updatingValue ? updatingValue : [])
-        setDirty(updatingValue ? updatingValue : [])
-    }, [updatingValue])
+        // props.setToUpdate();
+        setValue(updatingValue ? updatingValue : []);
+        setDirty(updatingValue ? updatingValue : []);
+    }, [updatingValue]);
 
 
     return <RecordSelector
@@ -129,13 +136,13 @@ export function StringNode(props: AttributeProps) {
     const [openDialog, setOpenDialog] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue: string | null) => {
         if (oldValue !== newValue) {
@@ -156,11 +163,17 @@ export function StringNode(props: AttributeProps) {
             setValue(oldValue)
             props.manageDirty.remove()
         }
-    }, [oldValue, props.manageDirty, props.reset])
+    }, [oldValue, props.manageDirty, props.reset]);
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = event.target.value
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue ? newValue : null)
         setDirty(newValue ? newValue : null)
     }
@@ -173,7 +186,7 @@ export function StringNode(props: AttributeProps) {
                 fullWidth
                 inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
                 value={value ?? ''}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 disabled={props.disabled}
                 InputProps={{
@@ -202,7 +215,7 @@ export function StringNode(props: AttributeProps) {
                             rows={25}
                             fullWidth
                             inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-                            onFocus={props.setToUpdate}
+                            // onFocus={props.setToUpdate}
                         />
                     </DialogContent>
                     <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
@@ -222,13 +235,13 @@ export function MemoNode(props: AttributeProps) {
     const [openDialog, setOpenDialog] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: string | null) => {
         if (oldValue !== newValue) {
@@ -250,10 +263,16 @@ export function MemoNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = event.target.value
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue ? newValue : null)
         setDirty(newValue ? newValue : null)
     }
@@ -269,7 +288,7 @@ export function MemoNode(props: AttributeProps) {
                 rows={1}
                 inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
                 value={value ?? ''}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 disabled={props.disabled}
                 InputProps={{
@@ -298,7 +317,7 @@ export function MemoNode(props: AttributeProps) {
                             rows={25}
                             fullWidth
                             inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-                            onFocus={props.setToUpdate}
+                            // onFocus={props.setToUpdate}
                         />
                     </DialogContent>
                     <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
@@ -318,13 +337,13 @@ export function DecimalNode(props: AttributeProps) {
     const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
@@ -346,9 +365,15 @@ export function DecimalNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -359,7 +384,7 @@ export function DecimalNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Decimal by " + props.attribute.Parameters.Precision}
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -410,13 +435,13 @@ export function DoubleNode(props: AttributeProps) {
     const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
@@ -438,9 +463,15 @@ export function DoubleNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -451,7 +482,7 @@ export function DoubleNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Double by " + props.attribute.Parameters.Precision}
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -502,13 +533,13 @@ export function MoneyNode(props: AttributeProps) {
     const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
@@ -530,9 +561,15 @@ export function MoneyNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -543,7 +580,7 @@ export function MoneyNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Money by " + props.attribute.Parameters.Precision}
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -594,13 +631,13 @@ export function IntegerNode(props: AttributeProps) {
     const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
@@ -622,9 +659,15 @@ export function IntegerNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -635,7 +678,7 @@ export function IntegerNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Integer"}
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -685,13 +728,13 @@ export function BigIntNode(props: AttributeProps) {
     const [calculatorOpen, setCalculatorOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newValue?: number | null) => {
         if (oldValue !== newValue) {
@@ -713,9 +756,15 @@ export function BigIntNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -726,7 +775,7 @@ export function BigIntNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"BigInt"}
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -775,13 +824,13 @@ export function BooleanNode(props: AttributeProps) {
     const [value, setValue] = useState<boolean | null>(props.value)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (checked: boolean | null) => {
         if (oldValue !== checked) {
@@ -803,10 +852,16 @@ export function BooleanNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>, checked: ReactNode) => {
         const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(result)
         setDirty(result)
     }
@@ -815,7 +870,7 @@ export function BooleanNode(props: AttributeProps) {
         <FormControl fullWidth>
             <Select
                 value={value == true ? 1 : value == false ? 0 : -1}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth
@@ -826,7 +881,7 @@ export function BooleanNode(props: AttributeProps) {
                         onClick={() => {
                             !props.disabled &&
                                 setValue(old => {
-                                    props.setToUpdate()
+                                    // props.setToUpdate()
                                     setDirty(!old)
                                     return !old
                                 })
@@ -850,7 +905,7 @@ export function DateTimeNode(props: AttributeProps) {
     const [isHover, setIsHover] = useState<boolean>(false)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             if (props.attribute.Parameters.Format === MSDateFormat.DateOnly) {
                 props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.format("YYYY-MM-DD") ?? null)
             }
@@ -858,11 +913,11 @@ export function DateTimeNode(props: AttributeProps) {
                 props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.toISOString() ?? null)
             }
 
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (date: Dayjs | null) => {
         if ((oldValue != null || date != null) && !oldValue?.isSame(date)) {
@@ -884,9 +939,15 @@ export function DateTimeNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (date: Dayjs | null) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         setValue(date ? dayjs(date) : null)
         setDirty(date ? dayjs(date) : null)
     }
@@ -932,18 +993,18 @@ export function DateTimeNode(props: AttributeProps) {
         }
     </>)
 }
-export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
+export function PicklistNode(props: AttributeProps & { nullable?: boolean, entityname:string }) {
     const [oldValue, setOldValue] = useState<number>(props.value ?? -1)
     const [value, setValue] = useState<number>(props.value ?? -1)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newOption: typeof value) => {
         if (oldValue !== newOption) {
@@ -965,9 +1026,15 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? -1 : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -979,7 +1046,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
         <FormControl fullWidth>
             <Select
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth
@@ -1001,18 +1068,18 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean }) {
         </FormControl>
     )
 }
-export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean, groupBy: string }) {
+export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean, groupBy: string, entityname:string }) {
     const [oldValue, setOldValue] = useState<number>(props.value ?? -1)
     const [value, setValue] = useState<number>(props.value ?? -1)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null)
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newOption: typeof value) => {
         if (oldValue !== newOption) {
@@ -1034,9 +1101,15 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? -1 : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -1049,7 +1122,7 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
         <FormControl fullWidth>
             <Select
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth
@@ -1081,7 +1154,7 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
         </FormControl>
     )
 }
-export function MultiplePicklistNode(props: AttributeProps) {
+export function MultiplePicklistNode(props: AttributeProps & { entityname:string}) {
     const defaultValues = useMemo(() => {
         let values: string = props.value
         return values?.split(",").map<number>((v: string) => {
@@ -1093,13 +1166,13 @@ export function MultiplePicklistNode(props: AttributeProps) {
     const [value, setValue] = useState<number[]>(defaultValues)
 
     useEffect(() => {
-        if (props.attributeToUpdateManager.isToUpdate) {
+        // if (props.attributeToUpdateManager.isToUpdate) {
             props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value.join(","))
-        }
-        else {
-            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
-        }
-    }, [props.attributeToUpdateManager.isToUpdate, props.attributeToUpdateManager.valueChanged])
+        // }
+        // else {
+        //     props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName)
+        // }
+    }, [value])
 
     const setDirty = (newOption: typeof value) => {
         if (!isArraysEquals(oldValue, newOption)) {
@@ -1121,9 +1194,15 @@ export function MultiplePicklistNode(props: AttributeProps) {
             props.manageDirty.remove()
         }
     }, [oldValue, props.manageDirty, props.reset])
+    
+    useEffect(() => {
+        if (props.remove) {
+            props.attributeToUpdateManager.removeAttributesValue(props.attribute.LogicalName);
+        }
+    }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number[]>) => {
-        props.setToUpdate()
+        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? [] : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -1136,7 +1215,7 @@ export function MultiplePicklistNode(props: AttributeProps) {
             <Select
                 multiple
                 value={value}
-                onFocus={props.setToUpdate}
+                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth

@@ -6,7 +6,7 @@ import '../../utils/components/ReportComplete';
 
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import React, {
-    Dispatch, forwardRef, memo, Profiler, SetStateAction, useCallback, useEffect, useImperativeHandle,
+    Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
     useMemo, useState
 } from 'react';
 import { useBoolean, useUpdateEffect } from 'usehooks-ts';
@@ -16,7 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 // Material UI imports
-import { createTheme, ThemeProvider } from '@mui/material';
+import { Autocomplete, AutocompleteChangeReason, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -30,16 +30,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
 
 // Component imports
-import EntitySelector from '../../utils/components/EntitySelector';
 import FilterInput from '../../utils/components/FilterInput';
-import RecordSelector from '../../utils/components/RecordSelector';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
 import ErrorFileSnackbar from '../../utils/components/ReportComplete';
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
 // Common functions and types
-import { capitalizeFirstLetter, debugLog, formatId, GetExtensionId } from '../../utils/global/common';
+import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
 import { AttributeMetadata, getReadableMSType, MSDateFormat, MSType } from '../../utils/types/requestsType';
 
 // Xrm API hooks
@@ -48,7 +46,7 @@ import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
-
+import RestoreIcon from '@mui/icons-material/Restore';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
@@ -170,13 +168,14 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             },
         }));
 
+        const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
         const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName());
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : []);
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({});
         const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false);
 
-        const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
         const setEntityname = (entityname: string) => {
             setRecordsIds([]);
@@ -270,6 +269,22 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     }
 );
 
+
+
+const attributeMetadataTooltipGenerator = (attributeMetadata: AttributeMetadata) => (
+    <>
+        <Typography variant="button"><strong>{attributeMetadata.DisplayName}</strong></Typography>
+        <Typography variant="body2"><strong>LogicalName:</strong> {attributeMetadata.LogicalName}</Typography>
+        <Typography variant="body2"><strong>Type:</strong> {getReadableMSType(attributeMetadata.MStype)}</Typography>
+        {attributeMetadata.Parameters.Format && attributeMetadata.Parameters.Format !== MSDateFormat.None && <Typography variant="body2"><strong>Format:</strong> {attributeMetadata.Parameters.Format}</Typography>}
+        {(attributeMetadata.Parameters.MaxLength || attributeMetadata.Parameters.MaxLength === 0) && <Typography variant="body2"><strong>MaxLength:</strong> {attributeMetadata.Parameters.MaxLength}</Typography>}
+        {(attributeMetadata.Parameters.MaxValue || attributeMetadata.Parameters.MaxValue === 0) && <Typography variant="body2"><strong>MaxValue:</strong> {attributeMetadata.Parameters.MaxValue}</Typography>}
+        {(attributeMetadata.Parameters.MinValue || attributeMetadata.Parameters.MinValue === 0) && <Typography variant="body2"><strong>MinValue:</strong> {attributeMetadata.Parameters.MinValue}</Typography>}
+        {(attributeMetadata.Parameters.Precision || attributeMetadata.Parameters.Precision === 0) && <Typography variant="body2"><strong>Precision:</strong> {attributeMetadata.Parameters.Precision}</Typography>}
+        {attributeMetadata.Parameters.Target && <Typography variant="body2"><strong>Target:</strong> {attributeMetadata.Parameters.Target}</Typography>}
+    </>
+);
+
 type AttributesListProps = {
     entityname: string,
     recordsIds: string[],
@@ -282,45 +297,63 @@ function AttributesList(props: AttributesListProps) {
     const recordid = props.recordsIds?.length === 1 ? props.recordsIds?.at(0) : undefined;
     const filter = props.filter;
 
-    const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
+    const [selectedAttribute, setSelectedAttribute] = useState<AttributeMetadata[]>([]);
+    const [attributesMetadataRetrieved, fetchingMetadata] = RetrieveAttributesMetaData(entityname);
     const [attributesRetrieved, fetchingValues] = RetrieveAttributes(entityname, recordid, attributesMetadataRetrieved?.map((value) => {
         if (value.MStype !== MSType.Lookup) return value.LogicalName
         else return "_" + value.LogicalName + "_value"
     }) ?? []);
 
+    const selectableAttribute = useMemo(() => {
+        const selectedAttributesName = selectedAttribute.map((attribute) => attribute.LogicalName);
+        return attributesMetadataRetrieved.filter(attribute => !selectedAttributesName.includes(attribute.LogicalName));
+    }, [selectedAttribute, attributesMetadataRetrieved]);
+
+    const handleSelectAttribute = (selectedAttribute: AttributeMetadata[]) => {
+        setSelectedAttribute(array => [...array, ...selectedAttribute]);
+    }
+
+    const handleUnselectAttribute = (selectedAttribute: AttributeMetadata[]) => {
+        const attributeNameToRemove = selectedAttribute.map(attribute => attribute.LogicalName);
+        setSelectedAttribute(array => array.filter(attribute => !attributeNameToRemove.includes(attribute.LogicalName)));
+    }
+
     const nodeContent = useMemo(() =>
         !fetchingMetadata
             ?
-
-            <Stack spacing={"2px"} height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} >
-                {
-                    !fetchingValues
-                        ?
-                        attributesMetadataRetrieved?.map((metadata) => {
-                            // const { isVisible, metadata } = attribute
-                            const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
-                            return (
-                                <AttributeNode
-                                    key={attributeName}
-                                    disabled={!metadata.IsValidForUpdate}
-                                    attribute={metadata}
-                                    entityname={props.entityname}
-                                    value={attributesRetrieved[attributeName]}
-                                    filter={filter}
-                                    resetTotal={props.resetTotal}
-                                    attributeToUpdateManager={props.attributeToUpdateManager}
-                                />
-                            )
-                        })
-                        :
-                        [...Array(16)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
-                }
-            </Stack>
+            <>
+                <SelectAttribute attributesMetadata={selectableAttribute} selectAttribute={handleSelectAttribute} />
+                <Stack spacing={"2px"} height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} >
+                    {
+                        !fetchingValues
+                            ?
+                            selectedAttribute?.map((metadata) => {
+                                // const { isVisible, metadata } = attribute
+                                const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
+                                return (
+                                    <AttributeNode
+                                        key={attributeName}
+                                        disabled={!metadata.IsValidForUpdate}
+                                        attribute={metadata}
+                                        entityname={props.entityname}
+                                        value={attributesRetrieved[attributeName]}
+                                        filter={filter}
+                                        resetTotal={props.resetTotal}
+                                        attributeToUpdateManager={props.attributeToUpdateManager}
+                                        unselectAttribute={handleUnselectAttribute}
+                                    />
+                                )
+                            })
+                            :
+                            [...Array(16)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
+                    }
+                </Stack>
+            </>
             :
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress size={100} thickness={4.5} />
             </div>
-        , [fetchingMetadata, fetchingValues, filter]
+        , [fetchingMetadata, fetchingValues, filter, selectedAttribute, selectableAttribute]
     );
 
     return (nodeContent);
@@ -334,42 +367,40 @@ type AttributeNodeProps = {
     filter: string,
     resetTotal: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
+    unselectAttribute: (selectedAttribute: AttributeMetadata[]) => void
 }
 const AttributeNode = React.memo((props: AttributeNodeProps) => {
-    const { value: isDirty, setTrue, setFalse } = useBoolean(false)
-    const manageDirty = { setTrue, setFalse }
+    const { value: isDirty, setTrue, setFalse } = useBoolean(false);
+    const manageDirty = { setTrue, setFalse };
 
-    const { value: valueChanged, toggle: triggerValueChange } = useBoolean(false)
-    const { value: isToUpdate, setTrue: setToUpdate, setFalse: removeToUpdate } = useBoolean(false)
-    const { value: toReset, setTrue: setToReset, setFalse: resetToReset } = useBoolean(false)
-    const { value: loading, setTrue: isLoading, setFalse: doneLoading } = useBoolean(true)
-    const [isVisible, setIsVisible] = useState<boolean>(true)
+    // const { value: valueChanged, toggle: triggerValueChange } = useBoolean(false);
+    // const { value: isToUpdate, setTrue: setToUpdate, setFalse: removeToUpdate } = useBoolean(false);
+    const { value: toReset, setTrue: setToReset, setFalse: resetToReset } = useBoolean(false);
+    const { value: toRemove, setTrue: setToRemove, setFalse: resetToRemove } = useBoolean(false);
+    const { value: loading, setTrue: isLoading, setFalse: doneLoading } = useBoolean(true);
+    const [isVisible, setIsVisible] = useState<boolean>(true);
 
-    const tooltipText = useMemo(() =>
-        <>
-            <Typography variant="button"><strong>{props.attribute.DisplayName}</strong></Typography>
-            <Typography variant="body2"><strong>LogicalName:</strong> {props.attribute.LogicalName}</Typography>
-            <Typography variant="body2"><strong>Type:</strong> {getReadableMSType(props.attribute.MStype)}</Typography>
-            {props.attribute.Parameters.Format && props.attribute.Parameters.Format !== MSDateFormat.None && <Typography variant="body2"><strong>Format:</strong> {props.attribute.Parameters.Format}</Typography>}
-            {(props.attribute.Parameters.MaxLength || props.attribute.Parameters.MaxLength === 0) && <Typography variant="body2"><strong>MaxLength:</strong> {props.attribute.Parameters.MaxLength}</Typography>}
-            {(props.attribute.Parameters.MaxValue || props.attribute.Parameters.MaxValue === 0) && <Typography variant="body2"><strong>MaxValue:</strong> {props.attribute.Parameters.MaxValue}</Typography>}
-            {(props.attribute.Parameters.MinValue || props.attribute.Parameters.MinValue === 0) && <Typography variant="body2"><strong>MinValue:</strong> {props.attribute.Parameters.MinValue}</Typography>}
-            {(props.attribute.Parameters.Precision || props.attribute.Parameters.Precision === 0) && <Typography variant="body2"><strong>Precision:</strong> {props.attribute.Parameters.Precision}</Typography>}
-            {props.attribute.Parameters.Target && <Typography variant="body2"><strong>Target:</strong> {props.attribute.Parameters.Target}</Typography>}
-        </>
-        , [props.attribute]);
+    const tooltipText = useMemo(() => {
+        return attributeMetadataTooltipGenerator(props.attribute);
+    }, [props.attribute]);
 
     const className: string = useMemo(() =>
-        props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : "")),
-        [props.disabled, isDirty, isToUpdate]);
+        props.disabled ? "disabled" : (isDirty ? "dirty" : ""),
+        [props.disabled, isDirty]);
+    // const className: string = useMemo(() =>
+    //     props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : "")),
+    //     [props.disabled, isDirty, isToUpdate]);
 
     const isVisibleStyle: string = useMemo(() =>
         isVisible ? '' : 'none',
         [isVisible]);
 
     const backgroundColorStyle: string = useMemo(() =>
-        props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : "")),
-        [props.disabled, isDirty, isToUpdate]);
+        props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.primary.main : "")
+        , [props.disabled, isDirty]);
+    // const backgroundColorStyle: string = useMemo(() =>
+    //     props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : "")),
+    //     [props.disabled, isDirty, isToUpdate]);
 
 
     useEffect(() => {
@@ -382,20 +413,28 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
         });
     }, [props.filter, props.attribute]);
 
-    useEffect(() => {
-        if (isToUpdate === false) {
-            setToReset();
-        }
-    }, [isToUpdate, setToReset]);
+    // useEffect(() => {
+    //     if (isToUpdate === false) {
+    //         setToReset();
+    //     }
+    // }, [isToUpdate, setToReset]);
 
     useEffect(() => {
         if (toReset === true) {
-            resetToReset()
+            resetToReset();
         }
     }, [toReset, resetToReset]);
 
+    useEffect(() => {
+        if (toRemove === true) {
+            resetToRemove();
+            props.unselectAttribute([props.attribute]);
+        }
+    }, [props.unselectAttribute, toRemove, resetToRemove]);
+
     useUpdateEffect(() => {
-        removeToUpdate()
+        // removeToUpdate();
+        setToReset();
     }, [props.resetTotal]);
 
     useEffect(() => {
@@ -403,22 +442,22 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
             doneLoading()
     }, [doneLoading, props.value]);
 
-    const setToUpdateCallback = useCallback(
-        () => {
-            if (props.disabled) return;
-            setToUpdate();
-            triggerValueChange();
-        },
-        [props.disabled, setToUpdate, triggerValueChange],
-    );
+    // const setToUpdateCallback = useCallback(
+    //     () => {
+    //         if (props.disabled) return;
+    //         // setToUpdate();
+    //         triggerValueChange();
+    //     },
+    //     [props.disabled, triggerValueChange],
+    // );
 
-    const doubleClickCallback = useCallback(
-        () => {
-            navigator.clipboard.writeText(props.attribute.LogicalName);
-            setToUpdateCallback();
-        },
-        [props.attribute, setToUpdateCallback],
-    );
+    // const doubleClickCallback = useCallback(
+    //     () => {
+    //         navigator.clipboard.writeText(props.attribute.LogicalName);
+    //         setToUpdateCallback();
+    //     },
+    //     [props.attribute, setToUpdateCallback],
+    // );
 
 
 
@@ -441,7 +480,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                     justifyContent='center'
                     width='80%'
                     overflow='hidden'
-                    onDoubleClick={doubleClickCallback}
+                // onDoubleClick={doubleClickCallback}
                 >
                     <Typography
                         key={props.attribute.LogicalName + "_label"}
@@ -463,34 +502,46 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={setToUpdateCallback}
+                // setToUpdate={setToUpdateCallback}
                 manageDirty={{ set: manageDirty.setTrue, remove: manageDirty.setFalse }}
                 reset={toReset}
+                remove={toRemove}
                 disabled={props.disabled}
-                attributeToUpdateManager={{ ...props.attributeToUpdateManager, isToUpdate: isToUpdate, valueChanged: valueChanged }}
+                attributeToUpdateManager={{ ...props.attributeToUpdateManager }}
             />
-            <IconButton aria-label="delete" onClick={removeToUpdate} style={{ visibility: isToUpdate ? "visible" : "hidden" }} sx={{ padding: '6px' }}>
-                <DeleteIcon fontSize='large' htmlColor='ghostwhite' />
-            </IconButton>
+            {
+                !props.disabled &&
+                (
+                    isDirty ?
+                        <IconButton title="Restore to initial value" onClick={setToReset} sx={{ padding: '6px' }}>
+                            <RestoreIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
+                        </IconButton>
+                        :
+                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }}>
+                            <DeleteIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
+                        </IconButton>
+                )
+            }
         </Stack >
-        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, doubleClickCallback, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, setToUpdateCallback, manageDirty.setTrue, manageDirty.setFalse, toReset, isToUpdate, valueChanged, removeToUpdate]
+        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, manageDirty.setTrue, manageDirty.setFalse, toReset, toRemove, setToReset, setToRemove]
     );
 
     return NodeContent;
 });
 
 
-function AttributeFactory(props: AttributeProps) {
+function AttributeFactory(props: AttributeProps & { entityname: string }) {
 
     switch (props.attribute.MStype) {
         case MSType.Lookup:
             return (<LookupNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
                 theme={theme}
@@ -498,99 +549,108 @@ function AttributeFactory(props: AttributeProps) {
         case MSType.String:
             return (<StringNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Memo:
             return (<MemoNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Decimal:
             return (<DecimalNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Double:
             return (<DoubleNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Money:
             return (<MoneyNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Integer:
             return (<IntegerNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.BigInt:
             return (<BigIntNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Boolean:
             return (<BooleanNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.DateTime:
             return (<DateTimeNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
@@ -599,9 +659,10 @@ function AttributeFactory(props: AttributeProps) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
                 groupBy='State'
@@ -611,9 +672,10 @@ function AttributeFactory(props: AttributeProps) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
@@ -623,9 +685,10 @@ function AttributeFactory(props: AttributeProps) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
@@ -634,20 +697,22 @@ function AttributeFactory(props: AttributeProps) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
         case MSType.Image:
             return (<ImageNode
                 attribute={props.attribute}
-                entityname={props.entityname}
+                // entityname={props.entityname}
                 value={props.value}
-                setToUpdate={props.setToUpdate}
+                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
+                remove={props.remove}
                 disabled={props.disabled}
                 attributeToUpdateManager={props.attributeToUpdateManager}
             />);
@@ -704,6 +769,68 @@ function NavTopBar(props: NavBarProps) {
                 <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>
             </Stack>
         </Stack>
+    );
+}
+
+
+const filterOptions = createFilterOptions<AttributeMetadata>({
+    ignoreAccents: true,
+    ignoreCase: true,
+    matchFrom: "any",
+    stringify: (option) => option.DisplayName + "|" + option.LogicalName,
+});
+interface SelectAttributeProps {
+    attributesMetadata: AttributeMetadata[],
+    selectAttribute: (selectedAttribute: AttributeMetadata[]) => void,
+}
+function SelectAttribute(props: SelectAttributeProps) {
+
+    const { attributesMetadata, selectAttribute } = props;
+
+    const [selectedAttributed, setSelectedAttributed] = useState<AttributeMetadata | null>(null);
+    const [groupbyEnabled, setGroupbyEnabled] = useState<boolean>(false);
+
+    return (
+        <Autocomplete
+            fullWidth
+            value={selectedAttributed}
+            filterOptions={filterOptions}
+            size='small'
+            options={attributesMetadata}
+            getOptionLabel={(option: AttributeMetadata) => option.DisplayName}
+            key='attributeselector'
+            autoSelect
+            autoComplete
+            blurOnSelect
+            clearOnBlur
+            onChange={(event, option, reason) => { reason === 'selectOption' && option && selectAttribute([option]); }}
+            renderInput={(params) => <TextField {...params} label="Search attribute to update" />}
+            renderOption={((props: React.HTMLAttributes<HTMLLIElement>, option: AttributeMetadata) => {
+                const tooltipText = attributeMetadataTooltipGenerator(option);
+
+                return (
+                    <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
+                        <li {...props}>{option.DisplayName}</li>
+                    </NoMaxWidthTooltip>
+                );
+            })}
+            groupBy={(option) => groupbyEnabled ? option.MStype : ''}
+            ListboxComponent={(props) => {
+                return (
+                    <div onMouseDown={props.onMouseDown}>
+                        <ButtonGroup fullWidth size='small'>
+                            <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
+                            <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
+                        </ButtonGroup>
+                        <ul {...props} />
+                    </div>
+                );
+            }}
+            sx={{
+                mt: 0.5,
+                mb: 0.5,
+            }}
+        />
     );
 }
 
