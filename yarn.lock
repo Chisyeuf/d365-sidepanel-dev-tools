@@ -3112,6 +3112,18 @@
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
 
+"@wixc3/board-core@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@wixc3/board-core/-/board-core-2.3.0.tgz#4a28f33e24c666eb60b0960c5fe8a77aa55efbfb"
+  integrity sha512-uhq7hB72bfCK3yYb/+PRL8fEjoQxXQ1UjKhSY+Tr8UNo0lnRMw9EZ752ap9EGRKoldDumjbyrvFz4gjFsBgfJw==
+
+"@wixc3/react-board@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@wixc3/react-board/-/react-board-2.3.0.tgz#2361c85a11899a684183dd1fc8885cb34047c445"
+  integrity sha512-mEzTpHnFvvGrGNAifS1dMwuee/vlsnMbpJTkpggJX+XMyFCyVzm8BUw0wmh+RHkrcZjywrBYHP6AM6Iq6Aixdw==
+  dependencies:
+    "@wixc3/board-core" "^2.3.0"
+
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz#eef014a3145ae477a1cbc00cd1e552336dceb790"
