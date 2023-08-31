@@ -50,7 +50,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
 
     const grids = useMemo(() => {
         if (currentFormContext) {
-            const grids: Xrm.Controls.GridControl[] = currentFormContext.getControl((c) => c.getControlType() === ControlType.SUBGRID) as any;
+            const grids: Xrm.Controls.GridControl[] = currentFormContext.getControl((c) => c.getControlType() === ControlType.SUBGRID || c.getControlType().startsWith(ControlType.CUSTOMSUBGRID)) as any;
 
             return grids;
         }
@@ -63,6 +63,40 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         setLabelDisplayed((prev) => !prev);
     }
 
+    const controlComponents = useMemo(() => labelDisplayed &&
+        controls?.map((c) => {
+            const controlName = c.getName();
+            const controlNodeT = document.querySelector(`[data-id="${controlName}"] label`);
+            const controlNode = controlNodeT?.parentElement?.parentElement ?? null;
+            return (
+                <Portal container={controlNode}>
+                    <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
+                </Portal>
+            );
+        }), [labelDisplayed, controls]);
+
+    const gridComponents = useMemo(() => labelDisplayed &&
+        grids?.map((c) => {
+            const gridName: string = c.getName();
+            const gridNode: Element | null = document.querySelector("#dataSetRoot_" + gridName + " > div:first-child");
+
+            let content;
+            if (!gridNode?.lastElementChild?.hasAttribute('gridlogicalname')) {
+                content = document.createElement('div');
+                content.setAttribute('gridlogicalname', '');
+                gridNode?.append(content);
+            }
+            else {
+                content = gridNode?.lastElementChild;
+            }
+
+            return (
+                <Portal container={content}>
+                    <LogicalNameTypography label={gridName} onClick={copyToClipboard} />
+                </Portal>
+            );
+        }), [labelDisplayed, grids]);
+
     return (<>
         <Tooltip title='Show Fields & Grids Logical Name' placement='left'>
             <Button
@@ -71,41 +105,12 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
                 startIcon={labelDisplayed ? <TurnedInIcon /> : <TurnedInNotIcon />}
             />
         </Tooltip>
-        <>{
-            labelDisplayed &&
-            controls?.map((c) => {
-                const controlName = c.getName();
-                const controlNodeT = document.querySelector(`[data-id="${controlName}"] label`);
-                const controlNode = controlNodeT?.parentElement?.parentElement ?? null;
-                return (
-                    <Portal container={controlNode}>
-                        <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
-                    </Portal>
-                );
-            })
-        }</>
-        <>{
-            grids?.map((c) => {
-                const gridName: string = c.getName();
-                const gridNode: Element | null = document.querySelector("#dataSetRoot_" + gridName + " > div:first-child");
-
-                let content;
-                if (!gridNode?.lastElementChild?.hasAttribute('gridlogicalname')) {
-                    content = document.createElement('div');
-                    content.setAttribute('gridlogicalname', '');
-                    gridNode?.append(content);
-                }
-                else {
-                    content = gridNode?.lastElementChild;
-                }
-
-                return (
-                    <Portal container={content}>
-                        {labelDisplayed && <LogicalNameTypography label={gridName} onClick={copyToClipboard} />}
-                    </Portal>
-                );
-            })
-        }</>
+        {
+            controlComponents
+        }
+        {
+            gridComponents
+        }
     </>
     );
 }
