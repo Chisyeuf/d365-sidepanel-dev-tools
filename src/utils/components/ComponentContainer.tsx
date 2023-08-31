@@ -40,35 +40,36 @@ const LegendContainer = styled("span", {
     // backgroundColor: "white",
     position: "absolute",
 
-    ...((props.location === Location.left || props.location === Location.right) && {
-        display: 'flex',
-        alignItems: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
-        justifyContent: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
-        alignContent: 'center',
-    }),
+    // ...((props.location === Location.left || props.location === Location.right) && {
+    display: 'flex',
+    alignItems: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
+    justifyContent: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
+    alignContent: 'center',
+    // }),
 
-    top: props.location === Location.top ? "-1px" : "auto",
+    top: props.location === Location.top ? "-1px" : "0",
     bottom: props.location === Location.bottom ? "-1px" : "auto",
     left:
         props.location === Location.left
             ? "-1px"
             : props.location === Location.top || props.location === Location.bottom
-                ? theme.spacing(theme.shape.borderRadius / 2)
+                ? '0'
                 : "auto",
     right: props.location === Location.right ? "-1px" : "auto",
     width:
         props.location === Location.top || props.location === Location.bottom
-            ? "calc(100% - " + theme.spacing(theme.shape.borderRadius) + ")"
+            ? "100%"
             : "auto",
     height:
         props.location === Location.left || props.location === Location.right
-            ? "calc(100% - " + theme.spacing(theme.shape.borderRadius) + ")"
+            ? "100%"
             : "auto",
     ...(props.location === Location.top && { transform: "translateY(-50%)" }),
     ...(props.location === Location.bottom && { transform: "translateY(50%)" }),
     ...(props.location === Location.left && { transform: "translateX(-50%)" }),
     ...(props.location === Location.right && { transform: "translateX(50%)" })
 }));
+
 
 const LegendContent = styled("span", {
     name: "LegendContent",
@@ -79,6 +80,7 @@ const LegendContent = styled("span", {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "white",
+    width: props.location === Location.top || props.location === Location.bottom ? "80%" : "auto",
     flexDirection:
         props.location === Location.left || props.location === Location.right
             ? "column"
