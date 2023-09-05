@@ -6,14 +6,16 @@ import React, { useMemo, useRef, useState, } from 'react';
 // import NavigationIcon from '@mui/icons-material/Navigation';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { OldSolutionIcon, PowerAppsIcon } from './../icons';
+import { PowerAppsIcon } from './../icons';
 import { RetrieveSolutions } from '../../../utils/hooks/XrmApi/RetrieveSolutions';
 import { useBoolean } from 'usehooks-ts';
 import FilterInput, { AttributeFilterInputRef } from '../../../utils/components/FilterInput';
 import { SolutionItem } from '../../../utils/types/SolutionItem';
+import { NavigationButton } from '../../../utils/types/NavigationButton';
+import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 
-function SolutionList(props: any) {
-    const { } = props;
+function SolutionList(props: NavigationButton) {
+    const { environmentId, clientUrl } = props;
 
     const [solutions, isFetching] = RetrieveSolutions();
     const [selectedSolution, setSelectedSolution] = useState<SolutionItem | null>(null);
@@ -23,7 +25,6 @@ function SolutionList(props: any) {
     const inputRef = useRef<AttributeFilterInputRef>(null);
 
     function handleClickPowerApps() {
-        const environmentId = (Xrm.Utility.getGlobalContext().organizationSettings as any).bapEnvironmentId;
         if (!selectedSolution) {
             window.open(`https://make.powerapps.com/environments/${environmentId}/solutions/`, '_blank');
         } else {
@@ -32,7 +33,6 @@ function SolutionList(props: any) {
     }
 
     function handleClickOldSolution() {
-        const clientUrl = Xrm.Utility.getGlobalContext().getClientUrl();
         if (!selectedSolution) {
             window.open(`${clientUrl}/main.aspx?settingsonly=true`, '_blank');
         } else {
@@ -58,7 +58,7 @@ function SolutionList(props: any) {
                         <Button
                             variant='contained'
                             onClick={handleClickOldSolution}
-                            startIcon={<OldSolutionIcon sx={{ backgroundColor: '#666666' }} />}
+                            startIcon={<D365NavBarIcon iconX={-239} iconY={-1} width={20} />}
                         />
                     </Tooltip>
 
