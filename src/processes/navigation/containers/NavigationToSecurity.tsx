@@ -29,16 +29,43 @@ function NavigationToSecurity(props: NavigationButton) {
         new_Window!.onload = function () {
             console.log("DOMContentLoaded");
             const script = document.createElement('script');
-            script.innerHTML = `(() => {
+            script.innerHTML = `
+            function waitForElm(selector) {
+                return new Promise((resolve) => {
+                    if (document.querySelector(selector)) {
+                        return resolve(document.querySelector(selector));
+                    }
+            
+                    const observer = new MutationObserver((mutations) => {
+                        if (document.querySelector(selector)) {
+                            resolve(document.querySelector(selector));
+                            observer.disconnect();
+                        }
+                    });
+            
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                });
+            }
+            (() => {
                 console.log("processLink");
-                setTimeout(() => {
-                    debugger;
-                    processLink("systemuser","adminsecurity_area.aspx?pid=06&web=true");
-                }, 500);
-            })();`;
+                debugger;
+                waitForElm("#TabSettings").then((TabSettings) => {
+                    TabSettings.click();
+                    waitForElm("#nav_security").then((nav_security) => {
+                        nav_security.click();
+                        setTimeout(() => {
+                            document.querySelector("#contentIFrame0").contentWindow.processLink("systemuser", "adminsecurity_area.aspx?pid=06&web=true");
+                        }, 500);
+                    });
+                });
+            })();
+            `;
+            
             new_Window!.document.head.appendChild(script);
         };
-
 
     }
 
