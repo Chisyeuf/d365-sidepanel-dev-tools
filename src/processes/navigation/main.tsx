@@ -18,7 +18,7 @@ class NavigationButton extends ProcessButton {
             'navigation',
             'Navigation',
             <MapIcon />,
-            130
+            175
         );
         this.process = NavigationProcess;
     }
@@ -58,7 +58,7 @@ const NavigationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={1} width='calc(100% - 10px)' padding='10px' alignItems='center'>
                     {
                         buttons.map(Button => {
                             return <Button environmentId={environmentId} clientUrl={clientUrl} />

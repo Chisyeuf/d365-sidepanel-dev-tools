@@ -20,13 +20,18 @@ declare var processLink: any;
 //     // Mscrm.PageManager.get_instance().raiseEvent(21, { uri: "/tools/AdminSecurity/adminsecurity_area.aspx?pid=06&web=true" });
 // })();
 
+
+// setTimeout(() => {
+//     document.querySelector("#contentIFrame0").contentWindow.processLink("systemuser", "adminsecurity_area.aspx?pid=06&web=true");
+// }, 500);
+
 function NavigationToSecurity(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
     function handleClick() {
         const new_Window = window.open(`${clientUrl}/main.aspx?settingsonly=true`, '_blank',);
+        setTimeout(() => {
 
-        new_Window!.onload = function () {
             const script = document.createElement('script');
             script.innerHTML = `
             function waitForElm(selector) {
@@ -50,39 +55,40 @@ function NavigationToSecurity(props: NavigationButton) {
             }
             (() => {
                 console.log("processLink");
-                debugger;
                 waitForElm("#TabSettings").then((TabSettings) => {
                     TabSettings.click();
                     waitForElm("#nav_security").then((nav_security) => {
                         nav_security.click();
-                        setTimeout(() => {
-                            document.querySelector("#contentIFrame0").contentWindow.processLink("systemuser", "adminsecurity_area.aspx?pid=06&web=true");
-                        }, 500);
                     });
                 });
             })();`;
             new_Window!.document.head.appendChild(script);
-        };
+        }, 1000);
 
     }
 
     return (
         <>
-            <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Security', padding: '5px' } }}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'>
-                    <Tooltip placement='top' title='Security Panel'>
-                        <Button
-                            variant='outlined'
-                            onClick={handleClick}
-                            startIcon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
-                            sx={{
-                                width: '100%',
-                                maxWidth: '100%',
-                            }}
-                        />
-                    </Tooltip>
-                </Stack>
-            </ComponentContainer>
+            {/* <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Security', padding: '5px' } }}> */}
+            {/* <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'> */}
+            <Tooltip placement='left' title='Security Panel'>
+                <Button
+                    variant='outlined'
+                    onClick={handleClick}
+                    startIcon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
+                    sx={{
+                        width: '100%',
+                        maxWidth: 'calc(100% - 10px)',
+                        gap: '0.4em',
+                        padding: '5px 10px',
+                    }}
+
+                >
+                    Security
+                </Button>
+            </Tooltip>
+            {/* </Stack> */}
+            {/* </ComponentContainer> */}
         </>
     )
 }

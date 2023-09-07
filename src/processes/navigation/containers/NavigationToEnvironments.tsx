@@ -18,21 +18,25 @@ function Environments(props: NavigationButton) {
 
     return (
         <>
-            <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Environments', padding: '5px' } }}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'>
-                    <Tooltip placement='top' title='Environments List in Admin Power Platform'>
-                        <Button
-                            variant='outlined'
-                            onClick={handleClick}
-                            startIcon={<PowerEnvironmentIcon />}
-                            sx={{
-                                width: '100%',
-                                maxWidth: '100%',
-                            }}
-                        />
-                    </Tooltip>
-                </Stack>
-            </ComponentContainer>
+            {/* <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Environments', padding: '5px' } }}>
+                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'> */}
+            <Tooltip placement='left' title='Environments List in Admin Power Platform'>
+                <Button
+                    variant='outlined'
+                    onClick={handleClick}
+                    startIcon={<PowerEnvironmentIcon />}
+                    sx={{
+                        width: '100%',
+                        maxWidth: 'calc(100% - 10px)',
+                        gap: '0.4em',
+                        padding: '5px 10px',
+                    }}
+                >
+                    Environments
+                </Button>
+            </Tooltip>
+            {/* </Stack>
+            </ComponentContainer> */}
         </>
     )
 }

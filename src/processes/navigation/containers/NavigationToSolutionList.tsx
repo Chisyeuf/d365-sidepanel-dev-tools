@@ -52,14 +52,23 @@ function SolutionList(props: NavigationButton) {
     return (
         <>
             <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Solutions', padding: '5px' } }}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'>
+                <Stack spacing={1} width='100%' padding='5px' direction='column'>
 
                     <Tooltip placement='top' title='Solution List in old interface'>
                         <Button
-                            variant='contained'
+                            variant='outlined'
                             onClick={handleClickOldSolution}
                             startIcon={<D365NavBarIcon iconX={-239} iconY={-1} width={20} />}
-                        />
+                            sx={{
+                                width: '100%',
+                                maxWidth: 'calc(100% - 10px)',
+                                gap: '0.4em',
+                                padding: '5px 10px',
+                                fontSize: '0.8em',
+                            }}
+                        >
+                            {selectedSolution?.displayName ? selectedSolution.displayName : "Solution List"}
+                        </Button>
                     </Tooltip>
 
                     <Tooltip placement='top' title='Solution List in PowerApps'>
@@ -67,25 +76,35 @@ function SolutionList(props: NavigationButton) {
                             variant='outlined'
                             onClick={handleClickPowerApps}
                             startIcon={<PowerAppsIcon />}
-                        />
+                            sx={{
+                                width: '100%',
+                                maxWidth: 'calc(100% - 10px)',
+                                gap: '0.4em',
+                                padding: '5px 10px',
+                                fontSize: '0.8em',
+                            }}
+                        >
+                            {selectedSolution?.displayName ? selectedSolution.displayName : "Solution List"}
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title={openSolutionTooltip} >
+                        <Button
+                            sx={{
+                                width: '100%',
+                                maxWidth: 'calc(100% - 10px)',
+                                fontSize: '0.7em'
+                            }}
+                            onClick={() => {
+                                setDialogOpenedTrue();
+                                setTimeout(() => {
+                                    inputRef.current?.focus();
+                                }, 500);
+                            }}
+                        >
+                            Select Solution
+                        </Button>
                     </Tooltip>
                 </Stack>
-                <Tooltip title={openSolutionTooltip} >
-                    <Button
-                        sx={{
-                            maxWidth: 'unset',
-                            fontSize: '0.7em'
-                        }}
-                        onClick={() => {
-                            setDialogOpenedTrue();
-                            setTimeout(() => {
-                                inputRef.current?.focus();
-                            }, 500);
-                        }}
-                    >
-                        Select Solution
-                    </Button>
-                </Tooltip>
             </ComponentContainer>
 
             <Drawer
