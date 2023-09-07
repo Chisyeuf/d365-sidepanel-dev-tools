@@ -5,9 +5,10 @@ import { SubProcessProps } from '../main';
 import { useCopyToClipboard } from 'usehooks-ts';
 import ShowOptionSetInFields from '../buttons/ShowOptionSetInFields';
 import FillFields from '../buttons/FillFields';
+import BlurFields from '../buttons/BlurFields';
 
 
-const toolList: ((props: SubProcessProps) => JSX.Element)[] = [ShowOptionSetInFields, FillFields];
+const toolList: ((props: SubProcessProps) => JSX.Element)[] = [ShowOptionSetInFields, FillFields, BlurFields];
 
 function OtherTools(props: SubProcessProps) {
 
