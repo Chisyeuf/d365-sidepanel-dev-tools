@@ -49,12 +49,21 @@ function SolutionList(props: NavigationButton) {
         }
     }, [selectedSolution]);
 
+    const solutionName = useMemo(() => {
+        if (selectedSolution) {
+            return selectedSolution.displayName;
+        }
+        else {
+            return "Solution List";
+        }
+    }, [selectedSolution]);
+
     return (
         <>
             <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Solutions', padding: '5px' } }}>
                 <Stack spacing={1} width='100%' padding='5px' direction='column'>
 
-                    <Tooltip placement='top' title='Solution List in old interface'>
+                    <Tooltip placement='top' title={`${solutionName} in old interface`}>
                         <Button
                             variant='outlined'
                             onClick={handleClickOldSolution}
@@ -65,13 +74,16 @@ function SolutionList(props: NavigationButton) {
                                 gap: '0.4em',
                                 padding: '5px 10px',
                                 fontSize: '0.8em',
+                                justifyContent:'flex-start',
+                                overflow:'hidden',
+                                whiteSpace:'nowrap',
                             }}
                         >
-                            {selectedSolution?.displayName ? selectedSolution.displayName : "Solution List"}
+                            {solutionName}
                         </Button>
                     </Tooltip>
 
-                    <Tooltip placement='top' title='Solution List in PowerApps'>
+                    <Tooltip placement='top' title={`${solutionName} in PowerApps`}>
                         <Button
                             variant='outlined'
                             onClick={handleClickPowerApps}
@@ -82,9 +94,12 @@ function SolutionList(props: NavigationButton) {
                                 gap: '0.4em',
                                 padding: '5px 10px',
                                 fontSize: '0.8em',
+                                justifyContent:'flex-start',
+                                overflow:'hidden',
+                                whiteSpace:'nowrap',
                             }}
                         >
-                            {selectedSolution?.displayName ? selectedSolution.displayName : "Solution List"}
+                            {solutionName}
                         </Button>
                     </Tooltip>
                     <Tooltip title={openSolutionTooltip} >

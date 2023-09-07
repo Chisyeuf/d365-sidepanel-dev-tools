@@ -81,6 +81,9 @@ function NavigationToSecurity(props: NavigationButton) {
                         maxWidth: 'calc(100% - 10px)',
                         gap: '0.4em',
                         padding: '5px 10px',
+                        justifyContent:'flex-start',
+                        overflow:'hidden',
+                        whiteSpace:'nowrap',
                     }}
 
                 >
