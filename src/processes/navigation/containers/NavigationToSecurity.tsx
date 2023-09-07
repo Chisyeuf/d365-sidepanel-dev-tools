@@ -27,7 +27,6 @@ function NavigationToSecurity(props: NavigationButton) {
         const new_Window = window.open(`${clientUrl}/main.aspx?settingsonly=true`, '_blank',);
 
         new_Window!.onload = function () {
-            console.log("DOMContentLoaded");
             const script = document.createElement('script');
             script.innerHTML = `
             function waitForElm(selector) {
@@ -61,9 +60,7 @@ function NavigationToSecurity(props: NavigationButton) {
                         }, 500);
                     });
                 });
-            })();
-            `;
-            
+            })();`;
             new_Window!.document.head.appendChild(script);
         };
 
