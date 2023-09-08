@@ -47,6 +47,7 @@ import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes'
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import RestoreIcon from '@mui/icons-material/Restore';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
@@ -730,24 +731,28 @@ type NavBarProps = {
     launchUpdate: () => void,
     setFilterAttribute: (str: string) => void,
     entityname: string,
-    recordsIds: string[]
+    recordsIds: string[],
 }
 function NavTopBar(props: NavBarProps) {
 
     return (
         <Stack key="topbar" spacing={0.5} width="100%">
-            <Stack direction={"row"} justifyContent='center' spacing={0.5} width="100%" height='1.8em'>
-                <Stack height='100%' justifyContent='center' width='18em'>
-                    <Typography variant='button' height='1em' >Refresh:</Typography>
-                </Stack>
+
+            <Divider />
+            <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
+                props.setCurrentRecord();
+            }} entityName={props.entityname} recordIds={props.recordsIds} />
+            <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
+                {/* <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' /> */}
                 <Button
                     variant='outlined'
                     fullWidth
                     size='small'
                     onClick={() => {
                         Xrm.Page.ui.refreshRibbon(true)
-                    }}>
-                    Ribbon
+                    }}
+                >
+                    Refresh Ribbon
                 </Button>
                 <Button
                     variant='outlined'
@@ -757,16 +762,16 @@ function NavTopBar(props: NavBarProps) {
                         Xrm.Page.data.refresh(false)
                     }}
                 >
-                    Form
+                    Refresh Form
                 </Button>
-            </Stack>
-            <Divider variant='middle' />
-            <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
-                props.setCurrentRecord();
-            }} entityName={props.entityname} recordIds={props.recordsIds} />
-            <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
-                <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' />
-                <Button variant='contained' key='updatebutton' onClick={props.launchUpdate} ><SyncIcon /></Button>
+                <Button
+                    variant='contained'
+                    fullWidth
+                    key='updatebutton'
+                    onClick={props.launchUpdate}
+                >
+                    <RocketLaunchIcon /> Launch Update
+                </Button>
             </Stack>
         </Stack>
     );

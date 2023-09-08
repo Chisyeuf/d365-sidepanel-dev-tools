@@ -54,8 +54,14 @@ const RecordSearchBar: React.FunctionComponent<RecordSearchBarProps> = (props) =
         <Stack direction={"row"} spacing={0.5} width="100%">
             <EntitySelector setEntityname={setEntityName} entityname={entityName} />
             <RecordSelector setRecordsIds={setRecordIds} entityname={entityName} recordsIds={recordIds} multiple={props.multiple} theme={theme} />
-            <Button onClick={reset}>
-                Reset
+            <Button
+                onClick={reset}
+                sx={{
+                    fontSize: '0.8em',
+                    lineHeight: 'normal'
+                }}
+            >
+                Reset Record
             </Button>
         </Stack>
     )
