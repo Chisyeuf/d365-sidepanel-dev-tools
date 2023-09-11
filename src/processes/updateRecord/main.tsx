@@ -174,7 +174,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName());
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : []);
         const [filterAttribute, setFilterAttribute] = useState<string>("");
-        const { dict: attributesValues, setValue: setAttributesValue, removeValue: removeAttributesValue } = useDictionnary({});
+        const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
         const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false);
 
 
@@ -198,6 +198,11 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             toggleResetTotal();
         }, [entityname, recordsIds]);
 
+        useUpdateEffect(() => {
+            setAttributes({});
+        }, [entityname]);
+        
+
         const xrmObserverCallback = () => {
             if (entityname) return
             // if (!XrmObserver.isEntityRecord() || entityname) return
@@ -211,6 +216,8 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const launchUpdate = () => {
             debugLog("Launch Update for", entityname, recordsIds, "on", attributesValues);
+
+            if (recordsIds.length === 0 || attributesValueKeys.length === 0) return;
 
             recordsIds.forEach((recordid) => {
                 Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid);
@@ -318,6 +325,11 @@ function AttributesList(props: AttributesListProps) {
         const attributeNameToRemove = selectedAttribute.map(attribute => attribute.LogicalName);
         setSelectedAttribute(array => array.filter(attribute => !attributeNameToRemove.includes(attribute.LogicalName)));
     }
+
+    useEffect(() => {
+        setSelectedAttribute([]);
+    }, [props.resetTotal]);
+    
 
     const nodeContent = useMemo(() =>
         !fetchingMetadata
@@ -738,7 +750,7 @@ function NavTopBar(props: NavBarProps) {
     return (
         <Stack key="topbar" spacing={0.5} width="100%">
 
-            <Divider />
+            {/* <Divider /> */}
             <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
                 props.setCurrentRecord();
             }} entityName={props.entityname} recordIds={props.recordsIds} />

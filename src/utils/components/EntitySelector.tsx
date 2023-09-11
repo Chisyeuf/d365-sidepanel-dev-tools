@@ -1,5 +1,5 @@
-import { Autocomplete, FormControl, TextField } from "@mui/material"
-import React from "react"
+import { Autocomplete, FilterOptionsState, FormControl, TextField } from "@mui/material"
+import React, { useMemo } from "react"
 import { useEffect, useState } from "react"
 import { Entity } from "../types/requestsType"
 import { RetrieveEntities } from "../hooks/XrmApi/RetrieveEntities"
@@ -10,9 +10,14 @@ const filterOptions = createFilterOptions<EntityOption>({
     ignoreAccents: true,
     ignoreCase: true,
     matchFrom: "any",
-    stringify: (option) => option.label + "|" + option.id,
+    stringify: (option) => option.label + ";" + option.id,
 });
-
+// (o: EntityOption[], state: FilterOptionsState<EntityOption>) => o.filter(op => {
+//     if (op.label.includes(state.inputValue) || op.id.includes(state.inputValue)) {
+//         console.log(state.inputValue, op.label, op.id);
+//     }
+//     return op.label.includes(state.inputValue) || op.id.includes(state.inputValue);
+// })
 
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,
@@ -23,21 +28,16 @@ type EntityOption = {
     label: string
 }
 const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => {
-    const entitiesRetrieved = RetrieveEntities();
-    const [entities, setEntities] = useState<Entity[]>();
-    const [value, setValue] = useState<EntityOption>({ id: props.entityname, label: "Loading..." });
-    const [options, setOptions] = useState<EntityOption[]>([]);
+    const [value, setValue] = useState<EntityOption>({ id: props.entityname, label: "" });
 
     const entityname = props.entityname;
 
-    useEffect(() => {
-        setEntities(entitiesRetrieved)
-    }, [entitiesRetrieved]);
+    const entities = RetrieveEntities();
 
-    useEffect(() => {
-        setOptions(entities?.map((value, index, array) => {
+    const options = useMemo(() => {
+        return entities?.map((value, index, array) => {
             return { id: value.logicalname, label: value.name }
-        }) ?? [])
+        }) ?? [];
     }, [entities]);
 
     useEffect(() => {
@@ -51,13 +51,12 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
                 size='small'
                 options={options}
                 getOptionLabel={(option: EntityOption) => option.label}
-                // styles={comboBoxStyles}
-                // Force re-creating the component when the toggles change (for demo purposes)
-                key='entityselector'
                 placeholder='Search entity'
+                key='entityselector'
                 onChange={(event, option, index) => { props.setEntityname(option?.id.toString() ?? "") }}
+                renderInput={(params) => <TextField {...params} label="Entity Name" />}
+                renderOption={(props, item) => <li {...props} key={item.id}> {item.label} </li>}
                 value={value}
-                renderInput={(params) => <TextField {...params} />}
                 fullWidth
             />
         </FormControl>

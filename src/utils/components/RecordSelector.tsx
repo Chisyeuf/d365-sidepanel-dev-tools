@@ -84,7 +84,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                     <TextField
                         size='small'
                         fullWidth
-                        placeholder={'Search ' + entityname}
+                        placeholder={entityname ? 'Search ' + entityname : "Select entity first"}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
