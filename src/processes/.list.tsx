@@ -12,6 +12,7 @@ import myUserRecord from './myUserRecord/main';
 import commandDebugger from './commandDebugger/main';
 import dirtyFields from './dirtyFields/main';
 import navigation from './navigation/main';
+import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
 
 const Processes: ProcessButton[] = [
     formTools,
@@ -21,6 +22,7 @@ const Processes: ProcessButton[] = [
     relatedRecords,
     webRessourceEditor,
     impersonation,
+    pluginTraceLogsExplorer,
     myUserRecord,
     navigation,
     commandDebugger,

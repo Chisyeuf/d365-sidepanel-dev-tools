@@ -12,7 +12,7 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
 
     useEffect(() => {
 
-        if (!_entityname || !attributes || attributes.length === 0) return;
+        if (!_entityname) return;
         
         // if (attributes.indexOf(_entityname + "id") == -1) return;
 
@@ -20,8 +20,8 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
             debugLog("RetrieveAllRecords");
             
             const options: string =
-                "?$select=" + attributes +
-                (link ? "&" + link : "")
+                (attributes ? "?$select=" + attributes : '') +
+                (link ? (attributes ? "&" : '') + link : "")
             //  +(_filter ? "&$filter=" + _filter : "")
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, options, pageSize);

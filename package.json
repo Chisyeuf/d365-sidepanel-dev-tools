@@ -21,6 +21,7 @@
         "lodash-es": "^4.17.21",
         "material-ui-confirm": "^3.0.9",
         "material-ui-popup-state": "^5.0.4",
+        "moment": "^2.29.4",
         "monaco-editor": "^0.37.1",
         "notistack": "^3.0.0",
         "react": "^18.2.0",
