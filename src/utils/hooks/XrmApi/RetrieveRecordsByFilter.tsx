@@ -1,10 +1,16 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { debugLog } from '../../global/common';
 
-export function RetrieveRecords(entityname: string, attributesList: string[], filter: string, orderby?: string): [any[], boolean] {
+export function RetrieveRecordsByFilter(entityname: string, attributesList: string[], filter: string, orderby?: string): [any[], boolean, () => void] {
 
     const [data, setData] = useState<any[]>([]);
-    const [isFetching, setFetching] = useState<boolean>(false)
+    const [isFetching, setFetching] = useState<boolean>(false);
+    const [launchFlag, setLaunchFlag] = useState<boolean>(false);
+
+    const refresh = useCallback(() => {
+        setLaunchFlag((prev) => !prev);
+    }, []);
+
 
     const attributes = useMemo(() => attributesList.join(","), [attributesList]);
     const _entityname = entityname;
@@ -14,10 +20,8 @@ export function RetrieveRecords(entityname: string, attributesList: string[], fi
 
         if (!_entityname) return;
 
-        // if (attributes.indexOf(_entityname + "id") == -1) return;
-
         async function fetchData() {
-            debugLog("RetrieveRecords");
+            debugLog("RetrieveRecordsByFilter");
 
             var options: string = '';
             options += (attributes ? (options ? '&' : '') + "$select=" + attributes : '');
@@ -29,15 +33,15 @@ export function RetrieveRecords(entityname: string, attributesList: string[], fi
             setData(result.entities);
             setFetching(false);
         }
-        setData([]);
+        // setData([]);
         setFetching(true);
         fetchData();
 
-    }, [attributes]);
+    }, [attributes, filter, orderby, launchFlag]);
 
     useEffect(() => {
         setData([]);
     }, [_entityname]);
 
-    return [data, isFetching];
+    return [data, isFetching, refresh];
 }

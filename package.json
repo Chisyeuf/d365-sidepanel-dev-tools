@@ -28,6 +28,7 @@
         "react-dom": "^18.2.0",
         "react-hotkeys-hook": "^4.4.0",
         "react-icons": "^4.8.0",
+        "react-in-viewport": "^1.0.0-alpha.30",
         "react-scripts": "^5.0.1",
         "react-virtualized": "^9.22.3",
         "ts-key-enum": "^2.0.12",

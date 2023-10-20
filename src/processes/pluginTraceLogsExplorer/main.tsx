@@ -12,7 +12,7 @@ class PluginTraceLogsExplorerButton extends ProcessButton {
             'pluginlogsexplorer',
             'Plugin Trace Logs Explorer',
             <EventNoteIcon />,
-            350
+            450
         );
         this.process = PluginTraceLogsExplorerButtonProcess;
     }

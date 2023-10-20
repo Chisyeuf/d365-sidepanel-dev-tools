@@ -3,7 +3,8 @@ import Grid from '@mui/material/Unstable_Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import { TransitionProps } from '@mui/material/transitions';
 import React, { useContext, useMemo } from "react";
-import { PluginTraceLogControllerContext, PluginTraceLogsContext } from "./contexts";
+import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
+import { OperationType } from "../type";
 
 import { ThemeProvider } from "@emotion/react";
 import PluginTraceLogsList from "./PluginTraceLogsList";
@@ -36,14 +37,14 @@ const Transition = React.forwardRef(function Transition(
 });
 
 interface DialogProps {
-    
+
 }
 function TraceLogDialog(props: DialogProps) {
     // const { } = props;
 
-    const pluginTraceLogs = useContext(PluginTraceLogsContext);
+    const { pluginTraceLogs } = useContext(TraceLogsAPI);
 
-    const { closeDialog, dialogOpened, selectedPluginTraceLog, relatedSdkMessageProcessingStep, relatedSdkMessageProcessingStepImages } = useContext(PluginTraceLogControllerContext);
+    const { closeDialog, dialogOpened, selectedPluginTraceLog, relatedSdkMessageProcessingStep, relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
 
     const imagesEnabled = useMemo(() => relatedSdkMessageProcessingStepImages.length > 0, [relatedSdkMessageProcessingStepImages]);
 
@@ -52,7 +53,7 @@ function TraceLogDialog(props: DialogProps) {
             <Dialog
                 keepMounted
                 fullScreen
-                sx={{ width: 'calc(100% - 47px - 350px)' }}
+                sx={{ width: 'calc(100% - 47px - 450px)' }}
                 open={dialogOpened}
                 onClose={closeDialog}
                 TransitionComponent={Transition}
@@ -68,7 +69,7 @@ function TraceLogDialog(props: DialogProps) {
                             <CloseIcon />
                         </IconButton>
                         <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                            {selectedPluginTraceLog && `${selectedPluginTraceLog.messagename} — ${relatedSdkMessageProcessingStep?.name} — ${new Date(selectedPluginTraceLog.performanceexecutionstarttime).toLocaleString()}`}
+                            {selectedPluginTraceLog && `${selectedPluginTraceLog.messagename} — ${relatedSdkMessageProcessingStep?.name ?? 'Loading...'} — ${new Date(selectedPluginTraceLog.performanceexecutionstarttime).toLocaleString()}`}
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -91,7 +92,7 @@ function TraceLogDialog(props: DialogProps) {
                                     relatedSdkMessageProcessingStep?.filteringattributes &&
                                     <Section title="Filtering Attributes" openByDefault={true} sx={{ maxHeight: '7.5em' }}>
                                         <TypographyCopy height='unset' variant="body1" copyValue={relatedSdkMessageProcessingStep?.filteringattributes} >
-                                            {relatedSdkMessageProcessingStep?.filteringattributes.replaceAll(',', ', ')}
+                                            {relatedSdkMessageProcessingStep?.filteringattributes?.replaceAll(',', ', ') ?? 'Loading...'}
                                         </TypographyCopy>
                                     </Section>
                                 }
@@ -133,12 +134,13 @@ function TraceLogDialog(props: DialogProps) {
                                     <TraceLogField label="Message" value={selectedPluginTraceLog?.messagename} />
                                     <TraceLogField label="Primary Entity" value={selectedPluginTraceLog?.primaryentity} />
                                     <TraceLogField label="Depth" value={selectedPluginTraceLog?.depth} />
-                                    <TraceLogField label="Operation Type" value={selectedPluginTraceLog?.["operationtype@OData.Community.Display.V1.FormattedValue"]} />
+                                    {selectedPluginTraceLog?.operationtype === OperationType.PlugIn && <TraceLogField label="Stage" value={relatedSdkMessageProcessingStep?.["stage@OData.Community.Display.V1.FormattedValue"] ?? 'Loading...'} />}
                                     <TraceLogField label="Mode" value={selectedPluginTraceLog?.["mode@OData.Community.Display.V1.FormattedValue"]} />
                                     {/* <TraceLogField label="Created On" value={selectedPluginTraceLog?.["createdon@OData.Community.Display.V1.FormattedValue"]} /> */}
                                     {/* <TraceLogField label="Construction Start Date" value={selectedPluginTraceLog?.["performanceconstructorstarttime@OData.Community.Display.V1.FormattedValue"]} />
                                     <TraceLogField label="Construction Duration" value={selectedPluginTraceLog?.["performanceconstructorduration@OData.Community.Display.V1.FormattedValue"]} /> */}
                                     <TraceLogField label="Execution Start Date" value={selectedPluginTraceLog?.performanceexecutionstarttime} />
+                                    <TraceLogField label="Execution Duration" value={selectedPluginTraceLog?.["performanceexecutionduration@OData.Community.Display.V1.FormattedValue"]} />
                                     {/* <TraceLogField label="Execution Duration" value={selectedPluginTraceLog?.["performanceexecutionduration@OData.Community.Display.V1.FormattedValue"]} /> */}
                                 </Grid>
 

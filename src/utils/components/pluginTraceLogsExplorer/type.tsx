@@ -169,26 +169,33 @@ export interface SdkMessageProcessingStepImage {
     "_modifiedonbehalfby_value@Microsoft.Dynamics.CRM.lookuplogicalname"?: string | null,
     "_createdonbehalfby_value@OData.Community.Display.V1.FormattedValue"?: string | null,
     "_createdonbehalfby_value@Microsoft.Dynamics.CRM.lookuplogicalname"?: string | null,
-  }
-  export interface Iscustomizable {
+}
+export interface Iscustomizable {
     "Value": boolean;
     "CanBeChanged": boolean;
     "ManagedPropertyLogicalName": string;
-  }
-  
+}
 
 
-export type OperationType = {
-    PlugIn: 1,
-    WorkflowActivity: 2
+
+export enum OperationType {
+    PlugIn = 1,
+    WorkflowActivity = 2
 }
 
 
 export interface IPluginTraceLogControllerContext {
     dialogOpened: boolean,
-    openDialog: (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[]) => void,
+    openDialog: (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => void,
     closeDialog: () => void,
     selectedPluginTraceLog: PluginTraceLog | null,
     relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null,
     relatedSdkMessageProcessingStepImages: SdkMessageProcessingStepImage[]
+}
+
+
+export interface ITraceLogsAPI {
+    pluginTraceLogs: PluginTraceLog[],
+    sdkMessageProcessingSteps: SdkMessageProcessingStep[],
+    sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[],
 }

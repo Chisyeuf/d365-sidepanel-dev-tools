@@ -1,12 +1,16 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
-import { PluginTraceLogControllerContext, PluginTraceLogsContext } from "./subcomponents/contexts";
+import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { ThemeProvider, createTheme } from "@mui/material";
+import { Fab, Stack, ThemeProvider, createTheme } from "@mui/material";
 import { RetrieveAllRecordsByPage } from "../../hooks/XrmApi/RetrieveAllRecordsByPage";
 import { RetrieveAllRecords } from "../../hooks/XrmApi/RetrieveAllRecords";
-import { RetrieveRecords } from "../../hooks/XrmApi/RetrieveRecords";
+import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
+import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
+import { Button } from "@material-ui/core";
+
+const interval_ms = 60;
 
 const theme = createTheme();
 
@@ -15,17 +19,36 @@ interface PluginTraceLogsPaneProps {
 }
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
-    const [pluginTraceLogs, isFetching]: [PluginTraceLog[], boolean] = RetrieveRecords('plugintracelog', [], '', 'performanceexecutionstarttime desc');
+    const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
+    const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
 
     const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
     const [relatedSdkMessageProcessingStep, setRelatedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
     const [sdkMessageProcessingStepImages, setSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[]) => {
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshFirst();
+        }, interval_ms * 1000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, []);
+
+    useEffect(() => {
+        const firstPluginTraceLogsInList = pluginTraceLogs.at(0);
+        if (firstPluginTraceLogs && firstPluginTraceLogsInList && firstPluginTraceLogs.plugintracelogid !== firstPluginTraceLogsInList.plugintracelogid) {
+            refreshPluginTraceLogs();
+        }
+    }, [firstPluginTraceLogs, pluginTraceLogs]);
+
+    const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => {
         setSelectedPluginTraceLog(selectedPluginTraceLog);
         setRelatedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
-        setSdkMessageProcessingStepImages(sdkMessageProcessingStepImages);
+        setSdkMessageProcessingStepImages(sdkMessageProcessingStepImages ?? []);
         setDialogOpen(true);
     };
 
@@ -38,7 +61,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
     return (
         <ThemeProvider theme={theme}>
-            <PluginTraceLogControllerContext.Provider value={{
+            <TraceLogControllerContext.Provider value={{
                 dialogOpened: dialogOpen,
                 closeDialog: handleCloseDialog,
                 openDialog: handleOpenDialog,
@@ -46,13 +69,50 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                 relatedSdkMessageProcessingStep: relatedSdkMessageProcessingStep,
                 relatedSdkMessageProcessingStepImages: sdkMessageProcessingStepImages
             }}>
-                <PluginTraceLogsContext.Provider value={pluginTraceLogs} >
-                    <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} />
+                <TraceLogsAPI.Provider value={{
+                    ...defaultTraceLogsAPI,
+                    pluginTraceLogs: pluginTraceLogs
+                }} >
+                    <Stack direction='column' width='100%'>
+                        {/* <RefreshButton refresh={refreshFirst} initTimer={interval_ms} /> */}
+                        <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} isFetching={isFetching || isFetchingFirst} />
+                    </Stack>
                     <TraceLogDialog />
-                </PluginTraceLogsContext.Provider>
-            </PluginTraceLogControllerContext.Provider>
+                </TraceLogsAPI.Provider>
+            </TraceLogControllerContext.Provider>
         </ThemeProvider>
     )
 });
+
+interface RefreshButtonProps {
+    refresh: () => void,
+    initTimer: number
+}
+function RefreshButton(props: RefreshButtonProps) {
+    const { initTimer, refresh } = props;
+
+    const [firstTraceDecoy, setFirstTraceDecoy] = useState<number>(initTimer);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setFirstTraceDecoy(prev => {
+                if (prev) {
+                    return prev - 1;
+                }
+                return initTimer;
+            });
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, [initTimer]);
+
+    return (
+        <Button variant='contained' onClick={refresh}>
+            Refresh ({firstTraceDecoy})
+        </Button>
+    );
+}
 
 export default PluginTraceLogsPane;

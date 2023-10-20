@@ -11,8 +11,8 @@ export function RetrieveAllAttributes(entityname: string, recordid: string | und
     useEffect(() => {
         debugLog("RetrieveAllAttributes");
         if (!_entityname || !_recordid) {
-            setData({})
-            setIsFetching(false)
+            setData({});
+            setIsFetching(false);
             return
         }
         async function fetchData() {
@@ -20,11 +20,11 @@ export function RetrieveAllAttributes(entityname: string, recordid: string | und
             const result = await Xrm.WebApi.online.retrieveRecord(_entityname, _recordid)
             delete result["@odata.context"]
             delete result["@odata.etag"]
-            setData(result)
-            setIsFetching(false)
+            setData(result);
+            setIsFetching(false);
         }
-        setIsFetching(true)
-        setData({})
+        setIsFetching(true);
+        setData({});
         fetchData();
 
     }, [_recordid]);

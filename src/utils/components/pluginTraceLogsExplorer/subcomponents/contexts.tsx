@@ -1,14 +1,21 @@
 import { createContext } from "react";
-import { IPluginTraceLogControllerContext, PluginTraceLog } from "../type";
+import { IPluginTraceLogControllerContext, ITraceLogsAPI, PluginTraceLog } from "../type";
 
-export const PluginTraceLogsContext = createContext<PluginTraceLog[]>([]);
+// export const TraceLogsContext = createContext<PluginTraceLog[]>([]);
 
-export const defaultPluginTraceLogController: IPluginTraceLogControllerContext = {
+const defaultPluginTraceLogController: IPluginTraceLogControllerContext = {
     dialogOpened: false,
-    openDialog() {},
-    closeDialog() {},
+    openDialog() { },
+    closeDialog() { },
     selectedPluginTraceLog: null,
     relatedSdkMessageProcessingStep: null,
     relatedSdkMessageProcessingStepImages: []
 };
-export const PluginTraceLogControllerContext = createContext<IPluginTraceLogControllerContext>(defaultPluginTraceLogController);
+export const TraceLogControllerContext = createContext<IPluginTraceLogControllerContext>(defaultPluginTraceLogController);
+
+export const defaultTraceLogsAPI: ITraceLogsAPI = {
+    pluginTraceLogs: [],
+    sdkMessageProcessingStepImages: [],
+    sdkMessageProcessingSteps: [],
+}
+export const TraceLogsAPI = createContext<ITraceLogsAPI>(defaultTraceLogsAPI);
