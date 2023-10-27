@@ -1,12 +1,11 @@
 
-import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Typography } from '@mui/material';
+import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { GetExtensionId } from '../../utils/global/common';
 
-import { Tooltip } from '@material-ui/core';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
 import FilterInput from '../../utils/components/FilterInput';
@@ -76,6 +75,9 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         if (currentAzureId) {
                             const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
+
+                            const pane: any = Xrm.App.sidePanes.getPane(props.id);
+                            if (pane) pane.badge = 0;
                         }
                     }
                 }
@@ -83,21 +85,11 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [activeUsers]);
 
 
-        // useEffect(() => {
-        //     chrome.runtime.sendMessage(extensionId, { type: 'impersonate', data: { userSelected: userSelected, selectedon: new Date() } },
-        //         function (response) {
-        //             if (!response.success)
-        //                 console.log('error');
-        //         }
-        //     );
-        // }, [userSelected]);
-
-
         return (
             <Stack direction='column' spacing={0.5} width="-webkit-fill-available" padding="10px">
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
-                    
+
                     <SecurityRoleMenu securityRoleSeclected={securityRoleSeclected} setSecurityRoleSeclected={setSecurityRoleSeclected} />
 
                     <Tooltip title={'Hard Reset'}>
@@ -155,7 +147,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                         <UserItem
                                             user={user}
                                             userSelected={userSelected}
-                                            handleSelect={handleSelect} />
+                                            handleSelect={handleSelect}
+                                        />
                                     );
                                 })
                             }
@@ -174,55 +167,65 @@ interface UserItemProps {
 const UserItem = React.memo((props: UserItemProps) => {
     const { user, userSelected, handleSelect } = props;
 
+    const securityRoleList = useMemo(() => {
+        return (
+            <ul>
+                {user.securityRoles.map(s => <li>{s.name}</li>)}
+            </ul>
+        );
+    }, [user]);
+
     const labelId = `checkbox-list-label-${user.systemuserid}`;
     return (
         <ListItem
             key={user.systemuserid}
             disablePadding
         >
-            <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
-                <ListItemIcon
-                    sx={{
-                        minWidth: '28px'
-                    }}
-                >
-                    <Checkbox
-                        edge="start"
-                        checked={userSelected?.systemuserid === user.systemuserid}
-                        tabIndex={-1}
-                        disableRipple
-                        inputProps={{ 'aria-labelledby': labelId }}
+            <Tooltip placement='left' title={securityRoleList}>
+                <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
+                    <ListItemIcon
                         sx={{
-                            padding: '3px'
+                            minWidth: '28px'
                         }}
-                    />
-                </ListItemIcon>
-                <ListItemText
-                    id={labelId}
-                    primary={user.fullName}
-                    secondary={user.emailAddress}
-                    sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        marginTop: '4px',
-                        marginBottom: '4px',
-                        '& p': {
+                    >
+                        <Checkbox
+                            edge="start"
+                            checked={userSelected?.systemuserid === user.systemuserid}
+                            tabIndex={-1}
+                            disableRipple
+                            inputProps={{ 'aria-labelledby': labelId }}
+                            sx={{
+                                padding: '3px'
+                            }}
+                        />
+                    </ListItemIcon>
+                    <ListItemText
+                        id={labelId}
+                        primary={user.fullName}
+                        secondary={user.emailAddress}
+                        sx={{
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            fontSize: '0.72rem',
-                            lineHeight: '1.2',
-                            letterSpacing: 'unset',
-                        },
-                        '& span': {
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            lineHeight: '1.2',
-                        }
-                    }} />
-            </ListItemButton>
+                            marginTop: '4px',
+                            marginBottom: '4px',
+                            '& p': {
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                fontSize: '0.72rem',
+                                lineHeight: '1.2',
+                                letterSpacing: 'unset',
+                            },
+                            '& span': {
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                lineHeight: '1.2',
+                            }
+                        }} />
+                </ListItemButton>
+            </Tooltip>
         </ListItem>
     );
 });
