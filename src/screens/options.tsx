@@ -1,32 +1,54 @@
-// import '../utils/global/extensions';
+import '../utils/global/extensions';
 
-// import React, { useEffect, useMemo, useState } from 'react';
-// import ReactDOM from 'react-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import ReactDOM from 'react-dom';
 
-// import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-// import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-// import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
-// import Stack from '@mui/material/Stack';
-// import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
-// import Processes, {
-//     defaultProcessesList, storageListName
-// } from '../processes/.list';
+import Processes, {
+    defaultProcessesList, storageListName
+} from '../processes/.list';
 
-// import { debugLog, waitForElm } from '../utils/global/common';
-// import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
-// import { StorageConfiguration } from '../utils/types/StorageConfiguration';
+import { debugLog, waitForElm } from '../utils/global/common';
+import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
+import { StorageConfiguration } from '../utils/types/StorageConfiguration';
+import { MessageType } from '../utils/types/Message';
 
-// const OptionsScreen: React.FunctionComponent = () => {
-//     const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storageListName, defaultProcessesList)
+const OptionsScreen: React.FunctionComponent = () => {
+    const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storageListName, defaultProcessesList);
 
-//     return (
-//         <Container sx={{ width: '1000px', height: '400px', }}>
-//             <OptionsGrid processList={processesList} setProcessList={setProcessList} />
-//             <Button onClick={() => { chrome.storage.sync.remove(storageListName); window.close(); }}>Reset</Button>
-//         </Container>
-//     )
-// }
+    const resetImpersonate = useCallback(() => {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const activeTab = tabs[0];
+            const activeTabURL = activeTab.url;
+            if (!activeTab.id || !activeTabURL) return;
+
+            const urlObject = new URL(activeTabURL);
+
+            chrome.runtime.sendMessage({ type: MessageType.IMPERSONATE, data: { userSelected: null, selectedon: new Date(), url: urlObject.origin } },
+                function () {
+                    chrome.tabs.reload(activeTab.id!, { bypassCache: true })
+                }
+            );
+
+        });
+    }, []);
+
+
+    return (
+        <Container sx={{ width: '1000px', height: '400px', }}>
+            {/* <OptionsGrid processList={processesList} setProcessList={setProcessList} />
+            <Button onClick={() => { chrome.storage.sync.remove(storageListName); window.close(); }}>Reset</Button> */}
+            <Button
+                variant='contained'
+                onClick={resetImpersonate}>Reset Impersonate on Active tab</Button>
+        </Container>
+    )
+}
 
 
 // type RowProp = {
@@ -199,12 +221,12 @@
 // }
 
 
-// waitForElm('#root').then((rootDiv) => {
-//     ReactDOM.render(
-//         <OptionsScreen />,
-//         rootDiv
-//     );
-// });
+waitForElm('#root').then((rootDiv) => {
+    ReactDOM.render(
+        <OptionsScreen />,
+        rootDiv
+    );
+});
 
-// debugLog("Option loaded");
-export{}
+debugLog("Option loaded");
+export { }

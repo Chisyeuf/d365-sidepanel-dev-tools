@@ -5,6 +5,7 @@ import { debuggerAttached, disbaleScriptOverride, enableScriptOverride, getScrip
 import { MessageType } from "./utils/types/Message";
 
 chrome.runtime.onMessageExternal.addListener(messagesStation);
+chrome.runtime.onMessage.addListener(messagesStation);
 
 function messagesStation(message: { type: string, data: any }, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) {
     console.log("background onMessageExternal", message);
