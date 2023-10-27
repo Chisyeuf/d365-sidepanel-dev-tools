@@ -80,6 +80,7 @@ const LegendContent = styled("span", {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "white",
+    whiteSpace:'nowrap',
     width: props.location === Location.top || props.location === Location.bottom ? "80%" : "auto",
     flexDirection:
         props.location === Location.left || props.location === Location.right
@@ -247,39 +248,3 @@ function ComponentContainer(props: ComponentContainerProps) {
 }
 
 export default ComponentContainer;
-// https://codesandbox.io/s/hardcore-https-0khoxd?file=/demo.tsx
-
-// export default function BoxComponent() {
-//     return (
-//         <ComponentContainer
-//             // borderStyle="solid"
-//             // borderWidth="2px"
-//             // borderColor="lightgray"
-//             padding={1}
-//             // borderRadius='10px'
-//             Legend={{
-//                 top: { component: <>rty</> },
-//                 bottom: { component: <Button variant="contained">Save</Button>, position: 'start' },
-//                 left: { component: <Button variant="contained" sx={{ height: '200%' }}>Save</Button>, position: 'end' },
-//                 right: { component: <>right</> },
-//             }}
-//         >
-//            <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Stack>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             <Button>Save</Button>
-//             </Stack>
-//         </ComponentContainer>
-//     );
-// }

@@ -13,6 +13,7 @@ import FilterInput, { AttributeFilterInputRef } from '../../../utils/components/
 import { SolutionItem } from '../../../utils/types/SolutionItem';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
+import RedDisabledButton from '../../../utils/components/RedDisabledButton';
 
 function SolutionList(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -58,67 +59,74 @@ function SolutionList(props: NavigationButton) {
         }
     }, [selectedSolution]);
 
+    const selectSolutionButton = useMemo(() => (
+        <Tooltip title={openSolutionTooltip} >
+            <Button
+                sx={{
+                    width: '100%',
+                    maxWidth: 'calc(100% - 10px)',
+                    fontSize: '0.7em'
+                }}
+                onClick={() => {
+                    setDialogOpenedTrue();
+                    setTimeout(() => {
+                        inputRef.current?.focus();
+                    }, 500);
+                }}
+            >
+                Select Solution
+            </Button>
+        </Tooltip>
+    ), [setDialogOpenedTrue, inputRef, inputRef.current]);
+
     return (
         <>
-            <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Solutions', padding: '5px' } }}>
-                <Stack spacing={1} width='100%' padding='5px' direction='column'>
+            <ComponentContainer width='100%' Legends={{
+                top: { position: 'center', component: 'Solutions', padding: '5px' },
+                bottom: { position: 'center', component: selectSolutionButton, padding: '15px' }
+            }}>
+                <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
-                    <Tooltip placement='top' title={`${solutionName} in old interface`}>
-                        <Button
+                    <Tooltip placement='top' title={`Open ${solutionName} in old interface`}>
+                        <RedDisabledButton
                             variant='outlined'
                             onClick={handleClickOldSolution}
                             startIcon={<D365NavBarIcon iconX={-239} iconY={-1} width={20} />}
                             sx={{
+                                width: '35%'
+                            }}
+                            buttonSx={{
                                 width: '100%',
-                                maxWidth: 'calc(100% - 10px)',
                                 gap: '0.4em',
                                 padding: '5px 10px',
                                 fontSize: '0.8em',
-                                justifyContent:'flex-start',
-                                overflow:'hidden',
-                                whiteSpace:'nowrap',
+                                justifyContent: 'flex-start',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
                             }}
-                        >
-                            {solutionName}
-                        </Button>
+                        />
                     </Tooltip>
 
-                    <Tooltip placement='top' title={`${solutionName} in PowerApps`}>
-                        <Button
+                    <Tooltip placement='top' title={`Open ${solutionName} in PowerApps`}>
+                        <RedDisabledButton
                             variant='outlined'
                             onClick={handleClickPowerApps}
                             startIcon={<PowerAppsIcon />}
                             sx={{
+                                width: '35%'
+                            }}
+                            buttonSx={{
                                 width: '100%',
-                                maxWidth: 'calc(100% - 10px)',
                                 gap: '0.4em',
                                 padding: '5px 10px',
                                 fontSize: '0.8em',
-                                justifyContent:'flex-start',
-                                overflow:'hidden',
-                                whiteSpace:'nowrap',
+                                justifyContent: 'flex-start',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
                             }}
-                        >
-                            {solutionName}
-                        </Button>
+                        />
                     </Tooltip>
-                    <Tooltip title={openSolutionTooltip} >
-                        <Button
-                            sx={{
-                                width: '100%',
-                                maxWidth: 'calc(100% - 10px)',
-                                fontSize: '0.7em'
-                            }}
-                            onClick={() => {
-                                setDialogOpenedTrue();
-                                setTimeout(() => {
-                                    inputRef.current?.focus();
-                                }, 500);
-                            }}
-                        >
-                            Select Solution
-                        </Button>
-                    </Tooltip>
+
                 </Stack>
             </ComponentContainer>
 

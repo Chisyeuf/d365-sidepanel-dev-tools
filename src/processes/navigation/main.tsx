@@ -10,6 +10,7 @@ import MapIcon from '@mui/icons-material/Map';
 import NavigationToSolutionList from './containers/NavigationToSolutionList';
 import NavigationToEnvironments from './containers/NavigationToEnvironments';
 import NavigationToSecurity from './containers/NavigationToSecurity';
+import NavigationToFormEditor from './containers/NavigationToFormEditor';
 
 
 class NavigationButton extends ProcessButton {
@@ -48,7 +49,12 @@ const theme = createTheme({
     },
 });
 
-const buttons = [NavigationToSolutionList, NavigationToEnvironments, NavigationToSecurity ];
+const buttons = [
+    NavigationToSolutionList, 
+    NavigationToFormEditor, 
+    NavigationToEnvironments, 
+    NavigationToSecurity 
+];
 
 const NavigationProcess = forwardRef<ProcessRef, ProcessProps>(
     function NavigationProcess(props: ProcessProps, ref) {
@@ -58,7 +64,7 @@ const NavigationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={3} width='calc(100% - 10px)' padding='10px' alignItems='center'>
                     {
                         buttons.map(Button => {
                             return <Button environmentId={environmentId} clientUrl={clientUrl} />
