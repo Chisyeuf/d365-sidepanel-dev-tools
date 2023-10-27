@@ -1,7 +1,7 @@
 
 import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { GetExtensionId } from '../../utils/global/common';
@@ -46,13 +46,6 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const extensionId = GetExtensionId();
 
-        const handleSelect = (user: typeof activeUsers[0]) => () => {
-            setUserSelected(
-                (oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
-                sendNewUserToBackground
-            );
-        }
-
         const sendNewUserToBackground = (newUser: ActiveUser | null) => {
             const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl() };
             chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
@@ -62,6 +55,14 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             );
         }
+
+        const handleSelect = useCallback((user: typeof activeUsers[0]) => () => {
+            setUserSelected(
+                (oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
+                sendNewUserToBackground
+            );
+        },[setUserSelected, sendNewUserToBackground]);
+
 
         useEffect(() => {
             if (!activeUsers) return;
