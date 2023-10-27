@@ -10,14 +10,16 @@ import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFil
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import { Button } from "@material-ui/core";
 
-const interval_ms = 60;
+const refreshInterval = 60;
 
 const theme = createTheme();
 
 interface PluginTraceLogsPaneProps {
-
+    processId: string
 }
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
+
+    const [decount, setDecount] = useState(refreshInterval);
 
     const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
     const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
@@ -27,16 +29,44 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const [sdkMessageProcessingStepImages, setSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
     const [dialogOpen, setDialogOpen] = useState(false);
 
-
     useEffect(() => {
-        const interval = setInterval(() => {
-            refreshFirst();
-        }, interval_ms * 1000);
+        const intervalID = setInterval(function () {
+            setDecount(prev => {
+                const newValue = --prev;
+                return newValue;
+            })
+        }, 1000);
 
         return () => {
-            clearInterval(interval);
+            window.clearInterval(intervalID);
         }
     }, []);
+
+    useEffect(() => {
+        const pane: any = Xrm.App.sidePanes.getPane(props.processId);
+        if (pane) pane.badge = decount > 0 ? decount : 0;
+
+        if (decount === 0) {
+            refreshFirst();
+        }
+    }, [decount]);
+
+    useEffect(() => {
+        if (isFetching) return;
+        setDecount(refreshInterval);
+    }, [isFetching, isFetchingFirst]);
+
+
+
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         refreshFirst();
+    //     }, interval_ms * 1000);
+
+    //     return () => {
+    //         clearInterval(interval);
+    //     }
+    // }, []);
 
     useEffect(() => {
         const firstPluginTraceLogsInList = pluginTraceLogs.at(0);
@@ -74,7 +104,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                     pluginTraceLogs: pluginTraceLogs
                 }} >
                     <Stack direction='column' width='100%'>
-                        {/* <RefreshButton refresh={refreshFirst} initTimer={interval_ms} /> */}
+                        <RefreshButton refresh={refreshFirst} time={decount} />
                         <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} isFetching={isFetching || isFetchingFirst} />
                     </Stack>
                     <TraceLogDialog />
@@ -86,31 +116,14 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
 interface RefreshButtonProps {
     refresh: () => void,
-    initTimer: number
+    time: number
 }
 function RefreshButton(props: RefreshButtonProps) {
-    const { initTimer, refresh } = props;
-
-    const [firstTraceDecoy, setFirstTraceDecoy] = useState<number>(initTimer);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setFirstTraceDecoy(prev => {
-                if (prev) {
-                    return prev - 1;
-                }
-                return initTimer;
-            });
-        }, 1000);
-
-        return () => {
-            clearInterval(interval);
-        }
-    }, [initTimer]);
+    const { time, refresh } = props;
 
     return (
         <Button variant='contained' onClick={refresh}>
-            Refresh ({firstTraceDecoy})
+            Refresh ({time})
         </Button>
     );
 }
