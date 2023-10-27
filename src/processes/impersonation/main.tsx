@@ -169,7 +169,7 @@ const UserItem = React.memo((props: UserItemProps) => {
 
     const securityRoleList = useMemo(() => {
         return (
-            <ul>
+            <ul style={{ fontSize: '1.4em' }}>
                 {user.securityRoles.map(s => <li>{s.name}</li>)}
             </ul>
         );
