@@ -12,6 +12,7 @@ type AttributeFilterInputProps = {
     forcedValue?: string,
 }
 export type AttributeFilterInputRef = {
+    select(): void;
     focus(): void;
 }
 
@@ -23,8 +24,10 @@ const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInp
         const inputRef = useRef<HTMLInputElement>(null);
 
         useImperativeHandle(ref, () => ({
+            select: () => {
+                inputRef.current?.select();
+            },
             focus: () => {
-                // logic to focus the rendered component from 3rd party belongs here
                 inputRef.current?.focus();
             },
         }));

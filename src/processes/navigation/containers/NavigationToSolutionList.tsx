@@ -70,7 +70,10 @@ function SolutionList(props: NavigationButton) {
                 onClick={() => {
                     setDialogOpenedTrue();
                     setTimeout(() => {
-                        inputRef.current?.focus();
+                        if (inputRef.current) {
+                            inputRef.current.focus();
+                            inputRef.current.select();
+                        }
                     }, 500);
                 }}
             >
@@ -147,7 +150,7 @@ function SolutionList(props: NavigationButton) {
                 <List sx={{ width: '25vw', overflowY: 'scroll' }}>
                     <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
                         <ListItemText
-                            primary={"---"}
+                            primary={<i>Unselect Solution</i>}
                         />
                     </ListItemButton>
                     {
