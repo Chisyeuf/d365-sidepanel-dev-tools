@@ -39,7 +39,7 @@ const Transition = React.forwardRef(function Transition(
 interface DialogProps {
 
 }
-function TraceLogDialog(props: DialogProps) {
+const TraceLogDialog = React.memo((props: DialogProps) => {
     // const { } = props;
 
     const { pluginTraceLogs } = useContext(TraceLogsAPI);
@@ -47,6 +47,8 @@ function TraceLogDialog(props: DialogProps) {
     const { closeDialog, dialogOpened, selectedPluginTraceLog, relatedSdkMessageProcessingStep, relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
 
     const imagesEnabled = useMemo(() => relatedSdkMessageProcessingStepImages.length > 0, [relatedSdkMessageProcessingStepImages]);
+
+    const traceLogsCorrelated = useMemo(() => pluginTraceLogs.filter(p => p.correlationid === selectedPluginTraceLog?.correlationid), [selectedPluginTraceLog?.correlationid]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -85,7 +87,7 @@ function TraceLogDialog(props: DialogProps) {
                     <Stack spacing={1} direction='column' height='100%'>
                         <Stack spacing={1} direction='row' height='75%'>
                             <Section title="Correlation" sx={{ width: '25%' }}>
-                                <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs.filter(p => p.correlationid === selectedPluginTraceLog?.correlationid)} />
+                                <PluginTraceLogsList pluginTraceLogs={traceLogsCorrelated} />
                             </Section>
                             <Stack spacing={1} direction='column' height={'100%'} width={imagesEnabled ? '55%' : '75%'}>
                                 {
@@ -152,6 +154,6 @@ function TraceLogDialog(props: DialogProps) {
             </Dialog>
         </ThemeProvider>
     );
-}
+});
 
 export default TraceLogDialog;

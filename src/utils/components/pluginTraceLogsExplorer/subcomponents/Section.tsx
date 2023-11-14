@@ -1,6 +1,6 @@
 import { Theme } from "@emotion/react";
-import { SxProps, Stack, Typography, Divider, Box, Paper, createTheme, styled, Button } from "@mui/material";
-import { PropsWithChildren, useState } from "react";
+import { SxProps, Stack, Typography, Divider, Paper, createTheme, styled } from "@mui/material";
+import { PropsWithChildren } from "react";
 import { useBoolean } from "usehooks-ts";
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -22,7 +22,7 @@ interface SectionProps {
     title?: string,
     sx?: SxProps<Theme>;
 }
-function Section(props: PropsWithChildren<SectionProps> & { openByDefault?: boolean }) {
+const Section = React.memo((props: PropsWithChildren<SectionProps> & { openByDefault?: boolean }) => {
     const { value: open, toggle: toggleOpen } = useBoolean(props.openByDefault ?? true);
 
     return (
@@ -42,6 +42,6 @@ function Section(props: PropsWithChildren<SectionProps> & { openByDefault?: bool
             </Stack>
         </GridPaper>
     );
-}
+});
 
 export default Section;

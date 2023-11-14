@@ -1,38 +1,48 @@
 import { Box, Fab, LinearProgress, List, ListItemButton, ListItemText, ListSubheader, Tooltip, Typography } from "@mui/material";
-import React, { useContext, useMemo, useRef } from "react";
+import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
 import { TraceLogControllerContext } from "./contexts";
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { RetrieveSingleAttribute } from "../../../hooks/XrmApi/RetrieveSingleAttribute";
-import { RetrieveAllAttributes } from "../../../hooks/XrmApi/RetrieveAllAttributes";
-import { RetrieveAllRecords } from "../../../hooks/XrmApi/RetrieveAllRecords";
-import { RetrieveRecordsByFetchXML } from "../../../hooks/XrmApi/RetrieveRecordsByFetchXML";
 import { RetrieveRecordsByFilter } from "../../../hooks/XrmApi/RetrieveRecordsByFilter";
 import moment from "moment";
-import { CircularProgress } from "@material-ui/core";
-import handleViewport, { type InjectedViewportProps } from "react-in-viewport";
 import { RetrieveAttributes } from "../../../hooks/XrmApi/RetrieveAttributes";
 
 import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 
+import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'react-window';
+import AutoSizer from "react-virtualized-auto-sizer";
+
+const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
+
+const Row = React.memo(({ data, index, style }: { data: any, index: number, style: React.CSSProperties }) => {
+    const pluginTraceLogs = data;
+    return (
+        <TraceLogsListItem pluginTraceLog={pluginTraceLogs[index]} boxStyle={style} />
+    );
+}, areEqual);
+
+// const createItemData = memoize((items, toggleItemActive) => ({
+//     items,
+//     toggleItemActive,
+//   }));
 
 interface LittleListProps {
     pluginTraceLogs: PluginTraceLog[]
     isFetching?: boolean
 }
-function PluginTraceLogsList(props: LittleListProps) {
+const PluginTraceLogsList = React.memo((props: LittleListProps) => {
     const { pluginTraceLogs, isFetching } = props;
 
     const listRef = useRef<HTMLUListElement | null>(null);
-    // const pluginTraceLogs = useContext(PluginTraceLogsContext);
+
 
     return (
         <>
             <List
-                ref={listRef}
+                // ref={listRef}
                 dense
-                sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'clip' }}
+                sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'clip' }}
                 key={`List-pluginTraceLogs`}
                 subheader={
                     <ListSubheader component="div" sx={{ height: '5px' }}>
@@ -40,15 +50,21 @@ function PluginTraceLogsList(props: LittleListProps) {
                     </ListSubheader>
                 }
             >
-                {
-                    pluginTraceLogs.map(pluginTraceLog => {
-                        return (
-                            <TraceLogsListItem pluginTraceLog={pluginTraceLog} />
-                        );
-                    })
-                }
+                <AutoSizer>
+                    {
+                        ({ height, width }: { height: number, width: number }) => <FixedSizeList
+                            height={height}
+                            width={width}
+                            itemSize={90}
+                            itemData={pluginTraceLogs}
+                            itemCount={pluginTraceLogs.length}
+                        // innerRef={listRef}
+                        >
+                            {(props) => <Row {...props} />}
+                        </FixedSizeList>
+                    }
+                </AutoSizer>
             </List>
-
             <Fab
                 sx={{
                     position: 'absolute',
@@ -67,13 +83,16 @@ function PluginTraceLogsList(props: LittleListProps) {
             </Fab>
         </>
     );
+});
+
+
+
+interface LittleListItemProps {
+    pluginTraceLog: PluginTraceLog,
+    boxStyle: React.CSSProperties
 }
-
-// const ViewportTraceLogsListItem = handleViewport(TraceLogsListItem, /** options: {}, config: {} **/);
-
 function TraceLogsListItem(props: LittleListItemProps) {
-    const { pluginTraceLog, } = props;
-    // const { pluginTraceLog, forwardedRef, inViewport } = props;
+    const { pluginTraceLog, boxStyle } = props;
 
     const { selectedPluginTraceLog } = useContext(TraceLogControllerContext);
 
@@ -89,47 +108,42 @@ function TraceLogsListItem(props: LittleListItemProps) {
     }, [pluginTraceLog.plugintracelogid, selectedPluginTraceLog?.plugintracelogid]);
 
     const content = useMemo(() => {
-        // if (!inViewport) {
-        //     return (<Box height={'91.9688px'}></Box>);
-        // }
         switch (pluginTraceLog.operationtype) {
             case OperationType.PlugIn:
                 return (
-                    <PluginTraceLogsListItem pluginTraceLog={pluginTraceLog} />
+                    <PluginTraceLogsListItem {...props} />
                 );
             default:
                 return (
-                    <WorkflowActivityTraceLogsListItem pluginTraceLog={pluginTraceLog} />
+                    <WorkflowActivityTraceLogsListItem {...props} />
                 );
         }
     }, [pluginTraceLog]);
-    // }, [pluginTraceLog, inViewport]);
 
     return (
         <ListItemButton
             alignItems="flex-start"
             key={`ListItemButton-${pluginTraceLog.plugintracelogid}`}
-            sx={{ alignItems: 'center', bgcolor: bgcolor }}
-        // ref={forwardedRef}
+            sx={{ alignItems: 'center', bgcolor: bgcolor, ...boxStyle }}
         >
             {content}
         </ListItemButton>
     );
 }
 
-interface LittleListItemProps {
-    pluginTraceLog: PluginTraceLog
-}
 function PluginTraceLogsListItem(props: LittleListItemProps) {
     const { pluginTraceLog } = props;
 
     const { openDialog } = useContext(TraceLogControllerContext);
+
+    const ref = useRef<HTMLDivElement | null>(null);
 
     const [sdkMessageProcessingStep, isFetchingStep]: [SdkMessageProcessingStep, boolean] = RetrieveAttributes('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, ['stage', 'name', 'filteringattributes']) as any;
 
     const [sdkMessageProcessingStepImages, isFetchingImages, refreshStepImages]: [SdkMessageProcessingStepImage[], boolean, () => void] = RetrieveRecordsByFilter('sdkmessageprocessingstepimage', ['imagetype', 'attributes'], `_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
+
 
     return (
         <Box
@@ -141,6 +155,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                 width: '100%'
             }}
             onClick={() => openDialog(pluginTraceLog, sdkMessageProcessingStep, sdkMessageProcessingStepImages)}
+            ref={ref}
         >
             <ListItemText
                 key={`ListItemText-${pluginTraceLog.plugintracelogid}`}

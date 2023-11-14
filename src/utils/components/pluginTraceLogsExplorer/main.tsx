@@ -3,9 +3,7 @@ import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
 import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { Fab, Stack, ThemeProvider, createTheme } from "@mui/material";
-import { RetrieveAllRecordsByPage } from "../../hooks/XrmApi/RetrieveAllRecordsByPage";
-import { RetrieveAllRecords } from "../../hooks/XrmApi/RetrieveAllRecords";
+import { LinearProgress, Stack, ThemeProvider, createTheme } from "@mui/material";
 import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import { Button } from "@material-ui/core";
@@ -19,7 +17,7 @@ interface PluginTraceLogsPaneProps {
 }
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
-    const [decount, setDecount] = useState(refreshInterval);
+    const [decount, setDecount] = useState<number>(refreshInterval);
 
     const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
     const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
@@ -55,18 +53,6 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
         if (isFetching) return;
         setDecount(refreshInterval);
     }, [isFetching, isFetchingFirst]);
-
-
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         refreshFirst();
-    //     }, interval_ms * 1000);
-
-    //     return () => {
-    //         clearInterval(interval);
-    //     }
-    // }, []);
 
     useEffect(() => {
         const firstPluginTraceLogsInList = pluginTraceLogs.at(0);
@@ -105,6 +91,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                 }} >
                     <Stack direction='column' width='100%'>
                         <RefreshButton refresh={refreshFirst} time={decount} />
+                        {isFetching && <LinearProgress />}
                         <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} isFetching={isFetching || isFetchingFirst} />
                     </Stack>
                     <TraceLogDialog />
