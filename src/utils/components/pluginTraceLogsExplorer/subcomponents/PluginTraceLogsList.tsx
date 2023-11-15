@@ -1,17 +1,16 @@
-import { Box, Fab, LinearProgress, List, ListItemButton, ListItemText, ListSubheader, Tooltip, Typography } from "@mui/material";
-import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Box, Fab, List, ListItemButton, ListItemText, Tooltip, Typography } from "@mui/material";
+import React, { ComponentType, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
-import { TraceLogControllerContext } from "./contexts";
+import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { RetrieveRecordsByFilter } from "../../../hooks/XrmApi/RetrieveRecordsByFilter";
 import moment from "moment";
-import { RetrieveAttributes } from "../../../hooks/XrmApi/RetrieveAttributes";
 
 import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
+import { debugLog } from "../../../global/common";
 
 const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
 
@@ -40,15 +39,9 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
     return (
         <>
             <List
-                // ref={listRef}
                 dense
                 sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'clip' }}
                 key={`List-pluginTraceLogs`}
-                subheader={
-                    <ListSubheader component="div" sx={{ height: '5px' }}>
-                        {isFetching && <LinearProgress />}
-                    </ListSubheader>
-                }
             >
                 <AutoSizer>
                     {
@@ -135,12 +128,55 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     const { pluginTraceLog } = props;
 
     const { openDialog } = useContext(TraceLogControllerContext);
+    const { sdkMessageProcessingSteps: sdkMessageProcessingStepsStore, addMessageProcessingSteps, sdkMessageProcessingStepImages: sdkMessageProcessingStepImagesStore, addMessageProcessingStepImages } = useContext(TraceLogsAPI);
+
+    const [isFetchingStep, setIsFetchingStep] = useState<boolean>(false);
+    const [isFetchingImages, setIsFetchingImages] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement | null>(null);
 
-    const [sdkMessageProcessingStep, isFetchingStep]: [SdkMessageProcessingStep, boolean] = RetrieveAttributes('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, ['stage', 'name', 'filteringattributes']) as any;
+    // const [sdkMessageProcessingStep, isFetchingStep]: [SdkMessageProcessingStep, boolean] = RetrieveAttributes('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, ['stage', 'name', 'filteringattributes']) as any;
 
-    const [sdkMessageProcessingStepImages, isFetchingImages, refreshStepImages]: [SdkMessageProcessingStepImage[], boolean, () => void] = RetrieveRecordsByFilter('sdkmessageprocessingstepimage', ['imagetype', 'attributes'], `_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+    // const [sdkMessageProcessingStepImages, isFetchingImages, refreshStepImages]: [SdkMessageProcessingStepImage[], boolean, () => void] = RetrieveRecordsByFilter('sdkmessageprocessingstepimage', ['imagetype', 'attributes'], `_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+
+    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = sdkMessageProcessingStepsStore.find(step => step.sdkmessageprocessingstepid === pluginTraceLog.pluginstepid) ?? null;
+
+    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] = sdkMessageProcessingStepImagesStore.filter(step => step._sdkmessageprocessingstepid_value === pluginTraceLog.pluginstepid);
+
+    useEffect(() => {
+        debugLog("useEffect", "sdkMessageProcessingStep");
+        if (!sdkMessageProcessingStep) {
+            const fetchData = async () => {
+                debugLog("fetchData", "sdkMessageProcessingStep");
+                const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
+                delete result["@odata.context"];
+                delete result["@odata.etag"];
+                addMessageProcessingSteps(result['sdkmessageprocessingstepid'], result);
+                setIsFetchingStep(false);
+            }
+            fetchData();
+            setIsFetchingStep(true);
+        }
+    }, [sdkMessageProcessingStep]);
+
+    useEffect(() => {
+        debugLog("useEffect", "sdkMessageProcessingStepImages");
+        if (!sdkMessageProcessingStepImages) {
+            const fetchData = async () => {
+                debugLog("fetchData", "sdkMessageProcessingStepImages");
+                const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+                for (const index in result.entities) {
+                    if (Object.prototype.hasOwnProperty.call(result.entities, index)) {
+                        const image = result.entities[index];
+                        addMessageProcessingSteps(image['sdkmessageprocessingstepimageid'], image);
+                    }
+                }
+                setIsFetchingImages(false);
+            }
+            fetchData();
+            setIsFetchingImages(true);
+        }
+    }, [sdkMessageProcessingStepImages]);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
 
@@ -192,15 +228,15 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                             {pluginTraceLog.primaryentity}
                         </Typography>
                     </Tooltip>
-                    {` — ${isFetching ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
-                    <Tooltip title={isFetching ? 'Loading...' : sdkMessageProcessingStep.name} placement='left'>
+                    {` — ${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
+                    <Tooltip title={isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name} placement='left'>
                         <Typography
                             component="p"
                             variant="caption"
                             color="text.primary"
                             whiteSpace='nowrap'
                         >
-                            {`${isFetching ? 'Loading...' : sdkMessageProcessingStep.name}`}
+                            {`${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name}`}
                         </Typography>
                     </Tooltip>
                 </React.Fragment>

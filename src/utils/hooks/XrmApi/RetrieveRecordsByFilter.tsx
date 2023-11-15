@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { debugLog } from '../../global/common';
+import { debugLog, isObjectEquals } from '../../global/common';
 
 export function RetrieveRecordsByFilter(entityname: string, attributesList: string[], filter: string, orderby?: string): [any[], boolean, () => void] {
 
@@ -30,7 +30,9 @@ export function RetrieveRecordsByFilter(entityname: string, attributesList: stri
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, '?' + options);
 
-            setData(result.entities);
+            if (!isObjectEquals(result.entities, data)) {
+                setData(result.entities);
+            }
             setFetching(false);
         }
         // setData([]);

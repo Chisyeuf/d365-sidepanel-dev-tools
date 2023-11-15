@@ -3,10 +3,11 @@ import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
 import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { LinearProgress, Stack, ThemeProvider, createTheme } from "@mui/material";
+import { Stack, ThemeProvider, createTheme } from "@mui/material";
 import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
-import { Button } from "@material-ui/core";
+import ButtonLinearProgress from "../ButtonLinearProgress";
+import { useDictionnary } from "../../hooks/use/useDictionnary";
 
 const refreshInterval = 60;
 
@@ -18,14 +19,18 @@ interface PluginTraceLogsPaneProps {
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
     const [decount, setDecount] = useState<number>(refreshInterval);
-
     const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
-    const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
 
-    const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
-    const [relatedSdkMessageProcessingStep, setRelatedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
-    const [sdkMessageProcessingStepImages, setSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
+    const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
+    const { values: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
+    const { values: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage>({});
+
+
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
+    const [selectedSdkMessageProcessingStep, setSelectedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
+    const [selectedSdkMessageProcessingStepImages, setSelectedSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
+
 
     useEffect(() => {
         const intervalID = setInterval(function () {
@@ -63,16 +68,16 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
     const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => {
         setSelectedPluginTraceLog(selectedPluginTraceLog);
-        setRelatedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
-        setSdkMessageProcessingStepImages(sdkMessageProcessingStepImages ?? []);
+        setSelectedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
+        setSelectedSdkMessageProcessingStepImages(sdkMessageProcessingStepImages ?? []);
         setDialogOpen(true);
     };
 
     const handleCloseDialog = () => {
         setDialogOpen(false);
         setSelectedPluginTraceLog(null);
-        setRelatedSdkMessageProcessingStep(null);
-        setSdkMessageProcessingStepImages([]);
+        setSelectedSdkMessageProcessingStep(null);
+        setSelectedSdkMessageProcessingStepImages([]);
     };
 
     return (
@@ -82,16 +87,21 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                 closeDialog: handleCloseDialog,
                 openDialog: handleOpenDialog,
                 selectedPluginTraceLog: selectedPluginTraceLog,
-                relatedSdkMessageProcessingStep: relatedSdkMessageProcessingStep,
-                relatedSdkMessageProcessingStepImages: sdkMessageProcessingStepImages
+                selectedSdkMessageProcessingStep: selectedSdkMessageProcessingStep,
+                selectedSdkMessageProcessingStepImages: selectedSdkMessageProcessingStepImages
             }}>
                 <TraceLogsAPI.Provider value={{
                     ...defaultTraceLogsAPI,
-                    pluginTraceLogs: pluginTraceLogs
+                    pluginTraceLogs: pluginTraceLogs,
+                    sdkMessageProcessingSteps: sdkMessageProcessingSteps,
+                    sdkMessageProcessingStepImages: sdkMessageProcessingStepImages,
+                    addMessageProcessingSteps: addMessageProcessingSteps,
+                    addMessageProcessingStepImages: addMessageProcessingStepImages,
                 }} >
                     <Stack direction='column' width='100%'>
-                        <RefreshButton refresh={refreshFirst} time={decount} />
-                        {isFetching && <LinearProgress />}
+                        {/* <RefreshButton refresh={refreshFirst} time={decount} />
+                        {isFetching && <LinearProgress />} */}
+                        <ButtonLinearProgress loading={isFetching} onClick={refreshFirst} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
                         <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} isFetching={isFetching || isFetchingFirst} />
                     </Stack>
                     <TraceLogDialog />
@@ -109,9 +119,9 @@ function RefreshButton(props: RefreshButtonProps) {
     const { time, refresh } = props;
 
     return (
-        <Button variant='contained' onClick={refresh}>
+        <ButtonLinearProgress variant='contained' onClick={refresh}>
             Refresh ({time})
-        </Button>
+        </ButtonLinearProgress>
     );
 }
 

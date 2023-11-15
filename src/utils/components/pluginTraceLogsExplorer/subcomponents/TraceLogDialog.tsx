@@ -44,7 +44,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
 
     const { pluginTraceLogs } = useContext(TraceLogsAPI);
 
-    const { closeDialog, dialogOpened, selectedPluginTraceLog, relatedSdkMessageProcessingStep, relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
+    const { closeDialog, dialogOpened, selectedPluginTraceLog, selectedSdkMessageProcessingStep: relatedSdkMessageProcessingStep, selectedSdkMessageProcessingStepImages: relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
 
     const imagesEnabled = useMemo(() => relatedSdkMessageProcessingStepImages.length > 0, [relatedSdkMessageProcessingStepImages]);
 

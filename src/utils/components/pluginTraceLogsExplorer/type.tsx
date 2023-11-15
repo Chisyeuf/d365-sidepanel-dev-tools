@@ -189,8 +189,8 @@ export interface IPluginTraceLogControllerContext {
     openDialog: (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => void,
     closeDialog: () => void,
     selectedPluginTraceLog: PluginTraceLog | null,
-    relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null,
-    relatedSdkMessageProcessingStepImages: SdkMessageProcessingStepImage[]
+    selectedSdkMessageProcessingStep: SdkMessageProcessingStep | null,
+    selectedSdkMessageProcessingStepImages: SdkMessageProcessingStepImage[]
 }
 
 
@@ -198,4 +198,6 @@ export interface ITraceLogsAPI {
     pluginTraceLogs: PluginTraceLog[],
     sdkMessageProcessingSteps: SdkMessageProcessingStep[],
     sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[],
+    addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void,
+    addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage) => void,
 }

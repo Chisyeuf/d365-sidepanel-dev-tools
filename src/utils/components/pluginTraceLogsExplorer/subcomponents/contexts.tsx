@@ -1,5 +1,7 @@
 import { createContext } from "react";
-import { IPluginTraceLogControllerContext, ITraceLogsAPI, PluginTraceLog } from "../type";
+import { IPluginTraceLogControllerContext, ITraceLogsAPI, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
+import { RetrieveAttributes } from "../../../hooks/XrmApi/RetrieveAttributes";
+import { RetrieveRecordsByFilter } from "../../../hooks/XrmApi/RetrieveRecordsByFilter";
 
 // export const TraceLogsContext = createContext<PluginTraceLog[]>([]);
 
@@ -8,8 +10,8 @@ const defaultPluginTraceLogController: IPluginTraceLogControllerContext = {
     openDialog() { },
     closeDialog() { },
     selectedPluginTraceLog: null,
-    relatedSdkMessageProcessingStep: null,
-    relatedSdkMessageProcessingStepImages: []
+    selectedSdkMessageProcessingStep: null,
+    selectedSdkMessageProcessingStepImages: []
 };
 export const TraceLogControllerContext = createContext<IPluginTraceLogControllerContext>(defaultPluginTraceLogController);
 
@@ -17,5 +19,11 @@ export const defaultTraceLogsAPI: ITraceLogsAPI = {
     pluginTraceLogs: [],
     sdkMessageProcessingStepImages: [],
     sdkMessageProcessingSteps: [],
+    addMessageProcessingSteps: function (key: string, value: SdkMessageProcessingStep): void {
+        throw new Error("Function not implemented.");
+    },
+    addMessageProcessingStepImages: function (key: string, value: SdkMessageProcessingStepImage): void {
+        throw new Error("Function not implemented.");
+    }
 }
 export const TraceLogsAPI = createContext<ITraceLogsAPI>(defaultTraceLogsAPI);
