@@ -69,7 +69,7 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
         const [dirtyAttributes, setDirtyAttributes] = useState<Xrm.Attributes.Attribute[]>();
 
-        const { value: squareFormEnabled, toggle: toggleSquareFormEnabled } = useBoolean(true);
+        const { value: squareFormEnabled, toggle: toggleSquareFormEnabled } = useBoolean(false);
 
 
         useEffect(() => {
