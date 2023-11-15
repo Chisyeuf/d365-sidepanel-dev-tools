@@ -1,6 +1,5 @@
 
-import { Button, ButtonGroup, createTheme, Divider, List, ListItemButton, ListItemText, ListSubheader, Skeleton, ThemeProvider } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Button, ButtonGroup, createTheme, Divider, List, ListItemButton, ListItemText, ListSubheader, Skeleton, Stack, ThemeProvider } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -170,7 +169,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                                     <Button onClick={toggleForceClose}>Close All</Button>
                                     <Button onClick={forceRefresh}>Refresh</Button>
                                 </ButtonGroup>
-                                <FilterInput fullWidth placeholder='Search by Attribute Name' forcedValue={filter} returnFilterInput={setFilter} />
+                                <FilterInput fullWidth placeholder='Search by Attribute Name' defaultValue={filter} returnFilterInput={setFilter} />
                             </ListSubheader>
                         }
                     >

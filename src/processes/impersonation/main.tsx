@@ -1,6 +1,5 @@
 
-import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Tooltip, Typography } from '@mui/material';
-import { Stack } from '@mui/system';
+import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -284,7 +283,7 @@ function SecurityRoleMenu(props: SecurityRoleMenuProps) {
                 <Box
                     padding={1}
                 >
-                    <FilterInput fullWidth placeholder='Filter by name' returnFilterInput={setFilter} forcedValue={filter} />
+                    <FilterInput fullWidth placeholder='Filter by name' returnFilterInput={setFilter} defaultValue={filter} />
                 </Box>
                 <Divider />
                 <List sx={{ width: '25vw', overflowY: 'scroll' }}>

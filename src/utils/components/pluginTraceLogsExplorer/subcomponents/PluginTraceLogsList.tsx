@@ -40,7 +40,7 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
         <>
             <List
                 dense
-                sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'clip' }}
+                sx={{ height: '100%', width: '100%', bgcolor: 'background.paper' }}
                 key={`List-pluginTraceLogs`}
             >
                 <AutoSizer>
@@ -51,6 +51,8 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
                             itemSize={90}
                             itemData={pluginTraceLogs}
                             itemCount={pluginTraceLogs.length}
+                            overscanCount={2}
+                            style={{ overflow: 'clip auto' }}
                         // innerRef={listRef}
                         >
                             {(props) => <Row {...props} />}
@@ -157,7 +159,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
             fetchData();
             setIsFetchingStep(true);
         }
-    }, [sdkMessageProcessingStep]);
+    }, [sdkMessageProcessingStep?.sdkmessageprocessingstepid]);
 
     useEffect(() => {
         debugLog("useEffect", "sdkMessageProcessingStepImages");
@@ -176,7 +178,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
             fetchData();
             setIsFetchingImages(true);
         }
-    }, [sdkMessageProcessingStepImages]);
+    }, [sdkMessageProcessingStepImages.length]);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
 
@@ -257,8 +259,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                     </React.Fragment>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden' }} />
-            {/* {(isFetchingStep || isFetchingImages) && <CircularProgress />} */}
+            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em' }} />
         </Box >
     );
 }
@@ -333,7 +334,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                     </React.Fragment>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden' }} />
+            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em' }} />
         </Box>
     );
 }

@@ -9,7 +9,8 @@ type AttributeFilterInputProps = {
     returnFilterInput: (str: string) => void,
     placeholder?: string,
     fullWidth?: boolean,
-    forcedValue?: string,
+    defaultValue?: string,
+    debounceDelay?: number
 }
 export type AttributeFilterInputRef = {
     select(): void;
@@ -18,8 +19,8 @@ export type AttributeFilterInputRef = {
 
 const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInputProps>(
     (props: AttributeFilterInputProps, ref) => {
-        const [value, setValue] = useState(props.forcedValue ?? '');
-        const debounceValue = useDebounce(value, 250);
+        const [value, setValue] = useState(props.defaultValue ?? '');
+        const debounceValue = useDebounce(value, props.debounceDelay ?? 250);
 
         const inputRef = useRef<HTMLInputElement>(null);
 

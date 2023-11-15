@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
 import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { Stack, ThemeProvider, createTheme } from "@mui/material";
+import { Checkbox, Stack, ThemeProvider, Tooltip, createTheme } from "@mui/material";
 import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import ButtonLinearProgress from "../ButtonLinearProgress";
 import { useDictionnary } from "../../hooks/use/useDictionnary";
+import FilterInput from "../FilterInput";
+import ErrorIcon from '@mui/icons-material/Error';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 const refreshInterval = 60;
 
@@ -25,6 +28,16 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const { values: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
     const { values: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage>({});
 
+    const [filter, setFilter] = useState<string>('');
+    const [errorOnly, setErrorOnly] = useState<boolean>(false);
+    const pluginTraceLogsFiltered = useMemo(() => pluginTraceLogs.filter(log => {
+        const textFilterResult = log.messagename.includes(filter) || log.primaryentity.includes(filter);
+        if (errorOnly) {
+            return log.exceptiondetails && textFilterResult;
+        } else {
+            return textFilterResult;
+        }
+    }), [pluginTraceLogs, filter, errorOnly]);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
@@ -66,6 +79,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
         }
     }, [firstPluginTraceLogs, pluginTraceLogs]);
 
+
     const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => {
         setSelectedPluginTraceLog(selectedPluginTraceLog);
         setSelectedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
@@ -99,10 +113,27 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                     addMessageProcessingStepImages: addMessageProcessingStepImages,
                 }} >
                     <Stack direction='column' width='100%'>
-                        {/* <RefreshButton refresh={refreshFirst} time={decount} />
-                        {isFetching && <LinearProgress />} */}
-                        <ButtonLinearProgress loading={isFetching} onClick={refreshFirst} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
-                        <PluginTraceLogsList pluginTraceLogs={pluginTraceLogs} isFetching={isFetching || isFetchingFirst} />
+                        <Stack direction='column' padding={1} spacing={0.5}>
+                            <Stack direction='row' spacing={0.5}>
+                                <FilterInput
+                                    returnFilterInput={setFilter}
+                                    placeholder="Filter by name or entity"
+                                    fullWidth
+                                />
+                                <Tooltip title='Display only logs in error'>
+                                    <Checkbox
+                                        checked={errorOnly}
+                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                            setErrorOnly(event.target.checked)
+                                        }}
+                                        icon={<ErrorOutlineIcon />}
+                                        checkedIcon={<ErrorIcon sx={{ color: '#ff3333' }} />}
+                                    />
+                                </Tooltip>
+                            </Stack>
+                            <ButtonLinearProgress loading={isFetching} onClick={refreshFirst} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
+                        </Stack>
+                        <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetching || isFetchingFirst} />
                     </Stack>
                     <TraceLogDialog />
                 </TraceLogsAPI.Provider>
@@ -110,19 +141,5 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
         </ThemeProvider>
     )
 });
-
-interface RefreshButtonProps {
-    refresh: () => void,
-    time: number
-}
-function RefreshButton(props: RefreshButtonProps) {
-    const { time, refresh } = props;
-
-    return (
-        <ButtonLinearProgress variant='contained' onClick={refresh}>
-            Refresh ({time})
-        </ButtonLinearProgress>
-    );
-}
 
 export default PluginTraceLogsPane;

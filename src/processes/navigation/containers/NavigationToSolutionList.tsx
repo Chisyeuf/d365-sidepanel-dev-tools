@@ -143,7 +143,7 @@ function SolutionList(props: NavigationButton) {
                 <Box
                     padding={1}
                 >
-                    <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} forcedValue={filter} />
+                    <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} defaultValue={filter} />
                 </Box>
                 <Divider />
                 <List sx={{ width: '25vw', overflowY: 'scroll' }}>

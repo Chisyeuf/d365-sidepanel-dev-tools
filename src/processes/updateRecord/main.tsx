@@ -30,7 +30,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
 
 // Component imports
-import FilterInput from '../../utils/components/FilterInput';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
 import ErrorFileSnackbar from '../../utils/components/ReportComplete';
