@@ -146,10 +146,8 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] = sdkMessageProcessingStepImagesStore.filter(step => step._sdkmessageprocessingstepid_value === pluginTraceLog.pluginstepid);
 
     useEffect(() => {
-        debugLog("useEffect", "sdkMessageProcessingStep");
         if (!sdkMessageProcessingStep) {
             const fetchData = async () => {
-                debugLog("fetchData", "sdkMessageProcessingStep");
                 const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
                 delete result["@odata.context"];
                 delete result["@odata.etag"];
@@ -162,10 +160,8 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     }, [sdkMessageProcessingStep?.sdkmessageprocessingstepid]);
 
     useEffect(() => {
-        debugLog("useEffect", "sdkMessageProcessingStepImages");
         if (!sdkMessageProcessingStepImages) {
             const fetchData = async () => {
-                debugLog("fetchData", "sdkMessageProcessingStepImages");
                 const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
                 for (const index in result.entities) {
                     if (Object.prototype.hasOwnProperty.call(result.entities, index)) {
