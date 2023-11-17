@@ -137,13 +137,9 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
 
     const ref = useRef<HTMLDivElement | null>(null);
 
-    // const [sdkMessageProcessingStep, isFetchingStep]: [SdkMessageProcessingStep, boolean] = RetrieveAttributes('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, ['stage', 'name', 'filteringattributes']) as any;
+    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null;
 
-    // const [sdkMessageProcessingStepImages, isFetchingImages, refreshStepImages]: [SdkMessageProcessingStepImage[], boolean, () => void] = RetrieveRecordsByFilter('sdkmessageprocessingstepimage', ['imagetype', 'attributes'], `_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
-
-    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = sdkMessageProcessingStepsStore.find(step => step.sdkmessageprocessingstepid === pluginTraceLog.pluginstepid) ?? null;
-
-    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] = sdkMessageProcessingStepImagesStore.filter(step => step._sdkmessageprocessingstepid_value === pluginTraceLog.pluginstepid);
+    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null;
 
     useEffect(() => {
         if (!sdkMessageProcessingStep) {
@@ -151,7 +147,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                 const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
                 delete result["@odata.context"];
                 delete result["@odata.etag"];
-                addMessageProcessingSteps(result['sdkmessageprocessingstepid'], result);
+                addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
                 setIsFetchingStep(false);
             }
             fetchData();
@@ -162,19 +158,14 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     useEffect(() => {
         if (!sdkMessageProcessingStepImages) {
             const fetchData = async () => {
-                const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
-                for (const index in result.entities) {
-                    if (Object.prototype.hasOwnProperty.call(result.entities, index)) {
-                        const image = result.entities[index];
-                        addMessageProcessingSteps(image['sdkmessageprocessingstepimageid'], image);
-                    }
-                }
+                const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+                addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
                 setIsFetchingImages(false);
             }
             fetchData();
             setIsFetchingImages(true);
         }
-    }, [sdkMessageProcessingStepImages.length]);
+    }, [sdkMessageProcessingStepImages]);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
 

@@ -2,13 +2,13 @@ import { AppBar, Box, Dialog, IconButton, Slide, Stack, Toolbar, Typography, cre
 import Grid from '@mui/material/Unstable_Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import { TransitionProps } from '@mui/material/transitions';
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useRef } from "react";
 import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
 import { OperationType } from "../type";
 
 import { ThemeProvider } from "@emotion/react";
 import PluginTraceLogsList from "./PluginTraceLogsList";
-import Section from "./Section";
+import Section, { sectionMinHeight } from "./Section";
 import TraceLogField from "./TraceLogField";
 import TypographyCopy from "../../TypographyCopy";
 
@@ -86,13 +86,13 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                 >
                     <Stack spacing={1} direction='column' height='100%'>
                         <Stack spacing={1} direction='row' height='75%'>
-                            <Section title="Correlation" sx={{ width: '25%' }}>
+                            <Section title="Correlation" sx={{ width: '25%' }} expandable={false}>
                                 <PluginTraceLogsList pluginTraceLogs={traceLogsCorrelated} />
                             </Section>
                             <Stack spacing={1} direction='column' height={'100%'} width={imagesEnabled ? '55%' : '75%'}>
                                 {
                                     relatedSdkMessageProcessingStep?.filteringattributes &&
-                                    <Section title="Filtering Attributes" openByDefault={true} sx={{ maxHeight: '7.5em' }}>
+                                    <Section title="Filtering Attributes" defaultExpanded={false} sx={{ maxHeight: `calc(${sectionMinHeight} + ${56}px)` }}>
                                         <TypographyCopy height='unset' variant="body1" copyValue={relatedSdkMessageProcessingStep?.filteringattributes} >
                                             {relatedSdkMessageProcessingStep?.filteringattributes?.replaceAll(',', ', ') ?? 'Loading...'}
                                         </TypographyCopy>

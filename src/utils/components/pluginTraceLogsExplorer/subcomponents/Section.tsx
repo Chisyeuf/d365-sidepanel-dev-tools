@@ -1,13 +1,13 @@
 import { Theme } from "@emotion/react";
-import { SxProps, Stack, Typography, Divider, Paper, createTheme, styled } from "@mui/material";
-import { PropsWithChildren } from "react";
+import { SxProps, Stack, Typography, Divider, Paper, createTheme, styled, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { PropsWithChildren, useState } from "react";
 import { useBoolean } from "usehooks-ts";
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import React from "react";
 
-const minHeight = '66px';
+export const sectionMinHeight = '66px';
 
 const defaultTheme = createTheme();
 
@@ -20,19 +20,25 @@ const GridPaper = styled(Paper)(({ theme }) => ({
 
 interface SectionProps {
     title?: string,
-    sx?: SxProps<Theme>;
+    sx?: SxProps<Theme>,
+    defaultExpanded?: boolean,
+    expandable?: boolean,
 }
-const Section = React.memo((props: PropsWithChildren<SectionProps> & { openByDefault?: boolean }) => {
-    const { value: open, toggle: toggleOpen } = useBoolean(props.openByDefault ?? true);
+const Section = React.memo((props: PropsWithChildren<SectionProps>) => {
+    const { value: open, toggle: toggleOpen } = useBoolean(props.defaultExpanded ?? true);
+
+    const handleOnChange = () => {
+        (props.expandable === undefined || props.expandable) && toggleOpen();
+    }
 
     return (
-        <GridPaper sx={{ minHeight: open ? 0 : minHeight, height: open ? '100%' : minHeight, transition: 'height 0.5s ease-in-out 0s', ...props.sx }}>
+        <GridPaper sx={{ minHeight: open ? 0 : sectionMinHeight, height: open ? '100%' : sectionMinHeight, transition: 'height 0.5s ease-in-out 0s', ...props.sx }}>
             <Stack height='100%' overflow='hidden'>
                 {
                     props.title && <>
-                        <Stack onClick={toggleOpen} direction='row' alignItems='center' justifyContent='space-between' pr={2}>
+                        <Stack onClick={handleOnChange} direction='row' alignItems='center' justifyContent='space-between' pr={2}>
                             <Typography component='span' variant="h6" sx={{ ml: 1.5 }} color="text.primary">{props.title}</Typography>
-                            {open ? <ExpandLess /> : <ExpandMore />}
+                            {(props.expandable === undefined || props.expandable) && (open ? <ExpandLess /> : <ExpandMore />)}
                         </Stack>
 
                         <Divider sx={{ mb: 1 }} />
@@ -41,6 +47,26 @@ const Section = React.memo((props: PropsWithChildren<SectionProps> & { openByDef
                 {props.children}
             </Stack>
         </GridPaper>
+
+        // <Accordion
+        //     disableGutters
+        //     expanded={open}
+        //     onChange={handleOnChange}
+        //     sx={{ ...props.sx, '& .sidepanel-dev-tools-Accordion-region': { height: '100%' } }}
+        //     TransitionProps={{ sx: { height: '100%' } }}
+        // >
+        //     {
+        //         props.title &&
+        //         <AccordionSummary
+        //             expandIcon={(props.expandable === undefined || props.expandable) && <ExpandMore />}
+        //         >
+        //             <Typography component='span' variant="h6" sx={{ ml: 1.5 }}>{props.title}</Typography>
+        //         </AccordionSummary>
+        //     }
+        //         <GridPaper>
+        //             {props.children}
+        //         </GridPaper>
+        // </Accordion>
     );
 });
 

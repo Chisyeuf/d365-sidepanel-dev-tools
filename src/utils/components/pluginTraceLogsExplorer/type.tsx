@@ -196,8 +196,8 @@ export interface IPluginTraceLogControllerContext {
 
 export interface ITraceLogsAPI {
     pluginTraceLogs: PluginTraceLog[],
-    sdkMessageProcessingSteps: SdkMessageProcessingStep[],
-    sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[],
+    sdkMessageProcessingSteps: { [key: string]: SdkMessageProcessingStep },
+    sdkMessageProcessingStepImages: { [key: string]: SdkMessageProcessingStepImage[] },
     addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void,
-    addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage) => void,
+    addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage[]) => void,
 }

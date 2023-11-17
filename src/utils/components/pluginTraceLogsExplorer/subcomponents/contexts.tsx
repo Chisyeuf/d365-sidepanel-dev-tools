@@ -17,12 +17,12 @@ export const TraceLogControllerContext = createContext<IPluginTraceLogController
 
 export const defaultTraceLogsAPI: ITraceLogsAPI = {
     pluginTraceLogs: [],
-    sdkMessageProcessingStepImages: [],
-    sdkMessageProcessingSteps: [],
+    sdkMessageProcessingStepImages: {},
+    sdkMessageProcessingSteps: {},
     addMessageProcessingSteps: function (key: string, value: SdkMessageProcessingStep): void {
         throw new Error("Function not implemented.");
     },
-    addMessageProcessingStepImages: function (key: string, value: SdkMessageProcessingStepImage): void {
+    addMessageProcessingStepImages: function (key: string, value: SdkMessageProcessingStepImage[]): void {
         throw new Error("Function not implemented.");
     }
 }
