@@ -87,16 +87,17 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [domUpdated, setDomUpdated] = useState<boolean>(false);
 
+        
+        const xrmObserverCallback = useCallback(() => {
+            setDomUpdated(prev => !prev);
+        }, []);
+
         useImperativeHandle(ref, () => {
             return ({
                 onClose() {
                     domObserver?.removeListener(xrmObserverCallback);
                 }
             });
-        }, []);
-
-        const xrmObserverCallback = useCallback(() => {
-            setDomUpdated(prev => !prev);
         }, []);
 
         useEffect(() => {

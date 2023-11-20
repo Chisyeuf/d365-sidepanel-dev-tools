@@ -5,7 +5,8 @@ import { SubProcessProps } from '../main';
 import { Portal } from '@mui/base';
 import BookIcon from '@mui/icons-material/Book';
 import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
-import { LabelToolsSubProcess, LogicalNameTypography } from '../containers/LabelTools';
+import { LabelToolsSubProcess } from '../containers/LabelTools';
+import { LogicalNameTypography } from '../../../utils/components/LogicalNameTypography';
 
 function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
 

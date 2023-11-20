@@ -81,7 +81,7 @@ function FillFields(props: SubProcessProps) {
     const attributes = useMemo(() => {
         if (currentFormContext) {
             const controls: Xrm.Attributes.Attribute[] = currentFormContext.getAttribute();
-            debugLog("currentControlsFound", controls);
+            // debugLog("currentControlsFound", controls);
             return controls;
         }
         else {

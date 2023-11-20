@@ -10,7 +10,6 @@ export function useCurrentFormContext() {
     const xrmUpdated = useXrmUpdated();
 
     useEffect(() => {
-        debugLog("_pageId")
         // debugLog("useCurrentFormContext",
         //     "Is entity record:", Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord',
         //     "with",
