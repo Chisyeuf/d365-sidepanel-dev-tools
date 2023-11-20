@@ -200,7 +200,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         useUpdateEffect(() => {
             setAttributes({});
         }, [entityname]);
-        
+
 
         const xrmObserverCallback = () => {
             if (entityname) return
@@ -328,7 +328,7 @@ function AttributesList(props: AttributesListProps) {
     useEffect(() => {
         setSelectedAttribute([]);
     }, [props.resetTotal]);
-    
+
 
     const nodeContent = useMemo(() =>
         !fetchingMetadata
@@ -522,14 +522,13 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                 attributeToUpdateManager={{ ...props.attributeToUpdateManager }}
             />
             {
-                !props.disabled &&
                 (
                     isDirty ?
                         <IconButton title="Restore to initial value" onClick={setToReset} sx={{ padding: '6px' }}>
                             <RestoreIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
                         </IconButton>
                         :
-                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }}>
+                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px', visibility: props.disabled ? 'hidden' : 'visible' }}>
                             <DeleteIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
                         </IconButton>
                 )
