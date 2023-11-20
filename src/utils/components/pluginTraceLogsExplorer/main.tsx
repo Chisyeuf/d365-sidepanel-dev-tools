@@ -11,6 +11,8 @@ import { useDictionnary } from "../../hooks/use/useDictionnary";
 import FilterInput from "../FilterInput";
 import ErrorIcon from '@mui/icons-material/Error';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { debugLog } from "../../global/common";
+import EntitySelector from "../EntitySelector";
 
 const refreshInterval = 60;
 
@@ -30,14 +32,17 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
     const [filter, setFilter] = useState<string>('');
     const [errorOnly, setErrorOnly] = useState<boolean>(false);
+
     const pluginTraceLogsFiltered = useMemo(() => pluginTraceLogs.filter(log => {
-        const textFilterResult = log.messagename.includes(filter) || log.primaryentity.includes(filter);
+        const filterLower = filter.toLowerCase();
+        const textFilterResult = log.primaryentity.includes(filterLower);
         if (errorOnly) {
             return log.exceptiondetails && textFilterResult;
         } else {
             return textFilterResult;
         }
-    }), [pluginTraceLogs, filter, errorOnly]);
+    }), [pluginTraceLogs, sdkMessageProcessingSteps, filter, errorOnly]);
+
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
@@ -115,10 +120,10 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                     <Stack direction='column' width='100%'>
                         <Stack direction='column' padding={1} spacing={0.5}>
                             <Stack direction='row' spacing={0.5}>
-                                <FilterInput
-                                    returnFilterInput={setFilter}
-                                    placeholder="Filter by name or entity"
-                                    fullWidth
+                                <EntitySelector
+                                    setEntityname={setFilter}
+                                    entityname={filter}
+                                    moreOptions={[{ id: "none", label: "None" }]}
                                 />
                                 <Tooltip title='Display only logs in error'>
                                     <Checkbox

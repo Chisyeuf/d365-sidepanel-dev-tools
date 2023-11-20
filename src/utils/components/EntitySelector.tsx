@@ -21,24 +21,25 @@ const filterOptions = createFilterOptions<EntityOption>({
 
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,
-    entityname: string
+    entityname: string,
+    moreOptions?: EntityOption[],
 }
 type EntityOption = {
     id: string,
     label: string
 }
-const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => {
+const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo((props) => {
     const [value, setValue] = useState<EntityOption>({ id: props.entityname, label: "" });
 
-    const entityname = props.entityname;
+    const { entityname, moreOptions } = props;
 
     const entities = RetrieveEntities();
 
     const options = useMemo(() => {
-        return entities?.map((value, index, array) => {
+        return (entities?.map((value, index, array) => {
             return { id: value.logicalname, label: value.name }
-        }) ?? [];
-    }, [entities]);
+        }) ?? []).concat(moreOptions ?? []);
+    }, [entities, JSON.stringify(moreOptions)]);
 
     useEffect(() => {
         setValue(options.find((o) => { return o.id === entityname }) ?? { id: entityname, label: "" })
@@ -61,6 +62,6 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
             />
         </FormControl>
     );
-}
+});
 
 export default EntitySelector;
