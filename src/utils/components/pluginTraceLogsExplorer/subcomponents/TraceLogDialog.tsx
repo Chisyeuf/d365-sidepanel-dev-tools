@@ -130,7 +130,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                             }
                         </Stack>
                         <Box height='25%'>
-                            <Section title="Context">
+                            <Section title="Context" expandable={false}>
                                 <Grid container rowSpacing={1.5} columnSpacing={6} sx={{ width: '100%' }} pl={2}>
                                     <TraceLogField label="Operation Type" value={selectedPluginTraceLog?.["operationtype@OData.Community.Display.V1.FormattedValue"]} />
                                     <TraceLogField label="Message" value={selectedPluginTraceLog?.messagename} />
