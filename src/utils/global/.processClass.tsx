@@ -25,9 +25,9 @@ export abstract class ProcessButton {
     ref: React.RefObject<ProcessRef>;
     // xrmUpdatedCallback?: () => void
 
-    constructor(id: string, name: string, icon: JSX.Element, width: number) {
+    constructor(id: string, name: string| (() => string), icon: JSX.Element, width: number) {
         this.id = ProcessButton.prefixId + id;
-        this.name = name;
+        this.name = typeof name === 'string' ? name : name();
         this.icon = icon;
         this.width = width;
         this.onClick = this.onClick.bind(this);
