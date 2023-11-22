@@ -67,12 +67,12 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         useEffect(() => {
             document.querySelectorAll('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
             setScriptNodeContent(null);
-            const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]');
+            const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
             Promise.all(Array.from(docs).flatMap(doc => {
                 if (doc.contentWindow)
                     return Array.prototype.slice
                         .apply(doc.contentWindow.document.querySelectorAll('script'))
-                        .filter((s: HTMLScriptElement) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()))
+                        .filter((s: HTMLScriptElement, index, array) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()) )
                         .map<Promise<ScriptNodeContent>>(async (s: HTMLScriptElement) => {
                             return {
                                 src: s.src,
@@ -81,9 +81,9 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         })
             })).then((scriptNodeContents) => {
                 if (!scriptNodeContents) return;
-                const scriptNodeContentsNotNull: ScriptNodeContent[] = scriptNodeContents.filter(i => i) as any;
-                debugLog("Scripts found:", scriptNodeContentsNotNull);
-                setScriptNodeContent(scriptNodeContentsNotNull);
+                const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.src === i.src) === index) as any;
+                debugLog("Scripts found:", scriptNodeContentsDistinctNotNull);
+                setScriptNodeContent(scriptNodeContentsDistinctNotNull);
             });
         }, [xrmUpdated]);
 
@@ -230,7 +230,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         secondaryAction={removeScriptOverride}
                     />
                     <ScriptList
-                        text='Scripts found in this page :'
+                        text='Scripts found on this page :'
                         items={root && getAllFiles(root) || []}
                         primaryLabel={(item) => scriptsOverride[item.url] ? <strong>{item.name}</strong> : item.name}
                         primaryAction={selectFile}
@@ -273,7 +273,7 @@ type ScriptListProps<T> = {
 function ScriptList<T>(props: ScriptListProps<T>) {
     return (
         <List
-            sx={{ width: '100%', bgcolor: 'background.paper' }}
+            sx={{ width: '100%', bgcolor: 'background.paper', overflowX:'hidden', overflowY:'auto' }}
             component="nav"
             disablePadding
             subheader={
