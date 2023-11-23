@@ -34,7 +34,7 @@ function SolutionList(props: NavigationButton) {
 
     function handleClickOldSolution() {
         if (!selectedSolution) {
-            window.open(`${clientUrl}/main.aspx?settingsonly=true`, '_blank');
+            window.open(`${clientUrl}/tools/Solution/home_solution.aspx?etc=7100`, '_blank');
         } else {
             window.open(`${clientUrl}/tools/solution/edit.aspx?id=${selectedSolution.solutionid}`, '_blank');
         }
