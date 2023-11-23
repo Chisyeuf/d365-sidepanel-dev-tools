@@ -26,7 +26,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
         if (currentFormContext) {
             const controls: Xrm.Controls.Control[] = currentFormContext.getControl();
 
-            const allcontrols: OptionalModeStateType[] = controls.map<OptionalModeStateType>(c => {
+            const allcontrols: OptionalModeStateType[] = controls?.map<OptionalModeStateType>(c => {
                 return {
                     name: c.getName(),
                     defaultState: Xrm.Page.getAttribute(c.getName())?.getRequiredLevel(),

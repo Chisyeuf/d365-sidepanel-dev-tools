@@ -23,7 +23,7 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
         if (currentFormContext) {
             const controls: Xrm.Controls.StandardControl[] = currentFormContext.getControl() as Xrm.Controls.StandardControl[];
 
-            const allcontrols: EnableModeStateType[] = controls.map<EnableModeStateType>(c => {
+            const allcontrols: EnableModeStateType[] = controls?.map<EnableModeStateType>(c => {
                 return {
                     name: c.getName(),
                     defaultState: (c.getDisabled && c.getDisabled()) ?? false,

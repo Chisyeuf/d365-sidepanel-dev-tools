@@ -17,7 +17,7 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
 
     const tabs = useMemo(() => {
         if (currentFormContext) {
-            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
+            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs?.get();
 
             return tabs;
         }
@@ -28,8 +28,8 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
 
     const sections = useMemo(() => {
         if (currentFormContext) {
-            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
-            const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
+            const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs?.get();
+            const sections: Xrm.Controls.Section[] = tabs?.flatMap(t => t.sections?.get());
 
             return sections;
         }

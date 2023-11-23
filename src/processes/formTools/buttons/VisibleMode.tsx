@@ -28,7 +28,7 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
         }
         const controls: Xrm.Controls.Control[] = currentFormContext.getControl();
 
-        const allcontrols: VisibleModeStateType[] = controls.map<VisibleModeStateType>(c => {
+        const allcontrols: VisibleModeStateType[] = controls?.map<VisibleModeStateType>(c => {
             return {
                 name: c.getName(),
                 defaultState: c.getVisible() ?? true,
@@ -44,7 +44,7 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
         }
         const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
 
-        const allcontrols: VisibleModeStateType[] = tabs.map<VisibleModeStateType>(t => {
+        const allcontrols: VisibleModeStateType[] = tabs?.map<VisibleModeStateType>(t => {
             return {
                 name: t.getName(),
                 defaultState: t.getVisible() ?? true,
@@ -58,10 +58,10 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
         if (!currentFormContext) {
             return null;
         }
-        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
-        const sections: Xrm.Controls.Section[] = tabs.flatMap(t => t.sections.get());
+        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs?.get();
+        const sections: Xrm.Controls.Section[] = tabs?.flatMap(t => t.sections?.get());
 
-        const allcontrols: VisibleModeStateType[] = sections.map<VisibleModeStateType>(s => {
+        const allcontrols: VisibleModeStateType[] = sections?.map<VisibleModeStateType>(s => {
             return {
                 name: s.getName(),
                 defaultState: s.getVisible() ?? true,
@@ -81,11 +81,11 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
         })
         visibilityControlsTabs.then((tabs) => {
             tabs?.forEach(t => {
-                const tabControlTemp = Xrm.Page.ui.tabs.get(t.name);
+                const tabControlTemp = Xrm.Page.ui.tabs?.get(t.name);
                 tabControlTemp.setVisible(visibleModeEnable || t.defaultState);
                 visibilityControlsSection.then((sections) => {
                     sections?.forEach(s => {
-                        const sectionControlTemp = tabControlTemp.sections.get(s.name);
+                        const sectionControlTemp = tabControlTemp.sections?.get(s.name);
                         if (sectionControlTemp) {
                             sectionControlTemp.setVisible(visibleModeEnable || s.defaultState)
                         }

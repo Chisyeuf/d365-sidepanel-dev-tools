@@ -31,7 +31,7 @@ function ShowOptionSetInFields(props: SubProcessProps) {
 
         Xrm.Utility.getEntityMetadata(currentFormContext.data.entity.getEntityName(), controls.map(c => (c as any).controlDescriptor.DataFieldName)).then(entityMetadata => {
             const attributes = entityMetadata.Attributes;
-            controls.forEach((control) => {
+            controls?.forEach((control) => {
                 const fieldMetadata = attributes.get((control as any).controlDescriptor.DataFieldName as string);
                 if (fieldMetadata) {
                     const options: OptionSetValue[] = Object.values(fieldMetadata.OptionSet) as any[];
