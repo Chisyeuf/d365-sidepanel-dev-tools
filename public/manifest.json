@@ -18,18 +18,21 @@
     "content_scripts": [
         {
             "matches": ["https://*.dynamics.com/*"],
+            "exclude_matches":["https://community.dynamics.com/*"],
             "js": ["/static/js/content.js"]
         }
     ],
     "web_accessible_resources": [
         {
             "resources": ["/static/js/main.js", "/icons/*"],
-            "matches": ["https://*.dynamics.com/*"]
+            "matches": ["https://*.dynamics.com/*"],
+            "exclude_matches":["https://community.dynamics.com/*"]
         }
     ],
     "host_permissions": ["https://*.dynamics.com/*"],
     "permissions": ["storage", "declarativeNetRequest", "debugger"],
     "externally_connectable": {
-        "matches": ["https://*.dynamics.com/*"]
+        "matches": ["https://*.dynamics.com/*"],
+        "exclude_matches":["https://community.dynamics.com/*"]
     }
 }
