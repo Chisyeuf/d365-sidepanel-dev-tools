@@ -42,7 +42,7 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
         if (!currentFormContext) {
             return null;
         }
-        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs.get();
+        const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs?.get();
 
         const allcontrols: VisibleModeStateType[] = tabs?.map<VisibleModeStateType>(t => {
             return {
