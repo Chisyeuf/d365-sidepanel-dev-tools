@@ -13,8 +13,10 @@ import { MessageType } from '../../utils/types/Message';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { ScriptOverride } from '../../utils/types/ScriptOverride';
 import CodeIcon from '@mui/icons-material/Code';
+import { SvgIconComponent } from '@mui/icons-material';
 
 
+const separationOfUrlAndFileName = 'webresources/';
 
 class WebRessourceEditor extends ProcessButton {
     constructor() {
@@ -35,7 +37,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const xrmUpdated = useXrmUpdated();
 
         const [scriptNodeContent, setScriptNodeContent] = useState<ScriptNodeContent[] | null>(null);
-        const { dict: scriptsOverride, keys: scriptsId, values: scriptsContent, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<string>({})
+        const { dict: scriptsOverrided, keys: scriptsOverridedId, values: scriptsContent, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<string>({})
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
         const [open, setOpen] = useState(false);
         const [liveTestEnabled, setLiveTestEnabled] = useState<boolean>(false);
@@ -65,20 +67,29 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            document.querySelectorAll('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
+            // document.querySelectorAll('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
             setScriptNodeContent(null);
             const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
             Promise.all(Array.from(docs).flatMap(doc => {
                 if (doc.contentWindow)
                     return Array.prototype.slice
                         .apply(doc.contentWindow.document.querySelectorAll('script'))
-                        .filter((s: HTMLScriptElement, index, array) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()) )
+                        .filter((s: HTMLScriptElement, index, array) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()))
                         .map<Promise<ScriptNodeContent>>(async (s: HTMLScriptElement) => {
+                            const fileName = s.src.substring(s.src.search(separationOfUrlAndFileName) + separationOfUrlAndFileName.length);
                             return {
                                 src: s.src,
-                                content: await fetch(s.src).then(r => r.text())
+                                content: await fetch(s.src).then(r => r.text()),
+                                crmId: (await Xrm.WebApi.retrieveMultipleRecords("webresource", `?$select=webresourceid&$filter=(name eq '${fileName}')`).then(
+                                    function success(results) {
+                                        return results.entities[0]["webresourceid"] as string;
+                                    },
+                                    function (error) {
+                                        console.error(`Error when attempt of retrieve webresource id with : ${error.message}`);
+                                    }
+                                ))
                             } as ScriptNodeContent;
-                        })
+                        });
             })).then((scriptNodeContents) => {
                 if (!scriptNodeContents) return;
                 const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.src === i.src) === index) as any;
@@ -96,48 +107,86 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const handleOnSave = useCallback(
             (fileSaved: CodeEditorFile, rootCopy: CodeEditorDirectory) => {
-                // console.log("filesSaved:", fileSaved);
                 setRoot(rootCopy);
-                if (scriptNodeContent?.find(s => s.src === fileSaved.url)?.content === fileSaved.modifiedContent) {
-                    removeScriptOverrideItem(fileSaved.url);
+                if (scriptNodeContent?.find(s => s.src === fileSaved.crmId)?.content === fileSaved.modifiedContent) {
+                    removeScriptOverrideItem(fileSaved.crmId);
                     return;
                 }
-                if (scriptsOverride[fileSaved.url] !== fileSaved.modifiedContent) {
-                    setScriptOverrideItem(fileSaved.url, fileSaved.modifiedContent);
+                if (scriptsOverrided[fileSaved.crmId] !== fileSaved.modifiedContent) {
+                    setScriptOverrideItem(fileSaved.crmId, fileSaved.modifiedContent);
                     return;
                 }
             },
-            [scriptsOverride, scriptNodeContent, setScriptOverrideItem, removeScriptOverrideItem, setRoot]
+            [scriptsOverrided, scriptNodeContent, setScriptOverrideItem, removeScriptOverrideItem, setRoot]
         );
-        const handleOnChange = useCallback(
-            (fileUnsaved: CodeEditorFile, rootCopy: CodeEditorDirectory) => {
-                // console.log("filesUnsaved:", fileUnsaved);
-                setRoot(rootCopy);
-            },
-            [setRoot]
-        );
-        const handleOnRootUpdate = useCallback(
-            (newElement: CodeEditorCommon, rootCopy: CodeEditorDirectory) => {
-                setRoot(rootCopy);
-            },
-            [setRoot]
-        );
+        const handleOnChange = useCallback((fileUnsaved: CodeEditorFile, rootCopy: CodeEditorDirectory) => {
+            setRoot(rootCopy);
+        }, [setRoot]);
+        const handleOnRootUpdate = useCallback((newElement: CodeEditorCommon, rootCopy: CodeEditorDirectory) => {
+            setRoot(rootCopy);
+        }, [setRoot]);
+
+        const publishChanges = useCallback(() => {
+            // alert("PUBLISH!!!");
+            if (scriptsOverridedId.length === 0) return;
+
+            scriptsOverridedId.forEach(scriptid => {
+                var record = {
+                    content: scriptsOverrided[scriptid]
+                };
+
+                Xrm.WebApi.updateRecord("webresource", scriptid, record).then(
+                    function success(result) {
+                        var updatedId = result.id;
+                        console.log(`Webresource ${updatedId} content updated`);
+                    },
+                    function (error) {
+                        console.error(`Error when attempt to update the webResource ${scriptid}: ${error.message}`);
+                    }
+                );
+            });
+
+            var execute_PublishXml_Request = {
+                ParameterXml: `<importexportxml><webresources>${scriptsOverridedId.map(scriptid => `<webresource>${scriptid}</webresource>`).join('')}</webresources></importexportxml>`,
+                getMetadata: function () {
+                    return {
+                        boundParameter: null,
+                        parameterTypes: {
+                            ParameterXml: { typeName: "Edm.String", structuralProperty: 1 }
+                        },
+                        operationType: 0, operationName: "PublishXml"
+                    };
+                }
+            };
+
+            Xrm.WebApi.online.execute(execute_PublishXml_Request).then(
+                function success(response) {
+                    if (response.ok) { console.log("Publish Done"); }
+                }
+            ).catch(function (error) {
+                console.error(`Error when attempt to publish webressources ${error.message}`);
+            });
+        }, [scriptsOverridedId, scriptsOverrided]);
 
 
         useEffect(() => {
-            console.log(scriptsOverride);
-        }, [scriptsOverride]);
-
-
+            console.log(scriptsOverrided);
+        }, [scriptsOverrided]);
 
         useEffect(() => {
             if (!liveTestEnabledInitDone) return;
             if (!scriptOverrideIntiDone) return;
-            
+
             const extensionId = GetExtensionId();
 
-            if (liveTestEnabled) {
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLEREQUESTINTERCEPTION, data: scriptsOverride },
+            if (liveTestEnabled && scriptNodeContent) {
+                const scriptOverridedToSendToBack: { [key: string]: string } = {};
+                scriptsOverridedId.forEach((scriptid) => {
+                    const url = scriptNodeContent.find(s => s.crmId === scriptid)?.src;
+                    url && (scriptOverridedToSendToBack[url] = scriptsOverrided[scriptid]);
+                });
+                console.log("scriptsOverride sent", scriptsOverrided);
+                chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLEREQUESTINTERCEPTION, data: scriptOverridedToSendToBack },
                     function (response) {
                         debugLog("WebRessourceEditorProcess ", MessageType.ENABLEREQUESTINTERCEPTION, response);
                         if (response.success) {
@@ -146,6 +195,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 );
             }
             else {
+                console.log("scriptsOverride disabled");
                 chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLEREQUESTINTERCEPTION },
                     function (response) {
                         debugLog("WebRessourceEditorProcess ", MessageType.DISABLEREQUESTINTERCEPTION, response);
@@ -154,7 +204,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 );
             }
-        }, [liveTestEnabled, scriptsOverride]);
+        }, [liveTestEnabled, scriptsOverrided, scriptsOverridedId]);
 
 
         const codeEditorRef = useRef<CodeEditorForwardRef>(null);
@@ -165,7 +215,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [codeEditorRef]);
 
         const removeScriptOverride = useCallback((selectedFile: CodeEditorFile) => {
-            removeScriptOverrideItem(selectedFile.id);
+            removeScriptOverrideItem(selectedFile.crmId);
         }, [removeScriptOverrideItem]);
 
 
@@ -184,7 +234,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         }
                         label="Live Testing Enabled"
                     />
-                    
+
                     <Button
                         variant='contained'
                         onClick={() => {
@@ -204,9 +254,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
                     <Button
                         variant='contained'
-                        onClick={() => {
-
-                        }}
+                        onClick={publishChanges}
                     >
                         Publish Overrided Content
                     </Button>
@@ -223,16 +271,18 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     </Button>
 
                     <ScriptList
-                        text='Scripts overrided :'
-                        items={root && getFiles(root, (file => scriptsId.indexOf(file.url) !== -1)) || []}
+                        text='Scripts overrided:'
+                        items={root && getFiles(root, (file => scriptsOverridedId.indexOf(file.crmId) !== -1)) || []}
                         primaryLabel={(item) => item.name}
                         primaryAction={selectFile}
                         secondaryAction={removeScriptOverride}
+                        secondaryIcon={RestoreIcon}
+                        secondaryTitle='Restore file'
                     />
                     <ScriptList
-                        text='Scripts found on this page :'
+                        text='Scripts found on this page:'
                         items={root && getAllFiles(root) || []}
-                        primaryLabel={(item) => scriptsOverride[item.url] ? <strong>{item.name}</strong> : item.name}
+                        primaryLabel={(item) => scriptsOverrided[item.crmId] ? <strong>{item.name}</strong> : item.name}
                         primaryAction={selectFile}
                     />
                 </Stack >
@@ -254,6 +304,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                                 onSave={handleOnSave}
                                 onRootUpdate={handleOnRootUpdate}
                                 onClose={() => setOpen(false)}
+                                publishChanges={publishChanges}
                             />
                         }
                     </DialogContent>
@@ -269,11 +320,13 @@ type ScriptListProps<T> = {
     primaryLabel: (item: T) => React.ReactNode,
     primaryAction: (item: T) => void,
     secondaryAction?: (item: T) => void,
+    secondaryIcon?: SvgIconComponent,
+    secondaryTitle?: string,
 }
 function ScriptList<T>(props: ScriptListProps<T>) {
     return (
         <List
-            sx={{ width: '100%', bgcolor: 'background.paper', overflowX:'hidden', overflowY:'auto' }}
+            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto' }}
             component="nav"
             disablePadding
             subheader={
@@ -286,9 +339,9 @@ function ScriptList<T>(props: ScriptListProps<T>) {
                 props.items?.map(item => (
                     <ListItem
                         secondaryAction={
-                            props.secondaryAction && (
-                                <IconButton edge="end" title='Restore file' onClick={() => props.secondaryAction!(item)}>
-                                    <RestoreIcon />
+                            props.secondaryAction && props.secondaryIcon && (
+                                <IconButton edge="end" title={props.secondaryTitle} onClick={() => props.secondaryAction!(item)}>
+                                    <props.secondaryIcon />
                                 </IconButton>
                             )
                         }

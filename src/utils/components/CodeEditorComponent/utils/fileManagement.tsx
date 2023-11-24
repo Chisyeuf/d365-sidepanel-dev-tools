@@ -1,5 +1,6 @@
 import { EditorLanguage } from "monaco-editor/esm/metadata";
-import { ScriptNodeContent, CodeEditorDirectory, CodeEditorFile, Type } from "./types";
+import { CodeEditorDirectory, CodeEditorFile, Type } from "./types";
+import { ScriptNodeContent } from "../../../types/ScriptNodeContent";
 
 export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirectory {
 
@@ -22,6 +23,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
                 originalContent: fileToCreate.content,
                 modifiedContent: fileToCreate.content,
                 url: fileToCreate.src,
+                crmId: fileToCreate.crmId,
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }
             root.files.push(newFile);

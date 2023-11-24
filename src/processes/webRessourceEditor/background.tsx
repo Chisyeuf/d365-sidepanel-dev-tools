@@ -33,33 +33,6 @@ export function enableScriptOverride(scriptOverride: ScriptOverride, sender: chr
         }
     });
 
-    chrome.debugger.onEvent.addListener((debugee, method, params: any) => {
-        if (!params) {
-            return;
-        }
-
-        var request = params.request;
-
-        if (debugee.tabId === target.id) {
-            if (method === "Fetch.requestPaused") {
-                console.log(request.url);
-                if (Object.keys(scriptOverride).includes(request.url)) {
-                    const response: ResponseOverride = {
-                        requestId: params.requestId,
-                        responseCode: 200,
-                        body: btoa(unescape(encodeURIComponent(scriptOverride[request.url]))),
-                    }
-                    chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', response);
-                }
-                else {
-                    const response: ResponseContinue = {
-                        requestId: params.requestId,
-                    };
-                    chrome.debugger.sendCommand(debugee, 'Fetch.continueRequest', response);
-                }
-            }
-        }
-    });
 }
 
 export function disbaleScriptOverride(sender: chrome.runtime.MessageSender) {
@@ -70,9 +43,37 @@ export function disbaleScriptOverride(sender: chrome.runtime.MessageSender) {
 
     chrome.debugger.detach(debugee);
 }
+
 chrome.debugger.onDetach.addListener((debugee, reason) => {
     if (debugee.tabId) {
         TAB_IN_DEBUG_MODE[debugee.tabId] = false;
+    }
+});
+chrome.debugger.onEvent.addListener((debugee, method, params: any) => {
+    if (!params) {
+        return;
+    }
+
+    var request = params.request;
+
+    if (debugee.tabId && TAB_IN_DEBUG_MODE[debugee.tabId]) {
+        if (method === "Fetch.requestPaused") {
+            console.log(request.url);
+            if (Object.keys(SCRIPT_OVERRIDED[debugee.tabId]).includes(request.url)) {
+                const response: ResponseOverride = {
+                    requestId: params.requestId,
+                    responseCode: 200,
+                    body: btoa(unescape(encodeURIComponent(SCRIPT_OVERRIDED[debugee.tabId][request.url]))),
+                }
+                chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', response);
+            }
+            else {
+                const response: ResponseContinue = {
+                    requestId: params.requestId,
+                };
+                chrome.debugger.sendCommand(debugee, 'Fetch.continueRequest', response);
+            }
+        }
     }
 });
 

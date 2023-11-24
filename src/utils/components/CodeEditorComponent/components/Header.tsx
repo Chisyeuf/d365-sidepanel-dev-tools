@@ -340,7 +340,9 @@ export function ContextualMenuAction(props: EditorActionProps & { actions: { [ke
                 <MenuItemCustom
                     Icon={PublishIcon}
                     text='Publish Changes'
-                    shortCut='Ctrl + Shift + P' />
+                    shortCut='Ctrl + Shift + P'
+                    onClick={actions.Publish} />
+                    
             </MenuList>
         </Menu>
     </>

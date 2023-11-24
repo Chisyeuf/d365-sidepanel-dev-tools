@@ -47,7 +47,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
         selectFile: OnFileSelect
     }));
 
-    const { root, defaultLanguage, theme, headerHidden, fileTreeHidden, onChange, onSave, onRootUpdate, onClose } = props;
+    const { root, defaultLanguage, theme, headerHidden, fileTreeHidden, onChange, onSave, onRootUpdate, onClose, publishChanges } = props;
 
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
@@ -117,8 +117,8 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
     }, [selectedFile]);
 
 
-    const publishChanges = () => {
-        console.log("Publishing...");
+    const _publishChanges = () => {
+        publishChanges?.();
     }
 
     const formatDocument = () => {
@@ -168,6 +168,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                 originalContent: '',
                 modifiedContent: '',
                 url: 'no-url',
+                crmId: 'nor-id',
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }
             parentDirCopy.files.push(newFile);
@@ -239,7 +240,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                     <ContextualMenuAction actions={{
                         Save: handleOnSave,
                         Format: formatDocument,
-                        Publish: publishChanges,
+                        Publish: _publishChanges,
                         AddFile: createFile,
                         AddFolder: createDirectory,
                     }} />
@@ -275,7 +276,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                         diffEditor={diffEditorEnabled}
                         onContentChange={handleOnContentChange}
                         onContentSave={handleOnSave}
-                        publishChanges={publishChanges}
+                        publishChanges={_publishChanges}
                     />
                 </Stack>
             </Stack>
