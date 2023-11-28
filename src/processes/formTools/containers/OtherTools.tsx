@@ -13,25 +13,6 @@ const toolList: ((props: SubProcessProps) => JSX.Element)[] = [ShowOptionSetInFi
 
 function OtherTools(props: SubProcessProps) {
 
-    const [value, copy] = useCopyToClipboard();
-
-
-    const [allModeEnabled, setAllModeEnabled] = useState<boolean>(false);
-    const [fieldLabelEnabled, setFieldLabelEnabled] = useState<boolean>(false);
-    const [tabLabelEnabled, setTabLabelEnabled] = useState<boolean>(false);
-
-
-    useEffect(() => {
-        if (!allModeEnabled && tabLabelEnabled && fieldLabelEnabled) {
-            setAllModeEnabled(true);
-            return;
-        }
-        if (allModeEnabled && (!tabLabelEnabled || !fieldLabelEnabled)) {
-            setAllModeEnabled(false);
-            return;
-        }
-    }, [fieldLabelEnabled, tabLabelEnabled]);
-
     return (
         <ComponentContainer
             width='100%'
