@@ -32,12 +32,6 @@ function OtherTools(props: SubProcessProps) {
         }
     }, [fieldLabelEnabled, tabLabelEnabled]);
 
-    const toggleAll = useCallback(() => {
-        const newAllMode = !allModeEnabled;
-        setFieldLabelEnabled(newAllMode);
-        setTabLabelEnabled(newAllMode);
-    }, [allModeEnabled]);
-
     return (
         <ComponentContainer
             width='100%'
