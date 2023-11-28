@@ -5,10 +5,10 @@ import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {
 
-    const [data, setData] = useState<AttributeMetadata[]>([])
-    const [isFetching, setIsFetching] = useState<boolean>(false)
-    const _entityname = entityname
-    const idAttribute = RetrievePrimaryIdAttribute(entityname)
+    const [data, setData] = useState<AttributeMetadata[]>([]);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
+    const _entityname = entityname;
+    const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     useEffect(() => {
         debugLog("RetrieveAttributesMetaData");
@@ -17,7 +17,8 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.2/EntityDefinitions(LogicalName='" +
-                _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "')", {
+                _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "') and (IsFilterable eq true or IsValidODataAttribute eq true)", {
+                // _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "')", {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",
