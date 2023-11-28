@@ -38,7 +38,7 @@ function NumericInput(props: NumericInputProps) {
     }, [inputRef])
 
     useEffect(() => {
-        if (inputValue === '') {
+        if (!inputValue) {
             autonumeric?.clear();
         }
         else {
@@ -59,8 +59,9 @@ function NumericInput(props: NumericInputProps) {
     }, [value])
 
     function handleChange() {
-        setInputValue(autonumeric?.getFormatted() ?? '')
-        return props.onChange && props.onChange(autonumeric?.getNumber() ?? null);
+        if (!autonumeric) return;
+        setInputValue(autonumeric.getFormatted() ?? '');
+        return props.onChange && props.onChange(autonumeric.getFormatted() ? autonumeric.getNumber() : null);
     }
 
     return (
