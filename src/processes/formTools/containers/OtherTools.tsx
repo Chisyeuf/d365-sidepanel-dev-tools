@@ -1,8 +1,7 @@
 import { Stack } from '@mui/material';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {  } from 'react';
 import ComponentContainer from '../../../utils/components/ComponentContainer';
 import { SubProcessProps } from '../main';
-import { useCopyToClipboard } from 'usehooks-ts';
 import ShowOptionSetInFields from '../buttons/ShowOptionSetInFields';
 import FillFields from '../buttons/FillFields';
 import BlurFields from '../buttons/BlurFields';
