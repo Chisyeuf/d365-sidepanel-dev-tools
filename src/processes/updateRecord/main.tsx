@@ -528,7 +528,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                             <RestoreIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
                         </IconButton>
                         :
-                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px', visibility: props.disabled ? 'hidden' : 'visible' }}>
+                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }}>
                             <DeleteIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
                         </IconButton>
                 )
