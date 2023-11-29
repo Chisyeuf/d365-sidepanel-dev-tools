@@ -1,6 +1,6 @@
 
 import { Button, IconButton, Snackbar } from '@mui/material';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 
@@ -59,7 +59,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             const selectedPane = Xrm.App.sidePanes.getSelectedPane();
             allOpenPanes.shift();
 
-            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane: Xrm.App.PaneObject, index:number) => {
+            const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane: Xrm.App.PaneObject, index: number) => {
                 return {
                     id: openPane.paneId!,
                     startOnLoad: true,
@@ -94,6 +94,11 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             );
         }
 
+        const message = useMemo(() => <>
+            <p>The configuration store the opened side panels and the active side panel. At next loadings the same layout will be duplicated.</p>
+            <p>If you want to have opened panels with no active panel, save the configuration when the main menu is active.</p>
+        </>, []);
+
         const saveConfiguration = () => {
             CreateConfiguration();
             handleClose(undefined, '');
@@ -111,7 +116,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             <Snackbar
                 open={open}
                 onClose={handleClose}
-                message="Open/Close tools you want to on page load & Configure tools as you want when they opening."
+                message={message}
                 action={
                     <>
                         <Button color="secondary" size="small" variant='contained' onClick={saveConfiguration}>
