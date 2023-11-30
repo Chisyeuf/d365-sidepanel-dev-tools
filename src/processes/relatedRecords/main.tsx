@@ -22,6 +22,8 @@ import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
+import { RetrieveFirstRecordInterval } from '../../utils/hooks/XrmApi/RetrieveFirstRecordInterval';
+import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 
 const theme = createTheme({
     components: {
@@ -205,7 +207,15 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
     }, [relationShipMetadata]);
 
     const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
-    const relatedRecords = useMemo(() => relatedRecordsDict[relationShipMetadata.SchemaName], [relatedRecordsDict]);
+    const relatedRecords = useMemo(() => {
+        // console.log("relatedRecordsDict", relationShipMetadata.RelationshipType, relatedRecordsDict)
+        return relatedRecordsDict[relationShipMetadata.SchemaName];
+    }, [relatedRecordsDict]);
+
+    // useEffect(() => {
+    //     // console.log("relatedRecords", relationShipMetadata.RelationshipType, relatedRecords);
+    // }, [relatedRecords]);
+
 
 
     const numberOfRecordsChip = useRef(null);
@@ -296,7 +306,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                         {
                             relatedRecords?.map(relatedRecord => {
                                 return (
-                                    <RelatedRecordsItem displayName={relatedRecord.name} entityName={relatedRecord.entityType} recordId={relatedRecord.id} key={relatedRecord.id} />
+                                    <RelatedRecordsItem entityName={relatedRecord.entityType} recordId={relatedRecord.id} key={relatedRecord.id} />
                                 );
                             })
                         }
@@ -310,12 +320,15 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
 interface RelatedRecordsItemProps {
     entityName: string,
     recordId: string,
-    displayName?: string,
 }
 const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
-    const { displayName, entityName, recordId } = props;
+    const { entityName, recordId } = props;
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const primaryNameAttribute = RetrievePrimaryNameAttribute(entityName);
+    const [recordFetched, isFetching] = RetrieveAttributes(entityName, recordId, [primaryNameAttribute]);
+    const displayName: string = useMemo(() => primaryNameAttribute && recordFetched[primaryNameAttribute], [recordFetched, primaryNameAttribute]);
 
     const handleOpenContextualMenu = (e: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(e.currentTarget);
@@ -344,7 +357,7 @@ const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
     return (
         <>
             <ListItemButton sx={{ pl: 4 }} onContextMenu={handleOpenContextualMenu} onClick={handleClick}>
-                <ListItemText primary={displayName || `(${recordId})`} />
+                <ListItemText primary={<><b>{displayName || 'No name'}</b> <i>({recordId})</i></>} />
             </ListItemButton>
             <RecordContextualMenu anchorElement={anchorEl} entityName={entityName} recordId={recordId} open={!!anchorEl} onClose={handleCloseContextualMenu} />
         </>
