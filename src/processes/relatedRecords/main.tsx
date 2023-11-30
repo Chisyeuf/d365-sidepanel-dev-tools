@@ -1,5 +1,5 @@
 
-import { Chip, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, Tooltip, Typography, createTheme } from '@mui/material';
+import { Chip, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography, createTheme } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import ShareIcon from '@mui/icons-material/Share';
@@ -9,20 +9,16 @@ import { RetrieveRelationShipManyToOne } from '../../utils/hooks/XrmApi/Retrieve
 import { RetrieveRelationShipOneToMany } from '../../utils/hooks/XrmApi/RetrieveRelationShipOneToMany';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
-import { RelationShipMetadata, RelationShipMetadataManyToMany, RelationShipMetadataManyToOne, RelationShipMetadataOneToMany, RelationshipType } from '../../utils/types/requestsType';
+import { RelationShipMetadata, RelationshipType } from '../../utils/types/requestsType';
 import { RetrieveRelatedRecords } from '../../utils/hooks/XrmApi/RetrieveRelatedRecords';
-import { debugLog, formatId } from '../../utils/global/common';
+import { debugLog } from '../../utils/global/common';
 import { ThemeProvider } from '@emotion/react';
-import { LookupValue } from '../../utils/types/LookupValue';
-import { RetrievePrimaryIdAttribute } from '../../utils/hooks/XrmApi/RetrievePrimaryIdAttribute';
 import { RetrievePrimaryNameAttribute } from '../../utils/hooks/XrmApi/RetrievePrimaryNameAttribute';
 import { useHover } from 'usehooks-ts';
-import { unset } from 'lodash';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
-import { RetrieveFirstRecordInterval } from '../../utils/hooks/XrmApi/RetrieveFirstRecordInterval';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 
 const theme = createTheme({
