@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Processes, { storageListName } from '../.list';
 import ReactDOM from 'react-dom';
 import { MessageType } from '../../utils/types/Message';
-import { GetExtensionId } from '../../utils/global/common';
+import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 
 
@@ -85,7 +85,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
             })
 
-            console.log(configurations);
+            debugLog(configurations);
             chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: configurations } },
                 function (response) {
                     if (response.success) {

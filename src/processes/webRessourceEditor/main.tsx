@@ -138,7 +138,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 Xrm.WebApi.updateRecord("webresource", scriptid, record).then(
                     function success(result) {
                         var updatedId = result.id;
-                        console.log(`Webresource ${updatedId} content updated`);
+                        debugLog(`Webresource ${updatedId} content updated`);
                     },
                     function (error) {
                         console.error(`Error when attempt to update the webResource ${scriptid}: ${error.message}`);
