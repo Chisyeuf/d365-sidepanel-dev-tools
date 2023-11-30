@@ -28,7 +28,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
             setRelatedRecordPrimaryAttributesItem(r.navigationPropertyName, { primaryId: primaryIdAttribute });
             // return `${r.navigationPropertyName}($select=${primaryIdAttribute ?? ''})`
         })).then(() => {
-            setInit(true)
+            setInit(true);
         });
     }, [relatedRecords]);
 
@@ -69,8 +69,9 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
                         }) ?? null;
                 }
                 else {
-                    const primaryAttributes = relatedRecordPrimaryAttributes[r.relationshipSchemaName];
+                    const primaryAttributes = relatedRecordPrimaryAttributes[r.navigationPropertyName];
                     const primaryId = primaryAttributes?.primaryId;
+                    console.log(relatedRecords, r.relationshipSchemaName, primaryAttributes);
                     computedResult[r.relationshipSchemaName] = relationshipAttributeContent ? [{
                         // name: primaryName ? relatedRecord[primaryName] : undefined,
                         id: primaryId ? relationshipAttributeContent[primaryId] : '',

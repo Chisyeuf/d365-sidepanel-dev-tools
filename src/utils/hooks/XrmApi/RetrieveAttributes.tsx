@@ -4,9 +4,9 @@ import { isObject } from 'lodash';
 
 export function RetrieveAttributes(entityname: string, recordid: string | undefined, attributesList: string[]): [{ [key: string]: any }, boolean] {
 
-    const [data, setData] = useState<{ [key: string]: any }>({})
-    const [isFetching, setIsFetching] = useState<boolean>(false)
-    const attributes = useMemo(() => attributesList.join(","), [attributesList])
+    const [data, setData] = useState<{ [key: string]: any }>({});
+    const [isFetching, setIsFetching] = useState<boolean>(false);
+    const attributes = useMemo(() => attributesList.join(","), [attributesList]);
     const _recordid = recordid;
     const _entityname = entityname;
 
