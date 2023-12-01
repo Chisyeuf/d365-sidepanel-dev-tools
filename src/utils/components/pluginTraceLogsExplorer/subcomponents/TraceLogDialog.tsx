@@ -10,7 +10,7 @@ import { ThemeProvider } from "@emotion/react";
 import PluginTraceLogsList from "./PluginTraceLogsList";
 import Section, { sectionMinHeight } from "./Section";
 import TraceLogField from "./TraceLogField";
-import TypographyCopy from "../../TypographyCopy";
+import TypographyButtonHoverCopy from "../../TypographyButtonHoverCopy";
 
 const theme = createTheme({
     components: {
@@ -93,22 +93,22 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                                 {
                                     relatedSdkMessageProcessingStep?.filteringattributes &&
                                     <Section title="Filtering Attributes" defaultExpanded={false} sx={{ maxHeight: `calc(${sectionMinHeight} + ${56}px)` }}>
-                                        <TypographyCopy height='unset' variant="body1" copyValue={relatedSdkMessageProcessingStep?.filteringattributes} >
+                                        <TypographyButtonHoverCopy height='unset' variant="body1" copyValue={relatedSdkMessageProcessingStep?.filteringattributes} >
                                             {relatedSdkMessageProcessingStep?.filteringattributes?.replaceAll(',', ', ') ?? 'Loading...'}
-                                        </TypographyCopy>
+                                        </TypographyButtonHoverCopy>
                                     </Section>
                                 }
                                 <Section title="Message">
-                                    <TypographyCopy variant="body1" copyValue={selectedPluginTraceLog?.messageblock} >
+                                    <TypographyButtonHoverCopy variant="body1" copyValue={selectedPluginTraceLog?.messageblock} >
                                         {selectedPluginTraceLog?.messageblock}
-                                    </TypographyCopy>
+                                    </TypographyButtonHoverCopy>
                                 </Section>
                                 {
                                     selectedPluginTraceLog?.exceptiondetails &&
                                     <Section title="Exception Details">
-                                        <TypographyCopy variant="body1" copyValue={selectedPluginTraceLog?.exceptiondetails} >
+                                        <TypographyButtonHoverCopy variant="body1" copyValue={selectedPluginTraceLog?.exceptiondetails} >
                                             {selectedPluginTraceLog?.exceptiondetails}
-                                        </TypographyCopy>
+                                        </TypographyButtonHoverCopy>
                                     </Section>
                                 }
                             </Stack>
@@ -119,9 +119,9 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                                             return (
                                                 <Section title={relatedSdkMessageProcessingStepImage.entityalias}>
                                                     <TraceLogField label="Image Type" value={relatedSdkMessageProcessingStepImage["imagetype@OData.Community.Display.V1.FormattedValue"]} />
-                                                    <TypographyCopy variant="body1" copyValue={relatedSdkMessageProcessingStepImage.attributes ?? ''} >
+                                                    <TypographyButtonHoverCopy variant="body1" copyValue={relatedSdkMessageProcessingStepImage.attributes ?? ''} >
                                                         {relatedSdkMessageProcessingStepImage.attributes?.replaceAll(',', '\n')}
-                                                    </TypographyCopy>
+                                                    </TypographyButtonHoverCopy>
                                                 </Section>
                                             );
                                         })
