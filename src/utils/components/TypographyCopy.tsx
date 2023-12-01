@@ -1,59 +1,34 @@
 import { Box, Button, Typography, TypographyProps } from "@mui/material";
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import { useCopyToClipboard } from "usehooks-ts";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import React from "react";
 
 function TypographyCopy(props: TypographyProps & { copyValue?: string }) {
     const [, copyFn] = useCopyToClipboard();
 
+    const [clicked, setClicked] = useState<boolean>(false);
+
     const handleClick = useCallback(() => {
         copyFn(props.copyValue ?? '');
+        setClicked(true);
+        setTimeout(() => {
+            setClicked(false);
+        }, 250);
     }, [copyFn, props.copyValue]);
 
     return (
-        <Box
-            position='relative'
-            borderRadius={1}
-            minHeight='24px'
-            height={props.height as string ?? '90%'}
-            padding={1}
-            pr={0}
-            pt={0}
-            sx={{ 
-                bgcolor: 'grey.200',
-                '&:hover .copyButton' : {
-                    display:'flex'
-                }
-             }}
-            overflow='hidden'
+        <Typography
+            {...props}
+            onClick={(event) => { props.onClick?.(event); handleClick(); }}
+            sx={(theme) => ({
+                color: clicked ? theme.palette.primary.light : 'inherit',
+                transition: 'color 200ms ease 0s',
+                // ...(props.sx instanceof Function ? props.sx?.(theme) : (!!props.sx ? props.sx : {})),
+            })}
         >
-            <Box pt={1} pb={0} height='100%' width='100%' overflow='auto'>
-                <Typography {...props} variant="body1" style={{ whiteSpace: 'pre-line' }}>
-                    {props.children}
-                </Typography>
-            </Box>
-
-            {
-                props.copyValue &&
-                <Button
-                    className="copyButton"
-                    sx={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 20,
-                        bgcolor: 'background.paper',
-                        fontSize: '0.75em',
-                        display:'none'
-                    }}
-                    variant='outlined'
-                    endIcon={<ContentCopyOutlinedIcon />}
-                    onClick={handleClick}
-                    size='small'
-                >
-                    Copy
-                </Button>}
-        </Box>
+            {props.children}
+        </Typography>
     );
 }
 

@@ -1002,7 +1002,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
         setOpen(prev => !prev);
     }
 
-    const stateOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
+    const [stateOptions, isFetching] = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
 
     return (
         <FormControl fullWidth>
@@ -1023,7 +1023,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
             >
                 {props.nullable && <MenuItem disabled={props.disabled} value={-1}>- - -</MenuItem>}
                 {
-                    stateOptions?.map((optionNode) => {
+                    stateOptions[props.attribute.LogicalName].Options?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem disabled={props.disabled} value={option.value}>{option.text} ({option.value})</MenuItem>
                     })
@@ -1080,8 +1080,8 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
         setOpen(prev => !prev);
     }
 
-    const statusCode = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
-    const stateCode = RetrievePicklistValues(props.entityname, MSType.State, 'statecode')
+    const [statusCode, isFetchingStatus] = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName);
+    const [stateCode, isFetchingState] = RetrievePicklistValues(props.entityname, MSType.State, 'statecode');
 
     return (
         <FormControl fullWidth>
@@ -1102,8 +1102,8 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
             >
                 {props.nullable && <MenuItem disabled={props.disabled} value={-1}>- - -</MenuItem>}
                 {
-                    statusCode && Object.entries(groupBy(statusCode, props.groupBy))?.map(([group, value]) => {
-                        const parentOption = stateCode?.find(state => state.Value === Number(group));
+                    statusCode[props.attribute.LogicalName] && Object.entries(groupBy(statusCode[props.attribute.LogicalName].Options, props.groupBy))?.map(([group, value]) => {
+                        const parentOption = stateCode['statecode'].Options?.find(state => state.Value === Number(group));
                         return (
                             [
                                 <ListSubheader>{parentOption?.Label.UserLocalizedLabel!.Label} ({parentOption?.Value})</ListSubheader>,
@@ -1176,7 +1176,7 @@ export function MultiplePicklistNode(props: AttributeProps & { entityname: strin
         setOpen(prev => !prev);
     }
 
-    const stateOptions = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
+    const [stateOptions, isFetching] = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName)
 
     return (
         <FormControl fullWidth>
@@ -1197,7 +1197,7 @@ export function MultiplePicklistNode(props: AttributeProps & { entityname: strin
                 }
             >
                 {
-                    stateOptions?.map((optionNode) => {
+                    stateOptions[props.attribute.LogicalName].Options?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem disabled={props.disabled} value={option.value}>{option.text} ({option.value})</MenuItem>
                     })

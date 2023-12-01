@@ -13,11 +13,13 @@ import commandDebugger from './commandDebugger/main';
 import dirtyFields from './dirtyFields/main';
 import navigation from './navigation/main';
 import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
+import optionSetTable from './optionSetTable/main';
 
 const Processes: ProcessButton[] = [
     formTools,
     updateRecord,
     allFields,
+    optionSetTable,
     dirtyFields,
     relatedRecords,
     webRessourceEditor,
