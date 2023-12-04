@@ -207,7 +207,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                         </Tooltip>
                         {
                             metadata.IsGlobal &&
-                            <Typography variant="caption">
+                            <Typography variant="caption" color={(theme) => theme.palette.grey[600]}>
                                 (Global)
                             </Typography>
                         }
@@ -239,7 +239,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                                     <Tooltip
                                         title={
                                             (option.Color || option.Description.UserLocalizedLabel?.Label || option.ExternalValue) && <>
-                                                {option.Color && <Typography display='flex' alignItems='center' gap={0.5}><b>Color:</b> <Box component='div' display='inline-block' bgcolor={option.Color} width={16} height={16}></Box> {option.Color}</Typography>}
+                                                {option.Color && <Typography display='flex' alignItems='center' gap={0.5}><b>Color:</b> <Box component='div' display='inline-block' bgcolor={option.Color} width={13} height={13} border='1px solid #EEEEEE'></Box> {option.Color}</Typography>}
                                                 {option.Description.UserLocalizedLabel?.Label && <Typography><b>Description:</b> {option.Description.UserLocalizedLabel?.Label}</Typography>}
                                                 {option.ExternalValue && <Typography><b>ExternalValue:</b> {option.ExternalValue}</Typography>}
                                             </>
