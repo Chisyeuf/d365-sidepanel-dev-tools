@@ -244,7 +244,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                             }
                         );
 
-                        console.log(error.message);
+                        console.error(error.message);
                     }
                 );
             })

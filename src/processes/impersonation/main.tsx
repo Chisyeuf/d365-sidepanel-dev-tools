@@ -3,7 +3,7 @@ import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemBut
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
-import { GetExtensionId } from '../../utils/global/common';
+import { GetExtensionId, debugLog } from '../../utils/global/common';
 
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
@@ -104,7 +104,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         <IconButton onClick={() => {
                             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
                                 function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
-                                    console.log('DEBUG: ', existingRules)
+                                    debugLog('DEBUG: ', existingRules)
                                 }
                             );
                         }}>

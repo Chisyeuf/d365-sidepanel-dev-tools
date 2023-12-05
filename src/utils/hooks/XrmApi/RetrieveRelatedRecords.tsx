@@ -59,9 +59,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
                         relationshipAttributeContent.map((relatedRecord: any) => {
                             const primaryAttributes = relatedRecordPrimaryAttributes[r.relationshipSchemaName];
                             const primaryId = primaryAttributes?.primaryId;
-                            // const primaryName = primaryAttributes?.primaryName;
                             const t: LookupValue = {
-                                // name: primaryName ? relatedRecord[primaryName] : undefined,
                                 id: primaryId ? relatedRecord[primaryId] : '',
                                 entityType: r.entityName,
                             }
@@ -71,9 +69,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
                 else {
                     const primaryAttributes = relatedRecordPrimaryAttributes[r.navigationPropertyName];
                     const primaryId = primaryAttributes?.primaryId;
-                    console.log(relatedRecords, r.relationshipSchemaName, primaryAttributes);
                     computedResult[r.relationshipSchemaName] = relationshipAttributeContent ? [{
-                        // name: primaryName ? relatedRecord[primaryName] : undefined,
                         id: primaryId ? relationshipAttributeContent[primaryId] : '',
                         entityType: r.entityName,
                     }] : null;

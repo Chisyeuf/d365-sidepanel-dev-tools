@@ -171,7 +171,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             Xrm.Utility.showProgressIndicator(`Publishing updated webresources`);
             Xrm.WebApi.online.execute(execute_PublishXml_Request).then(
                 function success(response) {
-                    if (response.ok) { console.log("Publish Done"); }
+                    if (response.ok) { debugLog("Publish Done"); }
                     Xrm.Utility.closeProgressIndicator();
                 }
             ).catch(function (error) {
@@ -186,11 +186,6 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             openConfirmPublish();
         }, [_publishChanges, openConfirmPublish, scriptsOverridedId]);
 
-
-        useEffect(() => {
-            console.log(scriptsOverrided);
-        }, [scriptsOverrided]);
-
         useEffect(() => {
             if (!liveTestEnabledInitDone) return;
             if (!scriptOverrideIntiDone) return;
@@ -203,7 +198,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     const url = scriptNodeContent.find(s => s.crmId === scriptid)?.src;
                     url && (scriptOverridedToSendToBack[url] = scriptsOverrided[scriptid]);
                 });
-                console.log("scriptsOverride sent", scriptsOverrided);
+               debugLog("scriptsOverride sent", scriptsOverrided);
                 chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLEREQUESTINTERCEPTION, data: scriptOverridedToSendToBack },
                     function (response) {
                         debugLog("WebRessourceEditorProcess ", MessageType.ENABLEREQUESTINTERCEPTION, response);
@@ -213,7 +208,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 );
             }
             else {
-                console.log("scriptsOverride disabled");
+                debugLog("scriptsOverride disabled");
                 chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLEREQUESTINTERCEPTION },
                     function (response) {
                         debugLog("WebRessourceEditorProcess ", MessageType.DISABLEREQUESTINTERCEPTION, response);

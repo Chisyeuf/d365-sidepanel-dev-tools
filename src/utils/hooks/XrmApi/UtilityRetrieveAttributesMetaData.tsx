@@ -8,7 +8,6 @@
 //     const _entityname = entityname
 
 //     useEffect(() => {
-//         console.log("UtilityRetrieveAttributesMetaData");
 //         if (!entityname) return;
 //         async function fetchData() {
 //             const entityF: any = await Xrm.Utility.getEntityMetadata('opportunity')

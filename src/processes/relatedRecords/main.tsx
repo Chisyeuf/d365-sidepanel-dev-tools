@@ -204,14 +204,8 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
 
     const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
     const relatedRecords = useMemo(() => {
-        // console.log("relatedRecordsDict", relationShipMetadata.RelationshipType, relatedRecordsDict)
         return relatedRecordsDict[relationShipMetadata.SchemaName];
     }, [relatedRecordsDict]);
-
-    // useEffect(() => {
-    //     // console.log("relatedRecords", relationShipMetadata.RelationshipType, relatedRecords);
-    // }, [relatedRecords]);
-
 
 
     const numberOfRecordsChip = useRef(null);

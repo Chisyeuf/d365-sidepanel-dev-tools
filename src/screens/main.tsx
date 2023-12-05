@@ -97,7 +97,6 @@ export const MainScreen: React.FunctionComponent = () => {
             .forEach((processid) => {
                 const process = Processes.find(p => p.id === processid.id);
                 process?.openSidePane(processid.expand);
-                // processid.expand && console.log("expand test", processid.id) || setPageStyle();
             })
     }, [processesList]);
 

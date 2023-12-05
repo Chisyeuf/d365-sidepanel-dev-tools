@@ -29,7 +29,7 @@ const CodeEditor = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: Cod
     const editorRef = useRef<CodeEditorForwardRef>(null);
 
     useImperativeHandle(ref, () => ({
-        selectFile: editorRef.current?.selectFile ?? (() => {console.log("Error in CodeEditor.tsx");})
+        selectFile: editorRef.current?.selectFile ?? (() => { console.error("Error in CodeEditor.tsx"); })
     }));
 
     return (
@@ -54,7 +54,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
     const openConfirmDialog = useConfirm();
     const [openFiles, setOpenFiles] = useState<CodeEditorFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<CodeEditorFile | null>(null);
-    const [language, setLanguage] = useState<EditorLanguage| null>(null)
+    const [language, setLanguage] = useState<EditorLanguage | null>(null)
     const [selectedTreeElement, setSelectedTreeElement] = useState<CodeEditorCommon>(root);
 
     const [diffEditorEnabled, setDiffEditorEnabled] = useState<boolean>(false);
@@ -235,7 +235,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                     fileTreeWidth={fileTreeWidth}
                     fileTreeZoom={fileTreeZoom}
                 >
-                    <ChangeLanguage currentLanguage={selectedFile?.language} overrideLanguage={handleOnLanguageChange}  />
+                    <ChangeLanguage currentLanguage={selectedFile?.language} overrideLanguage={handleOnLanguageChange} />
                     <DiffEditorAction onClick={() => setDiffEditorEnabled((prev) => !prev)} />
                     <ContextualMenuAction actions={{
                         Save: handleOnSave,

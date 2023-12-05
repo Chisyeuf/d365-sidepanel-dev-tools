@@ -58,7 +58,6 @@ chrome.debugger.onEvent.addListener((debugee, method, params: any) => {
 
     if (debugee.tabId && TAB_IN_DEBUG_MODE[debugee.tabId]) {
         if (method === "Fetch.requestPaused") {
-            console.log(request.url);
             if (Object.keys(SCRIPT_OVERRIDED[debugee.tabId]).includes(request.url)) {
                 const response: ResponseOverride = {
                     requestId: params.requestId,

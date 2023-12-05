@@ -60,19 +60,6 @@ function FileTree(props: FileTreeProps) {
                 theme={theme}
             />
         </Stack>
-        //     <Box 
-        //         width='2px'
-        //         height='100%'
-        //         flexShrink='0'
-        //         sx={{
-        //             backgroundColor:'yellow',
-        //             cursor:'e-resize'
-        //         }}
-        //         onMouseDown={(e) => {console.log(e)}}
-        //         onMouseUp={(e) => {console.log(e)}}
-        //         onMouseMove={(e) => {console.log(e)}}
-        //     />
-        // </Stack>
     )
 }
 

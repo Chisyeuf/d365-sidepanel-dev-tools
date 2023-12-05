@@ -12,12 +12,6 @@ const filterOptions = createFilterOptions<EntityOption>({
     matchFrom: "any",
     stringify: (option) => option.label + ";" + option.id,
 });
-// (o: EntityOption[], state: FilterOptionsState<EntityOption>) => o.filter(op => {
-//     if (op.label.includes(state.inputValue) || op.id.includes(state.inputValue)) {
-//         console.log(state.inputValue, op.label, op.id);
-//     }
-//     return op.label.includes(state.inputValue) || op.id.includes(state.inputValue);
-// })
 
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,

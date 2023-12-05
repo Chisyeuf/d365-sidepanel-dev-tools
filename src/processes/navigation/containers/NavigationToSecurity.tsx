@@ -11,19 +11,6 @@ import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 
 declare var processLink: any;
-// (() => {
-//     console.log("processLink");
-//     setTimeout(() => {
-//         processLink("systemuser","adminsecurity_area.aspx?pid=06&web=true");
-//     }, 500);
-//     // processLink("systemuser","adminsecurity_area.aspx?pid=06&web=true")
-//     // Mscrm.PageManager.get_instance().raiseEvent(21, { uri: "/tools/AdminSecurity/adminsecurity_area.aspx?pid=06&web=true" });
-// })();
-
-
-// setTimeout(() => {
-//     document.querySelector("#contentIFrame0").contentWindow.processLink("systemuser", "adminsecurity_area.aspx?pid=06&web=true");
-// }, 500);
 
 function NavigationToSecurity(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -54,7 +41,6 @@ function NavigationToSecurity(props: NavigationButton) {
                 });
             }
             (() => {
-                console.log("processLink");
                 waitForElm("#TabSettings").then((TabSettings) => {
                     TabSettings.click();
                     waitForElm("#nav_security").then((nav_security) => {
