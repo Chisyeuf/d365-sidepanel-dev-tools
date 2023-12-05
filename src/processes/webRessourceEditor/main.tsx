@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch } from '@mui/material';
+import { Button, ButtonGroup, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
@@ -14,7 +14,7 @@ import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { ScriptOverride } from '../../utils/types/ScriptOverride';
 import CodeIcon from '@mui/icons-material/Code';
 import { SvgIconComponent } from '@mui/icons-material';
-
+import { useBoolean } from 'usehooks-ts';
 
 const separationOfUrlAndFileName = 'webresources/';
 
@@ -39,7 +39,8 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const [scriptNodeContent, setScriptNodeContent] = useState<ScriptNodeContent[] | null>(null);
         const { dict: scriptsOverrided, keys: scriptsOverridedId, values: scriptsContent, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<string>({})
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
-        const [open, setOpen] = useState(false);
+        const [editorOpen, setEditorOpen] = useState(false);
+        const { value: confirmPublishOpen, setTrue: openConfirmPublish, setFalse: closeConfirmPublish } = useBoolean(false);
         const [liveTestEnabled, setLiveTestEnabled] = useState<boolean>(false);
 
         const [liveTestEnabledInitDone, setLiveTestEnabledInitDone] = useState<boolean>(false);
@@ -79,6 +80,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                             const fileName = s.src.substring(s.src.search(separationOfUrlAndFileName) + separationOfUrlAndFileName.length);
                             return {
                                 src: s.src,
+                                fileName: fileName,
                                 content: await fetch(s.src).then(r => r.text()),
                                 crmId: (await Xrm.WebApi.retrieveMultipleRecords("webresource", `?$select=webresourceid&$filter=(name eq '${fileName}')`).then(
                                     function success(results) {
@@ -126,13 +128,19 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             setRoot(rootCopy);
         }, [setRoot]);
 
-        const publishChanges = useCallback(() => {
+
+        const _publishChanges = useCallback(() => {
             // alert("PUBLISH!!!");
-            if (scriptsOverridedId.length === 0) return;
+            closeConfirmPublish();
+            setEditorOpen(false);
+
+            Xrm.Utility.showProgressIndicator(`Start webresources update.`);
 
             scriptsOverridedId.forEach(scriptid => {
+                Xrm.Utility.showProgressIndicator(`Updating Webresource: ${scriptNodeContent?.find(s => s.crmId === scriptid)?.fileName}.`);
+
                 var record = {
-                    content: scriptsOverrided[scriptid]
+                    content: btoa(unescape(encodeURIComponent(scriptsOverrided[scriptid])))
                 };
 
                 Xrm.WebApi.updateRecord("webresource", scriptid, record).then(
@@ -145,6 +153,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 );
             });
+            Xrm.Utility.closeProgressIndicator();
 
             var execute_PublishXml_Request = {
                 ParameterXml: `<importexportxml><webresources>${scriptsOverridedId.map(scriptid => `<webresource>${scriptid}</webresource>`).join('')}</webresources></importexportxml>`,
@@ -159,14 +168,23 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             };
 
+            Xrm.Utility.showProgressIndicator(`Publishing updated webresources`);
             Xrm.WebApi.online.execute(execute_PublishXml_Request).then(
                 function success(response) {
                     if (response.ok) { console.log("Publish Done"); }
+                    Xrm.Utility.closeProgressIndicator();
                 }
             ).catch(function (error) {
                 console.error(`Error when attempt to publish webressources ${error.message}`);
+                Xrm.Utility.closeProgressIndicator();
             });
-        }, [scriptsOverridedId, scriptsOverrided]);
+        }, [scriptsOverridedId, scriptNodeContent, scriptsOverrided, closeConfirmPublish]);
+
+
+        const publishChanges = useCallback(() => {
+            if (scriptsOverridedId.length === 0) return;
+            openConfirmPublish();
+        }, [_publishChanges, openConfirmPublish, scriptsOverridedId]);
 
 
         useEffect(() => {
@@ -211,7 +229,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const selectFile = useCallback((selectedFile: CodeEditorFile) => {
             codeEditorRef.current?.selectFile(selectedFile);
-            setOpen(true);
+            setEditorOpen(true);
         }, [codeEditorRef]);
 
         const removeScriptOverride = useCallback((selectedFile: CodeEditorFile) => {
@@ -223,53 +241,58 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             <>
                 <Stack spacing={1} width='calc(100% - 10px)' padding='10px' alignItems='center'>
 
-                    <FormControlLabel
-                        control={
-                            <Switch
+                    <Stack width='100%' direction='column'>
+                        <ButtonGroup variant="contained" fullWidth>
+
+                            <FormControlLabel
+                                control={<Checkbox sx={{ pt: 0, pb: 0 }} />}
+                                label="Live Testing Enabled"
+                                sx={{
+                                    mr: 1.5,
+                                    ml: 0,
+                                }}
                                 checked={liveTestEnabled}
                                 onClick={() => {
                                     setLiveTestEnabled(prev => !prev);
                                 }}
                             />
-                        }
-                        label="Live Testing Enabled"
-                    />
 
-                    <Button
-                        variant='contained'
-                        onClick={() => {
-                            const extensionId = GetExtensionId();
-                            chrome.runtime.sendMessage(extensionId, { type: MessageType.REFRESHBYPASSCACHE },
-                                function (response) {
-                                    if (response.success) {
-                                    }
-                                }
-                            );
-                        }}
-                    >
-                        Refresh without cache
-                    </Button>
+                            <Button
+                                sx={{
+                                    flex: '1'
+                                }}
+                                onClick={() => {
+                                    const extensionId = GetExtensionId();
+                                    chrome.runtime.sendMessage(extensionId, { type: MessageType.REFRESHBYPASSCACHE },
+                                        function (response) {
+                                            if (response.success) {
+                                            }
+                                        }
+                                    );
+                                }}
+                            >
+                                Refresh
+                            </Button>
 
-                    <Divider />
+                        </ButtonGroup>
+                        <ButtonGroup variant="contained" fullWidth>
 
-                    <Button
-                        variant='contained'
-                        onClick={publishChanges}
-                    >
-                        Publish Overrided Content
-                    </Button>
+                            <Button
+                                onClick={publishChanges}
+                            >
+                                Publish
+                            </Button>
 
-                    <Divider />
+                            <Button
+                                onClick={() => {
+                                    setEditorOpen(prev => !prev);
+                                }}
+                            >
+                                Open Editor
+                            </Button>
 
-                    <Button
-                        variant='contained'
-                        onClick={() => {
-                            setOpen(prev => !prev);
-                        }}
-                    >
-                        Open Editor
-                    </Button>
-
+                        </ButtonGroup>
+                    </Stack>
                     <ScriptList
                         text='Scripts overrided:'
                         items={root && getFiles(root, (file => scriptsOverridedId.indexOf(file.crmId) !== -1)) || []}
@@ -288,7 +311,7 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 </Stack >
                 <Dialog
                     fullScreen
-                    open={open}
+                    open={editorOpen}
                     maxWidth={false}
                     TransitionComponent={Transition}
                     keepMounted
@@ -303,11 +326,36 @@ const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                                 onChange={handleOnChange}
                                 onSave={handleOnSave}
                                 onRootUpdate={handleOnRootUpdate}
-                                onClose={() => setOpen(false)}
+                                onClose={() => setEditorOpen(false)}
                                 publishChanges={publishChanges}
                             />
                         }
                     </DialogContent>
+                </Dialog>
+
+                <Dialog
+                    open={confirmPublishOpen}
+                    onClose={closeConfirmPublish}
+                >
+                    <DialogTitle>
+                        Publishing Confirmation
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure to publish these files?
+                            <ul>
+                                {
+                                    scriptsOverridedId.map(scriptid => {
+                                        return <li>{scriptNodeContent?.find(c => c.crmId === scriptid)?.fileName}</li>;
+                                    })
+                                }
+                            </ul>
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={closeConfirmPublish} autoFocus>Cancel</Button>
+                        <Button variant='contained' onClick={_publishChanges}>Publish</Button>
+                    </DialogActions>
                 </Dialog>
             </>
         );
@@ -326,7 +374,7 @@ type ScriptListProps<T> = {
 function ScriptList<T>(props: ScriptListProps<T>) {
     return (
         <List
-            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto' }}
+            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto', flex: '1' }}
             component="nav"
             disablePadding
             subheader={
