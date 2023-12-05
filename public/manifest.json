@@ -1,7 +1,7 @@
 {
     "name": "D365 SidePanel Dev Tools",
     "description": "",
-    "version": "1.0",
+    "version": "0.9",
     "manifest_version": 3,
     "background": {
         "service_worker": "/static/js/background.js"
