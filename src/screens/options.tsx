@@ -39,6 +39,11 @@ const OptionsScreen: React.FunctionComponent = () => {
     }, []);
 
 
+    const resetProcessList = useCallback(() => {
+        setProcessList(defaultProcessesList);
+    }, [setProcessList, defaultProcessesList]);
+
+
     return (
         <Container sx={{ width: '1000px', height: '400px', }}>
             {/* <OptionsGrid processList={processesList} setProcessList={setProcessList} />
@@ -46,6 +51,9 @@ const OptionsScreen: React.FunctionComponent = () => {
             <Button
                 variant='contained'
                 onClick={resetImpersonate}>Reset Impersonate on Active tab</Button>
+            <Button
+                variant='contained'
+                onClick={resetProcessList}>Reset Process List</Button>
         </Container>
     )
 }
