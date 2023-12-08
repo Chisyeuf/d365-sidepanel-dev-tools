@@ -5,7 +5,7 @@ import formTools from './formTools/main';
 import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
-import webRessourceEditor from './webRessourceEditor/main';
+import webResourceEditor from './webResourceEditor/main';
 import allFields from './allFields/main';
 import relatedRecords from './relatedRecords/main';
 import myUserRecord from './myUserRecord/main';
@@ -22,7 +22,7 @@ const Processes: ProcessButton[] = [
     optionSetTable,
     dirtyFields,
     relatedRecords,
-    webRessourceEditor,
+    webResourceEditor,
     impersonation,
     pluginTraceLogsExplorer,
     myUserRecord,

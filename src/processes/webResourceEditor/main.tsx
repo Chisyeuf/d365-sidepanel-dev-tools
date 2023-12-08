@@ -18,20 +18,20 @@ import { useBoolean } from 'usehooks-ts';
 
 const separationOfUrlAndFileName = 'webresources/';
 
-class WebRessourceEditor extends ProcessButton {
+class WebResourceEditor extends ProcessButton {
     constructor() {
         super(
-            'webressourceeditor',
-            'WebRessources Editor',
+            'webresourceeditor',
+            'WebResources Editor',
             <CodeIcon />,
             300
         );
-        this.process = WebRessourceEditorProcess;
+        this.process = WebResourceEditorProcess;
     }
 
 }
 
-const WebRessourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
+const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
     function WebRessourceEditorProcess(props: ProcessProps, ref) {
 
         const xrmUpdated = useXrmUpdated();
@@ -415,5 +415,5 @@ const Transition = forwardRef(function Transition(
 });
 
 
-const webRessourceEditor = new WebRessourceEditor();
-export default webRessourceEditor;
+const webResourceEditor = new WebResourceEditor();
+export default webResourceEditor;

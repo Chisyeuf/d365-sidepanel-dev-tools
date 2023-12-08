@@ -1,7 +1,7 @@
 
 import { getSessionRules, manageImpersonation } from "./processes/impersonation/background";
 import { getExtensionConfiguration, setExtensionConfiguration } from "./processes/setConfiguration/background";
-import { debuggerAttached, disbaleScriptOverride, enableScriptOverride, getScriptOverride } from "./processes/webRessourceEditor/background";
+import { debuggerAttached, disbaleScriptOverride, enableScriptOverride, getScriptOverride } from "./processes/webResourceEditor/background";
 import { MessageType } from "./utils/types/Message";
 
 chrome.runtime.onMessageExternal.addListener(messagesStation);
