@@ -13,22 +13,24 @@ import { RetrieveFirstRecordInterval } from '../../../utils/hooks/XrmApi/Retriev
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 import RedDisabledButton from '../../../utils/components/RedDisabledButton';
 import D365RibbonHomePageIcon from '../../../utils/components/D365RibbonHomePageIcon';
+import { RetrieveObjectTypeCodeByName } from '../../../utils/hooks/XrmApi/RetrieveObjectTypeCodeByName';
 
 function FormEditor(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
     const formContext = useCurrentFormContext();
 
-    const [defaultSolution, isFetchingDefaultSolution,] = RetrieveFirstRecordInterval('solution', ['solutionid'], 'isvisible eq true', 'installedon asc');
+    const [defaultSolution, isFetchingDefaultSolution] = RetrieveFirstRecordInterval('solution', ['solutionid'], 'isvisible eq true', 'installedon asc');
 
     const currentFormName = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem().getLabel(), [formContext]);
     const currentFormId = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem().getId(), [formContext]);
     const currentEntityName = useMemo(() => formContext?.data?.entity?.getEntityName(), [formContext]);
     const defaultSolutionId = useMemo(() => defaultSolution?.solutionid as string | undefined, [defaultSolution]);
+    const [currentEntityTypeCode, isFetchingTypeCode] = RetrieveObjectTypeCodeByName(currentEntityName ?? '');
 
 
     const powerAppsEnabled = useMemo(() => !!defaultSolutionId && !!currentFormId && !!currentEntityName, [defaultSolutionId, currentFormId, currentEntityName]);
-    const oldInterfaceEnabled = useMemo(() => !!currentFormId, [currentFormId]);
+    const oldInterfaceEnabled = useMemo(() => !!currentFormId && !!currentEntityTypeCode, [currentFormId, currentEntityTypeCode]);
 
 
     function handleClickPowerApps() {
@@ -39,7 +41,7 @@ function FormEditor(props: NavigationButton) {
 
     function handleClickOldSolution() {
         if (currentFormId) {
-            window.open(`${clientUrl}/main.aspx?pagetype=formeditor&etc=8&extraqs=formtype%3dmain%26formId%3d${currentFormId}`, '_blank');
+            window.open(`${clientUrl}/main.aspx?pagetype=formeditor&etc=${currentEntityTypeCode}&extraqs=formtype%3dmain%26formId%3d${currentFormId}`, '_blank');
         }
     }
 
