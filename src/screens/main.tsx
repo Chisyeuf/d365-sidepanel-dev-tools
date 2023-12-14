@@ -138,7 +138,7 @@ function initExtension() {
         paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
         title: "Dynamics Side Tools Menu",
         canClose: false,
-        imageSrc: GetUrl("icons/muiwand.png"),
+        imageSrc: GetUrl("icons/muiwandflip.png"),
         hideHeader: false,
         isSelected: false,
         width: 200,
