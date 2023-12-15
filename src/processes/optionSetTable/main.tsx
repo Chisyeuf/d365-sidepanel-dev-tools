@@ -11,6 +11,7 @@ import { MSType } from '../../utils/types/requestsType';
 import { PickListOption, RetrievePicklistValues } from '../../utils/hooks/XrmApi/RetrievePicklistValues';
 import { TableCellProps } from '@material-ui/core';
 import { useCopyToClipboard } from 'usehooks-ts';
+import LightTooltip from '../../utils/components/LightTooltip';
 
 class OptionSetTableButton extends ProcessButton {
     constructor() {
@@ -280,20 +281,22 @@ function CopyTableCell(props: CopyTableCellProps & TableCellProps) {
         setClicked(true);
         setTimeout(() => {
             setClicked(false);
-        }, 250);
+        }, 350);
     }
 
     return (
-        <TableCell
-            align={tableCellProps.align}
-            children={tableCellProps.children}
-            onClick={copy}
-            sx={(theme) => ({
-                cursor: 'pointer',
-                transition: 'color 200ms ease 0s',
-                color: clicked ? theme.palette.primary.light : 'inherit'
-            })}
-        />
+        <LightTooltip title='Copied!' open={clicked}>
+            <TableCell
+                align={tableCellProps.align}
+                children={tableCellProps.children}
+                onClick={copy}
+                sx={(theme) => ({
+                    cursor: 'pointer',
+                    transition: 'color 200ms ease 0s',
+                    color: clicked ? theme.palette.primary.light : 'inherit'
+                })}
+            />
+        </LightTooltip>
     )
 }
 
