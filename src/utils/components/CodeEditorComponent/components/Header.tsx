@@ -1,13 +1,11 @@
 import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Stack, SvgIconTypeMap, Tooltip, Typography, Button, AppBar, Toolbar, Box, FormControl, Select, SelectChangeEvent } from '@mui/material';
-import { ChildrenProp, CodeEditorHeaderProps, CodeEditorTabProps, EditorActionProps, editorLanguageArray } from "../utils/types";
+import { CodeEditorHeaderProps, CodeEditorTabProps, EditorActionProps, editorLanguageArray } from "../utils/types";
 import CloseIcon from '@mui/icons-material/Close';
 import { useHover } from "usehooks-ts";
-import { useEffect, useRef, useState } from "react";
+import { PropsWithChildren, useRef, useState } from "react";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import MenuIcon from '@mui/icons-material/Menu';
 import CompareIcon from '@mui/icons-material/Compare';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import SaveIcon from '@mui/icons-material/Save';
 import PublishIcon from '@mui/icons-material/Publish';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
@@ -21,7 +19,7 @@ import { getIcon } from '../utils/icon';
 import { getExtensionByLanguage } from '../utils/fileManagement';
 
 
-function CodeEditorHeader(props: CodeEditorHeaderProps & ChildrenProp) {
+function CodeEditorHeader(props: CodeEditorHeaderProps & PropsWithChildren) {
     const { files, selectedFile, onSelect: onSelectedFileChanged, onFileClose, onClose, theme, fileTreeWidth, fileTreeZoom } = props;
 
     return (

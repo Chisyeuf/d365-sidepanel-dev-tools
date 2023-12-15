@@ -88,9 +88,9 @@ export type EditorActionProps = {
     onClick?: () => void,
 }
 
-export type ChildrenProp = {
-    children?: ReactNode | ReactElement | JSX.Element
-}
+// export type ChildrenProp = {
+//     children?: ReactNode | ReactElement | JSX.Element
+// }
 
 export type FileTreeProps = {
     directory: CodeEditorDirectory

@@ -11,6 +11,7 @@ import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 import { debugLog } from "../../../global/common";
+import HorizontalSlider from "../../HorizontalSlider";
 
 const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
 
@@ -40,7 +41,7 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
         <>
             <List
                 dense
-                sx={{ height: '100%', width: '100%', bgcolor: 'background.paper' }}
+                sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', whiteSpace: 'nowrap' }}
                 key={`List-pluginTraceLogs`}
             >
                 <AutoSizer>
@@ -121,7 +122,9 @@ function TraceLogsListItem(props: LittleListItemProps) {
             key={`ListItemButton-${pluginTraceLog.plugintracelogid}`}
             sx={{ alignItems: 'center', bgcolor: bgcolor, ...boxStyle }}
         >
-            {content}
+            <HorizontalSlider>
+                {content}
+            </HorizontalSlider>
         </ListItemButton>
     );
 }
@@ -169,24 +172,23 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
 
-
     return (
         <Box
             sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
-                alignItems: 'center',
-                width: '100%'
+                width: 'fit-content',
+                minWidth:'100%'
             }}
             onClick={() => openDialog(pluginTraceLog, sdkMessageProcessingStep, sdkMessageProcessingStepImages)}
             ref={ref}
         >
             <ListItemText
                 key={`ListItemText-${pluginTraceLog.plugintracelogid}`}
-                primary={<React.Fragment>
-                    <Box maxWidth='250px' overflow='hidden' textOverflow='ellipsis'>
-                        <Tooltip title={pluginTraceLog.messagename} placement='left'>
+                primary={
+                    <>
+                        <Box maxWidth='250px' overflow='hidden' textOverflow='ellipsis'>
                             <Typography
                                 sx={{ display: 'inline', fontWeight: 'bold' }}
                                 component="span"
@@ -196,17 +198,15 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                             >
                                 {pluginTraceLog.messagename}
                             </Typography>
-                        </Tooltip>
-                        <Typography
-                            sx={{ display: 'inline', pl: 1 }}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                        >
-                            {pluginTraceLog["mode@OData.Community.Display.V1.FormattedValue"]}
-                        </Typography>
-                    </Box>
-                    <Tooltip title={pluginTraceLog.primaryentity} placement='left'>
+                            <Typography
+                                sx={{ display: 'inline', pl: 1 }}
+                                component="span"
+                                variant="body2"
+                                color="text.primary"
+                            >
+                                {pluginTraceLog["mode@OData.Community.Display.V1.FormattedValue"]}
+                            </Typography>
+                        </Box>
                         <Typography
                             sx={{ display: 'inline', fontWeight: 'bold' }}
                             component="span"
@@ -216,9 +216,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {pluginTraceLog.primaryentity}
                         </Typography>
-                    </Tooltip>
-                    {` — ${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
-                    <Tooltip title={isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name} placement='left'>
+                        {` — ${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
                         <Typography
                             component="p"
                             variant="caption"
@@ -227,11 +225,10 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {`${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name}`}
                         </Typography>
-                    </Tooltip>
-                </React.Fragment>
+                    </>
                 }
                 secondary={
-                    <React.Fragment>
+                    <>
                         {`${moment(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
                         <Typography
                             sx={{ display: 'inline' }}
@@ -242,11 +239,10 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {`Depth: ${pluginTraceLog['depth@OData.Community.Display.V1.FormattedValue']}`}
                         </Typography>
-
-                    </React.Fragment>
+                    </>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em' }} />
+            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'fixed', right: 2 }} />
         </Box >
     );
 }
@@ -262,16 +258,16 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
-                alignItems: 'center',
-                width: '100%'
+                width: 'fit-content',
+                minWidth:'100%'
             }}
             onClick={() => openDialog(pluginTraceLog, null, null)}
         >
             <ListItemText
                 key={`ListItemText-${pluginTraceLog.plugintracelogid}`}
-                primary={<React.Fragment>
-                    <Box maxWidth='250px' overflow='hidden' textOverflow='ellipsis'>
-                        <Tooltip title={pluginTraceLog.messagename} placement='left'>
+                primary={
+                    <>
+                        <Box maxWidth='250px' overflow='hidden' textOverflow='ellipsis'>
                             <Typography
                                 sx={{ display: 'inline', fontWeight: 'bold' }}
                                 component="span"
@@ -281,9 +277,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                             >
                                 {pluginTraceLog.messagename}
                             </Typography>
-                        </Tooltip>
-                    </Box>
-                    <Tooltip title={pluginTraceLog.primaryentity} placement='left'>
+                        </Box>
                         <Typography
                             sx={{ display: 'inline', fontWeight: 'bold' }}
                             component="span"
@@ -293,20 +287,19 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {pluginTraceLog.primaryentity}
                         </Typography>
-                    </Tooltip>
-                    {` — ${pluginTraceLog["mode@OData.Community.Display.V1.FormattedValue"]}`}
-                    <Typography
-                        component="p"
-                        variant="caption"
-                        color="text.primary"
-                        whiteSpace='nowrap'
-                    >
-                        {`${pluginTraceLog["operationtype@OData.Community.Display.V1.FormattedValue"]}`}
-                    </Typography>
-                </React.Fragment>
+                        {` — ${pluginTraceLog["mode@OData.Community.Display.V1.FormattedValue"]}`}
+                        <Typography
+                            component="p"
+                            variant="caption"
+                            color="text.primary"
+                            whiteSpace='nowrap'
+                        >
+                            {`${pluginTraceLog["operationtype@OData.Community.Display.V1.FormattedValue"]}`}
+                        </Typography>
+                    </>
                 }
                 secondary={
-                    <React.Fragment>
+                    <>
                         {`${moment(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
                         <Typography
                             sx={{ display: 'inline' }}
@@ -317,11 +310,10 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {`Depth: ${pluginTraceLog['depth@OData.Community.Display.V1.FormattedValue']}`}
                         </Typography>
-
-                    </React.Fragment>
+                    </>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em' }} />
+            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'fixed', right: 2 }} />
         </Box>
     );
 }
