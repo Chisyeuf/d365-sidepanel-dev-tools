@@ -110,8 +110,18 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         {
             labelDisplayed && controls?.map((c) => {
                 const controlName = c.getName();
-                const controlNodeT = document.querySelector(`[data-id="${controlName}"] label`);
-                const controlNode = controlNodeT?.parentElement?.parentElement ?? null;
+                const controlNodeLabel = document.querySelector(`[data-id="${controlName}"] label`);
+                const controlNodeParent = controlNodeLabel?.parentElement ?? null;
+                let controlNode;
+                if (!controlNodeParent?.hasAttribute('fieldlogicalname')) {
+                    controlNode = document.createElement('div');
+                    controlNode.setAttribute('fieldlogicalname', '');
+                    controlNodeLabel && controlNode.append(controlNodeLabel);
+                    controlNodeParent?.prepend(controlNode);
+                }
+                else {
+                    controlNode = controlNodeParent;
+                }
                 return (
                     <Portal container={controlNode}>
                         <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
