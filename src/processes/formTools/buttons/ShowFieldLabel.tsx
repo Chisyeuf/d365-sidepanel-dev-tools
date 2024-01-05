@@ -65,39 +65,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         setLabelDisplayed((prev) => !prev);
     }
 
-    // const controlComponents = useMemo(() => labelDisplayed &&
-    //     controls?.map((c) => {
-    //         const controlName = c.getName();
-    //         const controlNodeT = document.querySelector(`[data-id="${controlName}"] label`);
-    //         const controlNode = controlNodeT?.parentElement?.parentElement ?? null;
-    //         return (
-    //             <Portal container={controlNode}>
-    //                 <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
-    //             </Portal>
-    //         );
-    //     }), [labelDisplayed, controls, props.domUpdated]);
-
-    // const gridComponents = useMemo(() => labelDisplayed &&
-    //     grids?.map((c) => {
-    //         const gridName: string = c.getName();
-    //         const gridNode: Element | null = document.querySelector("#dataSetRoot_" + gridName + " > div:first-child");
-
-    //         let content;
-    //         if (!gridNode?.lastElementChild?.hasAttribute('gridlogicalname')) {
-    //             content = document.createElement('div');
-    //             content.setAttribute('gridlogicalname', '');
-    //             gridNode?.append(content);
-    //         }
-    //         else {
-    //             content = gridNode?.lastElementChild;
-    //         }
-
-    //         return (
-    //             <Portal container={content}>
-    //                 <LogicalNameTypography label={gridName} onClick={copyToClipboard} />
-    //             </Portal>
-    //         );
-    //     }), [labelDisplayed, grids, props.domUpdated]);
+    // TODO: Fix display logicalname for fields with hidden label
 
     return (<>
         <Tooltip title='Show Fields & Grids Logical Name' placement='left'>
