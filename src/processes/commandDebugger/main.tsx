@@ -10,7 +10,8 @@ class CommandDebugger extends ProcessButton {
             'ribbondebugenabler',
             () => new URL(location.href).searchParams.get('ribbondebug') === 'true' ? 'Turn off Command Checker' : 'Turn on Command Checker',
             <TroubleshootIcon />,
-            1
+            1,
+            false
         );
     }
 

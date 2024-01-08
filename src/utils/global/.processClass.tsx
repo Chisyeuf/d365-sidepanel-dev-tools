@@ -17,6 +17,7 @@ export abstract class ProcessButton {
     name: string;
     icon: JSX.Element;
     width: number;
+    openable: boolean;
 
     process?: React.ForwardRefExoticComponent<ProcessProps & React.RefAttributes<ProcessRef>>;
     // process?: React.FunctionComponent<ProcessProps>;
@@ -25,11 +26,12 @@ export abstract class ProcessButton {
     ref: React.RefObject<ProcessRef>;
     // xrmUpdatedCallback?: () => void
 
-    constructor(id: string, name: string| (() => string), icon: JSX.Element, width: number) {
+    constructor(id: string, name: string | (() => string), icon: JSX.Element, width: number, openable: boolean = true) {
         this.id = ProcessButton.prefixId + id;
         this.name = typeof name === 'string' ? name : name();
         this.icon = icon;
         this.width = width;
+        this.openable = openable;
         this.onClick = this.onClick.bind(this);
 
         this.ref = React.createRef<ProcessRef>();
