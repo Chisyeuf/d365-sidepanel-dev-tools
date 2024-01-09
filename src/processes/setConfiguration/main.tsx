@@ -141,20 +141,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         function CreateConfiguration() {
-            // allOpenPanes = Xrm.App.sidePanes.getAllPanes().get(); //getAllPanes(): Collection.ItemCollection<App.PaneObject>;
-            // selectedPane = Xrm.App.sidePanes.getSelectedPane();
-            // allOpenPanes.shift();
-
-            // const openConfigurations: StorageConfiguration[] = allOpenPanes.filter(pane => pane.paneId?.startsWith(ProcessButton.prefixId)).map((openPane: Xrm.App.PaneObject, index: number) => {
-            //     return {
-            //         id: openPane.paneId!,
-            //         startOnLoad: true,
-            //         startOnPosition: index,
-            //         expand: !!openPane.paneId && !!selectedPane && openPane.paneId === selectedPane.paneId,
-            //         hidden: false,
-            //         options: Processes.find(p => p.id === openPane.paneId)?.getConfiguration(),
-            //     }
-            // });
 
             const configurations: StorageConfiguration[] = Processes.map(process => {
                 const opened = processesList.find(c => c.id === process.id);
