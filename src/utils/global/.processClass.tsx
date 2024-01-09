@@ -132,14 +132,14 @@ export abstract class ProcessButton {
                 if (sidePaneContent) {
                     sidePaneContent.style.minWidth = "100%";
                     if (header) {
-                        header.style.flexDirection = "column-reverse";
+                        header.style.flexDirection = "row";
                         header.style.paddingLeft = "5px";
                         header.style.paddingRight = "5px";
                         header.style.alignItems = "flex-end";
                         header.style.justifyContent = "flex-end";
 
                         if (h2) {
-                            h2.style.width = "100%";
+                            h2.style.width = "auto";
                         }
 
                         if (button) {

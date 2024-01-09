@@ -36,6 +36,9 @@ class FormToolsButton extends ProcessButton {
             title.style.maxHeight = "none";
             title.style.writingMode = "vertical-rl";
         }
+        if (header) {
+            header.style.flexDirection = "column-reverse";
+        }
     }
 }
 
