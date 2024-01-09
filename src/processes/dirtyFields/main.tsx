@@ -122,9 +122,9 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                             dirtyAttributes?.map((attribute, index) => {
                                 const attributeName = attribute.getName();
                                 const attributeValue = getAttributeValueString(attribute);
-                                const oldAttributeSelctor = attribute.getAttributeType() === 'lookup' ? `_${attributeName}_value` : attributeName;
+                                const oldAttributeSelector = attribute.getAttributeType() === 'lookup' ? `_${attributeName}_value` : attributeName;
                                 return (
-                                    <DirtyAttributeItem name={attributeName} oldValue={attributes[oldAttributeSelctor]} value={attributeValue} key={attributeName} />
+                                    <DirtyAttributeItem name={attributeName} oldValue={attributes[oldAttributeSelector]} value={attributeValue} key={attributeName} />
                                 );
                             })
                         }
@@ -149,7 +149,7 @@ function getAttributeValueString(attribute: Xrm.Attributes.Attribute<any>): stri
             return '' + attribute.getValue();
 
         case 'lookup':
-            return attribute.getValue() ? attribute.getValue()[0].id : 'null';
+            return attribute.getValue() ? attribute.getValue()[0].id.replace('{', '').replace('}', '') : 'null';
 
         case 'datetime':
             return attribute.getValue() ? attribute.getValue().toISOString() : '' + attribute.getValue();
@@ -189,25 +189,42 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
                     primary={name}
                     secondary={
                         <>
-                            <Typography
-                                sx={{ display: 'inline' }}
-                                component="span"
-                                variant="body2"
-                                color="text.primary"
-                            >
-                                {value}
-                            </Typography>
-                            {" — " + oldValue}
+                            <ValueDisplay title='New Value' value={value} />
+                            <ValueDisplay title='Previous Value' value={oldValue} />
                         </>
                     }
                 />
-                
+
             </ListItemButton>
             <CopyMenu anchorElement={anchorEl} onClose={handleCloseContextualMenu} items={copyContent} />
             <Divider />
         </>
     );
 });
+
+interface ValueDisplayProps {
+    title: string
+    value: any
+}
+function ValueDisplay(props: ValueDisplayProps) {
+    return (
+        <Typography
+            component="p"
+            variant="caption"
+            color="text.secondary"
+        >
+            {props.title}:
+            <Typography
+                sx={{ display: "inline", ml: 1 }}
+                component="p"
+                variant="body2"
+                color="text.primary"
+            >
+                {props.value}
+            </Typography>
+        </Typography>
+    )
+}
 
 const dirtyFields = new DirtyFieldsButton();
 export default dirtyFields;
