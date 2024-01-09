@@ -68,7 +68,6 @@ function ProcessItem(props: ProcessItemProps) {
                                     {processButton?.name ?? "Name not found"}
                                 </Typography>
                                 {processButton?.icon}
-                                {process.startOnPosition?.toString() ?? "-1"}
                             </Stack>
                         </Box>
                     )
@@ -123,12 +122,15 @@ function ProcessList(props: ProcessListProps) {
 }
 
 
+function sortProcessesByStartOnPosition(processA: StorageConfiguration, processB: StorageConfiguration) { return processA.startOnPosition !== undefined && processB.startOnPosition !== undefined ? processA.startOnPosition - processB.startOnPosition : 0; }
+
 const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
     function SetConfigurationProcess(props: ProcessProps, ref) {
 
         const extensionId = GetExtensionId();
 
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
+        const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
 
         useEffect(() => {
@@ -172,16 +174,23 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const saveConfiguration = () => {
             debugLog("saveConfiguration", processesList);
+
             CreateConfiguration();
+
+            setConfigurationSaved(true);
+            setTimeout(() => {
+                setConfigurationSaved(false);
+            }, 2000);
         }
 
-        const openedProcesses = useMemo(() => processesList.filter(process => process.startOnLoad).sort((processA, processB) => (processA.startOnPosition && processB.startOnPosition && processA.startOnPosition - processB.startOnPosition) ?? 0), [processesList]);
+        const openedProcesses = useMemo(() => {
+            const opened = processesList.filter(process => process.startOnLoad)
+            opened.sort(sortProcessesByStartOnPosition);
+            debugLog("openedProcesses", opened);
+            return opened;
+        }, [processesList]);
 
         const closedProcesses = useMemo(() => Processes.map(processButton => processesList.find(process => !process.startOnLoad && process.id === processButton.id)).filter((p): p is StorageConfiguration => !!p), [Processes, processesList]);
-
-        // useEffect(() => {
-        //     debugLog("processesList", processesList);
-        // }, [processesList]);
 
         function onDragEnd(result: DropResult) {
             if (!result.destination) {
@@ -202,7 +211,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                 updatedProcess.startOnLoad = startOnLoad;
 
                 const openedProcess = previousProcessList.filter(process => process.startOnLoad && process.id !== result.draggableId)
-                    .sort((processA, processB) => (processA.startOnPosition && processB.startOnPosition && processA.startOnPosition - processB.startOnPosition) ?? 0);
+                    .sort(sortProcessesByStartOnPosition);
                 if (startOnLoad) {
                     openedProcess.splice(result.destination!.index, 0, updatedProcess);
                 }
@@ -226,7 +235,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
         return (
             <Stack direction='column' spacing={1} width='-webkit-fill-available' height='calc(100% - 20px)' padding='10px'>
                 <Button variant='contained' onClick={saveConfiguration}>
-                    Save Configuration
+                    {configurationSaved ? "Saved" : "Save Configuration"}
                 </Button>
 
                 <Divider />
@@ -242,24 +251,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                                 newProcessList[i].expand = newValue?.id === newProcessList[i].id;
                             }
                             return newProcessList;
-
-                            // if (!newValue) {
-                            //     const unselectedProcess = [...previousProcessList];
-                            //     for (let i = 0; i < unselectedProcess.length; i++) {
-                            //         unselectedProcess[i].expand = false;
-                            //     }
-                            //     return unselectedProcess;
-                            // }
-                            // const selectedProcess = previousProcessList.find(p => p.id === newValue.id);
-                            // if (!selectedProcess) {
-                            //     return previousProcessList;
-                            // }
-                            // selectedProcess.expand = true;
-                            // const unselectedProcess = previousProcessList.filter(p => p.id !== newValue.id);
-                            // for (let i = 0; i < unselectedProcess.length; i++) {
-                            //     unselectedProcess[i].expand = false;
-                            // }
-                            // return [...unselectedProcess, selectedProcess].sort((processA, processB) => (processA.startOnPosition && processB.startOnPosition && processA.startOnPosition - processB.startOnPosition) ?? 0);
                         });
                     }}
                     options={Processes.map(processButton => processesList.filter(process => process.startOnLoad).find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
@@ -275,9 +266,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                                 sx={{
                                     borderRadius: '8px',
                                     margin: '5px',
-                                    // [`&.${autocompleteClasses.option}`]: {
-                                    //     padding: '8px',
-                                    // },
                                 }}
                                 component="li"
                                 {...props}
@@ -288,6 +276,9 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                                 {processButton?.icon}
                             </Stack>
                         )
+                    }}
+                    sx={{
+                        mt: 1
                     }}
                 />
 
