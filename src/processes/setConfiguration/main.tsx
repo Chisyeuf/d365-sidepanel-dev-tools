@@ -79,15 +79,25 @@ function ProcessItem(props: ProcessItemProps) {
 
 interface ProcessListProps {
     title: string
+    titleButton?: { label: string, onClick: () => void }
     processList: StorageConfiguration[]
     forceHeight?: string
 }
 function ProcessList(props: ProcessListProps) {
-    const { processList, title, forceHeight } = props;
+    const { processList, title, forceHeight, titleButton } = props;
 
     return (
         <>
-            <Typography variant='h6'>{title.replaceAll('_', ' ')}</Typography>
+            <Stack direction='row' justifyContent='space-between'>
+                <Typography variant='h6'>{title.replaceAll('_', ' ')}</Typography>
+                {
+                    titleButton && (
+                        <Button onClick={titleButton.onClick}>
+                            {titleButton.label}
+                        </Button>
+                    )
+                }
+            </Stack>
             <Stack direction='row' height={forceHeight ?? '100%'} width='100%' sx={{ overflowY: 'auto' }}>
                 <Droppable droppableId={title} key={title + 'draggable'}>
                     {
@@ -232,6 +242,18 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             });
         }
 
+        function reset() {
+            setProcessesList(previousProcessList => {
+                const updatedProcesses = [...previousProcessList];
+                for (let i = 0; i < updatedProcesses.length; i++) {
+                    updatedProcesses[i].startOnPosition = undefined;
+                    updatedProcesses[i].expand = false;
+                    updatedProcesses[i].startOnLoad = false;
+                }
+                return updatedProcesses;
+            });
+        }
+
         return (
             <Stack direction='column' spacing={1} width='-webkit-fill-available' height='calc(100% - 20px)' padding='10px'>
                 <Button variant='contained' onClick={saveConfiguration}>
@@ -289,7 +311,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     <DragDropContext onDragEnd={onDragEnd} >
                         <Stack direction='column' spacing={1} height='100%' width='100%'>
 
-                            <ProcessList title={listOpenId} processList={openedProcesses} />
+                            <ProcessList title={listOpenId} processList={openedProcesses} titleButton={{ label: 'Reset', onClick: reset }} />
 
                             <Divider />
 
