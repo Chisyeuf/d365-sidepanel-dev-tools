@@ -1,19 +1,15 @@
 
 import { Button, Tooltip } from '@mui/material';
-import { Stack } from '@mui/system';
 import React from 'react';
 
-// import NavigationIcon from '@mui/icons-material/Navigation';
-
-import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon, PowerEnvironmentIcon } from '../icons';
+import { AzurePortalIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 
-function Environments(props: NavigationButton) {
+function AzurePortal(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
     function handleClick() {
-        window.open(`https://portal.azure.com/#home`, '_blank');
+        window.open(`https://portal.azure.com/`, '_blank');
     }
     return (
         <>
@@ -23,7 +19,7 @@ function Environments(props: NavigationButton) {
                 <Button
                     variant='outlined'
                     onClick={handleClick}
-                    startIcon={<PowerEnvironmentIcon />}
+                    startIcon={<AzurePortalIcon />}
                     sx={{
                         width: '100%',
                         maxWidth: 'calc(100% - 10px)',
@@ -43,4 +39,4 @@ function Environments(props: NavigationButton) {
     )
 }
 
-export default Environments;
+export default AzurePortal;
