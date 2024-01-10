@@ -1023,7 +1023,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
             >
                 {props.nullable && <MenuItem disabled={props.disabled} value={-1}>- - -</MenuItem>}
                 {
-                    stateOptions[props.attribute.LogicalName].Options?.map((optionNode) => {
+                    stateOptions[props.attribute.LogicalName]?.Options?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem disabled={props.disabled} value={option.value}>{option.text} ({option.value})</MenuItem>
                     })
@@ -1102,8 +1102,8 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
             >
                 {props.nullable && <MenuItem disabled={props.disabled} value={-1}>- - -</MenuItem>}
                 {
-                    statusCode[props.attribute.LogicalName] && Object.entries(groupBy(statusCode[props.attribute.LogicalName].Options, props.groupBy))?.map(([group, value]) => {
-                        const parentOption = stateCode['statecode'].Options?.find(state => state.Value === Number(group));
+                    statusCode[props.attribute.LogicalName] && Object.entries(groupBy(statusCode[props.attribute.LogicalName]?.Options, props.groupBy))?.map(([group, value]) => {
+                        const parentOption = stateCode['statecode']?.Options?.find(state => state.Value === Number(group));
                         return (
                             [
                                 <ListSubheader>{parentOption?.Label.UserLocalizedLabel!.Label} ({parentOption?.Value})</ListSubheader>,
@@ -1197,7 +1197,7 @@ export function MultiplePicklistNode(props: AttributeProps & { entityname: strin
                 }
             >
                 {
-                    stateOptions[props.attribute.LogicalName].Options?.map((optionNode) => {
+                    stateOptions[props.attribute.LogicalName]?.Options?.map((optionNode) => {
                         var option: Xrm.OptionSetValue = { text: optionNode.Label.UserLocalizedLabel!.Label, value: optionNode.Value };
                         return <MenuItem disabled={props.disabled} value={option.value}>{option.text} ({option.value})</MenuItem>
                     })

@@ -75,7 +75,6 @@ export function RetrievePicklistValues(entityname: string, type: MSType, fieldna
             const results = await response.json();
 
 
-            // const values: PickListOption[] = results.value?.at(0).OptionSet.Options
             const values: { [attributeLogicalName: string]: PickList } = results.value?.reduce((previousValue: any, currentValue: any, currentIndex: number, array: any[]) => ({ ...previousValue, [currentValue.LogicalName]: currentValue.OptionSet }), {});
 
             setIsFetching(false);

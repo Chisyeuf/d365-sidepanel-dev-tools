@@ -26,7 +26,7 @@ export const getRandomValue = async (currentFormContext: FormContext , attribute
             const options = Object.values(
                 (await Xrm.Utility.getEntityMetadata(
                     currentFormContext.data.entity.getEntityName(),
-                    [attribute.getName()])).Attributes.get(0).OptionSet
+                    [attribute.getName()])).Attributes.get(0)?.OptionSet
             ).map((o: any) => o.value);
             return getRandomPickList(options);
         case MSType.Uniqueidentifier:
