@@ -142,7 +142,9 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
                     >
                         {
                             isFetching ?
-                                <CircularProgress />
+                                <Stack width='100%' height='50vh' justifyContent='center' alignItems='center'>
+                                    <CircularProgress sx={{ zoom: '2' }} />
+                                </Stack>
                                 :
                                 Object.entries(optionSetTable).map(([pickListLogicalName, metadata]) => {
                                     const lowerFilter = filter.toLowerCase();
