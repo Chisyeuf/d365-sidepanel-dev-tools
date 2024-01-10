@@ -172,6 +172,8 @@ function OptionSetTable(props: OptionSetTableProps) {
 
     const tableRef = useRef<HTMLTableElement | null>(null);
 
+    const [tablecopied, setTablecopied] = useState(false);
+
     const tooltip = useMemo(() => <>
         <Typography><b>DisplayName:</b> {metadata.DisplayName}</Typography>
         <Typography><b>OptionSetType:</b> {metadata.OptionSetType}</Typography>
@@ -194,6 +196,11 @@ function OptionSetTable(props: OptionSetTableProps) {
                 }),
             }),
         ]);
+
+        setTablecopied(true);
+        setTimeout(() => {
+            setTablecopied(false);
+        }, 1500);
     }
 
     return (
@@ -214,7 +221,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                         }
                     </Stack>
                     <Button variant='outlined' size='small' onClick={copyFn}>
-                        Copy
+                        {tablecopied ? "Copied!" : "Copy"}
                     </Button>
                 </Stack>
                 <Table key={`table${logicalName}`} ref={tableRef} size='small'>
@@ -281,7 +288,7 @@ function CopyTableCell(props: CopyTableCellProps & TableCellProps) {
         setClicked(true);
         setTimeout(() => {
             setClicked(false);
-        }, 350);
+        }, 500);
     }
 
     return (
