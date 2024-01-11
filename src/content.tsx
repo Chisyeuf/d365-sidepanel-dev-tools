@@ -1,6 +1,6 @@
 
 window.onload = async () => {
-    injectScript(chrome.runtime.getURL("static/js/main.js"));
+    injectScript(chrome.runtime.getURL("static/js/spdevtools.js"));
     SaveData(chrome.runtime.getURL(""), "extensionURL");
 }
 
