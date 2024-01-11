@@ -20,6 +20,7 @@ import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
+import FilterInput from '../../utils/components/FilterInput';
 
 const theme = createTheme({
     components: {
@@ -56,9 +57,16 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
         const [entityName, _setEntityName] = useState<string>(currentEntityName ?? '');
         const [recordId, setRecordId] = useState<string[]>([currentRecordId ?? '']);
 
+        const [filter, setFilter] = useState<string>('');
+
+        const firstRecordId = useMemo(() => recordId.at(0) ?? '', [recordId]);
+
         const resetRecord = useCallback(() => {
             _setEntityName(currentEntityName ?? '');
-            setRecordId([currentRecordId ?? '']);
+            setRecordId([]);
+            setTimeout(() => {
+                setRecordId([currentRecordId ?? '']);
+            }, 100);
         }, [currentEntityName, currentRecordId, _setEntityName, setRecordId]);
 
         useEffect(() => {
@@ -82,18 +90,17 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
         const [oneToMany, isOneToManyFetching] = RetrieveRelationShipOneToMany(entityName);
         const [manyToOne, isManyToOneFetching] = RetrieveRelationShipManyToOne(entityName);
 
-// Reset marche pas
-
         return (
             <ThemeProvider theme={theme}>
                 <Stack spacing={0.5} width='calc(100% - 10px)' padding='10px' alignItems='center' overflow='scroll'>
                     <RecordSearchBar entityName={entityName} recordIds={recordId} setEntityName={setEntityName} setRecordIds={setRecordId} reset={resetRecord} theme={theme} />
+                    <FilterInput fullWidth placeholder='Search by name' returnFilterInput={setFilter} />
 
-                    {!isManyToManyFetching && <RelationShipList title='Many To Many' relationShipMetadata={manyToMany} key={'manytomany'} entityName={entityName} recordId={recordId.at(0) ?? ''} />}
+                    {!isManyToManyFetching && <RelationShipList title='Many To Many' relationShipMetadata={manyToMany} key={'manytomany'} entityName={entityName} recordId={firstRecordId} filter={filter} />}
 
-                    {!isOneToManyFetching && <RelationShipList title='One To Many' relationShipMetadata={oneToMany} key={'oneToMany'} entityName={entityName} recordId={recordId.at(0) ?? ''} />}
+                    {!isOneToManyFetching && <RelationShipList title='One To Many' relationShipMetadata={oneToMany} key={'oneToMany'} entityName={entityName} recordId={firstRecordId} filter={filter} />}
 
-                    {!isManyToOneFetching && <RelationShipList title='Many To One' relationShipMetadata={manyToOne} key={'manyToOne'} entityName={entityName} recordId={recordId.at(0) ?? ''} />}
+                    {!isManyToOneFetching && <RelationShipList title='Many To One' relationShipMetadata={manyToOne} key={'manyToOne'} entityName={entityName} recordId={firstRecordId} filter={filter} />}
                 </Stack>
             </ThemeProvider>
         );
@@ -104,13 +111,24 @@ interface RelationShipListProps<T extends RelationShipMetadata> {
     title: string,
     relationShipMetadata: T[],
     entityName: string,
-    recordId: string
+    recordId: string,
+    filter: string
 }
 function RelationShipList<T extends RelationShipMetadata>(props: RelationShipListProps<T>) {
 
-    const { relationShipMetadata: relationShipMetadataList, title, entityName, recordId } = props;
+    const { relationShipMetadata: relationShipMetadataList, title, entityName, recordId, filter } = props;
 
     const [open, setOpen] = useState(false);
+    const [sortArray, setSortArray] = useState<(number | undefined)[]>([]);
+
+    const saveSorting = useCallback((index: number, numberOfItem: number) => {
+        setSortArray(prev => {
+            const newSort = [...prev];
+            newSort[index] = numberOfItem;
+            return newSort;
+        })
+    }, [setSortArray]);
+
 
     const handleClick = () => {
         setOpen(prev => !prev);
@@ -129,6 +147,24 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
         return relationShipMetadataList.length > max ? max + '+' : relationShipMetadataList.length;
     }, [relatedRecords]);
 
+    useEffect(() => {
+        setSortArray((new Array(relationShipMetadataList.length)).fill(-1));
+    }, [relationShipMetadataList])
+
+
+    const relationShipItems = useMemo(() => relationShipMetadataList.map((relationShip, index) => {
+        return (
+            <RelationShipItem
+                key={relationShip.SchemaName}
+                relationShipMetadata={relationShip}
+                entityName={entityName}
+                recordId={recordId}
+                index={index}
+                sendContentToParent={saveSorting}
+                filter={filter}
+            />
+        )
+    }), [relationShipMetadataList, entityName, recordId, saveSorting, filter]);
 
     return (
         <>
@@ -149,9 +185,8 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
             >
                 <Collapse in={open} timeout="auto">
                     {
-                        relationShipMetadataList.map(relationShip => {
-                            return <RelationShipItem key={relationShip.SchemaName} relationShipMetadata={relationShip} entityName={entityName} recordId={recordId} />
-                        })
+                        sortArray.map((s, index) => ({ index: index, number: s })).sort((pA, pB) => pA.number !== undefined && pB.number !== undefined ? pB.number - pA.number : -1)
+                            .map(position => relationShipItems[position.index])
                     }
                 </Collapse>
             </List>
@@ -163,9 +198,12 @@ interface RelationShipItemProps {
     relationShipMetadata: RelationShipMetadata,
     entityName: string,
     recordId: string,
+    index: number,
+    sendContentToParent: (index: number, numberOfItem: number) => void,
+    filter: string
 }
 const RelationShipItem = React.memo((props: RelationShipItemProps) => {
-    const { relationShipMetadata, entityName, recordId } = props;
+    const { relationShipMetadata, entityName, recordId, sendContentToParent, index, filter } = props;
 
     const [open, setOpen] = useState(false);
 
@@ -222,6 +260,11 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
         return relatedRecords.length > 9 ? '9+' : relatedRecords.length;
     }, [relatedRecords]);
 
+    useEffect(() => {
+        sendContentToParent(index, relatedRecords?.length ?? -1);
+    }, [relatedRecords, index, sendContentToParent]);
+
+
     const handleClick = () => {
         setOpen(prev => !prev);
     };
@@ -269,13 +312,19 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
             <Typography variant="body2"><strong>IsValidForAdvancedFind:</strong> {relationShipMetadata.IsValidForAdvancedFind}</Typography>
             {details}
         </>
-    }
-        , [relationShipMetadata]);
+    }, [relationShipMetadata]);
+
+    const isVisible = useMemo(() => relationShipMetadata.SchemaName.toLowerCase().includes(filter.toLowerCase()), [filter]);
+
+    useEffect(() => {
+        debugLog('filter', filter);
+    }, [filter])
+
 
     return (
         <>
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
-                <ListItemButton onClick={handleClick}>
+                <ListItemButton onClick={handleClick} sx={{ display: isVisible ? 'flex' : 'none' }}>
                     <ListItemIcon>
                         <SubdirectoryArrowRightIcon />
                         <Chip ref={numberOfRecordsChip} size="small" label={numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall} sx={{ height: 'unset' }} />
@@ -292,7 +341,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                 </ListItemButton>
             </NoMaxWidthTooltip>
             {
-                <List component="div" disablePadding>
+                <List component="div" disablePadding sx={{ display: isVisible ? 'block' : 'none' }}>
                     <Collapse in={open} timeout="auto">
                         {
                             relatedRecords?.map(relatedRecord => {
@@ -331,6 +380,11 @@ const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
 
     const handleClick = () => {
         if (!entityName || !recordId) return;
+        Xrm.Utility.showProgressIndicator(`Opening ${displayName} (${entityName}/${recordId})`);
+        setTimeout(() => {
+            Xrm.Utility.closeProgressIndicator();
+        }, 1000);
+
         Xrm.Navigation.navigateTo(
             {
                 pageType: 'entityrecord',
