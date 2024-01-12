@@ -644,7 +644,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Boolean:
             return (<BooleanNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
+                entityname={props.entityname}
                 value={props.value}
                 // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}

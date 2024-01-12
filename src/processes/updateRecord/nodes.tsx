@@ -788,9 +788,10 @@ export function BigIntNode(props: AttributeProps) {
         </>
     )
 }
-export function BooleanNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<boolean | null>(props.value)
-    const [value, setValue] = useState<boolean | null>(props.value)
+export function BooleanNode(props: AttributeProps & { entityname: string }) {
+    const [oldValue, setOldValue] = useState<boolean | null>(props.value);
+    const [value, setValue] = useState<boolean | null>(props.value);
+    const [open, setOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!props.disabled)
@@ -799,24 +800,24 @@ export function BooleanNode(props: AttributeProps) {
 
     const setDirty = (checked: boolean | null) => {
         if (oldValue !== checked) {
-            props.manageDirty.set()
+            props.manageDirty.set();
         }
         else {
-            props.manageDirty.remove()
+            props.manageDirty.remove();
         }
     }
 
     useEffect(() => {
-        setOldValue(props.value)
-        setValue(props.value)
-    }, [props.value])
+        setOldValue(props.value);
+        setValue(props.value);
+    }, [props.value]);
 
     useEffect(() => {
         if (props.reset) {
-            setValue(oldValue)
-            props.manageDirty.remove()
+            setValue(oldValue);
+            props.manageDirty.remove();
         }
-    }, [oldValue, props.manageDirty, props.reset])
+    }, [oldValue, props.manageDirty, props.reset]);
 
     useEffect(() => {
         if (props.remove) {
@@ -825,18 +826,26 @@ export function BooleanNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>, checked: ReactNode) => {
-        const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null
+        const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null;
         // props.setToUpdate()
-        setValue(result)
-        setDirty(result)
+        setValue(result);
+        setDirty(result);
     }
+
+    const handleOnClick = () => {
+        setOpen(prev => !prev);
+    }
+
+    const [stateOptions, isFetching] = RetrievePicklistValues(props.entityname, props.attribute.MStype, props.attribute.LogicalName) as [any, boolean];
 
     return (
         <FormControl fullWidth>
             <Select
+                open={open}
                 value={value == true ? 1 : value == false ? 0 : -1}
                 // onFocus={props.setToUpdate}
                 onChange={onChange}
+                onClick={handleOnClick}
                 size={"small"}
                 fullWidth
                 disabled={props.disabled}
@@ -857,9 +866,9 @@ export function BooleanNode(props: AttributeProps) {
                     </InputAdornment>
                 )}
             >
-                <MenuItem value={-1}>- - -</MenuItem>
-                <MenuItem value={1}>Yes</MenuItem>
-                <MenuItem value={0}>No</MenuItem>
+                <MenuItem disabled={props.disabled} value={-1}>- - -</MenuItem>
+                <MenuItem disabled={props.disabled} value={1}>{stateOptions[props.attribute.LogicalName]?.TrueOption.Label.UserLocalizedLabel.Label ?? "Yes"}</MenuItem>
+                <MenuItem disabled={props.disabled} value={0}>{stateOptions[props.attribute.LogicalName]?.FalseOption.Label.UserLocalizedLabel.Label ?? "No"}</MenuItem>
             </Select>
         </FormControl>
     )
