@@ -1,7 +1,15 @@
+const allowedScripts = ['/uclient/scripts/cdnEndpointCheck.js', '/uclient/scripts/MicrosoftAjax.js'];
 
 window.onload = async () => {
-    injectScript(chrome.runtime.getURL("static/js/spdevtools.js"));
-    SaveData(chrome.runtime.getURL(""), "extensionURL");
+    const isCRMD365 = Array.from(document.scripts).some(
+        (script) =>
+            allowedScripts.some(src => script.src.indexOf(src) !== -1)
+    );
+    console.log('This page is CRM:', isCRMD365);
+    if (isCRMD365) {
+        injectScript(chrome.runtime.getURL("static/js/spdevtools.js"));
+        SaveData(chrome.runtime.getURL(""), "extensionURL");
+    }
 }
 
 var injectScript = function (file: string): void {

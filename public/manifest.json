@@ -17,22 +17,20 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://*.dynamics.com/*"],
-            "exclude_matches":["https://community.dynamics.com/*"],
-            "js": ["/static/js/content.js"]
+            "matches": ["https://*/*", "http://*/*"],
+            "js": ["/static/js/spdevtools.content.js"]
         }
     ],
     "web_accessible_resources": [
         {
             "resources": ["/static/js/spdevtools.js", "/icons/*"],
-            "matches": ["https://*.dynamics.com/*"],
-            "exclude_matches":["https://community.dynamics.com/*"]
+            "matches": ["https://*/*", "http://*/*"]
         }
     ],
     "host_permissions": ["https://*.dynamics.com/*"],
     "permissions": ["storage", "declarativeNetRequest", "debugger"],
     "externally_connectable": {
         "matches": ["https://*.dynamics.com/*"],
-        "exclude_matches":["https://community.dynamics.com/*"]
+        "exclude_matches": ["https://community.dynamics.com/*"]
     }
 }

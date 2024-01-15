@@ -69,7 +69,7 @@ module.exports = {
                         isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
                         paths.appIndexJs
                     ].filter(Boolean),
-                    content: './src/content.tsx',
+                    'spdevtools.content': './src/content.tsx',
                     options: './src/screens/options.tsx',
                     background: './src/background.tsx'
                 },
