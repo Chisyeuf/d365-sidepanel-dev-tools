@@ -9,14 +9,13 @@ import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '
 import Stack from '@mui/material/Stack';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
-import Processes, {
-    defaultProcessesList, storageListName
-} from '../processes/.list';
+import Processes, { defaultProcessesList } from '../processes/.list';
 
 import { debugLog, waitForElm } from '../utils/global/common';
 import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
+import { storageListName } from '../utils/global/var';
 
 const OptionsScreen: React.FunctionComponent = () => {
     const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storageListName, defaultProcessesList);

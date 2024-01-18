@@ -1,16 +1,17 @@
 
-import { Autocomplete, Box, Button, Divider, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Divider, FormControl, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 
 
 import SaveIcon from '@mui/icons-material/Save';
-import Processes, { defaultProcessesList, storageListName } from '../.list';
+import Processes, { defaultProcessesList } from '../.list';
 import { MessageType } from '../../utils/types/Message';
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 import { DragDropContext, Draggable, DraggableProvided, DropResult, Droppable } from '@hello-pangea/dnd';
+import { storageForegroundPanes, storageListName, storageStandardPanels } from '../../utils/global/var';
 
 
 class SetConfigurationButton extends ProcessButton {
@@ -138,15 +139,29 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
     function SetConfigurationProcess(props: ProcessProps, ref) {
 
         const extensionId = GetExtensionId();
+        const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
         const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
+        const [useStandardPanels, setUseStandardPanels] = useState<boolean>(false);
+        const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
+
 
         useEffect(() => {
             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
-                function (response: StorageConfiguration[]) {
+                function (response: StorageConfiguration[] | null) {
                     setProcessesList(response ?? []);
+                }
+            );
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
+                function (response: boolean | null) {
+                    setUseStandardPanels(response ?? false);
+                }
+            );
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+                function (response: boolean | null) {
+                    setIsForegroundPanes(response ?? false);
                 }
             );
         }, []);
@@ -154,7 +169,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         function CreateConfiguration() {
 
-            const configurations: StorageConfiguration[] = Processes.map(process => {
+            const processConfigurations: StorageConfiguration[] = Processes.map(process => {
                 const opened = processesList.find(c => c.id === process.id);
                 if (opened) {
                     return opened;
@@ -168,19 +183,23 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             });
 
-            debugLog(configurations);
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: configurations } },
+            debugLog(processConfigurations);
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: processConfigurations } },
                 function (response) {
-                    if (response.success) {
-                    }
+                    if (response.success) { }
+                }
+            );
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageStandardPanels, configurations: useStandardPanels } },
+                function (response) {
+                    if (response.success) { }
+                }
+            );
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageForegroundPanes, configurations: isForegroundPanes } },
+                function (response) {
+                    if (response.success) { }
                 }
             );
         }
-
-        // const message = useMemo(() => <>
-        //     <p>The configuration store the opened side panels and the active side panel. At next loadings the same layout will be duplicated.</p>
-        //     <p>If you want to have opened panels with no active panel, save the configuration when the main menu is active.</p>
-        // </>, []);
 
         const saveConfiguration = () => {
             debugLog("saveConfiguration", processesList);
@@ -259,6 +278,17 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                 <Button variant='contained' onClick={saveConfiguration}>
                     {configurationSaved ? "Saved" : "Save Configuration"}
                 </Button>
+
+                <Typography variant='caption'>
+                    The saved configuration will be applied after refreshing.
+                </Typography>
+
+                <Divider />
+
+                <FormControl fullWidth  sx={{ pl: 2 }}>
+                    <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
+                    {!isOnPrem && <FormControlLabel control={<Switch checked={useStandardPanels} onChange={() => setUseStandardPanels(prev => !prev)} />} label="Use Standard Panels" />}
+                </FormControl>
 
                 <Divider />
 

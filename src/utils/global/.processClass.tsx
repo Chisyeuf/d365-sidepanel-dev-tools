@@ -32,7 +32,7 @@ export abstract class ProcessButton {
         this.icon = icon;
         this.width = width;
         this.openable = openable;
-        this.onClick = this.onClick.bind(this);
+        this.onClickStandard = this.onClickStandard.bind(this);
 
         this.ref = React.createRef<ProcessRef>();
 
@@ -45,7 +45,35 @@ export abstract class ProcessButton {
         return this.id + ".conf";
     }
 
-    onClick(): void {
+
+
+    getProcess(setBadge: (number: number | null) => void): React.JSX.Element {
+        if (this.processContainer)
+            return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />}</this.processContainer>;
+        else
+            return this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />;
+    }
+
+    getButton(onClick: (process: ProcessButton) => any): React.JSX.Element {
+        return <Button variant="contained" size="medium" fullWidth onClick={() => onClick(this)} endIcon={this.icon} >{this.name}</Button>;
+    }
+
+    getButtonOpeningStandardPanel(): React.JSX.Element {
+        return this.getButton(this.onClickStandard);
+    }
+
+    setBadgeStandard(number: number | null) {
+        const pane: any = Xrm.App.sidePanes.getPane(this.id);
+        if (pane) {
+            if (number !== null) {
+                pane.badge = number > 0 ? number : 0;
+            } else {
+                pane.badge = null;
+            }
+        }
+    }
+
+    onClickStandard(): void {
         this.openSidePane(true);
     }
 
@@ -90,15 +118,9 @@ export abstract class ProcessButton {
         Xrm.App.sidePanes.createPane(paneOption);
 
         waitForElm('#' + this.id + ' > div > div:last-child').then((sidePane) => {
-            let nodeToRender;
-            if (this.processContainer)
-                nodeToRender = <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />}</this.processContainer>
-            else
-                nodeToRender = this.process ? <this.process id={this.id} ref={this.ref} /> : <ErrorProcess />
-
             this._reStyleSidePane();
             ReactDOM.render(
-                nodeToRender,
+                this.getProcess(this.setBadgeStandard),
                 sidePane
             );
             this.ref.current?.onClose && this.bindOnClose(this.ref.current?.onClose);
@@ -157,10 +179,10 @@ export abstract class ProcessButton {
         return;
     }
 
-    render(): React.ReactNode {
-        return <Button variant="contained" size="medium" fullWidth onClick={this.onClick} endIcon={this.icon} >{this.name}</Button>
-        // <Icon styles={ProcessButton.iconStyles} iconName={this.icon} />
-    }
+    // render(): React.ReactNode {
+    //     return this.getButton();
+    //     // <Icon styles={ProcessButton.iconStyles} iconName={this.icon} />
+    // }
 }
 
 function ErrorProcess() {
@@ -169,6 +191,7 @@ function ErrorProcess() {
 
 export interface ProcessProps {
     id: string;
+    setBadge: (number: number | null) => void
 }
 export type ProcessRef = {
     onClose?: () => void,

@@ -25,7 +25,7 @@ const Processes: ProcessButton[] = [
     webResourceEditor,
     impersonation,
     pluginTraceLogsExplorer,
-    myUserRecord,
+    // myUserRecord,
     navigation,
     commandDebugger,
     createConfiguration,
@@ -43,8 +43,7 @@ export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
     }
 })
 
-export const storageListName = 'processListOrdered';
-export const storageForegroundPanes = 'isPanesForeground';
+
 export default Processes;
 
 

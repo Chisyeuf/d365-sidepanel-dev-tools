@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
 
-import Processes, { defaultProcessesList, storageForegroundPanes, storageListName } from '../processes/.list';
+import Processes, { defaultProcessesList } from '../processes/.list';
 import { debugLog, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
-import { Divider, FormControl, FormControlLabel, Switch, Typography } from '@mui/material';
+import { Badge, Box, Button, Divider, Drawer, FormControl, FormControlLabel, IconButton, Switch, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
+import { applicationName, classesPrefix, drawerContainerId, storageForegroundPanes, storageListName, storageStandardPanels } from '../utils/global/var';
+import PanelDrawerBar from '../utils/components/PanelDrawer/PanelDrawerBar';
+import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
+import { useDictionnary } from '../utils/hooks/use/useDictionnary';
+import { useStateCallback } from '../utils/hooks/use/useStateCallback';
+import CloseIcon from '@mui/icons-material/Close';
 
 
-export const MainScreen: React.FunctionComponent = () => {
+const MainScreenStandardPanel: React.FunctionComponent = () => {
 
     const extensionId = GetExtensionId();
 
@@ -78,11 +84,6 @@ export const MainScreen: React.FunctionComponent = () => {
         }
     }
 
-    useEffect(() => {
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageForegroundPanes, configurations: isForegroundPanes } });
-        setPageStyle();
-    }, [isForegroundPanes]);
-
 
     waitForElm("#panels > div:last-child").then(elem => {
         // ObserveDOM(elem, setPageStyle);
@@ -102,17 +103,12 @@ export const MainScreen: React.FunctionComponent = () => {
 
     return (
         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
-            <FormControl fullWidth sx={{ alignItems: 'center' }}>
-                <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
-            </FormControl>
-
-            <Divider />
 
             <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
                 {
                     processesList?.filter((process) => !process.hidden).map((value, index) => {
                         const Process = Processes.find(p => p.id === value.id);
-                        return Process?.render();
+                        return Process?.getButtonOpeningStandardPanel();
                     })
                 }
             </Stack>
@@ -122,6 +118,285 @@ export const MainScreen: React.FunctionComponent = () => {
         </Stack>
     )
 }
+
+const drawerButtonContainerWidth = 47;
+const mainMenuWidth = 300;
+const MainScreenCustomPanel: React.FunctionComponent = () => {
+
+    const extensionId = GetExtensionId();
+
+    const [panelOpenedIndex, setPanelOpenedIndex] = useState<number | null>(null);
+
+    const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
+    const [openedProcesses, setOpenedProcesses] = useState<ProcessButton[]>([]);
+    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<(number | null)[]>([]);
+
+    const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
+
+    useEffect(() => {
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
+            function (response: StorageConfiguration[]) {
+                if (response && response.length === defaultProcessesList.length) {
+                    setProcessesList(response);
+                    return;
+                }
+                else {
+                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
+                    setProcessesList(defaultProcessesList);
+                }
+
+            }
+        );
+
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+            function (response: boolean | null) {
+                setIsForegroundPanes(response ?? false);
+            }
+        );
+    }, [extensionId]);
+
+    const setPageStyle = async () => {
+        setStyle('drawerbuttonsmain', {
+            "#shell-container": [`width: calc(100% - ${drawerButtonContainerWidth}px)`],
+        });
+
+        let dynamicsmainscreenWidth = 0;
+        if (!isForegroundPanes && panelOpenedIndex !== null) {
+            if (panelOpenedIndex > -1) {
+                dynamicsmainscreenWidth = openedProcesses[panelOpenedIndex].width;
+            }
+            else {
+                dynamicsmainscreenWidth = mainMenuWidth;
+            }
+        }
+        setStyle('resizedynamicsmainscreen', {
+            "#panels": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+        });
+    };
+
+    useEffect(() => {
+        setPageStyle();
+    }, [panelOpenedIndex, isForegroundPanes]);
+
+
+    useEffect(() => {
+        processesList.filter((processid) => processid.startOnLoad)
+            .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
+            .forEach((processid, index) => {
+                const process = Processes.find(p => p.id === processid.id);
+                if (!process) return;
+                setOpenedProcesses(prev => [...prev, process]);
+                setOpenedProcessesBadge(prevBadge => [...prevBadge, null]);
+                if (processid.expand) {
+                    setPanelOpenedIndex(index);
+                }
+            })
+    }, [processesList]);
+
+
+    const togglePanelDrawer = (index: number) => {
+        setPanelOpenedIndex(prev => prev !== index ? index : null);
+    }
+
+    const openProcess = (process: ProcessButton) => {
+        setOpenedProcesses(prev => {
+            const alreadyOpenedProcess = prev.findIndex(p => p.id === process.id);
+            if (alreadyOpenedProcess === -1) {
+                togglePanelDrawer(prev.length);
+                setOpenedProcessesBadge(prevBadge => [...prevBadge, null]);
+                return [...prev, process];
+            }
+            togglePanelDrawer(alreadyOpenedProcess);
+            return prev;
+        })
+    }
+
+    const closeProcess = (processId: string) => {
+        setOpenedProcesses(prev => {
+            const processToCloseIndex = prev.findIndex(p => p.id === processId);
+            if (processToCloseIndex === -1) {
+                return prev;
+            }
+            setPanelOpenedIndex(null);
+            setOpenedProcessesBadge(prevBadges => {
+                const copyBadge = [...prevBadges];
+                copyBadge.splice(processToCloseIndex, 1);
+                return copyBadge;
+            })
+            const copy = [...prev];
+            copy.splice(processToCloseIndex, 1);
+            return copy;
+        })
+    }
+
+
+    return (
+        <>
+            <Drawer
+                anchor={"right"}
+                // open={open}
+                hideBackdrop
+                sx={{
+                    width: drawerButtonContainerWidth,
+                    flexShrink: 0,
+                }}
+                PaperProps={{
+                    sx: {
+                        width: drawerButtonContainerWidth,
+                        backgroundColor: "rgb(246,247,248)",
+                    },
+                }}
+                variant="permanent"
+            >
+                <Stack direction='column'>
+
+                    <Tooltip title={<Typography variant='h6'>{applicationName}</Typography>} placement='left' arrow describeChild={false}>
+                        <Button
+                            key={`sidepanel-mainmenu-processButton`}
+                            onClick={() => togglePanelDrawer(-1)}
+                            sx={{
+                                minWidth: 'unset',
+                                aspectRatio: '1 / 1',
+                                borderRadius: 0,
+                                boxShadow: 'unset'
+                            }}
+                        >
+                            <img src={GetUrl("icons/muiwandflip.png")} width={24} style={{ fontSize: 'medium' }} />
+                        </Button>
+                    </Tooltip>
+
+                    <Divider />
+
+                    {
+                        openedProcesses.map((process, index) => {
+                            return (
+                                <Tooltip
+                                    title={<Typography variant='h6'>{process.name}</Typography>}
+                                    placement='left'
+                                    arrow
+                                // slotProps={{
+                                //     popper: {
+                                //         modifiers: [
+                                //             {
+                                //                 name: 'offset',
+                                //                 options: {
+                                //                     offset: [12, -312],
+                                //                 },
+                                //             },
+                                //         ],
+                                //     },
+                                // }}
+                                >
+                                    <Button
+                                        key={`${process.id}-processButton`}
+                                        variant={panelOpenedIndex === index ? 'contained' : 'text'}
+                                        onClick={() => togglePanelDrawer(index)}
+                                        sx={{
+                                            minWidth: 'unset',
+                                            aspectRatio: '1 / 1',
+                                            borderRadius: 0,
+                                            boxShadow: 'unset',
+                                            // zoom: 1.2,
+                                            color: panelOpenedIndex === index ? 'white' : 'black'
+                                        }}
+                                    >
+                                        <Badge
+                                            badgeContent={openedProcessesBadge[index]}
+                                            color="info"
+                                            sx={(theme) => ({
+                                                [`& .${classesPrefix}Badge-badge`]: {
+                                                    // zoom: 0.8,
+                                                    aspectRatio: '1 / 1',
+                                                    border: `2px solid ${theme.palette.background.paper}`
+                                                }
+                                            })}
+                                        >
+                                            {process.icon}
+                                        </Badge>
+                                    </Button>
+                                </Tooltip>
+                            );
+                        })
+                    }
+
+                </Stack>
+            </Drawer >
+
+            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedIndex === -1}>
+
+                <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
+
+                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
+                    <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
+                        {
+                            processesList?.filter((process) => !process.hidden).map((value, index) => {
+                                const Process = Processes.find(p => p.id === value.id);
+                                if (!Process) return null;
+                                if (Process.openable) {
+                                    return Process.getButton(openProcess);
+                                } else {
+                                    return Process.getButtonOpeningStandardPanel();
+                                }
+                            })
+                        }
+                    </Stack>
+                </Stack>
+
+            </PanelDrawerItem>
+
+            {
+                openedProcesses.map((process, index) => {
+                    return <DrawerTool
+                        key={`${process.id}-drawertool`}
+                        closeProcess={closeProcess}
+                        index={index}
+                        panelOpenedIndex={panelOpenedIndex}
+                        process={process}
+                        setOpenedProcessesBadge={setOpenedProcessesBadge}
+                    />
+                })
+            }
+        </>
+    )
+}
+
+
+interface DrawerToolProps {
+    process: ProcessButton
+    index: number
+    setOpenedProcessesBadge: (value: React.SetStateAction<(number | null)[]>) => void
+    closeProcess: (processId: string) => void
+    panelOpenedIndex: number | null
+}
+function DrawerTool(props: DrawerToolProps) {
+    const { index, process, setOpenedProcessesBadge, closeProcess, panelOpenedIndex } = props;
+
+    const verticalTitle = useMemo(() => process.width < 100, [process]);
+
+    const setBadgeInner = useCallback((number: number | null) => {
+        setOpenedProcessesBadge(prevBadge => {
+            const copyBadge = [...prevBadge];
+            copyBadge.splice(index, 1, number);
+            return copyBadge;
+        });
+    }, [setOpenedProcessesBadge]);
+
+    return (
+        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index}>
+
+            <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
+                <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
+                <IconButton onClick={() => closeProcess(process.id)}>
+                    <CloseIcon />
+                </IconButton>
+            </Stack>
+
+            {process.getProcess(setBadgeInner)}
+        </PanelDrawerItem>
+    );
+}
+
+
 
 if (top && top.window === window) {
     var loading = setInterval(() => {
@@ -134,30 +409,52 @@ if (top && top.window === window) {
 
 
 function initExtension() {
-    var paneOption: Xrm.App.PaneOptions = {
-        paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
-        title: "Dynamics Side Tools Menu",
-        canClose: false,
-        imageSrc: GetUrl("icons/muiwandflip.png"),
-        hideHeader: false,
-        isSelected: false,
-        width: 200,
-        hidden: false,
-        alwaysRender: true,
-        keepBadgeOnSelect: true
-    }
+    const extensionId = GetExtensionId();
 
-    Xrm.App.sidePanes.createPane(paneOption);
+    chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
+        function (useStandardPanel: boolean | null) {
 
-    waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
-        ReactDOM.render(
-            <MainScreen />,
-            mainSidePane
-        );
-    });
+            const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
-    new XrmObserver();
+            if (isOnPrem || !useStandardPanel) {
+                waitForElm('#mainContent').then((mainNode) => {
+                    const drawerContainer = document.createElement('div');
+                    drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
+                    mainNode?.append(drawerContainer);
 
+                    ReactDOM.render(
+                        <MainScreenCustomPanel />,
+                        drawerContainer
+                    );
+                });
+            }
+            else {
+                const paneOption: Xrm.App.PaneOptions = {
+                    paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
+                    title: applicationName,
+                    canClose: false,
+                    imageSrc: GetUrl("icons/muiwandflip.png"),
+                    hideHeader: false,
+                    isSelected: false,
+                    width: 200,
+                    hidden: false,
+                    alwaysRender: true,
+                    keepBadgeOnSelect: true
+                }
+
+                Xrm.App.sidePanes.createPane(paneOption);
+
+                waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
+                    ReactDOM.render(
+                        <MainScreenStandardPanel />,
+                        mainSidePane
+                    );
+                });
+            }
+
+            new XrmObserver();
+        }
+    );
 }
 
 debugLog("Main loaded");

@@ -22,7 +22,7 @@ const PluginTraceLogsExplorerButtonProcess = forwardRef<ProcessRef, ProcessProps
     function PluginTraceLogsExplorerButtonProcess(props: ProcessProps, ref) {
 
         return (
-            <PluginTraceLogsPane processId={props.id} />
+            <PluginTraceLogsPane processId={props.id} setBadge={props.setBadge} />
         )
     }
 );

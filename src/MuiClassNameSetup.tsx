@@ -1,6 +1,7 @@
 import { unstable_ClassNameGenerator as ClassNameGenerator } from '@mui/material/className';
+import { classesPrefix } from './utils/global/var';
 
 ClassNameGenerator.configure(
     // Do something with the componentName
-    (componentName) => `sidepanel-dev-tools-${componentName.replace('Mui', '')}`,
+    (componentName) => `${classesPrefix}${componentName.replace('Mui', '')}`,
 );

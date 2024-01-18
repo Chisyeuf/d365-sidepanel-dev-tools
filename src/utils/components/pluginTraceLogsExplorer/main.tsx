@@ -20,6 +20,7 @@ const theme = createTheme();
 
 interface PluginTraceLogsPaneProps {
     processId: string
+    setBadge: (number: number | null) => void
 }
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
@@ -64,8 +65,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     }, []);
 
     useEffect(() => {
-        const pane: any = Xrm.App.sidePanes.getPane(props.processId);
-        if (pane) pane.badge = decount > 0 ? decount : 0;
+        props.setBadge(decount);
 
         if (decount === 0) {
             refreshFirst();
@@ -117,7 +117,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                     addMessageProcessingSteps: addMessageProcessingSteps,
                     addMessageProcessingStepImages: addMessageProcessingStepImages,
                 }} >
-                    <Stack direction='column' width='100%'>
+                    <Stack direction='column' width='100%' height='100%'>
                         <Stack direction='column' padding={1} spacing={0.5}>
                             <Stack direction='row' spacing={0.5}>
                                 <EntitySelector

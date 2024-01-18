@@ -92,7 +92,7 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={0.5} width='calc(100% - 10px)' padding='10px' alignItems='center' overflow='scroll'>
+                <Stack spacing={0.5} width='calc(100% - 10px)' height='100%' padding='10px' alignItems='center' overflow='scroll'>
                     <RecordSearchBar entityName={entityName} recordIds={recordId} setEntityName={setEntityName} setRecordIds={setRecordId} reset={resetRecord} theme={theme} />
                     <FilterInput fullWidth placeholder='Search by name' returnFilterInput={setFilter} />
 

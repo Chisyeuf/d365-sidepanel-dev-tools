@@ -60,7 +60,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                 (oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
                 sendNewUserToBackground
             );
-        },[setUserSelected, sendNewUserToBackground]);
+        }, [setUserSelected, sendNewUserToBackground]);
 
 
         useEffect(() => {
@@ -86,7 +86,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack direction='column' spacing={0.5} width="-webkit-fill-available" padding="10px">
+            <Stack direction='column' spacing={0.5} width='calc(100% - 10px)' padding="10px" height='100%'>
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
 
