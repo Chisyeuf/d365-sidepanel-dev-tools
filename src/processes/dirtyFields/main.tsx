@@ -15,6 +15,7 @@ import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttri
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import { isArraysEquals, setStyle } from '../../utils/global/common';
 import { useBoolean } from 'usehooks-ts';
+import { FormContext } from '../../utils/types/FormContext';
 
 
 class DirtyFieldsButton extends ProcessButton {
@@ -66,7 +67,7 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         const { entityName, isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
-        const [dirtyAttributes, setDirtyAttributes] = useState<Xrm.Attributes.Attribute[]>();
+        const [dirtyAttributes, setDirtyAttributes] = useState<Xrm.Attributes.Attribute[]>([]);
 
         const { value: squareFormEnabled, toggle: toggleSquareFormEnabled } = useBoolean(false);
 
@@ -75,11 +76,10 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             const currentDirty = currentFormContext?.getAttribute(a => a.getIsDirty());
             if (currentDirty && dirtyAttributes) {
                 const isUnchanged = isArraysEquals(currentDirty.map(a => a.getName()), dirtyAttributes.map(a => a.getName()))
-                if (isUnchanged) {
-                    return;
+                if (!isUnchanged) {
+                    setDirtyAttributes(currentDirty);
                 }
             }
-            setDirtyAttributes(currentDirty);
 
         }, [currentFormContext, domUpdated]);
 
@@ -97,9 +97,14 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             }
         }, [dirtyAttributes, squareFormEnabled]);
 
+        useEffect(() => {
+            props.setBadge(dirtyAttributes.length || null);
+        }, [dirtyAttributes, props.setBadge]);
+
+
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} width='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={4} width='calc(100% - 10px)' height='100%' padding='10px' alignItems='center'>
                     <List
                         sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
                         component="nav"
@@ -119,12 +124,18 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         }
                     >
                         {
-                            dirtyAttributes?.map((attribute, index) => {
+                            dirtyAttributes.map((attribute, index) => {
                                 const attributeName = attribute.getName();
                                 const attributeValue = getAttributeValueString(attribute);
                                 const oldAttributeSelector = attribute.getAttributeType() === 'lookup' ? `_${attributeName}_value` : attributeName;
                                 return (
-                                    <DirtyAttributeItem name={attributeName} oldValue={attributes[oldAttributeSelector]} value={attributeValue} key={attributeName} />
+                                    <DirtyAttributeItem
+                                        key={attributeName + 'dirty'}
+                                        currentFormContext={currentFormContext}
+                                        name={attributeName}
+                                        oldValue={attributes[oldAttributeSelector]}
+                                        value={attributeValue}
+                                    />
                                 );
                             })
                         }
@@ -160,19 +171,26 @@ interface DirtyAttributeItemProps {
     name: string
     value: any
     oldValue: any
+    currentFormContext: FormContext
 }
 const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
-    const { name, oldValue, value } = props;
+    const { name, oldValue, value, currentFormContext } = props;
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const handleOpenContextualMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = useCallback(() => {
+        currentFormContext?.getAttribute<Xrm.Attributes.Attribute>(name).controls.get(0)?.setFocus?.()
+    }, [currentFormContext, name]);
+
+    const handleOpenContextualMenu = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(e.currentTarget);
         e.preventDefault();
-    }
-    const handleCloseContextualMenu = () => {
+    }, [setAnchorEl]);
+
+    const handleCloseContextualMenu = useCallback(() => {
         setAnchorEl(null);
-    }
+    }, [setAnchorEl]);
+
 
     const copyContent = useMemo(() => {
         return [
@@ -184,7 +202,7 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
 
     return (
         <>
-            <ListItemButton onContextMenu={handleOpenContextualMenu}>
+            <ListItemButton onClick={handleClick} onContextMenu={handleOpenContextualMenu}>
                 <ListItemText
                     primary={name}
                     secondary={
