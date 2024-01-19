@@ -76,8 +76,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                             const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
 
-                            const pane: any = Xrm.App.sidePanes.getPane(props.id);
-                            if (pane) pane.badge = 0;
+                            props.setBadge(0);
                         }
                     }
                 }

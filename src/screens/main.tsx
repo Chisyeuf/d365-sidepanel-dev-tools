@@ -301,7 +301,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                         }}
                                     >
                                         <Badge
-                                            badgeContent={openedProcessesBadge[index]}
+                                            badgeContent={openedProcessesBadge[index] === null ? null : String(openedProcessesBadge[index])}
                                             color="info"
                                             sx={(theme) => ({
                                                 [`& .${classesPrefix}Badge-badge`]: {
