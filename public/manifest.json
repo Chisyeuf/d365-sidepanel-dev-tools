@@ -27,10 +27,9 @@
             "matches": ["https://*/*", "http://*/*"]
         }
     ],
-    "host_permissions": ["https://*.dynamics.com/*"],
+    "host_permissions": ["*://*.dynamics.com/*"],
     "permissions": ["storage", "declarativeNetRequest", "debugger"],
     "externally_connectable": {
-        "matches": ["https://*.dynamics.com/*"],
-        "exclude_matches": ["https://community.dynamics.com/*"]
+        "matches": ["https://*/*", "http://*/*"]
     }
 }
