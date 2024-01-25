@@ -3,14 +3,11 @@ import React, { useEffect, useMemo } from 'react';
 import { SubProcessProps } from '../main';
 
 import { Portal } from '@mui/base';
-import BookIcon from '@mui/icons-material/Book';
-import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import { LabelToolsSubProcess } from '../containers/LabelTools';
 import { ControlType } from '../../../utils/types/ControlType';
 
 import TurnedInIcon from '@mui/icons-material/TurnedIn';
 import TurnedInNotIcon from '@mui/icons-material/TurnedInNot';
-import { debugLog } from '../../../utils/global/common';
 import { LogicalNameTypography } from '../../../utils/components/LogicalNameTypography';
 
 
@@ -65,8 +62,6 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         setLabelDisplayed((prev) => !prev);
     }
 
-    // TODO: Fix display logicalname for fields with hidden label
-
     return (<>
         <Tooltip title='Show Fields & Grids Logical Name' placement='left'>
             <Button
@@ -78,7 +73,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         {
             labelDisplayed && controls?.map((c) => {
                 const controlName = c.getName();
-                const controlNodeLabel = document.querySelector(`[data-id="${controlName}"] label`);
+                const controlNodeLabel = document.querySelector(`[data-id="${controlName}"] label, [id="${controlName}"] label`);
                 const controlNodeParent = controlNodeLabel?.parentElement ?? null;
                 let controlNode;
                 if (!controlNodeParent?.hasAttribute('fieldlogicalname')) {
