@@ -135,7 +135,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} width='calc(100% - 10px)' height='100%' padding='10px' alignItems='center'>
+                <Stack spacing={4} width='calc(100% - 10px)' height='calc(100% - 10px)' padding='10px' alignItems='center'>
                     {
                         Env.DEBUG &&
                         <Tooltip title={currentFormContext ? 'Context found' : 'Context unfound. Try to refresh'} >

@@ -371,6 +371,9 @@ interface DrawerToolProps {
 function DrawerTool(props: DrawerToolProps) {
     const { index, process, setOpenedProcessesBadge, closeProcess, panelOpenedIndex } = props;
 
+    const titleRef = useRef<HTMLDivElement | null>(null);
+    const titleHeight = useMemo(() => titleRef.current?.clientHeight ?? 0, [titleRef, titleRef.current?.clientHeight]);
+
     const verticalTitle = useMemo(() => process.width < 100, [process]);
 
     const setBadgeInner = useCallback((number: number | null) => {
@@ -384,14 +387,17 @@ function DrawerTool(props: DrawerToolProps) {
     return (
         <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index}>
 
-            <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
-                <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
-                <IconButton onClick={() => closeProcess(process.id)}>
-                    <CloseIcon />
-                </IconButton>
-            </Stack>
+            <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}>
 
-            {process.getProcess(setBadgeInner)}
+                <Stack ref={titleRef} direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
+                    <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
+                    <IconButton onClick={() => closeProcess(process.id)}>
+                        <CloseIcon />
+                    </IconButton>
+                </Stack>
+
+                {process.getProcess(setBadgeInner)}
+            </Stack>
         </PanelDrawerItem>
     );
 }

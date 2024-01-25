@@ -252,7 +252,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack spacing={0.5} width="-webkit-fill-available" padding="10px" height='100%'>
+            <Stack spacing={0.5} width="-webkit-fill-available" padding="10px" height='calc(100% - 10px)'>
                 <NavTopBar
                     setEntityname={setEntityname}
                     setRecordsIds={setRecordsIds}

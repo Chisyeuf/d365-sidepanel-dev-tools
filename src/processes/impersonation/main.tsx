@@ -85,7 +85,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack direction='column' spacing={0.5} width='calc(100% - 10px)' padding="10px" height='100%'>
+            <Stack direction='column' spacing={0.5} width='calc(100% - 10px)' padding="10px" height='calc(100% - 10px)'>
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
 
