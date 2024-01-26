@@ -61,7 +61,7 @@ export function RetrievePicklistValues(entityname: string, type: MSType, fieldna
             const _filter = fieldname ? `&$filter=LogicalName eq '${fieldname}'` : '';
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                `/api/data/v9.2/EntityDefinitions(LogicalName='${entityname}')/Attributes/${type}?$select=LogicalName${_filter}&$expand=OptionSet`, {
+                `/api/data/v9.0/EntityDefinitions(LogicalName='${entityname}')/Attributes/${type}?$select=LogicalName${_filter}&$expand=OptionSet`, {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",

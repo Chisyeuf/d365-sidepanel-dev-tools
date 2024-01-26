@@ -14,7 +14,7 @@ export function RetrieveRelationShipOneToMany(entityname: string): [RelationShip
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                "/api/data/v9.2/EntityDefinitions(LogicalName='" +
+                "/api/data/v9.0/EntityDefinitions(LogicalName='" +
                 _entityname + "')/OneToManyRelationships?$select=SchemaName,RelationshipType,IsCustomRelationship,IsValidForAdvancedFind,ReferencedAttribute,ReferencedEntity,ReferencingAttribute,ReferencingEntity,ReferencedEntityNavigationPropertyName,ReferencingEntityNavigationPropertyName,CascadeConfiguration", {
                 method: "GET",
                 headers: {

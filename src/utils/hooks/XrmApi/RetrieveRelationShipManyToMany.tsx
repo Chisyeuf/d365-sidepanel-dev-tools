@@ -14,7 +14,7 @@ export function RetrieveRelationShipManyToMany(entityname: string): [RelationShi
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                "/api/data/v9.2/EntityDefinitions(LogicalName='" +
+                "/api/data/v9.0/EntityDefinitions(LogicalName='" +
                 _entityname + "')/ManyToManyRelationships?$select=SchemaName,RelationshipType,IsCustomRelationship,IsValidForAdvancedFind,Entity1LogicalName,Entity1IntersectAttribute,Entity2LogicalName,Entity2IntersectAttribute,IntersectEntityName,Entity1NavigationPropertyName,Entity2NavigationPropertyName", {
                 method: "GET",
                 headers: {

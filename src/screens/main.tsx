@@ -170,7 +170,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             }
         }
         setStyle('resizedynamicsmainscreen', {
-            "#panels": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+            "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
         });
     };
 
@@ -274,18 +274,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                     title={<Typography variant='h6'>{process.name}</Typography>}
                                     placement='left'
                                     arrow
-                                // slotProps={{
-                                //     popper: {
-                                //         modifiers: [
-                                //             {
-                                //                 name: 'offset',
-                                //                 options: {
-                                //                     offset: [12, -312],
-                                //                 },
-                                //             },
-                                //         ],
-                                //     },
-                                // }}
                                 >
                                     <Button
                                         key={`${process.id}-processButton`}

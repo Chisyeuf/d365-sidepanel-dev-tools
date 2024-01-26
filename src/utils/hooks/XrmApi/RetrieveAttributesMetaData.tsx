@@ -16,7 +16,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                "/api/data/v9.2/EntityDefinitions(LogicalName='" +
+                "/api/data/v9.0/EntityDefinitions(LogicalName='" +
                 _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "') and (IsFilterable eq true or IsValidODataAttribute eq true)", {
                 // _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "')", {
                 method: "GET",

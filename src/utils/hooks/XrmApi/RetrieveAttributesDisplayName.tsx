@@ -25,7 +25,7 @@ export function RetrieveAttributesDisplayName(fieldsList: AttributesDisplayNameR
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                "/api/data/v9.2/EntityDefinitions?$select=LogicalName&$filter=" + entityFilter +
+                "/api/data/v9.0/EntityDefinitions?$select=LogicalName&$filter=" + entityFilter +
                 "&$expand=Attributes($select=DisplayName,SchemaName,LogicalName;$filter=" + fieldFilter + ")", {
                 method: "GET",
                 headers: {

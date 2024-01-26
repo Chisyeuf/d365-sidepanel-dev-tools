@@ -13,7 +13,7 @@ export function RetrieveObjectTypeCodeByName(entityname: string): [number | unde
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
-                "/api/data/v9.2/EntityDefinitions(LogicalName='" + entityname + "')?$select=ObjectTypeCode", {
+                "/api/data/v9.0/EntityDefinitions(LogicalName='" + entityname + "')?$select=ObjectTypeCode", {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",
