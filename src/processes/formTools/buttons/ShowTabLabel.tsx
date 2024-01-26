@@ -43,7 +43,7 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
     }
 
     return (<>
-        <Tooltip title='Show Tabs & Sections Logical Name' placement='left'>
+        <Tooltip title='Show Tabs & Sections Logical Names' placement='left'>
             <Button
                 variant='contained'
                 onClick={toggleLabelDisplay}

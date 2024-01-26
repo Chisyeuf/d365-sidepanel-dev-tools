@@ -1,4 +1,4 @@
-import { Stack, styled, Typography } from '@mui/material';
+import { Stack, styled, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
@@ -32,19 +32,20 @@ export function LogicalNameTypography(props: { label: string, onClick: (text: st
     }
 
     return (
-        <LogicalNameRoot
-            component='span'
-            spacing={0.5}
-            width={props.width ?? 'auto'}
-            direction='row'
-            alignItems='center'
-            onClick={onClick}
-            color={(theme) => clicked ? theme.palette.primary.dark : theme.palette.text.secondary}>
-            <ContentCopyIcon fontSize='inherit' color='inherit' />
-            <LogicalNameTypoRoot title={props.label} variant='caption' fontSize='inherit' lineHeight='inherit' color='inherit'>
-                {props.label}
-            </LogicalNameTypoRoot>
-        </LogicalNameRoot>
-
+        <Tooltip title={props.label} placement='right'>
+            <LogicalNameRoot
+                component='span'
+                spacing={0.5}
+                width={props.width ?? 'unset'}
+                direction='row'
+                alignItems='center'
+                onClick={onClick}
+                color={(theme) => clicked ? theme.palette.primary.dark : theme.palette.text.secondary}>
+                <ContentCopyIcon fontSize='inherit' color='inherit' />
+                <LogicalNameTypoRoot title={props.label} variant='caption' fontSize='inherit' lineHeight='inherit' color='inherit'>
+                    {props.label}
+                </LogicalNameTypoRoot>
+            </LogicalNameRoot>
+        </Tooltip>
     );
 }

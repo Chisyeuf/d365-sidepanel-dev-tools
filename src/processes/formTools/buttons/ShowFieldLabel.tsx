@@ -63,7 +63,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
     }
 
     return (<>
-        <Tooltip title='Show Fields & Grids Logical Name' placement='left'>
+        <Tooltip title='Show Fields & Grids Control LogicalNames' placement='left'>
             <Button
                 variant='contained'
                 onClick={toggleLabelDisplay}
