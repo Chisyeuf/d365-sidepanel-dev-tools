@@ -53,7 +53,7 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
         <>{
             tabs?.map((c) => {
                 const tabName: string = c.getName();
-                const tabNode: Element | null = document.querySelector("li[data-id$=\"tablist-" + tabName + "\"]");
+                const tabNode = document.querySelector<HTMLElement>("li[data-id$=\"tablist-" + tabName + "\"]");
 
                 let content;
                 if (!tabNode?.firstElementChild?.hasAttribute('tablogicalname')) {
@@ -67,7 +67,7 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
 
                 return (
                     <Portal container={content}>
-                        {labelDisplayed && <LogicalNameTypography label={tabName} onClick={copyToClipboard} />}
+                        {labelDisplayed && <LogicalNameTypography label={tabName} onClick={copyToClipboard} width={tabNode?.offsetWidth} />}
                     </Portal>
                 );
             })

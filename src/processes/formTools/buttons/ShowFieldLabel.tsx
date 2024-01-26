@@ -73,7 +73,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
         {
             labelDisplayed && controls?.map((c) => {
                 const controlName = c.getName();
-                const controlNodeLabel = document.querySelector(`[data-id="${controlName}"] label, [id="${controlName}"] label`);
+                const controlNodeLabel = document.querySelector<HTMLElement>(`[data-id="${controlName}"] label, [id="${controlName}"] label`);
                 const controlNodeParent = controlNodeLabel?.parentElement ?? null;
                 let controlNode;
                 if (!controlNodeParent?.hasAttribute('fieldlogicalname')) {
@@ -87,7 +87,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
                 }
                 return (
                     <Portal container={controlNode}>
-                        <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
+                        <LogicalNameTypography label={controlName} onClick={copyToClipboard} width={controlNodeLabel?.offsetWidth} />
                     </Portal>
                 );
             })
@@ -96,7 +96,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
             labelDisplayed && grids?.map((c) => {
                 const gridName: string = c.getName();
                 const gridNode: Element | null = document.querySelector("#dataSetRoot_" + gridName + " > div:first-child");
-    
+
                 let content;
                 if (!gridNode?.lastElementChild?.hasAttribute('gridlogicalname')) {
                     content = document.createElement('div');
@@ -106,7 +106,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
                 else {
                     content = gridNode?.lastElementChild;
                 }
-    
+
                 return (
                     <Portal container={content}>
                         <LogicalNameTypography label={gridName} onClick={copyToClipboard} />

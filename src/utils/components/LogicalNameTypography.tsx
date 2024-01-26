@@ -19,7 +19,7 @@ const LogicalNameTypoRoot = styled(Typography)(({ theme }) => ({
     overflow: 'hidden',
 }))
 
-export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any }) {
+export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any, width?: number }) {
 
     const [clicked, setClicked] = useState<boolean>(false);
 
@@ -35,6 +35,7 @@ export function LogicalNameTypography(props: { label: string, onClick: (text: st
         <LogicalNameRoot
             component='span'
             spacing={0.5}
+            width={props.width ?? 'auto'}
             direction='row'
             alignItems='center'
             onClick={onClick}
