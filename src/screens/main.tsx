@@ -10,13 +10,10 @@ import XrmObserver from '../utils/global/XrmObserver';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
-import { Badge, Box, Button, Divider, Drawer, FormControl, FormControlLabel, IconButton, Switch, Tooltip, Typography } from '@mui/material';
+import { Badge, Button, Divider, Drawer, IconButton, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
 import { applicationName, classesPrefix, drawerContainerId, storageForegroundPanes, storageListName, storageStandardPanels } from '../utils/global/var';
-import PanelDrawerBar from '../utils/components/PanelDrawer/PanelDrawerBar';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
-import { useDictionnary } from '../utils/hooks/use/useDictionnary';
-import { useStateCallback } from '../utils/hooks/use/useStateCallback';
 import CloseIcon from '@mui/icons-material/Close';
 
 
@@ -171,6 +168,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         }
         setStyle('resizedynamicsmainscreen', {
             "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+            "[id^=DialogContainer]": [`width: calc(100% - ${drawerButtonContainerWidth}px - ${dynamicsmainscreenWidth}px)`],
+            "[id*=__flyoutRootNode] > div > div": ["z-index: 1200"],
         });
     };
 

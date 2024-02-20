@@ -7,7 +7,7 @@ import PanelDrawerItem from "./PanelDrawerItem";
 
 const width = 47;
 
-
+// Not used
 interface PanelDrawerBarProps {
     mainProcess: React.ReactNode
     mainIcon: React.ReactNode
