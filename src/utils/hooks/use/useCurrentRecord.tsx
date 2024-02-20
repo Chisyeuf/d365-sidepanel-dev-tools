@@ -18,7 +18,7 @@ export function useCurrentRecord() {
 
     const getCurrentRecord = useCallback((): { entityname: string | undefined, recordid: string | undefined } => {
         const entityname: string | undefined = Xrm.Utility.getPageContext()?.input?.entityName;
-        const recordid: string | undefined = formatId(Xrm.Page.data?.entity.getId().toLowerCase());
+        const recordid: string | undefined = formatId(Xrm.Page.data?.entity?.getId().toLowerCase());
         return { entityname: entityname, recordid: recordid }
     }, []);
 

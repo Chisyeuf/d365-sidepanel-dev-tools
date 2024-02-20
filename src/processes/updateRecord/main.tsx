@@ -170,8 +170,8 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-        const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity.getEntityName());
-        const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data ? [formatId(Xrm.Page.data?.entity.getId().toLowerCase())] : []);
+        const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity?.getEntityName());
+        const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
         const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false);
@@ -184,7 +184,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const setCurrentRecord = useCallback(() => {
             const entityName = Xrm.Utility.getPageContext().input.entityName;
-            const recordid = formatId(Xrm.Page.data?.entity.getId().toLowerCase());
+            const recordid = formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase());
             if (!entityName) return;
             setEntityname(entityName);
             setTimeout(() => {

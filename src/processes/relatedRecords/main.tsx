@@ -83,9 +83,6 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
             setLoading(false);
         }, []);
 
-        // const [entityName, setEntityName] = useState<string>(Xrm.Page.data?.entity.getEntityName())
-        // const [recordId, setRecordsIds] = useState<string>(formatId(Xrm.Page.data?.entity.getId().toLowerCase()))
-
         const [manyToMany, isManyToManyFetching] = RetrieveRelationShipManyToMany(entityName);
         const [oneToMany, isOneToManyFetching] = RetrieveRelationShipOneToMany(entityName);
         const [manyToOne, isManyToOneFetching] = RetrieveRelationShipManyToOne(entityName);

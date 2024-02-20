@@ -22,7 +22,7 @@ export const getRandomValue = async (currentFormContext: FormContext , attribute
         case MSType.State:
         case MSType.Picklist:
         case MSType.MultiSelectPicklist:
-            if (!currentFormContext) return null;
+            if (!currentFormContext?.data?.entity) return null;
             const options = Object.values(
                 (await Xrm.Utility.getEntityMetadata(
                     currentFormContext.data.entity.getEntityName(),

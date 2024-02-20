@@ -10,7 +10,7 @@ function CloneRecord(props: SubProcessProps) {
     const { currentFormContext, domUpdated } = props;
 
     const openClonedRecord = () => {
-        if (!currentFormContext) return;
+        if (!currentFormContext?.data?.entity) return;
 
         var pageInput: Xrm.Navigation.PageInputEntityRecord = {
             pageType: "entityrecord",
