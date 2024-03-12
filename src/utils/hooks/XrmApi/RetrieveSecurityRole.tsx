@@ -11,7 +11,7 @@ export function RetrieveSecurityRole(): [SecurityRole[], boolean] {
     useEffect(() => {
 
         async function fetchData() {
-            debugLog("RetrieveActiveUsers");
+            debugLog("RetrieveSecurityRole");
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords("role", "?$select=roleid,name,roleidunique&$filter=_parentroleid_value eq null&$orderby=name asc");
 

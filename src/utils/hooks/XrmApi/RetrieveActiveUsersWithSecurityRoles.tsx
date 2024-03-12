@@ -12,7 +12,7 @@ export function RetrieveActiveUsersWithSecurityRoles(): [ActiveUser[], boolean] 
     useEffect(() => {
 
         async function fetchData() {
-            debugLog("RetrieveActiveUsers");
+            debugLog("RetrieveActiveUsersWithSecurityRoles");
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords("systemuser", "?$select=systemuserid,azureactivedirectoryobjectid,fullname,internalemailaddress&$expand=systemuserroles_association($select=roleid,name,roleidunique)&$filter=(isdisabled eq false and islicensed eq true and accessmode eq 0)&$orderby=fullname asc");
 

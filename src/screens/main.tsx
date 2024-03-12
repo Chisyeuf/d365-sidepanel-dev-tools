@@ -309,7 +309,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 </Stack>
             </Drawer >
 
-            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedIndex === -1}>
+            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedIndex === -1} titleHeight={57}>
 
                 <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
 
@@ -372,9 +372,10 @@ function DrawerTool(props: DrawerToolProps) {
     }, [setOpenedProcessesBadge]);
 
     return (
-        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index}>
+        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index} titleHeight={titleHeight}>
 
-            <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}>
+            <Stack direction='column' width='100%' height='100%'>
+            {/* <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}> */}
 
                 <Stack ref={titleRef} direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
                     <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
@@ -383,7 +384,9 @@ function DrawerTool(props: DrawerToolProps) {
                     </IconButton>
                 </Stack>
 
-                {process.getProcess(setBadgeInner)}
+                <Stack height='100%'>
+                    {process.getProcess(setBadgeInner)}
+                </Stack>
             </Stack>
         </PanelDrawerItem>
     );
