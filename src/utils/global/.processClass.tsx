@@ -47,7 +47,7 @@ export abstract class ProcessButton {
 
 
 
-    getProcess(setBadge: (number: number | null) => void): React.JSX.Element {
+    getProcess(setBadge: (content: number | string | null) => void): React.JSX.Element {
         if (this.processContainer)
             return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />}</this.processContainer>;
         else
@@ -62,11 +62,13 @@ export abstract class ProcessButton {
         return this.getButton(this.onClickStandard);
     }
 
-    setBadgeStandard(number: number | null) {
+    setBadgeStandard(content: number | string | null) {
         const pane: any = Xrm.App.sidePanes.getPane(this.id);
         if (pane) {
-            if (number !== null) {
-                pane.badge = number > 0 ? number : 0;
+            if (typeof content === 'string') {
+                pane.badge = content;
+            } else if (content !== null) {
+                pane.badge = content > 0 ? content : 0;
             } else {
                 pane.badge = null;
             }
@@ -191,7 +193,7 @@ function ErrorProcess() {
 
 export interface ProcessProps {
     id: string;
-    setBadge: (number: number | null) => void
+    setBadge: (number: number | string | null) => void
 }
 export type ProcessRef = {
     onClose?: () => void,

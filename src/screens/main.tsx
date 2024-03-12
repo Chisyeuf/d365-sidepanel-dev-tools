@@ -126,7 +126,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
     const [openedProcesses, setOpenedProcesses] = useState<ProcessButton[]>([]);
-    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<(number | null)[]>([]);
+    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<(number | string | null)[]>([]);
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
@@ -351,7 +351,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 interface DrawerToolProps {
     process: ProcessButton
     index: number
-    setOpenedProcessesBadge: (value: React.SetStateAction<(number | null)[]>) => void
+    setOpenedProcessesBadge: (value: React.SetStateAction<(number | string | null)[]>) => void
     closeProcess: (processId: string) => void
     panelOpenedIndex: number | null
 }
@@ -363,10 +363,10 @@ function DrawerTool(props: DrawerToolProps) {
 
     const verticalTitle = useMemo(() => process.width < 100, [process]);
 
-    const setBadgeInner = useCallback((number: number | null) => {
+    const setBadgeInner = useCallback((content: number | string | null) => {
         setOpenedProcessesBadge(prevBadge => {
             const copyBadge = [...prevBadge];
-            copyBadge.splice(index, 1, number);
+            copyBadge.splice(index, 1, content);
             return copyBadge;
         });
     }, [setOpenedProcessesBadge]);
@@ -375,7 +375,7 @@ function DrawerTool(props: DrawerToolProps) {
         <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index} titleHeight={titleHeight}>
 
             <Stack direction='column' width='100%' height='100%'>
-            {/* <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}> */}
+                {/* <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}> */}
 
                 <Stack ref={titleRef} direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
                     <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>

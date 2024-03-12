@@ -76,7 +76,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                             const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
 
-                            props.setBadge(0);
+                            props.setBadge('');
                         }
                     }
                 }
@@ -138,7 +138,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                         return null;
                                     }
 
-                                    if (!user.fullName.includes(filter) && !user.emailAddress.includes(filter)) {
+                                    if (!user.fullName.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
                                         return null;
                                     }
 
