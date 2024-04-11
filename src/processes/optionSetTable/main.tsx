@@ -185,15 +185,18 @@ function OptionSetTable(props: OptionSetTableProps) {
     const copyFn = () => {
         if (!tableRef.current) return;
 
+        // const titleHTMLString = titleRef.current.outerHTML;
+        // const titleTextString = titleRef.current.innerText;
+
         const tableHTMLString = tableRef.current.outerHTML;
-        const plainTextString = tableRef.current.innerText;
+        const tableTextString = tableRef.current.innerText;
 
         navigator.clipboard.write([
             new ClipboardItem({
                 'text/html': new Blob([tableHTMLString], {
                     type: 'text/html',
                 }),
-                'text/plain': new Blob([plainTextString], {
+                'text/plain': new Blob([tableTextString], {
                     type: 'text/plain',
                 }),
             }),
@@ -226,9 +229,22 @@ function OptionSetTable(props: OptionSetTableProps) {
                         {tablecopied ? "Copied!" : "Copy"}
                     </Button>
                 </Stack>
-                <Table key={`table${logicalName}`} ref={tableRef} size='small'>
+                <Table key={`table_${logicalName}`} ref={tableRef} size='small'>
 
                     <TableHead>
+                        <TableRow sx={{ display: 'none' }}>
+                            <TableCell colSpan={100}>
+                                <Typography variant="h6" overflow='hidden' textOverflow='ellipsis' noWrap>
+                                    <b>{metadata.DisplayName}</b>
+                                </Typography>
+                                {
+                                    metadata.IsGlobal &&
+                                    <Typography variant="caption" color={(theme) => theme.palette.grey[600]}>
+                                        (Global)
+                                    </Typography>
+                                }
+                            </TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell colSpan={100}>
                                 Columns involved: <b>{metadata.Fields.join(', ')}</b>
