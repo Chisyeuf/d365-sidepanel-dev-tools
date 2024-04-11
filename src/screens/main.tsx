@@ -332,7 +332,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             </PanelDrawerItem>
 
             {
-                openedProcesses.map((process, index) => {
+                openedProcesses.map((process, index, array) => {
                     return <DrawerTool
                         key={`${process.id}-drawertool`}
                         closeProcess={closeProcess}
@@ -366,7 +366,7 @@ function DrawerTool(props: DrawerToolProps) {
             copyBadge.splice(index, 1, content);
             return copyBadge;
         });
-    }, [setOpenedProcessesBadge]);
+    }, [setOpenedProcessesBadge, index]);
 
     return (
         <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index}>
