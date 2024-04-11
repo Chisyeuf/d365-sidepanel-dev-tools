@@ -79,7 +79,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
 
     useEffect(() => {
         const firstPluginTraceLogsInList = pluginTraceLogs.at(0);
-        if (firstPluginTraceLogs && firstPluginTraceLogsInList && firstPluginTraceLogs.plugintracelogid !== firstPluginTraceLogsInList.plugintracelogid) {
+        if (firstPluginTraceLogs && (!firstPluginTraceLogsInList || firstPluginTraceLogs.plugintracelogid !== firstPluginTraceLogsInList.plugintracelogid)) {
             refreshPluginTraceLogs();
         }
     }, [firstPluginTraceLogs, pluginTraceLogs]);
