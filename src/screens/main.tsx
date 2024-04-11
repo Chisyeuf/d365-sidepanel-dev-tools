@@ -309,7 +309,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 </Stack>
             </Drawer >
 
-            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedIndex === -1} titleHeight={57}>
+            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedIndex === -1}>
 
                 <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
 
@@ -358,9 +358,6 @@ interface DrawerToolProps {
 function DrawerTool(props: DrawerToolProps) {
     const { index, process, setOpenedProcessesBadge, closeProcess, panelOpenedIndex } = props;
 
-    const titleRef = useRef<HTMLDivElement | null>(null);
-    const titleHeight = useMemo(() => titleRef.current?.clientHeight ?? 0, [titleRef, titleRef.current?.clientHeight]);
-
     const verticalTitle = useMemo(() => process.width < 100, [process]);
 
     const setBadgeInner = useCallback((content: number | string | null) => {
@@ -372,19 +369,19 @@ function DrawerTool(props: DrawerToolProps) {
     }, [setOpenedProcessesBadge]);
 
     return (
-        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index} titleHeight={titleHeight}>
+        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedIndex === index}>
 
             <Stack direction='column' width='100%' height='100%'>
                 {/* <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}> */}
 
-                <Stack ref={titleRef} direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
+                <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
                     <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
                     <IconButton onClick={() => closeProcess(process.id)}>
                         <CloseIcon />
                     </IconButton>
                 </Stack>
 
-                <Stack height='100%'>
+                <Stack flex='1 1 auto' minHeight={0}>
                     {process.getProcess(setBadgeInner)}
                 </Stack>
             </Stack>

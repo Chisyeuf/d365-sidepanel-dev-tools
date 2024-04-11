@@ -43,7 +43,7 @@ function PanelDrawerBar(props: PanelDrawerBarProps) {
                 </IconButton>
             </Drawer>
 
-            <PanelDrawerItem width={300} open={open} titleHeight={57}>
+            <PanelDrawerItem width={300} open={open}>
                 {mainProcess}
             </PanelDrawerItem>
         </>

@@ -4,11 +4,10 @@ import React, { PropsWithChildren, useMemo } from "react";
 interface PanelDrawerItemProps {
     width: number;
     open: boolean;
-    titleHeight:number;
 }
 
 function PanelDrawerItem(props: PanelDrawerItemProps & PropsWithChildren) {
-    const { width, open, children, titleHeight } = props;
+    const { width, open, children } = props;
 
     // const refButton = React.useRef<HTMLButtonElement>(null);
 
@@ -24,9 +23,9 @@ function PanelDrawerItem(props: PanelDrawerItemProps & PropsWithChildren) {
                 PaperProps={{
                     sx: {
                         top: 'unset',
-                        bottom: titleHeight + 'px',
+                        bottom: 0,
                         right: 47,
-                        height: `calc(100% - 3.43rem - ${titleHeight}px)`,
+                        height: `calc(100% - 3.43rem)`,
                         zIndex: 1199,
                         width: width,
                         overflow: "visible",
