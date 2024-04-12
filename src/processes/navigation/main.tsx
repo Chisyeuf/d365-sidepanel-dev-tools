@@ -12,6 +12,7 @@ import NavigationToEnvironments from './containers/NavigationToEnvironments';
 import NavigationToSecurity from './containers/NavigationToSecurity';
 import NavigationToFormEditor from './containers/NavigationToFormEditor';
 import NavigationAzurePortal from './containers/NavigationToAzurePortal';
+import AdvancedFind from './containers/NavigationToAdvancedFind';
 
 
 class NavigationButton extends ProcessButton {
@@ -53,9 +54,10 @@ const theme = createTheme({
 const buttons = [
     NavigationToSolutionList,
     NavigationToFormEditor,
+    AdvancedFind,
     NavigationToEnvironments,
     NavigationAzurePortal,
-    NavigationToSecurity
+    NavigationToSecurity,
 ];
 
 const NavigationProcess = forwardRef<ProcessRef, ProcessProps>(
