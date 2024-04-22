@@ -28,7 +28,7 @@ export function RetrieveRecordsByPrimaryAttributeOrGuid(entityname: string, inpu
                         "contains(" +
                         primaryNameLogicalName +
                         ",'" +
-                        filter +
+                        encodeURIComponent(filter).replace(/'/g, "''") +
                         "')&$top=" + top
                     );
                 setData(result);

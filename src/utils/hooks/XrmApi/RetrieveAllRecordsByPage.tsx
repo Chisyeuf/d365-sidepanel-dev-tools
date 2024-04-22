@@ -27,7 +27,7 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
         if (guidregex.test(filter))
             return idAttribute + ' eq ' + filter
         else
-            return "contains(" + primaryNameLogicalName + ",'" + filter + "')"
+            return "contains(" + primaryNameLogicalName + ",'" + encodeURIComponent(filter).replace(/'/g, "''") + "')"
     }, [primaryNameLogicalName, filter, idAttribute])
     // const _filter = useMemo(() => {
     //     return filter?.items.map(item => {
