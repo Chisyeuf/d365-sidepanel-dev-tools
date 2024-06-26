@@ -136,7 +136,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                     />
                                 </Tooltip>
                             </Stack>
-                            <ButtonLinearProgress loading={isFetching} onClick={refreshFirst} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
+                            <ButtonLinearProgress loading={isFetching} onClick={refreshPluginTraceLogs} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
                         </Stack>
                         <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetching || isFetchingFirst} />
                     </Stack>
