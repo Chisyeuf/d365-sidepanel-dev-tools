@@ -31,18 +31,19 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const { dict: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
     const { dict: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage[]>({});
 
+    const [filterEntityName, setFilterEntityName] = useState<string>('');
     const [filter, setFilter] = useState<string>('');
     const [errorOnly, setErrorOnly] = useState<boolean>(false);
 
     const pluginTraceLogsFiltered = useMemo(() => pluginTraceLogs.filter(log => {
-        const filterLower = filter.toLowerCase();
-        const textFilterResult = log.primaryentity.includes(filterLower);
+        const filterEntityNameLower = filterEntityName.toLowerCase();
+        const textFilterResult = log.primaryentity.includes(filterEntityNameLower) && log.messagename.toLowerCase().includes(filter.toLowerCase());
         if (errorOnly) {
             return log.exceptiondetails && textFilterResult;
         } else {
             return textFilterResult;
         }
-    }), [pluginTraceLogs, sdkMessageProcessingSteps, filter, errorOnly]);
+    }), [pluginTraceLogs, sdkMessageProcessingSteps, filterEntityName, filter, errorOnly]);
 
 
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -121,10 +122,11 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                         <Stack direction='column' padding={1} spacing={0.5}>
                             <Stack direction='row' spacing={0.5}>
                                 <EntitySelector
-                                    setEntityname={setFilter}
-                                    entityname={filter}
+                                    setEntityname={setFilterEntityName}
+                                    entityname={filterEntityName}
                                     moreOptions={[{ id: "none", label: "None" }]}
                                 />
+                                <FilterInput fullWidth returnFilterInput={setFilter} placeholder="Filter by message name" />
                                 <Tooltip title='Display only logs in error'>
                                     <Checkbox
                                         checked={errorOnly}
