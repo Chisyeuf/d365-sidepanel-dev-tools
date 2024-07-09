@@ -76,7 +76,12 @@ theme = createTheme(theme, {
     }
 });
 
-
+type AttributeSetType = {
+    [attributeName: string]: {
+        value: { value: any, selector: string },
+        [x: string]: { value: any, selector: string };
+    }
+}
 
 const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
     function AllFieldsButtonProcess(props: ProcessProps, ref) {
@@ -107,14 +112,8 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             }, 500);
         }, [setForceCloseAll]);
 
-        const attributesSet: {
-            [attributeName: string]: {
-                value: { value: any, selector: string },
-                [x: string]: { value: any, selector: string };
-            };
-        } = useMemo(() => {
+        const attributesSet: AttributeSetType = useMemo(() => {
             return Object.entries(attributes)
-                .filter(([key, value]) => key.includes(filter))
                 .reduce((previousValue: { [key: string]: any; }, currentValue: [string, any], index) => {
                     const [key, value] = currentValue;
                     const attSplit = key.split("@");
@@ -154,7 +153,14 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         return copy;
                     }
                 }, {});
-        }, [attributes, filter]);
+        }, [attributes]);
+
+        const attributesSetFiltered = useMemo(() => {
+            const lowerFilter = filter.toLowerCase();
+            return Object.fromEntries(Object.entries(attributesSet).filter(([key, values]) =>
+                key.toLowerCase().includes(lowerFilter) || String(values.value.value).toLowerCase().includes(lowerFilter) || Object.entries(values).some(([innerKey, innerValue]) => String(innerValue.value).toLowerCase().includes(lowerFilter)))
+            );
+        }, [attributesSet, filter]);
 
         return (
             <ThemeProvider theme={theme}>
@@ -169,7 +175,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                                     <Button onClick={toggleForceClose}>Close All</Button>
                                     <Button onClick={forceRefresh}>Refresh</Button>
                                 </ButtonGroup>
-                                <FilterInput fullWidth placeholder='Search by Attribute Name' defaultValue={filter} returnFilterInput={setFilter} />
+                                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
                             </ListSubheader>
                         }
                     >
@@ -179,7 +185,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                                     {[...Array(13)].map(() => <Skeleton variant='rounded' height={'55px'} />)}
                                 </Stack>
                                 :
-                                Object.entries(attributesSet).map(([key, value], index) => {
+                                Object.entries(attributesSetFiltered).map(([key, value], index) => {
                                     return (
                                         <AttributeListItem
                                             forceOpen={forceOpenAll}
