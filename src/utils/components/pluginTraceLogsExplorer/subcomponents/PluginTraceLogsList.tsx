@@ -4,14 +4,13 @@ import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProc
 import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import moment from "moment";
 
 import UpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
-import { debugLog } from "../../../global/common";
 import HorizontalSlider from "../../HorizontalSlider";
+import dayjs from "dayjs";
 
 const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
 
@@ -229,7 +228,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                 }
                 secondary={
                     <>
-                        {`${moment(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
+                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
                         <Typography
                             sx={{ display: 'inline' }}
                             component="span"
@@ -300,7 +299,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                 }
                 secondary={
                     <>
-                        {`${moment(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
+                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
                         <Typography
                             sx={{ display: 'inline' }}
                             component="span"

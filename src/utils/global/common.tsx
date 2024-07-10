@@ -160,3 +160,13 @@ export async function GetPrimaryIdAttribute(entityname: string) {
 export async function GetPrimaryNameAttribute(entityname: string) {
     return (await Xrm.Utility.getEntityMetadata(entityname)).PrimaryNameAttribute;
 }
+
+export function getCurrentDynamics365DateTimeFormat() {
+    const shortDatePattern = Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortDatePattern.replace('yyyy', 'YYYY').replace('dd', 'DD');
+    const shortTimePatter = Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortTimePattern.replace('tt', 'A');
+    return {
+        ShortDatePattern: shortDatePattern,
+        ShortDateTimePattern: shortDatePattern + " " + shortTimePatter,
+        is12hours: Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortTimePattern.includes('tt')
+    }
+}

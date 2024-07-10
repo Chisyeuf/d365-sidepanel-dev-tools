@@ -11,12 +11,16 @@ import { useDictionnary } from "../../hooks/use/useDictionnary";
 import FilterInput from "../FilterInput";
 import ErrorIcon from '@mui/icons-material/Error';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { debugLog } from "../../global/common";
+import { debugLog, getCurrentDynamics365DateTimeFormat } from "../../global/common";
 import EntitySelector from "../EntitySelector";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from "dayjs";
 
 const refreshInterval = 60;
 
 const theme = createTheme();
+
 
 interface PluginTraceLogsPaneProps {
     processId: string
@@ -31,19 +35,22 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const { dict: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
     const { dict: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage[]>({});
 
-    const [filterEntityName, setFilterEntityName] = useState<string>('');
-    const [filter, setFilter] = useState<string>('');
+    const [filterEntity, setFilterEntity] = useState<string>('');
+    const [filterMessageName, setFilterMessageName] = useState<string>('');
+    const [filterDateMin, setFilterDateMin] = useState<Dayjs | null>(null);
+    const [filterDateMax, setFilterDateMax] = useState<Dayjs | null>(null);
     const [errorOnly, setErrorOnly] = useState<boolean>(false);
 
     const pluginTraceLogsFiltered = useMemo(() => pluginTraceLogs.filter(log => {
-        const filterEntityNameLower = filterEntityName.toLowerCase();
-        const textFilterResult = log.primaryentity.includes(filterEntityNameLower) && log.messagename.toLowerCase().includes(filter.toLowerCase());
+        const textFilterResult = log.primaryentity.includes(filterEntity.toLowerCase()) && log.messagename.toLowerCase().includes(filterMessageName.toLowerCase());
+        const dateFilterMin = !filterDateMin || dayjs(log.performanceexecutionstarttime) >= filterDateMin;
+        const dateFilterMax = !filterDateMax || dayjs(log.performanceexecutionstarttime) <= filterDateMax;
         if (errorOnly) {
-            return log.exceptiondetails && textFilterResult;
+            return log.exceptiondetails && textFilterResult && dateFilterMin && dateFilterMax;
         } else {
-            return textFilterResult;
+            return textFilterResult && dateFilterMin && dateFilterMax;
         }
-    }), [pluginTraceLogs, sdkMessageProcessingSteps, filterEntityName, filter, errorOnly]);
+    }), [pluginTraceLogs, sdkMessageProcessingSteps, filterEntity, filterMessageName, filterDateMin, filterDateMax, errorOnly]);
 
 
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,6 +58,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const [selectedSdkMessageProcessingStep, setSelectedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
     const [selectedSdkMessageProcessingStepImages, setSelectedSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
 
+    const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
 
     useEffect(() => {
         const intervalID = setInterval(function () {
@@ -110,40 +118,68 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                 selectedSdkMessageProcessingStep: selectedSdkMessageProcessingStep,
                 selectedSdkMessageProcessingStepImages: selectedSdkMessageProcessingStepImages
             }}>
-                <TraceLogsAPI.Provider value={{
-                    ...defaultTraceLogsAPI,
-                    pluginTraceLogs: pluginTraceLogs,
-                    sdkMessageProcessingSteps: sdkMessageProcessingSteps,
-                    sdkMessageProcessingStepImages: sdkMessageProcessingStepImages,
-                    addMessageProcessingSteps: addMessageProcessingSteps,
-                    addMessageProcessingStepImages: addMessageProcessingStepImages,
-                }} >
-                    <Stack direction='column' width='100%' height='100%'>
-                        <Stack direction='column' padding={1} spacing={0.5}>
-                            <Stack direction='row' spacing={0.5}>
-                                <EntitySelector
-                                    setEntityname={setFilterEntityName}
-                                    entityname={filterEntityName}
-                                    moreOptions={[{ id: "none", label: "None" }]}
-                                />
-                                <FilterInput fullWidth returnFilterInput={setFilter} placeholder="Filter by message name" />
-                                <Tooltip title='Display only logs in error'>
-                                    <Checkbox
-                                        checked={errorOnly}
-                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                            setErrorOnly(event.target.checked)
-                                        }}
-                                        icon={<ErrorOutlineIcon />}
-                                        checkedIcon={<ErrorIcon sx={{ color: '#ff3333' }} />}
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <TraceLogsAPI.Provider value={{
+                        ...defaultTraceLogsAPI,
+                        pluginTraceLogs: pluginTraceLogs,
+                        sdkMessageProcessingSteps: sdkMessageProcessingSteps,
+                        sdkMessageProcessingStepImages: sdkMessageProcessingStepImages,
+                        addMessageProcessingSteps: addMessageProcessingSteps,
+                        addMessageProcessingStepImages: addMessageProcessingStepImages,
+                    }} >
+                        <Stack direction='column' width='100%' height='100%'>
+                            <Stack direction='column' padding={1} spacing={0.5}>
+                                <Stack direction='row' spacing={0.5}>
+                                    <EntitySelector
+                                        setEntityname={setFilterEntity}
+                                        entityname={filterEntity}
+                                        moreOptions={[{ id: "none", label: "None" }]}
                                     />
-                                </Tooltip>
+                                    <FilterInput fullWidth returnFilterInput={setFilterMessageName} placeholder="Filter by message name" />
+                                    <Tooltip title='Display only logs in error'>
+                                        <Checkbox
+                                            checked={errorOnly}
+                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                setErrorOnly(event.target.checked)
+                                            }}
+                                            icon={<ErrorOutlineIcon />}
+                                            checkedIcon={<ErrorIcon sx={{ color: '#ff3333' }} />}
+                                        />
+                                    </Tooltip>
+                                </Stack>
+                                <Stack direction='row' spacing={0.5}>
+                                    <DateTimePicker
+                                        ampm={dateTimeFormat.is12hours}
+                                        format={dateTimeFormat.ShortDateTimePattern}
+                                        onChange={setFilterDateMin}
+                                        value={filterDateMin}
+                                        sx={{
+                                            width: '100%',
+                                            '& input': {
+                                                padding: '8.5px 0px 8.5px 14px'
+                                            }
+                                        }}
+                                    />
+                                    <DateTimePicker
+                                        ampm={dateTimeFormat.is12hours}
+                                        format={dateTimeFormat.ShortDateTimePattern}
+                                        onChange={setFilterDateMax}
+                                        value={filterDateMax}
+                                        sx={{
+                                            width: '100%',
+                                            '& input': {
+                                                padding: '8.5px 0px 8.5px 14px'
+                                            }
+                                        }}
+                                    />
+                                </Stack>
+                                <ButtonLinearProgress loading={isFetching} onClick={refreshPluginTraceLogs} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
                             </Stack>
-                            <ButtonLinearProgress loading={isFetching} onClick={refreshPluginTraceLogs} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
+                            <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetching || isFetchingFirst} />
                         </Stack>
-                        <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetching || isFetchingFirst} />
-                    </Stack>
-                    <TraceLogDialog />
-                </TraceLogsAPI.Provider>
+                        <TraceLogDialog />
+                    </TraceLogsAPI.Provider>
+                </LocalizationProvider>
             </TraceLogControllerContext.Provider>
         </ThemeProvider>
     )

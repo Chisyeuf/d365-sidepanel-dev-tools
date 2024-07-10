@@ -32,7 +32,7 @@ import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import MuiCalculator from '../../utils/components/MuiCalculator';
 import NumericInput from '../../utils/components/NumericInput';
 import RecordSelector from '../../utils/components/RecordSelector';
-import { groupBy, isArraysEquals } from '../../utils/global/common';
+import { getCurrentDynamics365DateTimeFormat, groupBy, isArraysEquals } from '../../utils/global/common';
 import {
     AttributeMetadata, MSDateFormat, MSType
 } from '../../utils/types/requestsType';
@@ -874,9 +874,8 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
     )
 }
 export function DateTimeNode(props: AttributeProps) {
-    const [oldValue, setOldValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
-    const [value, setValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null)
-    const [isHover, setIsHover] = useState<boolean>(false)
+    const [oldValue, setOldValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null);
+    const [value, setValue] = useState<Dayjs | null>(props.value ? dayjs(props.value) : null);
 
     useEffect(() => {
         if (!props.disabled) {
@@ -887,28 +886,30 @@ export function DateTimeNode(props: AttributeProps) {
                 props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.toISOString() ?? null);
             }
         }
-    }, [value])
+    }, [value]);
 
     const setDirty = (date: Dayjs | null) => {
         if ((oldValue != null || date != null) && !oldValue?.isSame(date)) {
-            props.manageDirty.set()
+            props.manageDirty.set();
         }
         else {
-            props.manageDirty.remove()
+            props.manageDirty.remove();
         }
     }
 
+    const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
+
     useEffect(() => {
-        setOldValue(props.value ? dayjs(props.value) : null)
-        setValue(props.value ? dayjs(props.value) : null)
-    }, [props.value])
+        setOldValue(props.value ? dayjs(props.value) : null);
+        setValue(props.value ? dayjs(props.value) : null);
+    }, [props.value]);
 
     useEffect(() => {
         if (props.reset) {
-            setValue(oldValue)
-            props.manageDirty.remove()
+            setValue(oldValue);
+            props.manageDirty.remove();
         }
-    }, [oldValue, props.manageDirty, props.reset])
+    }, [oldValue, props.manageDirty, props.reset]);
 
     useEffect(() => {
         if (props.remove) {
@@ -918,8 +919,8 @@ export function DateTimeNode(props: AttributeProps) {
 
     const onChange = (date: Dayjs | null) => {
         // props.setToUpdate()
-        setValue(date ? dayjs(date) : null)
-        setDirty(date ? dayjs(date) : null)
+        setValue(date ? dayjs(date) : null);
+        setDirty(date ? dayjs(date) : null);
     }
 
     return (<>
@@ -927,7 +928,7 @@ export function DateTimeNode(props: AttributeProps) {
             <DatePicker
                 value={value}
                 onChange={onChange}
-                format='YYYY/MM/DD'
+                format={dateTimeFormat.ShortDatePattern}
                 slotProps={{
                     inputAdornment: {
                         position: 'start',
@@ -943,10 +944,10 @@ export function DateTimeNode(props: AttributeProps) {
             />
             :
             <DateTimePicker
-                ampm={false}
+                ampm={dateTimeFormat.is12hours}
                 onChange={onChange}
                 value={value}
-                format='YYYY/MM/DD - hh:mm:ss'
+                format={dateTimeFormat.ShortDateTimePattern}
                 slotProps={{
                     inputAdornment: {
                         position: 'start',
