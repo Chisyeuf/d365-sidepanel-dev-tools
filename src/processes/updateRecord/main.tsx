@@ -804,6 +804,14 @@ function SelectAttribute(props: SelectAttributeProps) {
 
     const [selectedAttributed, setSelectedAttributed] = useState<AttributeMetadata | null>(null);
     const [groupbyEnabled, setGroupbyEnabled] = useState<boolean>(false);
+    
+    const attributesMetadataInner = useMemo(() => {
+        if (groupbyEnabled) {
+            return attributesMetadata.sort((a, b)=> a.MStype.localeCompare(b.MStype));
+        }
+        return attributesMetadata.sort((a, b)=> a.DisplayName.localeCompare(b.DisplayName));
+    }, 
+    [attributesMetadata, groupbyEnabled]);
 
     return (
         <Autocomplete
@@ -811,7 +819,7 @@ function SelectAttribute(props: SelectAttributeProps) {
             value={selectedAttributed}
             filterOptions={filterOptions}
             size='small'
-            options={attributesMetadata}
+            options={attributesMetadataInner}
             getOptionLabel={(option: AttributeMetadata) => option.DisplayName}
             key='attributeselector'
             autoSelect
