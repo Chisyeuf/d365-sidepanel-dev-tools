@@ -3,7 +3,7 @@ import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
 import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { Checkbox, Stack, ThemeProvider, Tooltip, createTheme } from "@mui/material";
+import { Checkbox, Stack, SxProps, Theme, ThemeProvider, Tooltip, createTheme } from "@mui/material";
 import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import ButtonLinearProgress from "../ButtonLinearProgress";
@@ -11,7 +11,7 @@ import { useDictionnary } from "../../hooks/use/useDictionnary";
 import FilterInput from "../FilterInput";
 import ErrorIcon from '@mui/icons-material/Error';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { debugLog, getCurrentDynamics365DateTimeFormat } from "../../global/common";
+import {  getCurrentDynamics365DateTimeFormat } from "../../global/common";
 import EntitySelector from "../EntitySelector";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -20,6 +20,16 @@ import dayjs, { Dayjs } from "dayjs";
 const refreshInterval = 60;
 
 const theme = createTheme();
+
+const DateTimeSx: SxProps<Theme> = {
+    width: '100%',
+    '& input': {
+        padding: '8.5px 0px 8.5px 14px'
+    },
+    '& label:not(.Mui-focused)': {
+        transform: 'translate(14px, 8px) scale(1)'
+    }
+}
 
 
 interface PluginTraceLogsPaneProps {
@@ -154,15 +164,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                         format={dateTimeFormat.ShortDateTimePattern}
                                         onChange={setFilterDateMin}
                                         value={filterDateMin}
-                                        sx={{
-                                            width: '100%',
-                                            '& input': {
-                                                padding: '8.5px 0px 8.5px 14px'
-                                            },
-                                            '& label:not(.Mui-focused)': {
-                                                transform: 'translate(14px, 8px) scale(1)'
-                                            }
-                                        }}
+                                        sx={DateTimeSx}
                                         slotProps={{
                                             field: { clearable: true }
                                         }}
@@ -173,15 +175,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                         format={dateTimeFormat.ShortDateTimePattern}
                                         onChange={setFilterDateMax}
                                         value={filterDateMax}
-                                        sx={{
-                                            width: '100%',
-                                            '& input': {
-                                                padding: '8.5px 0px 8.5px 14px'
-                                            },
-                                            '& label:not(.Mui-focused)': {
-                                                transform: 'translate(14px, 8px) scale(1)'
-                                            }
-                                        }}
+                                        sx={DateTimeSx}
                                         slotProps={{
                                             field: { clearable: true }
                                         }}
