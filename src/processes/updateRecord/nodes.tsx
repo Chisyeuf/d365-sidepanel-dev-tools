@@ -879,11 +879,14 @@ export function DateTimeNode(props: AttributeProps) {
 
     useEffect(() => {
         if (!props.disabled) {
-            if (props.attribute.Parameters.Format === MSDateFormat.DateOnly) {
-                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.format("YYYY-MM-DD") ?? null);
+            if (!value || !value.isValid()) {
+                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, null);
+            }
+            else if (props.attribute.Parameters.Format === MSDateFormat.DateOnly) {
+                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value.format("YYYY-MM-DD") ?? null);
             }
             else {
-                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value?.toISOString() ?? null);
+                props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value.toISOString() ?? null);
             }
         }
     }, [value]);
@@ -932,12 +935,16 @@ export function DateTimeNode(props: AttributeProps) {
                 slotProps={{
                     inputAdornment: {
                         position: 'start',
-                    }
+                    },
+                    field: { clearable: true }
                 }}
                 sx={{
                     width: '100%',
                     '& input': {
                         padding: '8.5px 14px 8.5px 0px'
+                    },
+                    '& fieldset': {
+                        borderWidth: !!value && !value.isValid() ? 'thick' : undefined,
                     }
                 }}
                 disabled={props.disabled}
@@ -951,12 +958,16 @@ export function DateTimeNode(props: AttributeProps) {
                 slotProps={{
                     inputAdornment: {
                         position: 'start',
-                    }
+                    },
+                    field: { clearable: true }
                 }}
                 sx={{
                     width: '100%',
                     '& input': {
                         padding: '8.5px 14px 8.5px 0px'
+                    },
+                    '& fieldset': {
+                        borderWidth: !!value && !value.isValid() ? 'thick' : undefined,
                     }
                 }}
                 disabled={props.disabled}
