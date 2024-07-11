@@ -804,14 +804,14 @@ function SelectAttribute(props: SelectAttributeProps) {
 
     const [selectedAttributed, setSelectedAttributed] = useState<AttributeMetadata | null>(null);
     const [groupbyEnabled, setGroupbyEnabled] = useState<boolean>(false);
-    
+
     const attributesMetadataInner = useMemo(() => {
         if (groupbyEnabled) {
-            return attributesMetadata.sort((a, b)=> a.MStype.localeCompare(b.MStype));
+            return attributesMetadata.sort((a, b) => a.MStype.localeCompare(b.MStype));
         }
-        return attributesMetadata.sort((a, b)=> a.DisplayName.localeCompare(b.DisplayName));
-    }, 
-    [attributesMetadata, groupbyEnabled]);
+        return attributesMetadata.sort((a, b) => a.DisplayName.localeCompare(b.DisplayName));
+    },
+        [attributesMetadata, groupbyEnabled]);
 
     return (
         <Autocomplete
@@ -833,7 +833,7 @@ function SelectAttribute(props: SelectAttributeProps) {
 
                 return (
                     <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
-                        <li {...props}>{option.DisplayName}</li>
+                        <li {...props} style={{ color: !option.IsValidForUpdate ? 'rgba(0, 0, 0, 0.45)' : undefined }}>{option.DisplayName}</li>
                     </NoMaxWidthTooltip>
                 );
             })}
