@@ -159,7 +159,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                             '& input': {
                                                 padding: '8.5px 0px 8.5px 14px'
                                             },
-                                            '& label': {
+                                            '& label:not(.Mui-focused)': {
                                                 transform: 'translate(14px, 8px) scale(1)'
                                             }
                                         }}
@@ -178,7 +178,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                             '& input': {
                                                 padding: '8.5px 0px 8.5px 14px'
                                             },
-                                            '& label': {
+                                            '& label:not(.Mui-focused)': {
                                                 transform: 'translate(14px, 8px) scale(1)'
                                             }
                                         }}
