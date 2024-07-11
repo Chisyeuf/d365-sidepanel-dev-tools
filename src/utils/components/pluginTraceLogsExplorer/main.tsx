@@ -135,7 +135,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                         entityname={filterEntity}
                                         moreOptions={[{ id: "none", label: "None" }]}
                                     />
-                                    <FilterInput fullWidth returnFilterInput={setFilterMessageName} placeholder="Filter by message name" />
+                                    <FilterInput fullWidth returnFilterInput={setFilterMessageName} placeholder="Message Name" />
                                     <Tooltip title='Display only logs in error'>
                                         <Checkbox
                                             checked={errorOnly}
@@ -149,6 +149,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                 </Stack>
                                 <Stack direction='row' spacing={0.5}>
                                     <DateTimePicker
+                                        label="Minimum DateTime"
                                         ampm={dateTimeFormat.is12hours}
                                         format={dateTimeFormat.ShortDateTimePattern}
                                         onChange={setFilterDateMin}
@@ -157,10 +158,17 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                             width: '100%',
                                             '& input': {
                                                 padding: '8.5px 0px 8.5px 14px'
+                                            },
+                                            '& label': {
+                                                transform: 'translate(14px, 8px) scale(1)'
                                             }
+                                        }}
+                                        slotProps={{
+                                            field: { clearable: true }
                                         }}
                                     />
                                     <DateTimePicker
+                                        label="Maximum DateTime"
                                         ampm={dateTimeFormat.is12hours}
                                         format={dateTimeFormat.ShortDateTimePattern}
                                         onChange={setFilterDateMax}
@@ -169,7 +177,13 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                             width: '100%',
                                             '& input': {
                                                 padding: '8.5px 0px 8.5px 14px'
+                                            },
+                                            '& label': {
+                                                transform: 'translate(14px, 8px) scale(1)'
                                             }
+                                        }}
+                                        slotProps={{
+                                            field: { clearable: true }
                                         }}
                                     />
                                 </Stack>
