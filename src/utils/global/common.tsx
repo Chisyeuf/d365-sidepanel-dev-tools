@@ -162,11 +162,12 @@ export async function GetPrimaryNameAttribute(entityname: string) {
 }
 
 export function getCurrentDynamics365DateTimeFormat() {
-    const shortDatePattern = Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortDatePattern.replace('yyyy', 'YYYY').replace('dd', 'DD');
-    const shortTimePatter = Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortTimePattern.replace('tt', 'A');
+    const dateFormattingInfo = Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo;
+    const shortDatePattern = dateFormattingInfo.ShortDatePattern.replace(/\byyyy\b/, 'YYYY').replace(/\bdd\b/, 'DD').replace(/\bd\b/, 'DD');
     return {
         ShortDatePattern: shortDatePattern,
-        ShortDateTimePattern: shortDatePattern + " " + shortTimePatter,
-        is12hours: Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortTimePattern.includes('tt')
+        ShortDateTimePattern: shortDatePattern + " " + dateFormattingInfo.ShortTimePattern.replace(/\btt\b/, 'A'),
+        is12hours: dateFormattingInfo.ShortTimePattern.includes('tt'),
+        FullDateTimePattern: dateFormattingInfo.FullDateTimePattern.replace(/\byyyy\b/, 'YYYY').replace(/\bdd\b/, 'DD').replace(/\bd\b/, 'DD'),
     }
 }

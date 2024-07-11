@@ -11,6 +11,7 @@ import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'r
 import AutoSizer from "react-virtualized-auto-sizer";
 import HorizontalSlider from "../../HorizontalSlider";
 import dayjs from "dayjs";
+import { getCurrentDynamics365DateTimeFormat } from "../../../global/common";
 
 const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
 
@@ -170,7 +171,8 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     }, [sdkMessageProcessingStepImages]);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
-
+    const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
+    
     return (
         <Box
             sx={{
@@ -228,7 +230,8 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                 }
                 secondary={
                     <>
-                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
+                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format(dateTimeFormat.FullDateTimePattern)} — `}
+                        {/* {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `} */}
                         <Typography
                             sx={{ display: 'inline' }}
                             component="span"
@@ -250,6 +253,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
     const { pluginTraceLog } = props;
 
     const { openDialog } = useContext(TraceLogControllerContext);
+    const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
 
     return (
         <Box
@@ -299,7 +303,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                 }
                 secondary={
                     <>
-                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format('YYYY/MM/DD HH:mm:ss.SSS')} — `}
+                        {`${dayjs(pluginTraceLog.performanceexecutionstarttime).format(dateTimeFormat.FullDateTimePattern)} — `}
                         <Typography
                             sx={{ display: 'inline' }}
                             component="span"
