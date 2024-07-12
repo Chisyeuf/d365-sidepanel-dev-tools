@@ -12,6 +12,7 @@ import { PickListOption, RetrievePicklistValues } from '../../utils/hooks/XrmApi
 import { TableCellProps } from '@material-ui/core';
 import { useCopyToClipboard } from 'usehooks-ts';
 import LightTooltip from '../../utils/components/LightTooltip';
+import { RetrieveEntityMetadata } from '../../utils/hooks/XrmApi/RetrieveEntityMetadata';
 
 class OptionSetTableButton extends ProcessButton {
     constructor() {
@@ -94,6 +95,7 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const { entityName = '', isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
 
+        const entityMetadata = RetrieveEntityMetadata(entityName);
 
         const [filter, setFilter] = useState<string>('');
 
@@ -107,7 +109,7 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
         const [optionSetTable, setOptionSetTable] = useState<OptionSetTables>({});
 
         useEffect(() => {
-            const allFieldOptions = { ...pickList, ...multiPickList, ...stateList, ...statusList, };
+            const allFieldOptions = { ...stateList, ...statusList, ...pickList, ...multiPickList, };
             const optionSetTable = Object.entries(allFieldOptions).reduce<OptionSetTables>((previousValue: OptionSetTables, [currentLogicalName, currentOptions], currentIndex, array) => {
                 return {
                     ...previousValue,
@@ -133,10 +135,13 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
                         component="nav"
                         subheader={
                             <ListSubheader component="div">
-                                <ButtonGroup variant="contained" fullWidth size='small'>
-                                    <Button onClick={forceRefresh}>Refresh</Button>
-                                </ButtonGroup>
-                                <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
+                                <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography>
+                                <Stack direction='row' spacing={1} mt={1} mb={1} >
+                                    {/* <ButtonGroup variant="contained" fullWidth size='small'>
+                                    </ButtonGroup> */}
+                                    <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
+                                    <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
+                                </Stack>
                             </ListSubheader>
                         }
                     >
