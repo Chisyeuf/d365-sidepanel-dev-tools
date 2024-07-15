@@ -12,3 +12,4 @@ export const storageStandardPanels = 'useStandardPanels';
 export const drawerContainerId = 'drawercontainer';
 
 export const applicationName = 'D365 SidePanel Dev Tools';
+export const mainMenuId = 'sidepanel-mainmenu';
