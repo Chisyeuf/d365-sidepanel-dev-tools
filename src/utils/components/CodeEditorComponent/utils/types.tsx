@@ -24,7 +24,7 @@ export enum Type {
 }
 
 export interface CodeEditorFile extends CodeEditorCommon {
-    readonly url: string,
+    readonly src: string,
     readonly crmId: string,
     language: EditorLanguage | null,
     originalContent: string,

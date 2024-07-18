@@ -167,7 +167,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                 ...commonElem,
                 originalContent: '',
                 modifiedContent: '',
-                url: 'no-url',
+                src: 'no-url',
                 crmId: 'nor-id',
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }

@@ -22,7 +22,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
                 depth: root.depth + 1,
                 originalContent: fileToCreate.content,
                 modifiedContent: fileToCreate.content,
-                url: fileToCreate.src,
+                src: fileToCreate.src,
                 crmId: fileToCreate.crmId,
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }
