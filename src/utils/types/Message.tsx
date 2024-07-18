@@ -7,9 +7,9 @@ export enum MessageType {
     SETCONFIGURATION = 'setConfiguration',
     GETCONFIGURATION = 'getConfiguration',
 
-    ENABLEREQUESTINTERCEPTION = 'EnableRequestInterception',
-    DISABLEREQUESTINTERCEPTION = 'DisableRequestInterception',
-    GETCURRENTREQUESTINTERCEPTION = 'GetCurrentRequestInterception',
+    ENABLESCRIPTOVERRIDING = 'EnableScriptOverriding',
+    DISABLESCRIPTOVERRIDING = 'DisableScriptOverriding',
+    GETCURRENTSCRIPTOVERRIDING = 'GetCurrentScriptOverriding',
     ISDEBUGGERATTACHED = 'IsDebuggerAttached',
 
     // REGISTERMESSAGECALLBACK = "RegisterMessageCallback",

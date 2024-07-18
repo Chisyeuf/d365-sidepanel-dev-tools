@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch } from '@mui/material';
-import React, { forwardRef, useCallback, useEffect, useRef, useState, } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { ScriptNodeContent } from '../../utils/types/ScriptNodeContent';
@@ -11,7 +11,7 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { MessageType } from '../../utils/types/Message';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
-import { ScriptOverride } from '../../utils/types/ScriptOverride';
+import { ScriptOverride, ScriptOverrideContent } from '../../utils/types/ScriptOverride';
 import CodeIcon from '@mui/icons-material/Code';
 import { SvgIconComponent } from '@mui/icons-material';
 import { useBoolean } from 'usehooks-ts';
@@ -37,7 +37,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const xrmUpdated = useXrmUpdated();
 
         const [scriptNodeContent, setScriptNodeContent] = useState<ScriptNodeContent[] | null>(null);
-        const { dict: scriptsOverrided, keys: scriptsOverridedSrc, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<string>({})
+        const { dict: scriptsOverrided, keys: scriptsOverridedSrc, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<ScriptOverrideContent>({})
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
         const [editorOpen, setEditorOpen] = useState(false);
         const { value: confirmPublishOpen, setTrue: openConfirmPublish, setFalse: closeConfirmPublish } = useBoolean(false);
@@ -48,7 +48,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useEffect(() => {
             const extensionId = GetExtensionId();
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCURRENTREQUESTINTERCEPTION },
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCURRENTSCRIPTOVERRIDING },
                 function (response: ScriptOverride | null) {
                     if (response) {
                         setScriptsOverride(response);
@@ -98,17 +98,30 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             setRoot(root);
         }, [scriptNodeContent]);
 
+        const overridedFiles = useMemo(() => root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1)) || [], [root, scriptsOverridedSrc, getFiles]);
+        const unloadOverridedFiles = useMemo(() => scriptsOverridedSrc.filter(scriptSrc => !overridedFiles.some(file => file.src === scriptSrc)), [scriptsOverridedSrc, overridedFiles]);
 
         const handleOnSave = useCallback(
             (fileSaved: CodeEditorFile, rootCopy: CodeEditorDirectory) => {
                 setRoot(rootCopy);
-                if (scriptNodeContent?.find(s => s.src === fileSaved.src)?.content === fileSaved.modifiedContent) {
-                    removeScriptOverrideItem(fileSaved.src);
-                    return;
+
+                if (!scriptsOverridedSrc.includes(fileSaved.src)) {
+                    if (scriptNodeContent?.find(s => s.src === fileSaved.src)?.content === fileSaved.modifiedContent) {
+                        removeScriptOverrideItem(fileSaved.src);
+                        return;
+                    }
+                    const originalContent = scriptNodeContent?.find(script => script.src === fileSaved.src)?.content ?? "";
+                    setScriptOverrideItem(fileSaved.src, { modified: fileSaved.modifiedContent, original: originalContent });
                 }
-                if (scriptsOverrided[fileSaved.src] !== fileSaved.modifiedContent) {
-                    setScriptOverrideItem(fileSaved.src, fileSaved.modifiedContent);
-                    return;
+                else {
+                    if (scriptsOverrided[fileSaved.src].original === fileSaved.modifiedContent) {
+                        removeScriptOverrideItem(fileSaved.src);
+                        return;
+                    }
+                    if (scriptsOverrided[fileSaved.src].modified !== fileSaved.modifiedContent) {
+                        setScriptOverrideItem(fileSaved.src, { modified: fileSaved.modifiedContent, original: scriptsOverrided[fileSaved.src].original });
+                        return;
+                    }
                 }
             },
             [scriptsOverrided, scriptNodeContent, setScriptOverrideItem, removeScriptOverrideItem, setRoot]
@@ -132,7 +145,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 Xrm.Utility.showProgressIndicator(`Updating Webresource: ${scriptNodeContent?.find(s => s.src === scriptSrc)?.fileName}.`);
 
                 var record = {
-                    content: btoa(unescape(encodeURIComponent(scriptsOverrided[scriptSrc])))
+                    content: btoa(unescape(encodeURIComponent(scriptsOverrided[scriptSrc].modified)))
                 };
 
                 Xrm.WebApi.updateRecord("webresource", scriptSrc, record).then(
@@ -185,10 +198,11 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             const extensionId = GetExtensionId();
 
             if (liveTestEnabled && scriptNodeContent) {
-               debugLog("scriptsOverride sent", scriptsOverrided);
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLEREQUESTINTERCEPTION, data: scriptsOverrided },
+                debugLog("scriptsOverride sent", scriptsOverrided);
+                // const scriptsToSendToBackground: ScriptOverride = scriptsOverrided;
+                chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
                     function (response) {
-                        debugLog("WebRessourceEditorProcess ", MessageType.ENABLEREQUESTINTERCEPTION, response);
+                        debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
                         if (response.success) {
                         }
                     }
@@ -196,9 +210,9 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             }
             else {
                 debugLog("scriptsOverride disabled");
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLEREQUESTINTERCEPTION },
+                chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLESCRIPTOVERRIDING },
                     function (response) {
-                        debugLog("WebRessourceEditorProcess ", MessageType.DISABLEREQUESTINTERCEPTION, response);
+                        debugLog("WebRessourceEditorProcess ", MessageType.DISABLESCRIPTOVERRIDING, response);
                         if (response.success) {
                         }
                     }
@@ -215,15 +229,25 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [codeEditorRef]);
 
         const removeScriptOverride = useCallback((selectedFile: CodeEditorFile) => {
+            setRoot(oldRoot => {
+                if (!oldRoot) {
+                    return;
+                }
+                const [file] = getFiles(oldRoot, file => file.src === selectedFile.src);
+                if (file) {
+                    file.modifiedContent = scriptsOverrided[selectedFile.src].original;
+                    file.previousContent = scriptsOverrided[selectedFile.src].original;
+                }
+                return oldRoot;
+            })
             removeScriptOverrideItem(selectedFile.src);
-        }, [removeScriptOverrideItem]);
+        }, [scriptsOverrided, removeScriptOverrideItem]);
 
         useEffect(() => {
-          console.log("scriptsOverridedId", scriptsOverridedSrc);
-          console.log("allFiles", root && getAllFiles(root) || []);
-        }, [scriptsOverridedSrc, root, getAllFiles]);
-        
-
+            console.log("scriptsOverrided", scriptsOverrided);
+            console.log("root", root);
+            console.log("unloadOverridedFiles", unloadOverridedFiles);
+        }, [scriptsOverrided, root, unloadOverridedFiles]);
 
         return (
             <>
@@ -281,9 +305,38 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
                         </ButtonGroup>
                     </Stack>
+                    {
+                        unloadOverridedFiles?.length > 0 && <List
+                            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto', flex: '0.5' }}
+                            component="nav"
+                            disablePadding
+                            subheader={
+                                <ListSubheader component="div">
+                                    <strong>Overrided scripts not load:</strong>
+                                </ListSubheader>
+                            }
+                        >
+                            {
+                                unloadOverridedFiles.map(item => {
+                                    const name = item.split("/webresources/")[1]?.split(/[\\/¥₩]+/i).slice(-1)[0] ?? <i>Unfound name</i>;
+                                    return <ListItem disablePadding>
+                                        <ListItemText
+                                            primary={name}
+                                            primaryTypographyProps={{
+                                                fontSize: '0.85rem',
+                                                lineHeight: '1',
+                                                padding: "4px 16px"
+                                            }}
+                                            title={name} />
+                                    </ListItem>;
+                                })
+                            }
+                        </List>
+                    }
                     <ScriptList
-                        text='Scripts overrided:'
-                        items={root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1)) || []}
+                        text='Overrided scripts:'
+                        items={overridedFiles}
+                        // items={root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1)) || []}
                         primaryLabel={(item) => item.name}
                         primaryAction={selectFile}
                         secondaryAction={removeScriptOverride}

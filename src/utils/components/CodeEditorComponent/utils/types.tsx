@@ -27,7 +27,7 @@ export interface CodeEditorFile extends CodeEditorCommon {
     readonly src: string,
     readonly crmId: string,
     language: EditorLanguage | null,
-    originalContent: string,
+    previousContent: string,
     modifiedContent: string,
 }
 

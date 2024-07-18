@@ -88,7 +88,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
     }
 
     const OnFileClose = async (closedFile: CodeEditorFile) => {
-        if (closedFile.originalContent !== closedFile.modifiedContent) {
+        if (closedFile.previousContent !== closedFile.modifiedContent) {
             await openConfirmDialog({
                 title: `Do you want to close ${closedFile.name}?`,
                 description: "Your changes will be lost if you don't save them.",
@@ -98,7 +98,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                 cancellationButtonProps: { variant: "contained" },
                 buttonOrder: ["confirm", "cancel"]
             });
-            closedFile.modifiedContent = closedFile.originalContent;
+            closedFile.modifiedContent = closedFile.previousContent;
         }
         if (closedFile.id === selectedFile?.id) {
             const index = openFiles.findIndex(p => p.id !== closedFile.id);
@@ -165,7 +165,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
         else {
             const newFile: CodeEditorFile = {
                 ...commonElem,
-                originalContent: '',
+                previousContent: '',
                 modifiedContent: '',
                 src: 'no-url',
                 crmId: 'nor-id',
@@ -215,7 +215,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
             const rootCopy = { ...root };
             const files = getFiles(rootCopy, (f: CodeEditorFile) => f.id === selectedFile.id);
             if (files.length > 0) {
-                files[0].originalContent = files[0].modifiedContent;
+                files[0].previousContent = files[0].modifiedContent;
             }
 
             onSave?.(files[0], rootCopy);

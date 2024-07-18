@@ -103,7 +103,7 @@ function TabsList(props: CodeEditorHeaderProps) {
                             file={file}
                             index={index}
                             selected={file.id === selectedFile?.id}
-                            unsaved={file.originalContent !== file.modifiedContent}
+                            unsaved={file.previousContent !== file.modifiedContent}
                             onSelect={onSelect ?? (() => { })}
                             onClose={onFileClose ?? (() => { })}
                             theme={theme}

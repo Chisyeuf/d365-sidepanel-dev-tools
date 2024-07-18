@@ -20,7 +20,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
                 parentDir: root,
                 type: Type.FILE,
                 depth: root.depth + 1,
-                originalContent: fileToCreate.content,
+                previousContent: fileToCreate.content,
                 modifiedContent: fileToCreate.content,
                 src: fileToCreate.src,
                 crmId: fileToCreate.crmId,

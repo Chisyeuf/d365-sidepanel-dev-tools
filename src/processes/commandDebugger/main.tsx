@@ -8,7 +8,7 @@ class CommandDebugger extends ProcessButton {
     constructor() {
         super(
             'ribbondebugenabler',
-            () => new URL(location.href).searchParams.get('ribbondebug') === 'true' ? 'Turn off Command Checker' : 'Turn on Command Checker',
+            () => new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? 'Turn off Command Checker' : 'Turn on Command Checker',
             <TroubleshootIcon />,
             1,
             false
@@ -16,11 +16,11 @@ class CommandDebugger extends ProcessButton {
     }
 
     openSidePane(selected: boolean = true): void {
-        const newLocationUrl = new URL(location.href);
+        const newLocationUrl = new URL(window.location.href);
         const currentRibbondebug = newLocationUrl.searchParams.get('ribbondebug');
         const newRibbondebug = currentRibbondebug === 'true' ? 'false' : 'true';
         newLocationUrl.searchParams.set('ribbondebug', newRibbondebug);
-        location.replace(newLocationUrl);
+        window.location.replace(newLocationUrl);
     };
 }
 

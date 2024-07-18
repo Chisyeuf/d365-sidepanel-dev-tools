@@ -1,7 +1,7 @@
 
 import { getSessionRules, manageImpersonation } from "./processes/impersonation/background";
 import { getExtensionConfiguration, setExtensionConfiguration } from "./processes/setConfiguration/background";
-import { debuggerAttached, disbaleScriptOverride, enableScriptOverride, getScriptOverride } from "./processes/webResourceEditor/background";
+import { debuggerAttached, disbaleScriptOverride as disbaleScriptOverriding, enableScriptOverride as enableScriptOverriding, getScriptOverride as getScriptOverriding } from "./processes/webResourceEditor/background";
 import { MessageType } from "./utils/types/Message";
 
 chrome.runtime.onMessageExternal.addListener(messagesStation);
@@ -35,14 +35,14 @@ function messagesStation(message: { type: string, data: any }, sender: chrome.ru
             getExtensionConfiguration(message.data).then(sendResponse);
             return true;
 
-        case MessageType.ENABLEREQUESTINTERCEPTION:
-            enableScriptOverride(message.data, sender);
+        case MessageType.ENABLESCRIPTOVERRIDING:
+            enableScriptOverriding(message.data, sender);
             return false;
-        case MessageType.DISABLEREQUESTINTERCEPTION:
-            disbaleScriptOverride(sender);
+        case MessageType.DISABLESCRIPTOVERRIDING:
+            disbaleScriptOverriding(sender);
             return false;
-        case MessageType.GETCURRENTREQUESTINTERCEPTION:
-            getScriptOverride(sender).then(sendResponse);
+        case MessageType.GETCURRENTSCRIPTOVERRIDING:
+            getScriptOverriding(sender).then(sendResponse);
             return true;
         case MessageType.ISDEBUGGERATTACHED:
             debuggerAttached(sender).then(sendResponse);

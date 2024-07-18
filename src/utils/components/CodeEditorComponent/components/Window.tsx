@@ -132,7 +132,7 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
                         modifiedModelPath={file?.path}
                         theme={theme}
                         modified={file?.modifiedContent}
-                        original={file?.originalContent}
+                        original={file?.previousContent}
                         language={file?.language ?? undefined}
                         onMount={handleDiffEditorMount}
                     />

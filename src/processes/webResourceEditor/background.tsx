@@ -62,7 +62,7 @@ chrome.debugger.onEvent.addListener((debugee, method, params: any) => {
                 const response: ResponseOverride = {
                     requestId: params.requestId,
                     responseCode: 200,
-                    body: btoa(unescape(encodeURIComponent(SCRIPT_OVERRIDED[debugee.tabId][request.url]))),
+                    body: btoa(unescape(encodeURIComponent(SCRIPT_OVERRIDED[debugee.tabId][request.url].modified))),
                 }
                 chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', response);
             }
