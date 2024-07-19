@@ -58,11 +58,12 @@ chrome.debugger.onEvent.addListener((debugee, method, params: any) => {
 
     if (debugee.tabId && TAB_IN_DEBUG_MODE[debugee.tabId]) {
         if (method === "Fetch.requestPaused") {
-            if (Object.keys(SCRIPT_OVERRIDED[debugee.tabId]).includes(request.url)) {
+            const scriptOverridedUrlRegex = Object.keys(SCRIPT_OVERRIDED[debugee.tabId]).find(urlRegex => new RegExp(urlRegex).test(request.url));
+            if (scriptOverridedUrlRegex) {
                 const response: ResponseOverride = {
                     requestId: params.requestId,
                     responseCode: 200,
-                    body: btoa(unescape(encodeURIComponent(SCRIPT_OVERRIDED[debugee.tabId][request.url].modified))),
+                    body: btoa(unescape(encodeURIComponent(SCRIPT_OVERRIDED[debugee.tabId][scriptOverridedUrlRegex].modified))),
                 }
                 chrome.debugger.sendCommand(debugee, 'Fetch.fulfillRequest', response);
             }

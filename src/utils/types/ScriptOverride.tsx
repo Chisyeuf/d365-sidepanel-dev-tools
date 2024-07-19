@@ -1,3 +1,3 @@
 
 export type ScriptOverride = { [src: string]: ScriptOverrideContent };
-export type ScriptOverrideContent = {  modified: string, original: string };
+export type ScriptOverrideContent = { modified: string, original: string, webresourceid: string };

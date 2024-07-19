@@ -168,7 +168,7 @@ const CodeEditorComponent = forwardRef<CodeEditorForwardRef, CodeEditorProps>((p
                 previousContent: '',
                 modifiedContent: '',
                 src: 'no-url',
-                crmId: 'nor-id',
+                crmId: 'no-id',
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }
             parentDirCopy.files.push(newFile);

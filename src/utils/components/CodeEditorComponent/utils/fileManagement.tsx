@@ -22,7 +22,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
                 depth: root.depth + 1,
                 previousContent: fileToCreate.content,
                 modifiedContent: fileToCreate.content,
-                src: fileToCreate.src,
+                src: fileToCreate.srcRegex,
                 crmId: fileToCreate.crmId,
                 language: getLanguageByExtension(extension[extension.length - 1]),
             }
@@ -62,7 +62,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
 
 
     filespath.forEach((filePath, filePathIndex) => {
-        const path = filePath.src.split("/webresources/")[1];
+        const path = filePath.srcRegex.split("/webresources/")[1];
         searchAndCreateDirectory(rootDir, path.split(SEPARATOR_EXPRESSION), filePath);
     });
 

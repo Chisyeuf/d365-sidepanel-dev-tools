@@ -79,14 +79,22 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         .map<Promise<ScriptNodeContent>>(async (s: HTMLScriptElement) => {
                             const fileName = s.src.substring(s.src.search(separationOfUrlAndFileName) + separationOfUrlAndFileName.length);
                             return {
-                                src: s.src,
+                                srcRegex: s.src.replace(/\/%7b.*%7d\/webresources/, "/.*/webresources"),
                                 fileName: fileName,
                                 content: await fetch(s.src).then(r => r.text()),
+                                crmId: (await Xrm.WebApi.retrieveMultipleRecords("webresource", `?$select=webresourceid&$filter=(name eq '${fileName}')`).then(
+                                    function success(results) {
+                                        return results.entities[0]["webresourceid"] as string;
+                                    },
+                                    function (error) {
+                                        console.error(`Error when attempt of retrieve webresource id with : ${error.message}`);
+                                    }
+                                ))
                             } as ScriptNodeContent;
                         });
             })).then((scriptNodeContents) => {
                 if (!scriptNodeContents) return;
-                const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.src === i.src) === index) as any;
+                const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.srcRegex === i.srcRegex) === index) as any;
                 debugLog("Scripts found:", scriptNodeContentsDistinctNotNull);
                 setScriptNodeContent(scriptNodeContentsDistinctNotNull);
             });
@@ -106,12 +114,12 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 setRoot(rootCopy);
 
                 if (!scriptsOverridedSrc.includes(fileSaved.src)) {
-                    if (scriptNodeContent?.find(s => s.src === fileSaved.src)?.content === fileSaved.modifiedContent) {
+                    if (scriptNodeContent?.find(s => s.srcRegex === fileSaved.src)?.content === fileSaved.modifiedContent) {
                         removeScriptOverrideItem(fileSaved.src);
                         return;
                     }
-                    const originalContent = scriptNodeContent?.find(script => script.src === fileSaved.src)?.content ?? "";
-                    setScriptOverrideItem(fileSaved.src, { modified: fileSaved.modifiedContent, original: originalContent });
+                    const originalContent = scriptNodeContent?.find(script => script.srcRegex === fileSaved.src)?.content ?? "";
+                    setScriptOverrideItem(fileSaved.src, { modified: fileSaved.modifiedContent, original: originalContent, webresourceid: fileSaved.crmId });
                 }
                 else {
                     if (scriptsOverrided[fileSaved.src].original === fileSaved.modifiedContent) {
@@ -119,7 +127,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         return;
                     }
                     if (scriptsOverrided[fileSaved.src].modified !== fileSaved.modifiedContent) {
-                        setScriptOverrideItem(fileSaved.src, { modified: fileSaved.modifiedContent, original: scriptsOverrided[fileSaved.src].original });
+                        setScriptOverrideItem(fileSaved.src, { ...scriptsOverrided[fileSaved.src], modified: fileSaved.modifiedContent });
                         return;
                     }
                 }
@@ -142,13 +150,13 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             Xrm.Utility.showProgressIndicator(`Start webresources update.`);
 
             scriptsOverridedSrc.forEach(scriptSrc => {
-                Xrm.Utility.showProgressIndicator(`Updating Webresource: ${scriptNodeContent?.find(s => s.src === scriptSrc)?.fileName}.`);
+                Xrm.Utility.showProgressIndicator(`Updating Webresource: ${scriptNodeContent?.find(s => s.srcRegex === scriptSrc)?.fileName}.`);
 
-                var record = {
+                const record = {
                     content: btoa(unescape(encodeURIComponent(scriptsOverrided[scriptSrc].modified)))
                 };
 
-                Xrm.WebApi.updateRecord("webresource", scriptSrc, record).then(
+                Xrm.WebApi.updateRecord("webresource", scriptsOverrided[scriptSrc].webresourceid, record).then(
                     function success(result) {
                         var updatedId = result.id;
                         debugLog(`Webresource ${updatedId} content updated`);
@@ -160,8 +168,8 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             });
             Xrm.Utility.closeProgressIndicator();
 
-            var execute_PublishXml_Request = {
-                ParameterXml: `<importexportxml><webresources>${scriptsOverridedSrc.map(scriptSrc => `<webresource>${scriptSrc}</webresource>`).join('')}</webresources></importexportxml>`,
+            const execute_PublishXml_Request = {
+                ParameterXml: `<importexportxml><webresources>${scriptsOverridedSrc.map(scriptSrc => `<webresource>${scriptsOverrided[scriptSrc].webresourceid}</webresource>`).join('')}</webresources></importexportxml>`,
                 getMetadata: function () {
                     return {
                         boundParameter: null,
@@ -242,12 +250,6 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             })
             removeScriptOverrideItem(selectedFile.src);
         }, [scriptsOverrided, removeScriptOverrideItem]);
-
-        useEffect(() => {
-            console.log("scriptsOverrided", scriptsOverrided);
-            console.log("root", root);
-            console.log("unloadOverridedFiles", unloadOverridedFiles);
-        }, [scriptsOverrided, root, unloadOverridedFiles]);
 
         return (
             <>
@@ -384,13 +386,13 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     <DialogContent>
                         <DialogContentText>
                             Are you sure to publish these files?
-                            <ul>
+                            <List>
                                 {
                                     scriptsOverridedSrc.map(scriptSrc => {
-                                        return <li>{scriptNodeContent?.find(c => c.src === scriptSrc)?.fileName}</li>;
+                                        return <ListItem><ListItemText>{scriptSrc.split("/webresources/")[1]?.split(/[\\/¥₩]+/i).slice(-1)[0] ?? <i>Unfound name</i>}</ListItemText></ListItem>;
                                     })
                                 }
-                            </ul>
+                            </List>
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

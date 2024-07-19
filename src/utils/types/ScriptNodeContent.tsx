@@ -1,5 +1,5 @@
 export interface ScriptNodeContent {
-    src: string,
+    srcRegex: string,
     fileName: string,
     content: string,
     crmId: string,
