@@ -47,6 +47,7 @@ export function disbaleScriptOverride(sender: chrome.runtime.MessageSender) {
 chrome.debugger.onDetach.addListener((debugee, reason) => {
     if (debugee.tabId) {
         TAB_IN_DEBUG_MODE[debugee.tabId] = false;
+        SCRIPT_OVERRIDED[debugee.tabId] = {};
     }
 });
 chrome.debugger.onEvent.addListener((debugee, method, params: any) => {

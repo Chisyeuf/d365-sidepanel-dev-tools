@@ -41,10 +41,10 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
         const [editorOpen, setEditorOpen] = useState(false);
         const { value: confirmPublishOpen, setTrue: openConfirmPublish, setFalse: closeConfirmPublish } = useBoolean(false);
-        const [liveTestEnabled, setLiveTestEnabled] = useState<boolean>(false);
+        // const [liveTestEnabled, setLiveTestEnabled] = useState<boolean>(false);
 
-        const [liveTestEnabledInitDone, setLiveTestEnabledInitDone] = useState<boolean>(false);
-        const [scriptOverrideIntiDone, setScriptOverrideIntiDone] = useState<boolean>(false);
+        // const [liveTestEnabledInitDone, setLiveTestEnabledInitDone] = useState<boolean>(false);
+        // const [scriptOverrideIntiDone, setScriptOverrideIntiDone] = useState<boolean>(false);
 
         useEffect(() => {
             const extensionId = GetExtensionId();
@@ -53,17 +53,17 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (response) {
                         setScriptsOverride(response);
                     }
-                    setScriptOverrideIntiDone(true);
+                    // setScriptOverrideIntiDone(true);
                 }
             );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.ISDEBUGGERATTACHED },
-                function (response: boolean) {
-                    setLiveTestEnabled(response);
-                    setTimeout(() => {
-                        setLiveTestEnabledInitDone(true);
-                    }, 500);
-                }
-            );
+            // chrome.runtime.sendMessage(extensionId, { type: MessageType.ISDEBUGGERATTACHED },
+            //     function (response: boolean) {
+            //         setLiveTestEnabled(response);
+            //         setTimeout(() => {
+            //             setLiveTestEnabledInitDone(true);
+            //         }, 500);
+            //     }
+            // );
         }, []);
 
 
@@ -99,6 +99,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                 setScriptNodeContent(scriptNodeContentsDistinctNotNull);
             });
         }, [xrmUpdated]);
+
 
         useEffect(() => {
             if (!scriptNodeContent) return;
@@ -199,34 +200,52 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             openConfirmPublish();
         }, [openConfirmPublish, scriptsOverridedSrc]);
 
-        useEffect(() => {
-            if (!liveTestEnabledInitDone) return;
-            if (!scriptOverrideIntiDone) return;
+        // useEffect(() => {
+        //     if (!liveTestEnabledInitDone) return;
+        //     if (!scriptOverrideIntiDone) return;
 
+        //     const extensionId = GetExtensionId();
+
+        //     if (liveTestEnabled && scriptNodeContent) {
+        //         debugLog("scriptsOverride sent", scriptsOverrided);
+        //         // const scriptsToSendToBackground: ScriptOverride = scriptsOverrided;
+        //         chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
+        //             function (response) {
+        //                 debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
+        //                 if (response.success) {
+        //                 }
+        //             }
+        //         );
+        //     }
+        //     else {
+        //         debugLog("scriptsOverride disabled");
+        //         chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLESCRIPTOVERRIDING },
+        //             function (response) {
+        //                 debugLog("WebRessourceEditorProcess ", MessageType.DISABLESCRIPTOVERRIDING, response);
+        //                 if (response.success) {
+        //                 }
+        //             }
+        //         );
+        //     }
+        // }, [liveTestEnabled, scriptsOverrided, scriptsOverridedSrc]);
+
+        const launchLiveTest = useCallback(() => {
             const extensionId = GetExtensionId();
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
+                function (response) {
+                    debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
+                    if (response.success) {
+                    }
+                }
+            );
 
-            if (liveTestEnabled && scriptNodeContent) {
-                debugLog("scriptsOverride sent", scriptsOverrided);
-                // const scriptsToSendToBackground: ScriptOverride = scriptsOverrided;
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
-                    function (response) {
-                        debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
-                        if (response.success) {
-                        }
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.REFRESHBYPASSCACHE },
+                function (response) {
+                    if (response.success) {
                     }
-                );
-            }
-            else {
-                debugLog("scriptsOverride disabled");
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLESCRIPTOVERRIDING },
-                    function (response) {
-                        debugLog("WebRessourceEditorProcess ", MessageType.DISABLESCRIPTOVERRIDING, response);
-                        if (response.success) {
-                        }
-                    }
-                );
-            }
-        }, [liveTestEnabled, scriptsOverrided, scriptsOverridedSrc]);
+                }
+            );
+        }, [scriptsOverrided]);
 
 
         const codeEditorRef = useRef<CodeEditorForwardRef>(null);
@@ -258,7 +277,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     <Stack width='100%' direction='column'>
                         <ButtonGroup variant="contained" fullWidth>
 
-                            <FormControlLabel
+                            {/* <FormControlLabel
                                 control={<Checkbox sx={{ pt: 0, pb: 0 }} />}
                                 label="Live Testing Enabled"
                                 sx={{
@@ -269,27 +288,19 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                                 onClick={() => {
                                     setLiveTestEnabled(prev => !prev);
                                 }}
-                            />
+                            /> */}
 
                             <Button
                                 sx={{
                                     flex: '1'
                                 }}
-                                onClick={() => {
-                                    const extensionId = GetExtensionId();
-                                    chrome.runtime.sendMessage(extensionId, { type: MessageType.REFRESHBYPASSCACHE },
-                                        function (response) {
-                                            if (response.success) {
-                                            }
-                                        }
-                                    );
-                                }}
+                                onClick={launchLiveTest}
                             >
-                                Refresh
+                                Send scripts & Launch LiveTest
                             </Button>
 
                         </ButtonGroup>
-                        <ButtonGroup variant="contained" fullWidth>
+                        <ButtonGroup variant='outlined' fullWidth>
 
                             <Button
                                 onClick={publishChanges}
@@ -396,7 +407,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={closeConfirmPublish} autoFocus>Cancel</Button>
+                        <Button onClick={closeConfirmPublish}>Cancel</Button>
                         <Button variant='contained' onClick={_publishChanges}>Publish</Button>
                     </DialogActions>
                 </Dialog>
