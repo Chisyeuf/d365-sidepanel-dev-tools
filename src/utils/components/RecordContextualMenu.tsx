@@ -33,8 +33,8 @@ function MenuNewTab(props: RecordContextualMenuItemProps) {
     const { onClose, entityName, recordId } = props;
     const onClick = useCallback(
         () => {
-            const origin = window.location.origin;
-            const newUrl = origin + "/main.aspx?pagetype=entityrecord&etn=" + entityName + "&id=" + recordId;
+            const origin = window.location.origin + window.location.pathname;
+            const newUrl = origin + "?pagetype=entityrecord&etn=" + entityName + "&id=" + recordId;
             window.open(newUrl);
         },
         [entityName, recordId]);
