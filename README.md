@@ -1,6 +1,6 @@
-## Description
-Chromium extension for Dynamics 365 using standard side panels functionnality.
+## Dynamics 365 SidePanel Tools
+This chromium extension add a panel at the right side of Dynamics 365 pages.
+The purpose of this extension is to provide easy to use and automatic regreshing tools.
+Multiple tools are avalaible and can be opened independantly.
 
-Avalaible for online environment for now.
-
-![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/assets/34579824/b21860cd-7772-455a-b729-ce267b6d663d)
+![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/0.OverallView.jpg)
