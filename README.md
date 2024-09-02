@@ -6,4 +6,7 @@ Multiple tools are avalaible and can be opened independantly.
 
 ![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/0.OverallView.jpg)
 
-
+Avalaible Tools
+-----------
+## 1. Form Tools
+![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/1.FormTools.jpg)
