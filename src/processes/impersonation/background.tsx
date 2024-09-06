@@ -11,7 +11,7 @@ interface ruleByEnvironment {
 
 const prefixId: number = 56850000;
 
-const createImpersonationRule = async (azureObjectId: string, url: string) => {
+const createImpersonationRule = async (azureObjectId: string, headerItem:string, url: string) => {
     const exitingRules = await getSessionRules();
 
     const rule: chrome.declarativeNetRequest.Rule = {
@@ -22,34 +22,47 @@ const createImpersonationRule = async (azureObjectId: string, url: string) => {
             requestHeaders: [
                 {
                     operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-                    header: 'CallerObjectId',
+                    header: headerItem,
                     value: azureObjectId
                 },
             ]
         },
         condition: {
             urlFilter: url + '/api/*',
-            // urlFilter: url + '/api/*/GetClientMetadata*',
-
-
-            // resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
         }
     };
-    // rules[url] = { rule: rule, activated: true };
+    // const rule: chrome.declarativeNetRequest.Rule = {
+    //     id: prefixId + Object.keys(exitingRules).length + 1,
+    //     priority: 1,
+    //     action: {
+    //         type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+    //         requestHeaders: [
+    //             {
+    //                 operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+    //                 header: 'CallerObjectId' | 'MSCRMCallerId',
+    //                 value: azureObjectId
+    //             },
+    //         ]
+    //     },
+    //     condition: {
+    //         urlFilter: url + '/api/*',
+    //     }
+    // };
     return rule;
 }
 
-const updateImpersonationRules = async (azureObjectId: string, url: string) => {
+const updateImpersonationRules = async (azureObjectId: string, headerItem:string, url: string) => {
     const exitingRules = await getSessionRules();
 
     const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
 
     if (!ruleByUrl) {
-        const newRule = await createImpersonationRule(azureObjectId, url);
+        const newRule = await createImpersonationRule(azureObjectId, headerItem, url);
         exitingRules.push(newRule);
     }
     else {
         ruleByUrl.action.requestHeaders!.at(0)!.value = azureObjectId;
+        ruleByUrl.action.requestHeaders!.at(0)!.header = headerItem;
         ruleByUrl.condition.urlFilter = url + '/api/*';
         // ruleByUrl.condition.urlFilter = url + '/api/*/GetClientMetadata*';
     }
@@ -74,13 +87,17 @@ export function getSessionRules() {
 }
 
 
-export async function manageImpersonation(data: { userSelected: ActiveUser, selectedon: Date, url: string }, sender: chrome.runtime.MessageSender) {
+export async function manageImpersonation(data: { userSelected: ActiveUser, selectedon: Date, url: string, isOnPrem: boolean }, sender: chrome.runtime.MessageSender) {
     let ruleList: chrome.declarativeNetRequest.Rule[];
     if (!data.userSelected) {
         ruleList = await removeImpersonationRules(data.url);
     }
     else {
-        ruleList = await updateImpersonationRules(data.userSelected.azureObjectId, data.url);
+        if (data.isOnPrem) {
+            ruleList = await updateImpersonationRules(data.userSelected.systemuserid, "MSCRMCallerId", data.url);
+        }else {
+            ruleList = await updateImpersonationRules(data.userSelected.azureObjectId, "CallerObjectId", data.url);
+        }
     }
 
     // chrome.declarativeNetRequest.updateSessionRules({

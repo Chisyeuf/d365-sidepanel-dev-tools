@@ -18,6 +18,7 @@ import { SecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
 import { Env } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import AvatarColor from '../../utils/components/AvatarColor';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -25,7 +26,7 @@ class ImpersonationButton extends ProcessButton {
             'impersonate',
             'Impersonation',
             <PersonSearchIcon />,
-            300
+            350
         );
         this.process = ImpersonationProcess;
     }
@@ -36,17 +37,19 @@ const rowHeight = 35;
 const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
     function ImpersonationProcess(props: ProcessProps, ref) {
 
+        const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
+
         const [userSelected, setUserSelected] = useStateCallback<ActiveUser | null>(null);
         const [securityRoleSeclected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
 
         const [filter, setFilter] = useState('');
 
-        const [activeUsers, isFetching] = RetrieveActiveUsersWithSecurityRoles();
+        const [activeUsers, isFetching] = RetrieveActiveUsersWithSecurityRoles(!isOnPrem);
 
         const extensionId = GetExtensionId();
 
         const sendNewUserToBackground = (newUser: ActiveUser | null) => {
-            const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl() };
+            const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl(), isOnPrem: isOnPrem };
             chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
                 function (response) {
                     if (response.success) {
@@ -73,7 +76,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (currentRule) {
                         const currentAzureId = currentRule.action.requestHeaders?.at(0)?.value;
                         if (currentAzureId) {
-                            const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId);
+                            const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId || u.systemuserid === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
 
                             props.setBadge('');
@@ -128,35 +131,41 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     isFetching ?
                         [...Array(22)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
                         :
-                        <List sx={{ width: '100%', overflowY: 'scroll' }}>
-                            {
-                                activeUsers.map((user) => {
+                        (
+                            activeUsers.length > 0 ?
+                                <List sx={{ width: '100%', overflowY: 'scroll' }}>
+                                    {
+                                        activeUsers.map((user) => {
 
-                                    if (securityRoleSeclected.filter(role =>
-                                        user.securityRoles.filter(r =>
-                                            r.roleid === role.roleid).length).length !== securityRoleSeclected.length) {
-                                        return null;
+                                            if (securityRoleSeclected.filter(role =>
+                                                user.securityRoles.filter(r =>
+                                                    r.roleid === role.roleid).length).length !== securityRoleSeclected.length) {
+                                                return null;
+                                            }
+
+                                            if (!user.fullName.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <UserItem
+                                                    user={user}
+                                                    userSelected={userSelected}
+                                                    handleSelect={handleSelect}
+                                                />
+                                            );
+                                        })
                                     }
-
-                                    if (!user.fullName.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
-                                        return null;
-                                    }
-
-                                    return (
-                                        <UserItem
-                                            user={user}
-                                            userSelected={userSelected}
-                                            handleSelect={handleSelect}
-                                        />
-                                    );
-                                })
-                            }
-                        </List>
+                                </List>
+                                :
+                                <Typography variant='caption' textAlign='center' color='grey' fontSize='small'>No enabled {!isOnPrem && "and licensed "}user found</Typography>
+                        )
                 }
             </Stack>
         );
     }
 );
+
 
 interface UserItemProps {
     user: ActiveUser,
@@ -184,7 +193,8 @@ const UserItem = React.memo((props: UserItemProps) => {
                 <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
                     <ListItemIcon
                         sx={{
-                            minWidth: '28px'
+                            minWidth: '28px',
+                            mr: 1
                         }}
                     >
                         <Checkbox
@@ -194,9 +204,13 @@ const UserItem = React.memo((props: UserItemProps) => {
                             disableRipple
                             inputProps={{ 'aria-labelledby': labelId }}
                             sx={{
-                                padding: '3px'
+                                padding: '3px',
+                                mr: 1
                             }}
                         />
+
+                        <AvatarColor src={user.entityimage_url} fullname={user.fullName} size={24} />
+
                     </ListItemIcon>
                     <ListItemText
                         id={labelId}

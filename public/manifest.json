@@ -17,19 +17,19 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://*/*", "http://*/*"],
+            "matches": ["*://*/*", "*://*/*"],
             "js": ["/static/js/spdevtools.content.js"]
         }
     ],
     "web_accessible_resources": [
         {
             "resources": ["/static/js/spdevtools.js", "/icons/*"],
-            "matches": ["https://*/*", "http://*/*"]
+            "matches": ["*://*/*", "*://*/*"]
         }
     ],
-    "host_permissions": ["*://*.dynamics.com/*"],
+    "host_permissions": ["*://*/*"],
     "permissions": ["storage", "declarativeNetRequest", "debugger"],
     "externally_connectable": {
-        "matches": ["https://*/*", "http://*/*"]
+        "matches": ["*://*/*", "*://*/*"]
     }
 }

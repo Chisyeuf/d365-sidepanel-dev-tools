@@ -17,6 +17,8 @@ import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 
+import packageJson from "../../package.json";
+
 
 const MainScreenStandardPanel: React.FunctionComponent = () => {
 
@@ -369,7 +371,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
                 <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
 
-                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
+                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' height='100%' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
                         {
                             processesList?.filter((process) => !process.hidden).map((value, index) => {
@@ -383,6 +385,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                             })
                         }
                     </Stack>
+                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography> 
                 </Stack>
 
             </PanelDrawerItem>

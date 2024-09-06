@@ -6,4 +6,5 @@ export interface ActiveUser {
     azureObjectId: string
     emailAddress: string
     securityRoles: SecurityRole[]
+    entityimage_url: string
 }
