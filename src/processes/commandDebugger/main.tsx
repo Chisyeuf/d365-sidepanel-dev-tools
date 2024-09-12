@@ -15,7 +15,7 @@ class CommandDebugger extends ProcessButton {
         );
     }
 
-    openSidePane(selected: boolean = true): void {
+    execute(): void {
         const newLocationUrl = new URL(window.location.href);
         const currentRibbondebug = newLocationUrl.searchParams.get('ribbondebug');
         const newRibbondebug = currentRibbondebug === 'true' ? 'false' : 'true';

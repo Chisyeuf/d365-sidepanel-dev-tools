@@ -1,4 +1,4 @@
-import { Avatar } from "@mui/material";
+import { Avatar, SxProps, Theme } from "@mui/material";
 import React from 'react';
 
 
@@ -29,10 +29,11 @@ interface AvatarColorProps {
     fullname?: string
     src?: string
     size?: number
+    sx?:SxProps<Theme> 
 }
 
 function AvatarColor(props: AvatarColorProps) {
-    const { src, fullname, size } = props;
+    const { src, fullname, size, sx } = props;
 
     return (
         <Avatar src={src} sx={{
@@ -43,7 +44,8 @@ function AvatarColor(props: AvatarColorProps) {
                     height: size,
                     fontSize: size / 2
                 }
-            )
+            ),
+            ...sx,
         }} >
             {fullname && `${fullname.split(' ')[0][0]}${fullname.split(' ')[1][0]}`}
         </Avatar>

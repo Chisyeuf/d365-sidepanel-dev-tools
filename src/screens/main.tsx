@@ -12,7 +12,7 @@ import { MessageType } from '../utils/types/Message';
 import DOMObserver from '../utils/global/DOMObserver';
 import { Badge, Box, Button, Divider, Drawer, IconButton, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
-import { applicationName, classesPrefix, drawerContainerId, mainMenuId, storageForegroundPanes, storageListName, storageStandardPanels } from '../utils/global/var';
+import { applicationName, classesPrefix, drawerContainerId, mainMenuId, storageForegroundPanes, storageListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
@@ -20,104 +20,104 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import packageJson from "../../package.json";
 
 
-const MainScreenStandardPanel: React.FunctionComponent = () => {
+// const MainScreenStandardPanel: React.FunctionComponent = () => {
 
-    const extensionId = GetExtensionId();
+//     const extensionId = GetExtensionId();
 
-    const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
+//     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
 
-    const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
+//     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
-    useEffect(() => {
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
-            function (response: StorageConfiguration[]) {
-                if (response && response.length === defaultProcessesList.length) {
-                    setProcessesList(response);
-                    return;
-                }
-                else {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
-                    setProcessesList(defaultProcessesList);
-                }
+//     useEffect(() => {
+//         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
+//             function (response: StorageConfiguration[]) {
+//                 if (response && response.length === defaultProcessesList.length) {
+//                     setProcessesList(response);
+//                     return;
+//                 }
+//                 else {
+//                     chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
+//                     setProcessesList(defaultProcessesList);
+//                 }
 
-            }
-        );
+//             }
+//         );
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
-            function (response: boolean | null) {
-                setIsForegroundPanes(response ?? false);
-                setPageStyle();
-            }
-        );
-    }, [extensionId]);
+//         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+//             function (response: boolean | null) {
+//                 setIsForegroundPanes(response ?? false);
+//                 setPageStyle();
+//             }
+//         );
+//     }, [extensionId]);
 
-    const setPageStyle = async () => {
-        if (!isForegroundPanes) {
-            const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
-            if (openedPane) {
-                setStyle('styleModifier-main', {
-                    "div[id^=DialogContainer] > div": [
-                        "width: calc(100% - " +
-                        (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
-                        "px)",
-                        "left: 0"
-                    ],
-                    "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-                    "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                    "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-                });
-            }
-            else {
-                setStyle('styleModifier-main', {
-                    "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-                    "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                    "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-                });
-            }
-        }
-        else {
-            setStyle('styleModifier-main', {
-                "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
-                "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-                "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-            });
-        }
-    }
-
-
-    waitForElm("#panels > div:last-child").then(elem => {
-        // ObserveDOM(elem, setPageStyle);
-        const domObserver = new DOMObserver('sidepanelinteracted', elem, { childList: true, subtree: true });
-        domObserver.addListener(setPageStyle);
-    })
+//     const setPageStyle = async () => {
+//         if (!isForegroundPanes) {
+//             const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
+//             if (openedPane) {
+//                 setStyle('styleModifier-main', {
+//                     "div[id^=DialogContainer] > div": [
+//                         "width: calc(100% - " +
+//                         (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
+//                         "px)",
+//                         "left: 0"
+//                     ],
+//                     "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
+//                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+//                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+//                 });
+//             }
+//             else {
+//                 setStyle('styleModifier-main', {
+//                     "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
+//                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+//                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+//                 });
+//             }
+//         }
+//         else {
+//             setStyle('styleModifier-main', {
+//                 "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
+//                 "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
+//                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
+//             });
+//         }
+//     }
 
 
-    useEffect(() => {
-        processesList.filter((processid) => processid.startOnLoad)
-            .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
-            .forEach((processid) => {
-                const process = Processes.find(p => p.id === processid.id);
-                process?.openSidePane(processid.expand);
-            })
-    }, [processesList]);
+//     waitForElm("#panels > div:last-child").then(elem => {
+//         // ObserveDOM(elem, setPageStyle);
+//         const domObserver = new DOMObserver('sidepanelinteracted', elem, { childList: true, subtree: true });
+//         domObserver.addListener(setPageStyle);
+//     })
 
-    return (
-        <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
 
-            <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
-                {
-                    processesList?.filter((process) => !process.hidden).map((value, index) => {
-                        const Process = Processes.find(p => p.id === value.id);
-                        return Process?.getButtonOpeningStandardPanel();
-                    })
-                }
-            </Stack>
+//     useEffect(() => {
+//         processesList.filter((processid) => processid.startOnLoad)
+//             .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
+//             .forEach((processid) => {
+//                 const process = Processes.find(p => p.id === processid.id);
+//                 process?.openSidePane(processid.expand);
+//             })
+//     }, [processesList]);
 
-            {/* <Divider /> */}
-            {/* <Typography maxHeight='19px'>Created by Sofiane GUEZZAR</Typography> */}
-        </Stack>
-    )
-}
+//     return (
+//         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
+
+//             <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
+//                 {
+//                     processesList?.filter((process) => !process.hidden).map((value, index) => {
+//                         const Process = Processes.find(p => p.id === value.id);
+//                         return Process?.getButtonOpeningStandardPanel();
+//                     })
+//                 }
+//             </Stack>
+
+//             {/* <Divider /> */}
+//             {/* <Typography maxHeight='19px'>Created by Sofiane GUEZZAR</Typography> */}
+//         </Stack>
+//     )
+// }
 
 const drawerButtonContainerWidth = 47;
 const mainMenuWidth = 300;
@@ -129,7 +129,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
     const [openedProcesses, setOpenedProcesses] = useState<{ [processIi: string]: ProcessButton }>({});
-    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processid: string]: (number | string | null) }>({});
+    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processid: string]: (React.ReactNode | null) }>({});
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
@@ -337,7 +337,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                         }}
                                                                     >
                                                                         <Badge
-                                                                            badgeContent={openedProcessesBadge[process.id] === null ? null : String(openedProcessesBadge[process.id])}
+                                                                            badgeContent={openedProcessesBadge[process.id]}
                                                                             color="info"
                                                                             sx={(theme) => ({
                                                                                 [`& .${classesPrefix}Badge-badge`]: {
@@ -378,14 +378,14 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                 const Process = Processes.find(p => p.id === value.id);
                                 if (!Process) return null;
                                 if (Process.openable) {
-                                    return Process.getButton(openProcess);
+                                    return Process.getOpeningButton(openProcess);
                                 } else {
-                                    return Process.getButtonOpeningStandardPanel();
+                                    return Process.getFunctionButton();
                                 }
                             })
                         }
                     </Stack>
-                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography> 
+                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
                 </Stack>
 
             </PanelDrawerItem>
@@ -408,7 +408,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
 interface DrawerToolProps {
     process: ProcessButton
-    setOpenedProcessesBadge: (value: React.SetStateAction<{ [processid: string]: string | number | null }>) => void
+    setOpenedProcessesBadge: (value: React.SetStateAction<{ [processid: string]: React.ReactNode | null }>) => void
     closeProcess: (processId: string) => void
     panelOpenedId: string | null
 }
@@ -417,7 +417,7 @@ function DrawerTool(props: DrawerToolProps) {
 
     const verticalTitle = useMemo(() => process.width < 100, [process]);
 
-    const setBadgeInner = useCallback((content: number | string | null) => {
+    const setBadgeInner = useCallback((content: React.ReactNode | null) => {
         setOpenedProcessesBadge(prevBadge => {
             const copyBadge = { ...prevBadge };
             copyBadge[process.id] = content;
@@ -459,52 +459,55 @@ if (top && top.window === window) {
 
 
 function initExtension() {
-    const extensionId = GetExtensionId();
+    // const extensionId = GetExtensionId();
 
-    chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
-        function (useStandardPanel: boolean | null) {
+    waitForElm('#mainContent').then((mainNode) => {
+        const drawerContainer = document.createElement('div');
+        drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
+        mainNode?.append(drawerContainer);
 
-            const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
+        ReactDOM.render(
+            <MainScreenCustomPanel />,
+            drawerContainer
+        );
+    });
 
-            if (isOnPrem || !useStandardPanel) {
-                waitForElm('#mainContent').then((mainNode) => {
-                    const drawerContainer = document.createElement('div');
-                    drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
-                    mainNode?.append(drawerContainer);
+    new XrmObserver();
 
-                    ReactDOM.render(
-                        <MainScreenCustomPanel />,
-                        drawerContainer
-                    );
-                });
-            }
-            else {
-                const paneOption: Xrm.App.PaneOptions = {
-                    paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
-                    title: applicationName,
-                    canClose: false,
-                    imageSrc: GetUrl("icons/muiwandflip.png"),
-                    hideHeader: false,
-                    isSelected: false,
-                    width: 200,
-                    hidden: false,
-                    alwaysRender: true,
-                    keepBadgeOnSelect: true
-                }
+    // chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
+    //     function (useStandardPanel: boolean | null) {
 
-                Xrm.App.sidePanes.createPane(paneOption);
+    //         const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
-                waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
-                    ReactDOM.render(
-                        <MainScreenStandardPanel />,
-                        mainSidePane
-                    );
-                });
-            }
+    //         // if (isOnPrem || !useStandardPanel) {
+           
+    //         // }
+    //         // else {
+    //         //     const paneOption: Xrm.App.PaneOptions = {
+    //         //         paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
+    //         //         title: applicationName,
+    //         //         canClose: false,
+    //         //         imageSrc: GetUrl("icons/muiwandflip.png"),
+    //         //         hideHeader: false,
+    //         //         isSelected: false,
+    //         //         width: 200,
+    //         //         hidden: false,
+    //         //         alwaysRender: true,
+    //         //         keepBadgeOnSelect: true
+    //         //     }
 
-            new XrmObserver();
-        }
-    );
+    //         //     Xrm.App.sidePanes.createPane(paneOption);
+
+    //         //     waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
+    //         //         ReactDOM.render(
+    //         //             <MainScreenStandardPanel />,
+    //         //             mainSidePane
+    //         //         );
+    //         //     });
+    //         // }
+
+    //     }
+    // );
 }
 
 debugLog("Main loaded");

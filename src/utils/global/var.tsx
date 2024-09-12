@@ -7,7 +7,7 @@ export const classesPrefix = 'sidepanel-dev-tools-';
 
 export const storageListName = 'processListOrdered';
 export const storageForegroundPanes = 'isPanesForeground';
-export const storageStandardPanels = 'useStandardPanels';
+// export const storageStandardPanels = 'useStandardPanels';
 
 export const drawerContainerId = 'drawercontainer';
 

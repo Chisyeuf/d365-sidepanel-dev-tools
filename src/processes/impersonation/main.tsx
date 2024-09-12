@@ -79,7 +79,14 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                             const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId || u.systemuserid === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
 
-                            props.setBadge('');
+                            props.setBadge(
+                                <AvatarColor
+                                    fullname={impersonateUser?.fullName}
+                                    size={20}
+                                    src={impersonateUser?.entityimage_url}
+                                    sx={(theme) => ({ border: `2px solid ${theme.palette.background.paper}` })}
+                                />
+                            );
                         }
                     }
                 }

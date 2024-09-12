@@ -11,7 +11,7 @@ import { MessageType } from '../../utils/types/Message';
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 import { DragDropContext, Draggable, DraggableProvided, DropResult, Droppable } from '@hello-pangea/dnd';
-import { storageForegroundPanes, storageListName, storageStandardPanels } from '../../utils/global/var';
+import { storageForegroundPanes, storageListName } from '../../utils/global/var';
 
 
 class SetConfigurationButton extends ProcessButton {
@@ -144,7 +144,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
         const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
-        const [useStandardPanels, setUseStandardPanels] = useState<boolean>(false);
+        // const [useStandardPanels, setUseStandardPanels] = useState<boolean>(false);
         const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
 
@@ -154,11 +154,11 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     setProcessesList(response ?? []);
                 }
             );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
-                function (response: boolean | null) {
-                    setUseStandardPanels(response ?? false);
-                }
-            );
+            // chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
+            //     function (response: boolean | null) {
+            //         setUseStandardPanels(response ?? false);
+            //     }
+            // );
             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
                 function (response: boolean | null) {
                     setIsForegroundPanes(response ?? false);
@@ -189,11 +189,11 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (response.success) { }
                 }
             );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageStandardPanels, configurations: useStandardPanels } },
-                function (response) {
-                    if (response.success) { }
-                }
-            );
+            // chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageStandardPanels, configurations: useStandardPanels } },
+            //     function (response) {
+            //         if (response.success) { }
+            //     }
+            // );
             chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageForegroundPanes, configurations: isForegroundPanes } },
                 function (response) {
                     if (response.success) { }
@@ -287,7 +287,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
                 <FormControl fullWidth  sx={{ pl: 2 }}>
                     <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
-                    {!isOnPrem && <FormControlLabel control={<Switch checked={useStandardPanels} onChange={() => setUseStandardPanels(prev => !prev)} />} label="Use Standard Panels" />}
+                    {/* {!isOnPrem && <FormControlLabel control={<Switch checked={useStandardPanels} onChange={() => setUseStandardPanels(prev => !prev)} />} label="Use Standard Panels" />} */}
                 </FormControl>
 
                 <Divider />
