@@ -1,10 +1,11 @@
-import { SecurityRole } from "./SecurityRole"
+import { SecurityRole, TeamsSecurityRole } from "./SecurityRole"
 
 export interface ActiveUser {
     systemuserid: string
-    fullName: string
+    fullname: string
     azureObjectId: string
     emailAddress: string
     securityRoles: SecurityRole[]
+    teamsRoles: TeamsSecurityRole[]
     entityimage_url: string
 }

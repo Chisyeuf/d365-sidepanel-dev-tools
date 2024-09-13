@@ -1,6 +1,5 @@
 
 import '../../utils/global/extensions';
-import '../../utils/components/ReportComplete';
 
 import dayjs, { Dayjs } from 'dayjs';
 import React, {

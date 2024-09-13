@@ -36,7 +36,7 @@ function AvatarColor(props: AvatarColorProps) {
     const { src, fullname, size, sx } = props;
 
     return (
-        <Avatar src={src} sx={{
+        <Avatar src={src} sx={(theme) => ({
             ...(fullname && { bgcolor: stringToColor(fullname) }),
             ...(
                 size && {
@@ -45,8 +45,8 @@ function AvatarColor(props: AvatarColorProps) {
                     fontSize: size / 2
                 }
             ),
-            ...sx,
-        }} >
+            ...(typeof sx === "function" ? sx?.(theme) : {sx}),
+        })} >
             {fullname && `${fullname.split(' ')[0][0]}${fullname.split(' ')[1][0]}`}
         </Avatar>
     );

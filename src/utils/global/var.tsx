@@ -3,7 +3,7 @@ export class Env {
     static readonly DEBUG = true;
 }
 
-export const classesPrefix = 'sidepanel-dev-tools-';
+export const projectPrefix = 'sidepanel-dev-tools-';
 
 export const storageListName = 'processListOrdered';
 export const storageForegroundPanes = 'isPanesForeground';

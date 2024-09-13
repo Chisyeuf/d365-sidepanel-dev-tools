@@ -6,7 +6,7 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import { RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
+import { ConvertToActiveUserObject, RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
 import FilterInput from '../../utils/components/FilterInput';
 
 import SecurityIcon from '@mui/icons-material/Security';
@@ -14,11 +14,13 @@ import { RetrieveSecurityRole } from '../../utils/hooks/XrmApi/RetrieveSecurityR
 import { useStateCallback } from '../../utils/hooks/use/useStateCallback';
 import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
-import { SecurityRole } from '../../utils/types/SecurityRole';
+import { SecurityRole, TeamsSecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
 import { Env } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
+import { ProviderContext } from 'notistack';
+import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -30,6 +32,47 @@ class ImpersonationButton extends ProcessButton {
         );
         this.process = ImpersonationProcess;
     }
+
+    onExtensionLoad(snackbarProviderContext: ProviderContext): void {
+        const extensionId = GetExtensionId();
+
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
+            async function (existingRules: chrome.declarativeNetRequest.Rule[]) {
+                const url = Xrm.Utility.getGlobalContext().getClientUrl();
+                const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url) && !r.condition.urlFilter.includes('RemovedAction'));
+
+                if (currentRule) {
+                    const currentAzureIdOrUserId = currentRule.action.requestHeaders?.at(0)?.value;
+
+                    if (currentAzureIdOrUserId) {
+
+                        const result = await Xrm.WebApi.online.retrieveMultipleRecords("systemuser", `?$select=systemuserid,fullname&$filter=(systemuserid eq ${currentAzureIdOrUserId} or azureactivedirectoryobjectid eq ${currentAzureIdOrUserId})&$expand=systemuserroles_association($select=roleid,name,roleidunique),teammembership_association($select=teamid,name)`);
+                        if (result.entities.length > 0) {
+                            // const user: ActiveUser = result.entities[0];
+                            const user: ActiveUser = await ConvertToActiveUserObject(result.entities[0]);
+                            
+                            snackbarProviderContext.enqueueSnackbar(`You are impersonating **${user.fullname}** (${user.systemuserid})`, {
+                                variant: 'detailsFile',
+                                detailsVariant: 'info',
+                                persist: true,
+                                detailsNode: <Typography variant="caption" style={{ color: "#000", display: "block" }}>
+                                    <Typography fontSize='1.5em'>You have the following security roles:</Typography>
+                                    <RolesDisplayList user={user} />
+                                    {/* <ul style={{ marginLeft: "30px" }}>
+                                        {
+                                            ((user as any).systemuserroles_association as any[]).map((role: any) => {
+                                                return <li>{role["name"]}</li>
+                                            })
+                                        }
+                                    </ul> */}
+                                </Typography>
+                            })
+                        }
+                    }
+                }
+            }
+        );
+    }
 }
 
 const rowHeight = 35;
@@ -40,7 +83,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
         const [userSelected, setUserSelected] = useStateCallback<ActiveUser | null>(null);
-        const [securityRoleSeclected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
+        const [securityRoleSelected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
 
         const [filter, setFilter] = useState('');
 
@@ -81,7 +124,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
                             props.setBadge(
                                 <AvatarColor
-                                    fullname={impersonateUser?.fullName}
+                                    fullname={impersonateUser?.fullname}
                                     size={20}
                                     src={impersonateUser?.entityimage_url}
                                     sx={(theme) => ({ border: `2px solid ${theme.palette.background.paper}` })}
@@ -99,7 +142,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
 
-                    <SecurityRoleMenu securityRoleSeclected={securityRoleSeclected} setSecurityRoleSeclected={setSecurityRoleSeclected} />
+                    <SecurityRoleMenu securityRoleSeclected={securityRoleSelected} setSecurityRoleSeclected={setSecurityRoleSeclected} />
 
                     <Tooltip title={'Hard Reset'}>
                         <IconButton
@@ -144,13 +187,15 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                     {
                                         activeUsers.map((user) => {
 
-                                            if (securityRoleSeclected.filter(role =>
+                                            if (securityRoleSelected.filter(role =>
                                                 user.securityRoles.filter(r =>
-                                                    r.roleid === role.roleid).length).length !== securityRoleSeclected.length) {
+                                                    r.roleid === role.roleid).length +
+                                                user.teamsRoles.filter(r =>
+                                                    r.roleid === role.roleid).length).length !== securityRoleSelected.length) {
                                                 return null;
                                             }
 
-                                            if (!user.fullName.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
+                                            if (!user.fullname.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
                                                 return null;
                                             }
 
@@ -182,12 +227,20 @@ interface UserItemProps {
 const UserItem = React.memo((props: UserItemProps) => {
     const { user, userSelected, handleSelect } = props;
 
+    const aa = user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
+        // Récupérer la valeur de l'attribut sur lequel grouper
+        const groupKey = currentItem["roleid"];
+        // Initialiser le groupe si ce n'est pas déjà fait
+        if (!result[groupKey]) {
+            result[groupKey] = [];
+        }
+        // Ajouter l'élément au groupe
+        result[groupKey].push(currentItem);
+        return result;
+    }, {})
+
     const securityRoleList = useMemo(() => {
-        return (
-            <ul style={{ fontSize: '1.4em' }}>
-                {user.securityRoles.map(s => <li>{s.name}</li>)}
-            </ul>
-        );
+        return <RolesDisplayList user={user} />;
     }, [user]);
 
     const labelId = `checkbox-list-label-${user.systemuserid}`;
@@ -196,7 +249,7 @@ const UserItem = React.memo((props: UserItemProps) => {
             key={user.systemuserid}
             disablePadding
         >
-            <Tooltip placement='left' title={securityRoleList}>
+            <NoMaxWidthTooltip placement='left' title={securityRoleList}>
                 <ListItemButton role={undefined} onClick={handleSelect(user)} dense>
                     <ListItemIcon
                         sx={{
@@ -216,12 +269,12 @@ const UserItem = React.memo((props: UserItemProps) => {
                             }}
                         />
 
-                        <AvatarColor src={user.entityimage_url} fullname={user.fullName} size={24} />
+                        <AvatarColor src={user.entityimage_url} fullname={user.fullname} size={24} />
 
                     </ListItemIcon>
                     <ListItemText
                         id={labelId}
-                        primary={user.fullName}
+                        primary={user.fullname}
                         secondary={user.emailAddress}
                         sx={{
                             overflow: 'hidden',
@@ -245,7 +298,7 @@ const UserItem = React.memo((props: UserItemProps) => {
                             }
                         }} />
                 </ListItemButton>
-            </Tooltip>
+            </NoMaxWidthTooltip>
         </ListItem>
     );
 });
@@ -354,6 +407,43 @@ const SecurityRoleItem = React.memo((props: SecurityRoleItemProps) => {
                 <Typography variant="inherit">{role.name}</Typography>
             </ListItemButton>
         </ListItem>
+    )
+});
+interface RolesDisplayListProps {
+    user: ActiveUser
+}
+const RolesDisplayList = React.memo((props: RolesDisplayListProps) => {
+    const { user } = props;
+
+    return (
+        <List dense subheader={<><b>User roles</b>:</>} sx={{ fontSize: "1.5em" }}>
+            {user.securityRoles.map(s => <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}><ListItemText primary={s.name} /></ListItem>)}
+            {
+                Object.values(user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
+                    // Récupérer la valeur de l'attribut sur lequel grouper
+                    const groupKey = currentItem["teamid"];
+                    // Initialiser le groupe si ce n'est pas déjà fait
+                    if (!result[groupKey]) {
+                        result[groupKey] = [];
+                    }
+                    // Ajouter l'élément au groupe
+                    result[groupKey].push(currentItem);
+                    return result;
+                }, {})).map((roles) => {
+                    return (
+                        <>
+                            {
+                                roles.map(r =>
+                                    <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}>
+                                        <ListItemText primary={<>{r.name} <Typography sx={{ opacity: 0.75 }} variant='caption'>(team <b><i>{roles[0]?.teamname}</i></b> inheritance)</Typography></>} />
+                                    </ListItem>
+                                )
+                            }
+                        </>
+                    )
+                })
+            }
+        </List>
     )
 });
 

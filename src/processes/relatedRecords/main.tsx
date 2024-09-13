@@ -17,10 +17,10 @@ import { RetrievePrimaryNameAttribute } from '../../utils/hooks/XrmApi/RetrieveP
 import { useHover } from 'usehooks-ts';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
-import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import FilterInput from '../../utils/components/FilterInput';
+import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 
 const theme = createTheme({
     components: {

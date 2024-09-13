@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import '../utils/components/DetailsSnackbar';
+
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
@@ -9,121 +11,41 @@ import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import DOMObserver from '../utils/global/DOMObserver';
 import { Badge, Box, Button, Divider, Drawer, IconButton, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
-import { applicationName, classesPrefix, drawerContainerId, mainMenuId, storageForegroundPanes, storageListName } from '../utils/global/var';
+import { applicationName, projectPrefix, drawerContainerId, mainMenuId, storageForegroundPanes, storageListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import packageJson from "../../package.json";
+import { ProviderContext as SnackbarProviderContext, SnackbarProvider, useSnackbar } from 'notistack';
+import DetailsSnackbar from '../utils/components/DetailsSnackbar';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import BugReportIcon from '@mui/icons-material/BugReport';
 
 
-// const MainScreenStandardPanel: React.FunctionComponent = () => {
+const MainScreen: React.FunctionComponent = () => {
+    return (
 
-//     const extensionId = GetExtensionId();
-
-//     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
-
-//     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
-
-//     useEffect(() => {
-//         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
-//             function (response: StorageConfiguration[]) {
-//                 if (response && response.length === defaultProcessesList.length) {
-//                     setProcessesList(response);
-//                     return;
-//                 }
-//                 else {
-//                     chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
-//                     setProcessesList(defaultProcessesList);
-//                 }
-
-//             }
-//         );
-
-//         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
-//             function (response: boolean | null) {
-//                 setIsForegroundPanes(response ?? false);
-//                 setPageStyle();
-//             }
-//         );
-//     }, [extensionId]);
-
-//     const setPageStyle = async () => {
-//         if (!isForegroundPanes) {
-//             const openedPane = document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '');
-//             if (openedPane) {
-//                 setStyle('styleModifier-main', {
-//                     "div[id^=DialogContainer] > div": [
-//                         "width: calc(100% - " +
-//                         (document.getElementById(Xrm.App.sidePanes.getSelectedPane()?.paneId ?? '')?.offsetWidth ?? 0) +
-//                         "px)",
-//                         "left: 0"
-//                     ],
-//                     "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-//                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-//                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-//                 });
-//             }
-//             else {
-//                 setStyle('styleModifier-main', {
-//                     "[id^=quickCreateRoot], [id^=dialogRoot], [id^=defaultDialogChromeView], [id^=lookupDialogRoot]": ["position: relative", "right: 47px"],
-//                     "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-//                     "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-//                 });
-//             }
-//         }
-//         else {
-//             setStyle('styleModifier-main', {
-//                 "[id^=sidepaneldevtools-]:not([id$='_header']):not(.ms-Tooltip-content)": ["position: absolute", "right: 47px"],
-//                 "[id*=__flyoutRootNode] > div > div": ["z-index: 11"],
-//                 "#panels > div:last-child": ["z-index: 10", "background: #F8F7F6"]
-//             });
-//         }
-//     }
-
-
-//     waitForElm("#panels > div:last-child").then(elem => {
-//         // ObserveDOM(elem, setPageStyle);
-//         const domObserver = new DOMObserver('sidepanelinteracted', elem, { childList: true, subtree: true });
-//         domObserver.addListener(setPageStyle);
-//     })
-
-
-//     useEffect(() => {
-//         processesList.filter((processid) => processid.startOnLoad)
-//             .sort((processA, processB) => processA.startOnPosition! - processB.startOnPosition!)
-//             .forEach((processid) => {
-//                 const process = Processes.find(p => p.id === processid.id);
-//                 process?.openSidePane(processid.expand);
-//             })
-//     }, [processesList]);
-
-//     return (
-//         <Stack spacing={0.5} width='-webkit-fill-available' padding='10px'>
-
-//             <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
-//                 {
-//                     processesList?.filter((process) => !process.hidden).map((value, index) => {
-//                         const Process = Processes.find(p => p.id === value.id);
-//                         return Process?.getButtonOpeningStandardPanel();
-//                     })
-//                 }
-//             </Stack>
-
-//             {/* <Divider /> */}
-//             {/* <Typography maxHeight='19px'>Created by Sofiane GUEZZAR</Typography> */}
-//         </Stack>
-//     )
-// }
+        <SnackbarProvider
+            maxSnack={5}
+            Components={{
+                detailsFile: DetailsSnackbar
+            }}
+        >
+            <MainScreenCustomPanel />
+        </SnackbarProvider>
+    )
+}
 
 const drawerButtonContainerWidth = 47;
 const mainMenuWidth = 300;
 const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const extensionId = GetExtensionId();
+
+    const snackbarProviderContext = useSnackbar();
 
     const [panelOpenedId, setPanelOpenedId] = useState<string | null>(null);
 
@@ -219,6 +141,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             if (!processToCloseIndex) {
                 return prev;
             }
+            processToCloseIndex.onProcessClose();
             setPanelOpenedId(null);
             setOpenedProcessesBadge(prevBadges => {
                 const { [processId]: _, ...copyBadge } = prevBadges;
@@ -229,7 +152,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         })
     }
 
-    function onDragEnd(result: DropResult) {
+    const onDragEnd = (result: DropResult) => {
         if (!result.destination) {
             return;
         }
@@ -340,7 +263,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                             badgeContent={openedProcessesBadge[process.id]}
                                                                             color="info"
                                                                             sx={(theme) => ({
-                                                                                [`& .${classesPrefix}Badge-badge`]: {
+                                                                                [`& .${projectPrefix}Badge-badge`]: {
                                                                                     // zoom: 0.8,
                                                                                     aspectRatio: '1 / 1',
                                                                                     border: `2px solid ${theme.palette.background.paper}`
@@ -385,7 +308,27 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                             })
                         }
                     </Stack>
-                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                    <Stack direction='column'>
+                        <Divider />
+                        <Stack spacing={1} direction='row' alignItems='flex-end' ml='auto'>
+                            <Tooltip title={"Github project"}>
+                                <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools'>
+                                    <IconButton aria-label="delete" size="small">
+                                        <GitHubIcon fontSize="inherit" />
+                                    </IconButton>
+                                </a>
+                            </Tooltip>
+                            <Tooltip title={"Report an issue"}>
+                                <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new'>
+                                    <IconButton aria-label="delete" size="small">
+                                        <BugReportIcon fontSize="inherit" />
+                                    </IconButton>
+                                </a>
+                            </Tooltip>
+                            <Divider orientation='vertical' flexItem />
+                            <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                        </Stack>
+                    </Stack>
                 </Stack>
 
             </PanelDrawerItem>
@@ -398,11 +341,12 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                         panelOpenedId={panelOpenedId}
                         process={process}
                         setOpenedProcessesBadge={setOpenedProcessesBadge}
+                        snackbarProviderContext={snackbarProviderContext}
                     />
                 })
             }
         </>
-    )
+    );
 }
 
 
@@ -411,9 +355,10 @@ interface DrawerToolProps {
     setOpenedProcessesBadge: (value: React.SetStateAction<{ [processid: string]: React.ReactNode | null }>) => void
     closeProcess: (processId: string) => void
     panelOpenedId: string | null
+    snackbarProviderContext: SnackbarProviderContext
 }
 function DrawerTool(props: DrawerToolProps) {
-    const { process, setOpenedProcessesBadge, closeProcess, panelOpenedId } = props;
+    const { process, setOpenedProcessesBadge, closeProcess, panelOpenedId, snackbarProviderContext } = props;
 
     const verticalTitle = useMemo(() => process.width < 100, [process]);
 
@@ -439,7 +384,7 @@ function DrawerTool(props: DrawerToolProps) {
                 </Stack>
 
                 <Stack flex='1 1 auto' minHeight={0}>
-                    {process.getProcess(setBadgeInner)}
+                    {process.getProcess(setBadgeInner, snackbarProviderContext)}
                 </Stack>
             </Stack>
         </PanelDrawerItem>
@@ -459,7 +404,6 @@ if (top && top.window === window) {
 
 
 function initExtension() {
-    // const extensionId = GetExtensionId();
 
     waitForElm('#mainContent').then((mainNode) => {
         const drawerContainer = document.createElement('div');
@@ -467,47 +411,12 @@ function initExtension() {
         mainNode?.append(drawerContainer);
 
         ReactDOM.render(
-            <MainScreenCustomPanel />,
+            <MainScreen />,
             drawerContainer
         );
     });
 
     new XrmObserver();
-
-    // chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
-    //     function (useStandardPanel: boolean | null) {
-
-    //         const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
-
-    //         // if (isOnPrem || !useStandardPanel) {
-           
-    //         // }
-    //         // else {
-    //         //     const paneOption: Xrm.App.PaneOptions = {
-    //         //         paneId: ProcessButton.prefixId + "dynamicstoolsmenu",
-    //         //         title: applicationName,
-    //         //         canClose: false,
-    //         //         imageSrc: GetUrl("icons/muiwandflip.png"),
-    //         //         hideHeader: false,
-    //         //         isSelected: false,
-    //         //         width: 200,
-    //         //         hidden: false,
-    //         //         alwaysRender: true,
-    //         //         keepBadgeOnSelect: true
-    //         //     }
-
-    //         //     Xrm.App.sidePanes.createPane(paneOption);
-
-    //         //     waitForElm('#' + ProcessButton.prefixId + 'dynamicstoolsmenu > div > div:last-child').then((mainSidePane) => {
-    //         //         ReactDOM.render(
-    //         //             <MainScreenStandardPanel />,
-    //         //             mainSidePane
-    //         //         );
-    //         //     });
-    //         // }
-
-    //     }
-    // );
 }
 
 debugLog("Main loaded");

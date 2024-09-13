@@ -1,10 +1,6 @@
 
 
 // Import statements
-import '../../utils/global/extensions';
-import '../../utils/components/ReportComplete';
-
-import { SnackbarProvider, useSnackbar } from 'notistack';
 import React, {
     Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
     useMemo, useState
@@ -16,7 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 // Material UI imports
-import { Autocomplete, AutocompleteChangeReason, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
+import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -30,9 +26,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
 
 // Component imports
-import { NoMaxWidthTooltip } from '../../utils/components/updateRecordComponents';
 import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
-import ErrorFileSnackbar from '../../utils/components/ReportComplete';
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
 // Common functions and types
@@ -47,6 +41,7 @@ import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAtt
 import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import RestoreIcon from '@mui/icons-material/Restore';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
@@ -60,13 +55,10 @@ class UpdateRecordButton extends ProcessButton {
         this.processContainer = (props) => {
             return (
                 <ThemeProvider theme={theme}>
-                    <SnackbarProvider Components={{
-                        errorFile: ErrorFileSnackbar
-                    }}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            {props.children}
-                        </LocalizationProvider>
-                    </SnackbarProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        {props.children}
+                    </LocalizationProvider>
                 </ThemeProvider>
             )
         }
@@ -168,8 +160,6 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             },
         }));
 
-        const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
         const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity?.getEntityName());
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
         const [filterAttribute, setFilterAttribute] = useState<string>("");
@@ -223,22 +213,28 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                 Xrm.WebApi.online.updateRecord(entityname, recordid, attributesValues).then(
                     function success(result) {
                         Xrm.Utility.closeProgressIndicator();
-                        enqueueSnackbar(
+                        props.snackbarProvider.enqueueSnackbar(
                             capitalizeFirstLetter(entityname) + " " + recordid + " updated.",
                             { variant: 'success' }
                         );
                     },
                     function (error) {
                         Xrm.Utility.closeProgressIndicator();
-                        enqueueSnackbar(
+                        props.snackbarProvider.enqueueSnackbar(
                             capitalizeFirstLetter(entityname) + " " + recordid + " has encountered an error.",
                             {
-                                variant: 'errorFile',
+                                variant: 'detailsFile',
+                                detailsVariant: 'error',
                                 persist: true,
                                 allowDownload: true,
-                                errorMessage: error.message,
+                                detailsNode: <Typography
+                                    gutterBottom
+                                    variant="caption"
+                                    style={{ color: "#000", display: "block" }}
+                                >
+                                    {`(0x${error.errorCode.toString(16)}) ${error.message}`}
+                                </Typography>,
                                 downloadButtonLabel: "Download log file",
-                                errorCode: '0x' + error.errorCode.toString(16),
                                 fileContent: error.raw,
                                 fileName: "ErrorDetails.txt"
                             }

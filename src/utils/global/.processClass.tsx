@@ -7,9 +7,14 @@
 // }
 import React from "react";
 import { Button } from '@mui/material';
+import { ProviderContext as SnackbarProviderContext, useSnackbar } from "notistack";
+import { projectPrefix } from "./var";
+import { useEffectOnce } from "usehooks-ts";
+// import { SnackbarProviderContextInterface } from "../types/Snackbar";
 
 export abstract class ProcessButton {
-    static prefixId: string = 'sidepaneldevtools-';
+    static prefixId: string = projectPrefix;
+    // static prefixId: string = 'sidepaneldevtools-';
 
     id: string;
     name: string;
@@ -45,15 +50,18 @@ export abstract class ProcessButton {
 
 
 
-    getProcess(setBadge: (content: React.ReactNode | null) => void): React.JSX.Element {
+    getProcess(setBadge: (content: React.ReactNode | null,) => void, snackbarProvider: SnackbarProviderContext): React.JSX.Element {
         if (this.processContainer)
-            return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />}</this.processContainer>;
+            return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} snackbarProvider={snackbarProvider} /> : <ErrorProcess />}</this.processContainer>;
         else
-            return this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />;
+            return this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} snackbarProvider={snackbarProvider} /> : <ErrorProcess />;
     }
 
     getOpeningButton(onClick: (process: ProcessButton) => any): React.JSX.Element {
-        return <Button variant="contained" size="medium" fullWidth onClick={() => onClick(this)} endIcon={this.icon} >{this.name}</Button>;
+        // this.onExtensionLoad(snackbarProviderContext);
+        // return <Button variant="contained" size="medium" fullWidth onClick={() => onClick(this)} endIcon={this.icon} >{this.name}</Button>;
+        return <ButtonProcess_Bis icon={this.icon} name={this.name} onClick={() => onClick(this)} processButton={this} />
+        // return <Button variant="contained" size="medium" fullWidth onClick={() => onClick(this)} endIcon={this.icon} >{this.name}</Button>;
     }
 
     getFunctionButton(): React.JSX.Element {
@@ -63,133 +71,26 @@ export abstract class ProcessButton {
     execute(): void {
     }
 
-    // getButtonOpeningStandardPanel(): React.JSX.Element {
-    //     return this.getButton(this.onClickStandard);
-    // }
+    onProcessClose(): void {
+        this.ref.current?.onClose?.();
+    }
 
-    // setBadgeStandard(content: number | string | null) {
-    //     const pane: any = Xrm.App.sidePanes.getPane(this.id);
-    //     if (pane) {
-    //         if (typeof content === 'string') {
-    //             pane.badge = content;
-    //         } else if (content !== null) {
-    //             pane.badge = content > 0 ? content : 0;
-    //         } else {
-    //             pane.badge = null;
-    //         }
-    //     }
-    // }
+    onExtensionLoad(snackbarProviderContext: SnackbarProviderContext): void {
+    }
+}
 
-    // onClickStandard(): void {
-    //     this.openSidePane(true);
-    // }
+const ButtonProcess_Bis = (props: { processButton:ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string }) => {
+    const { icon, name, onClick, processButton } = props;
+    
+    const snackbarProviderContext = useSnackbar();
 
-    // bindOnClose(callback: () => void): void {
-    //     var closeButton = document.querySelector<HTMLElement>('#' + this.id + " div:first-child div:first-child button");
-    //     if (closeButton) {
-    //         closeButton.addEventListener('click', () => {
-    //             callback();
-    //             const node = document.querySelector('#' + this.id + ' > div > div:last-child');
-    //             if (node) {
-    //                 try {
-    //                     ReactDOM.unmountComponentAtNode(node);
-    //                 }
-    //                 catch {
-    //                 }
-    //             }
-    //         });
-    //     }
-    // }
-
-
-    // openSidePane(selected: boolean = true): void {
-    //     const paneExist = Xrm.App.sidePanes.getPane(this.id);
-    //     if (paneExist) {
-    //         paneExist.select();
-    //         return;
-    //     }
-
-    //     var paneOption: Xrm.App.PaneOptions = {
-    //         paneId: this.id,
-    //         title: this.name,
-    //         canClose: true,
-    //         imageSrc: GetUrl("icons/favicon.ico"),
-    //         hideHeader: false,
-    //         isSelected: selected,
-    //         width: this.width,
-    //         hidden: false,
-    //         alwaysRender: true,
-    //         keepBadgeOnSelect: true
-    //     }
-
-    //     Xrm.App.sidePanes.createPane(paneOption);
-
-    //     waitForElm('#' + this.id + ' > div > div:last-child').then((sidePane) => {
-    //         this._reStyleSidePane();
-    //         ReactDOM.render(
-    //             this.getProcess(this.setBadgeStandard),
-    //             sidePane
-    //         );
-    //         this.ref.current?.onClose && this.bindOnClose(this.ref.current?.onClose);
-    //     });
-
-    //     waitForElm('button[aria-controls=' + this.id + '] > span').then((sidePaneOpenButton) => {
-    //         if (sidePaneOpenButton) {
-    //             var iconContainer = document.createElement("div");
-    //             var rawicon = sidePaneOpenButton.querySelector("img");
-    //             if (rawicon) rawicon.style.display = "none";
-    //             sidePaneOpenButton.appendChild(iconContainer);
-
-    //             ReactDOM.render(
-    //                 <>{this.icon}</>,
-    //                 iconContainer
-    //             );
-    //         }
-    //     });
-    // };
-
-    // _reStyleSidePane(): void {
-    //     const sidePane = document.querySelector<HTMLElement>('#' + this.id);
-    //     const sidePaneContent = sidePane?.querySelector<HTMLElement>("div:first-child");
-    //     const header = sidePaneContent?.querySelector<HTMLElement>("div:first-child");
-    //     const h2 = header?.querySelector<HTMLElement>("h2");
-    //     const button = header?.querySelector<HTMLElement>("button");
-
-    //     if (this.width < 300) {
-    //         if (sidePane) {
-    //             sidePane.style.width = this.width + "px";
-    //             if (sidePaneContent) {
-    //                 sidePaneContent.style.minWidth = "100%";
-    //                 if (header) {
-    //                     header.style.flexDirection = "row";
-    //                     header.style.paddingLeft = "5px";
-    //                     header.style.paddingRight = "5px";
-    //                     header.style.alignItems = "flex-end";
-    //                     header.style.justifyContent = "flex-end";
-
-    //                     if (h2) {
-    //                         h2.style.width = "auto";
-    //                     }
-
-    //                     if (button) {
-    //                         button.style.alignSelf = "unset";
-    //                         button.style.marginRight = "8px";
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     this.reStyleSidePane(sidePane, sidePaneContent, header, h2, button);
-    // }
-
-    // reStyleSidePane(sidePane: HTMLElement | null, sidePaneContent?: HTMLElement | null, header?: HTMLElement | null, title?: HTMLElement | null, closeButton?: HTMLElement | null): void {
-    //     return;
-    // }
-
-    // render(): React.ReactNode {
-    //     return this.getButton();
-    //     // <Icon styles={ProcessButton.iconStyles} iconName={this.icon} />
-    // }
+    useEffectOnce(() => {
+        processButton.onExtensionLoad(snackbarProviderContext);
+    });
+    
+    return (
+        <Button variant="contained" size="medium" fullWidth onClick={() => onClick(processButton)} endIcon={icon} >{name}</Button>
+    );
 }
 
 function ErrorProcess() {
@@ -198,7 +99,8 @@ function ErrorProcess() {
 
 export interface ProcessProps {
     id: string;
-    setBadge: (number: React.ReactNode | null) => void
+    setBadge: (number: React.ReactNode | null) => void;
+    snackbarProvider: SnackbarProviderContext
 }
 export type ProcessRef = {
     onClose?: () => void,

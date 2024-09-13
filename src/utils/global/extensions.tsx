@@ -24,5 +24,4 @@ Number.prototype.noExponents = function () {
     return str + z;
 }
 
-
 export { }

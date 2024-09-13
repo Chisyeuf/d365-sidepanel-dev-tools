@@ -1,4 +1,4 @@
-import { useState, forwardRef, useCallback } from "react";
+import { useState, forwardRef, useCallback, useMemo } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@mui/styles";
 import { useSnackbar, SnackbarContent, CustomContentProps } from "notistack";
@@ -6,7 +6,7 @@ import Collapse from "@mui/material/Collapse";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import Alert from "@mui/material/Alert";
+import Alert, { AlertColor } from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,6 +14,24 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import React from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { projectPrefix } from "../global/var";
+
+
+
+declare module "notistack" {
+    interface VariantOverrides {
+        detailsFile: true;
+    }
+
+    interface OptionsObject {
+        detailsVariant?: AlertColor;
+        allowDownload?: boolean;
+        downloadButtonLabel?: string;
+        detailsNode?: React.ReactNode;
+        fileContent?: string;
+        fileName?: string;
+    }
+}
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -45,31 +63,16 @@ const useStyles = makeStyles(() => ({
     }
 }));
 
-declare module "notistack" {
-    interface VariantOverrides {
-        errorFile: true;
-    }
-
-    interface OptionsObject {
-        allowDownload?: boolean;
-        downloadButtonLabel?: string;
-        errorMessage?: string;
-        errorCode?: string;
-        fileContent?: string;
-        fileName?: string;
-    }
-}
-
-interface ReportCompleteProps extends CustomContentProps {
+interface DetailsSnackbarProps extends CustomContentProps {
+    detailsVariant: AlertColor;
     allowDownload?: boolean;
     downloadButtonLabel?: string;
-    errorMessage?: string;
-    errorCode?: string;
-    fileContent?: string;
+    detailsNode: React.ReactNode;
     fileName?: string;
+    fileContent?: string;
 }
 
-const ErrorFileSnackbar = forwardRef<HTMLDivElement, ReportCompleteProps>(
+const DetailsSnackbar = forwardRef<HTMLDivElement, DetailsSnackbarProps>(
     ({ id, ...props }, ref) => {
         const classes = useStyles();
         const { closeSnackbar } = useSnackbar();
@@ -84,9 +87,9 @@ const ErrorFileSnackbar = forwardRef<HTMLDivElement, ReportCompleteProps>(
         }, [id, closeSnackbar]);
 
         const downloadTxtFile = () => {
-            if (!props.fileContent || ! props.fileName) return;
+            if (!props.fileContent || !props.fileName) return;
             const errorRawObject = JSON.parse(props.fileContent);
-            
+
             const element = document.createElement("a");
             const file = new Blob([JSON.stringify(errorRawObject, null, 2)], { type: 'text/plain' });
             element.href = URL.createObjectURL(file);
@@ -96,12 +99,14 @@ const ErrorFileSnackbar = forwardRef<HTMLDivElement, ReportCompleteProps>(
             element.remove();
         }
 
+        const splitedMessage = useMemo(() => props.message?.split("**"), [props.message]);
+
         return (
             <SnackbarContent ref={ref} className={classes.root}>
-                <Alert variant='filled' severity="error" iconMapping={{ error: <CancelIcon /> }}>
+                <Alert variant='filled' severity={props.detailsVariant} iconMapping={{ error: <CancelIcon /> }} sx={{ [`&.${projectPrefix}Alert-message`]: { pt: 1, pb: 1 } }}>
                     <Stack direction="row" alignItems="center">
-                        <Typography variant="body2">{props.message}</Typography>
-                        {props.allowDownload && <IconButton
+                        <Typography variant="body2">{splitedMessage?.map((partOfMessage, index) => index % 2 === 0 ? partOfMessage : <b>{partOfMessage}</b>)}</Typography>
+                        <IconButton
                             aria-label="Show more"
                             size="small"
                             className={clsx(classes.expand, {
@@ -110,7 +115,7 @@ const ErrorFileSnackbar = forwardRef<HTMLDivElement, ReportCompleteProps>(
                             onClick={handleExpandClick}
                         >
                             <ExpandMoreIcon />
-                        </IconButton>}
+                        </IconButton>
                         <IconButton
                             size="small"
                             className={classes.expand}
@@ -119,27 +124,26 @@ const ErrorFileSnackbar = forwardRef<HTMLDivElement, ReportCompleteProps>(
                             <CloseIcon fontSize="small" />
                         </IconButton>
                     </Stack>
-                    {props.allowDownload && <Collapse in={expanded} timeout="auto" unmountOnExit>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
                         <Paper className={classes.paper}>
-                            <Typography
-                                gutterBottom
-                                variant="caption"
-                                style={{ color: "#000", display: "block" }}
-                            >
-                                {"(" + props.errorCode + ") " + props.errorMessage}
-                            </Typography>
-                            <Button size="small" color="primary" className={classes.button} onClick={downloadTxtFile}>
-                                <CheckCircleIcon className={classes.checkIcon} />
-                                {props.downloadButtonLabel}
-                            </Button>
+                            {
+                                !!props.detailsNode && props.detailsNode
+                            }
+                            {
+                                props.allowDownload &&
+                                <Button size="small" color="primary" className={classes.button} onClick={downloadTxtFile}>
+                                    <CheckCircleIcon className={classes.checkIcon} />
+                                    {props.downloadButtonLabel}
+                                </Button>
+                            }
                         </Paper>
-                    </Collapse>}
+                    </Collapse>
                 </Alert>
             </SnackbarContent>
         );
     }
 );
 
-ErrorFileSnackbar.displayName = "ReportComplete";
+DetailsSnackbar.displayName = "DetailsSnackbar";
 
-export default ErrorFileSnackbar;
+export default DetailsSnackbar;

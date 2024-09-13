@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
 import { ActiveUser } from '../../types/ActiveUser';
-import { SecurityRole } from '../../types/SecurityRole';
+import { SecurityRole, TeamsSecurityRole } from '../../types/SecurityRole';
 
 
 export function RetrieveActiveUsersWithSecurityRoles(islicensed: boolean): [ActiveUser[], boolean] {
@@ -14,25 +14,15 @@ export function RetrieveActiveUsersWithSecurityRoles(islicensed: boolean): [Acti
         async function fetchData() {
             debugLog("RetrieveActiveUsersWithSecurityRoles");
 
-            const result = await Xrm.WebApi.online.retrieveMultipleRecords("systemuser", "?$select=entityimage_url,systemuserid,azureactivedirectoryobjectid,fullname,internalemailaddress&$expand=systemuserroles_association($select=roleid,name,roleidunique)&$filter=(isdisabled eq false" + (islicensed ? " and islicensed eq true" : "") + ")&$orderby=fullname asc");
+            const result = await Xrm.WebApi.online.retrieveMultipleRecords("systemuser", "?$select=entityimage_url,systemuserid,azureactivedirectoryobjectid,fullname,internalemailaddress&$expand=systemuserroles_association($select=roleid,name,roleidunique),teammembership_association($select=teamid,name)&$filter=(isdisabled eq false" + (islicensed ? " and islicensed eq true" : "") + ")&$orderby=fullname asc");
             // and accessmode eq 0
 
-            setData(result.entities.filter(user => user.systemuserroles_association.length && user.systemuserroles_association.length > 0).map<ActiveUser>(user => {
-                return {
-                    systemuserid: user["systemuserid"],
-                    fullName: user["fullname"],
-                    azureObjectId: user["azureactivedirectoryobjectid"],
-                    emailAddress: user["internalemailaddress"],
-                    entityimage_url: user["entityimage_url"],
-                    securityRoles: (user.systemuserroles_association as any[]).map<SecurityRole>((role: any) => {
-                        return {
-                            name: role["name"],
-                            roleid: role["roleid"],
-                            uniqueid: role["roleidunique"],
-                        }
-                    })
-                }
+            const data = await Promise.all(result.entities.filter(user => user.systemuserroles_association.length > 0 || user.teammembership_association.length > 0).map<Promise<ActiveUser>>(async (user) => {
+
+                return await ConvertToActiveUserObject(user);
             }));
+
+            setData(data);
             setFetching(false);
         }
         setData([]);
@@ -43,3 +33,53 @@ export function RetrieveActiveUsersWithSecurityRoles(islicensed: boolean): [Acti
 
     return [data, isFetching];
 }
+
+export async function ConvertToActiveUserObject(user:any) {
+    return (
+        {
+            systemuserid: user["systemuserid"],
+            fullname: user["fullname"],
+            azureObjectId: user["azureactivedirectoryobjectid"],
+            emailAddress: user["internalemailaddress"],
+            entityimage_url: user["entityimage_url"],
+            securityRoles: (user.systemuserroles_association as any[]).map<SecurityRole>((role: any) => {
+                return {
+                    name: role["name"],
+                    roleid: role["roleid"],
+                    uniqueid: role["roleidunique"],
+                }
+            }),
+            teamsRoles: await (async () => {
+                const teams = await Xrm.WebApi.online.retrieveMultipleRecords("team", `?$select=teamid,name&$expand=teamroles_association($select=roleid,name,roleidunique)&$filter=(${(user.teammembership_association as any[]).map((t: any) => `teamid eq ${t.teamid}`).join(' or ')})`);
+
+                const teamroles = teams.entities.flatMap<TeamsSecurityRole>(team => {
+                    return team.teamroles_association.map((role:any) => {
+                        return {
+                            name: role["name"],
+                            roleid: role["roleid"],
+                            uniqueid: role["roleidunique"],
+                            teamid: team["teamid"],
+                            teamname: team["name"],
+                        }
+                    }
+                    )
+                });
+                return teamroles;
+            })()
+        }
+    )
+}
+// teamsRoles: (await Promise.all((user.teammembership_association as any[]).map(async (team: any) => {
+//     const teams = await Xrm.WebApi.online.retrieveMultipleRecords("team", `?$select=teamid,name&$expand=teamroles_association($select=roleid,name,roleidunique)&$filter=(${team.map((t: any) => `teamid eq ${t.teamid}`).join(' or ')})`);
+
+//     const a = teams.entities.map<TeamsSecurityRole>(team => {
+//         return {
+//             name: team.teamroles_association["name"],
+//             roleid: team.teamroles_association["roleid"],
+//             uniqueid: team.teamroles_association["roleidunique"],
+//             teamid: team["teamid"],
+//             teamname: team["name"],
+//         }
+//     });
+//     return a;
+// }))).flatMap(t => t)
