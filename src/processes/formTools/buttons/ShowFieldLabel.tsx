@@ -9,6 +9,7 @@ import { ControlType } from '../../../utils/types/ControlType';
 import TurnedInIcon from '@mui/icons-material/TurnedIn';
 import TurnedInNotIcon from '@mui/icons-material/TurnedInNot';
 import { LogicalNameTypography } from '../../../utils/components/LogicalNameTypography';
+import { setStyle } from '../../../utils/global/common';
 
 
 function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
@@ -16,6 +17,12 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
     const { enabled: labelDisplayed, setEnabled: setLabelDisplayed, currentFormContext, domUpdated, copyToClipboard } = props;
 
     useEffect(() => { }, [domUpdated]);
+
+    useEffect(() => {
+        setStyle("fieldLabelSheet", {
+            ["div[fieldlogicalname]"]: ["width:100%", "min-width:0"]
+        });
+    }, []);
 
 
     const controls = useMemo(() => {
@@ -87,7 +94,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
                 }
                 return (
                     <Portal container={controlNode}>
-                        <LogicalNameTypography label={controlName} onClick={copyToClipboard} width={controlNodeLabel?.offsetWidth} />
+                        <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
                     </Portal>
                 );
             })
