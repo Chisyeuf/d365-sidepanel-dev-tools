@@ -1,5 +1,5 @@
 
-import { Button, Tooltip } from '@mui/material';
+import { Box, Button, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { useMemo } from 'react';
 
@@ -14,6 +14,7 @@ import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 import RedDisabledButton from '../../../utils/components/RedDisabledButton';
 import D365RibbonHomePageIcon from '../../../utils/components/D365RibbonHomePageIcon';
 import { RetrieveObjectTypeCodeByName } from '../../../utils/hooks/XrmApi/RetrieveObjectTypeCodeByName';
+import HorizontalSlider from '../../../utils/components/HorizontalSlider';
 
 function FormEditor(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -49,7 +50,7 @@ function FormEditor(props: NavigationButton) {
         <>
             <ComponentContainer width='100%' Legends={{
                 top: { position: 'center', component: 'Form Editor', padding: '10px' },
-                bottom: { position: 'center', component: (currentFormName ?? "Unavailable"), padding: '5px' }
+                bottom: { position: 'center', component: (<Box sx={{ overflow: 'hidden', maxWidth: '100%', flex: '1 0 auto' }}><Typography title={currentFormName} overflow='hidden' textOverflow='ellipsis'>{currentFormName}</Typography></Box> ?? <i>Unavailable</i>), padding: '5px' }
             }}>
                 <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
