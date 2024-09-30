@@ -209,19 +209,19 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             if (recordsIds.length === 0 || attributesValueKeys.length === 0) return;
 
             recordsIds.forEach((recordid) => {
-                Xrm.Utility.showProgressIndicator("Updating " + capitalizeFirstLetter(entityname) + ": " + recordid);
+                Xrm.Utility.showProgressIndicator("Updating " + entityname + ": " + recordid);
                 Xrm.WebApi.online.updateRecord(entityname, recordid, attributesValues).then(
                     function success(result) {
                         Xrm.Utility.closeProgressIndicator();
                         props.snackbarProvider.enqueueSnackbar(
-                            capitalizeFirstLetter(entityname) + " " + recordid + " updated.",
+                            entityname + " " + recordid + " updated.",
                             { variant: 'success' }
                         );
                     },
                     function (error) {
                         Xrm.Utility.closeProgressIndicator();
                         props.snackbarProvider.enqueueSnackbar(
-                            capitalizeFirstLetter(entityname) + " " + recordid + " has encountered an error.",
+                            "Updating " + entityname + " " + recordid + " has encountered an error.",
                             {
                                 variant: 'detailsFile',
                                 detailsVariant: 'error',

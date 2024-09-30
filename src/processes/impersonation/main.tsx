@@ -50,22 +50,12 @@ class ImpersonationButton extends ProcessButton {
                         if (result.entities.length > 0) {
                             // const user: ActiveUser = result.entities[0];
                             const user: ActiveUser = await ConvertToActiveUserObject(result.entities[0]);
-                            
+
                             snackbarProviderContext.enqueueSnackbar(`You are impersonating **${user.fullname}** (${user.systemuserid})`, {
                                 variant: 'detailsFile',
                                 detailsVariant: 'info',
                                 persist: true,
-                                detailsNode: <Typography variant="caption" style={{ color: "#000", display: "block" }}>
-                                    <Typography fontSize='1.5em'>You have the following security roles:</Typography>
-                                    <RolesDisplayList user={user} />
-                                    {/* <ul style={{ marginLeft: "30px" }}>
-                                        {
-                                            ((user as any).systemuserroles_association as any[]).map((role: any) => {
-                                                return <li>{role["name"]}</li>
-                                            })
-                                        }
-                                    </ul> */}
-                                </Typography>
+                                detailsNode: <RolesDisplayList user={user} />
                             })
                         }
                     }
@@ -416,7 +406,7 @@ const RolesDisplayList = React.memo((props: RolesDisplayListProps) => {
     const { user } = props;
 
     return (
-        <List dense subheader={<><b>User roles</b>:</>} sx={{ fontSize: "1.5em" }}>
+        <List dense subheader={<><b>User roles</b>:</>} sx={{ fontSize: "1.15em" }}>
             {user.securityRoles.map(s => <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}><ListItemText primary={s.name} /></ListItem>)}
             {
                 Object.values(user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
