@@ -11,12 +11,6 @@ function messagesStation(message: { type: string, data: any }, sender: chrome.ru
     console.log("background onMessageExternal", message);
 
     switch (message.type) {
-        // case MessageType.REGISTERMESSAGECALLBACK:
-        //     registerMessageCallback(message.data);
-        //     break;
-        // case MessageType.CALLMESSAGECALLBACK:
-        //     callMessageCallback(message.data);
-        //     break;
         case MessageType.REFRESHBYPASSCACHE:
             sender.tab && sender.tab.id && chrome.tabs.reload(sender.tab.id, { bypassCache: true });
             return false;
@@ -47,19 +41,11 @@ function messagesStation(message: { type: string, data: any }, sender: chrome.ru
         case MessageType.ISDEBUGGERATTACHED:
             debuggerAttached(sender).then(sendResponse);
             return true;
+
+        case MessageType.OPENOPTIONS:
+            chrome.action.openPopup();
+            return false;
     }
 
     return false;
 }
-
-// type toolCallback = (data:any) => void
-// const toolsCalback:{
-//     [toolId:string]: toolCallback
-// } = {}
-// function registerMessageCallback(data: {toolId: string, callback: toolCallback}) {
-//     toolsCalback[data.toolId] = data.callback;
-//     debugger;
-// }
-// function callMessageCallback(data: {toolId: string, data: any}) {
-//     toolsCalback[data.toolId]?.(data.data);
-// }

@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import Stack from '@mui/material/Stack';
 
 import Processes, { defaultProcessesList } from '../processes/.list';
-import { debugLog, GetExtensionId, GetUrl, setStyle, waitForElm } from '../utils/global/common';
+import { debugLog, GetExtensionId, GetUrl, isArraysEquals, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
@@ -55,10 +55,22 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
+
+    const toolsButton = useMemo(() => processesList?.filter((process) => !process.hidden).map((value, index) => {
+        const Process = Processes.find(p => p.id === value.id);
+        if (!Process) return null;
+        if (Process.openable) {
+            return Process.getOpeningButton(openProcess);
+        } else {
+            return Process.getFunctionButton();
+        }
+    }), [processesList]);
+
+
     useEffect(() => {
         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
             function (response: StorageConfiguration[]) {
-                if (response && response.length === defaultProcessesList.length) {
+                if (response && isArraysEquals(response.map(t => t.id), defaultProcessesList.map(t => t.id))) {
                     setProcessesList(response);
                     return;
                 }
@@ -297,15 +309,19 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' height='100%' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
                         {
-                            processesList?.filter((process) => !process.hidden).map((value, index) => {
-                                const Process = Processes.find(p => p.id === value.id);
-                                if (!Process) return null;
-                                if (Process.openable) {
-                                    return Process.getOpeningButton(openProcess);
-                                } else {
-                                    return Process.getFunctionButton();
-                                }
-                            })
+                            toolsButton.every(t => t) ?
+
+                                toolsButton
+                                :
+
+                                <>
+                                    <Typography>
+                                        It seems there was a problem retrieving the tools list. Try resetting the tools list in the options screen.
+                                    </Typography>
+                                    <Button variant='contained' onClick={() => {
+                                        chrome.runtime.sendMessage(extensionId, { type: MessageType.OPENOPTIONS });
+                                    }}>Open option screen</Button>
+                                </>
                         }
                     </Stack>
                     <Stack direction='column'>

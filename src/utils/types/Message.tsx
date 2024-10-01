@@ -12,6 +12,8 @@ export enum MessageType {
     GETCURRENTSCRIPTOVERRIDING = 'GetCurrentScriptOverriding',
     ISDEBUGGERATTACHED = 'IsDebuggerAttached',
 
+    OPENOPTIONS = 'OpenOptions',
+
     // REGISTERMESSAGECALLBACK = "RegisterMessageCallback",
     // CALLMESSAGECALLBACK = "CallMessageCallback",
 }
