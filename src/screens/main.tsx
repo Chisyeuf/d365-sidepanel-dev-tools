@@ -56,17 +56,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
 
-    const toolsButton = useMemo(() => processesList?.filter((process) => !process.hidden).map((value, index) => {
-        const Process = Processes.find(p => p.id === value.id);
-        if (!Process) return null;
-        if (Process.openable) {
-            return Process.getOpeningButton(openProcess);
-        } else {
-            return Process.getFunctionButton();
-        }
-    }), [processesList]);
-
-
     useEffect(() => {
         chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
             function (response: StorageConfiguration[]) {
@@ -163,6 +152,18 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             return copy;
         })
     }
+
+    
+    const toolsButton = useMemo(() => processesList?.filter((process) => !process.hidden).map((value, index) => {
+        const toolButton = Processes.find(p => p.id === value.id);
+        if (!toolButton) return null;
+        if (toolButton.openable) {
+            return toolButton.getOpeningButton(openProcess);
+        } else {
+            return toolButton.getFunctionButton();
+        }
+    }), [Processes, processesList, openProcess]);
+    
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) {
