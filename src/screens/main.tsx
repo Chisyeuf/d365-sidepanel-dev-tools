@@ -23,6 +23,7 @@ import { ProviderContext as SnackbarProviderContext, SnackbarProvider, useSnackb
 import DetailsSnackbar from '../utils/components/DetailsSnackbar';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import BugReportIcon from '@mui/icons-material/BugReport';
+import OpenOptionsButton from '../utils/components/OpenOptionsButton';
 
 
 const MainScreen: React.FunctionComponent = () => {
@@ -153,7 +154,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         })
     }
 
-    
+
     const toolsButton = useMemo(() => processesList?.filter((process) => !process.hidden).map((value, index) => {
         const toolButton = Processes.find(p => p.id === value.id);
         if (!toolButton) return null;
@@ -163,7 +164,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             return toolButton.getFunctionButton();
         }
     }), [Processes, processesList, openProcess]);
-    
+
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) {
@@ -319,9 +320,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                     <Typography>
                                         It seems there was a problem retrieving the tools list. Try resetting the tools list in the options screen.
                                     </Typography>
-                                    <Button variant='contained' onClick={() => {
-                                        chrome.runtime.sendMessage(extensionId, { type: MessageType.OPENOPTIONS });
-                                    }}>Open option screen</Button>
+                                    <OpenOptionsButton variant='contained' />
                                 </>
                         }
                     </Stack>

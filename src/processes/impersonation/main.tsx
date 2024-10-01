@@ -1,5 +1,5 @@
 
-import { Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -21,6 +21,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
+import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -129,6 +130,10 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <Stack direction='column' spacing={0.5} width='calc(100% - 10px)' padding="10px" height='calc(100% - 10px)'>
+                <Alert severity='info'>
+                    If you made a mistake and you can no longer access this tool, you can reset the impersonation mode by going to the options screen.
+                    <OpenOptionsButton variant='outlined' />
+                </Alert>
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
 
