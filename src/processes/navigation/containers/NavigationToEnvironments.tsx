@@ -1,12 +1,8 @@
 
 import { Button, Tooltip } from '@mui/material';
-import { Stack } from '@mui/system';
 import React from 'react';
 
-// import NavigationIcon from '@mui/icons-material/Navigation';
-
-import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon, PowerEnvironmentIcon } from '../icons';
+import { PowerEnvironmentIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 
 function Environments(props: NavigationButton) {
@@ -18,8 +14,6 @@ function Environments(props: NavigationButton) {
 
     return (
         <>
-            {/* <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Environments', padding: '5px' } }}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'> */}
             <Tooltip placement='left' title='Environments List in Admin Power Platform'>
                 <Button
                     variant='outlined'

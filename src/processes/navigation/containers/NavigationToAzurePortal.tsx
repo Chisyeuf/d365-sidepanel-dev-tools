@@ -13,8 +13,6 @@ function AzurePortal(props: NavigationButton) {
     }
     return (
         <>
-            {/* <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Environments', padding: '5px' } }}>
-                <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'> */}
             <Tooltip placement='left' title='Azure Portal'>
                 <Button
                     variant='outlined'

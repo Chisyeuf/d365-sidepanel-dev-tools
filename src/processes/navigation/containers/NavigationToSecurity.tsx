@@ -1,12 +1,7 @@
 
 import { Button, Tooltip } from '@mui/material';
-import { Stack } from '@mui/system';
 import React from 'react';
 
-// import NavigationIcon from '@mui/icons-material/Navigation';
-
-import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 
@@ -55,8 +50,6 @@ function NavigationToSecurity(props: NavigationButton) {
 
     return (
         <>
-            {/* <ComponentContainer width='100%' Legends={{ top: { position: 'center', component: 'Security', padding: '5px' } }}> */}
-            {/* <Stack spacing={1} width='calc(100% - 10px)' padding='5px' direction='row'> */}
             <Tooltip placement='left' title='Security Panel'>
                 <Button
                     variant='outlined'

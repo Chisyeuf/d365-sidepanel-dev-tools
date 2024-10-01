@@ -1,8 +1,7 @@
-import type { ButtonPropsVariantOverrides, ButtonTypeMap, TextFieldProps } from '@mui/material';
+import type { ButtonPropsVariantOverrides } from '@mui/material';
 import type { OverridableStringUnion } from '@mui/types';
-import { Button, TextField } from '@mui/material';
-import AutoNumeric, { Options } from 'autonumeric';
-import React, { useEffect, useRef, useState } from 'react';
+import { Button } from '@mui/material';
+import React, {  } from 'react';
 import { MessageType } from '../types/Message';
 import { GetExtensionId } from '../global/common';
 

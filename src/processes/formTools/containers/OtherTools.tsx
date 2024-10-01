@@ -16,7 +16,7 @@ function OtherTools(props: SubProcessProps) {
         <ComponentContainer
             width='100%'
         >
-            <Stack spacing={1} width='calc(100% - 10px)' padding='5px'>
+            <Stack spacing={1} padding='5px'>
                 {
                     toolList.map((Tool, index) => {
                         return (<Tool

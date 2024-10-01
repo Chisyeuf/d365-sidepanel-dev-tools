@@ -129,7 +129,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack direction='column' spacing={0.5} width='calc(100% - 10px)' padding="10px" height='calc(100% - 10px)'>
+            <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 10px)'>
                 <Alert severity='info'>
                     If you made a mistake and you can no longer access this tool, you can reset the impersonation mode by going to the options screen.
                     <OpenOptionsButton variant='outlined' />

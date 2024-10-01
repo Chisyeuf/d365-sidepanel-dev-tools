@@ -164,7 +164,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} width='calc(100% - 10px)' height='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
                     <List
                         sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
                         component="nav"

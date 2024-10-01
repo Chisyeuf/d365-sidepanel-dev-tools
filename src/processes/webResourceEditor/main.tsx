@@ -272,7 +272,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <>
-                <Stack spacing={1} width='calc(100% - 10px)' height='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={1} height='calc(100% - 10px)' padding='10px' alignItems='center'>
 
                     <Stack width='100%' direction='column'>
                         <ButtonGroup variant="contained" fullWidth>
