@@ -11,7 +11,7 @@ import { MessageType } from '../../utils/types/Message';
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 import { DragDropContext, Draggable, DraggableProvided, DropResult, Droppable } from '@hello-pangea/dnd';
-import { storageForegroundPanes, storageListName } from '../../utils/global/var';
+import { storage_ForegroundPanes, storage_ListName } from '../../utils/global/var';
 
 
 class SetConfigurationButton extends ProcessButton {
@@ -149,7 +149,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ListName } },
                 function (response: StorageConfiguration[] | null) {
                     setProcessesList(response ?? []);
                 }
@@ -159,7 +159,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             //         setUseStandardPanels(response ?? false);
             //     }
             // );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ForegroundPanes } },
                 function (response: boolean | null) {
                     setIsForegroundPanes(response ?? false);
                 }
@@ -184,7 +184,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             });
 
             debugLog(processConfigurations);
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: processConfigurations } },
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_ListName, configurations: processConfigurations } },
                 function (response) {
                     if (response.success) { }
                 }
@@ -194,7 +194,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             //         if (response.success) { }
             //     }
             // );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageForegroundPanes, configurations: isForegroundPanes } },
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_ForegroundPanes, configurations: isForegroundPanes } },
                 function (response) {
                     if (response.success) { }
                 }

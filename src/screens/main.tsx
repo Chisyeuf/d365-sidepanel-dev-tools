@@ -13,7 +13,7 @@ import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import { Badge, Box, Button, Divider, Drawer, IconButton, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
-import { applicationName, projectPrefix, drawerContainerId, mainMenuId, storageForegroundPanes, storageListName } from '../utils/global/var';
+import { applicationName, projectPrefix, drawerContainerId, mainMenuId, storage_ForegroundPanes, storage_ListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
@@ -58,21 +58,21 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
 
     useEffect(() => {
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageListName } },
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ListName } },
             function (response: StorageConfiguration[]) {
                 if (response && isArraysEquals(response.map(t => t.id), defaultProcessesList.map(t => t.id))) {
                     setProcessesList(response);
                     return;
                 }
                 else {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageListName, configurations: defaultProcessesList } });
+                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_ListName, configurations: defaultProcessesList } });
                     setProcessesList(defaultProcessesList);
                 }
 
             }
         );
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageForegroundPanes } },
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ForegroundPanes } },
             function (response: boolean | null) {
                 setIsForegroundPanes(response ?? false);
             }

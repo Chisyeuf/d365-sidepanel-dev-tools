@@ -1,5 +1,5 @@
 
-import { Alert, Box, Checkbox, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Button, Checkbox, Divider, Drawer, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -16,12 +16,13 @@ import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole, TeamsSecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
-import { Env } from '../../utils/global/var';
+import { Env, storage_DontShowImpersonationInfo } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
+import { useEffectOnce } from 'usehooks-ts';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -75,6 +76,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [userSelected, setUserSelected] = useStateCallback<ActiveUser | null>(null);
         const [securityRoleSelected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
+        const [dontShowInfo, setDontShowInfo] = useState<boolean>(false);
+        const [closeInfo, setCloseInfo] = useState<boolean>(false);
 
         const [filter, setFilter] = useState('');
 
@@ -128,12 +131,43 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [activeUsers]);
 
 
+        useEffectOnce(
+            () => {
+                chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo } },
+                    function (response: boolean | null) {
+                        setDontShowInfo(response ?? false);
+                        setCloseInfo(response ?? false);
+                    }
+                );
+            }
+        );
+
+        const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const dontShowInfoValue = event.target.checked;
+
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo, configurations: dontShowInfoValue } });
+            setDontShowInfo(dontShowInfoValue);
+        };
+
+
         return (
             <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 10px)'>
-                <Alert severity='info'>
-                    If you made a mistake and you can no longer access this tool, you can reset the impersonation mode by going to the options screen.
-                    <OpenOptionsButton variant='outlined' />
-                </Alert>
+
+                {
+                    !closeInfo &&
+
+                    <Alert severity='info'>
+                        <Stack direction='column'>
+                            If you made a mistake and you can no longer access this tool, you can reset the impersonation mode by going to the options screen.
+                            <FormControlLabel control={<Checkbox checked={dontShowInfo} onChange={handleChange} size='small' />} label="Don't show again" />
+                            <Stack direction='row' spacing={1}>
+                                <OpenOptionsButton variant='outlined' />
+                                <Button onClick={() => setCloseInfo(true)}>Close info</Button>
+                            </Stack>
+                        </Stack>
+                    </Alert>
+                }
+
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />
 

@@ -15,10 +15,10 @@ import { debugLog, waitForElm } from '../utils/global/common';
 import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import { storageListName } from '../utils/global/var';
+import { storage_DontShowImpersonationInfo, storage_ListName } from '../utils/global/var';
 
 const OptionsScreen: React.FunctionComponent = () => {
-    const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storageListName, defaultProcessesList);
+    const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storage_ListName, defaultProcessesList);
 
     const resetImpersonate = useCallback(() => {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -43,16 +43,32 @@ const OptionsScreen: React.FunctionComponent = () => {
     }, [setProcessList, defaultProcessesList]);
 
 
+    const resetDontShowImpersonationInfo = useCallback(() => {
+        chrome.runtime.sendMessage({ type: MessageType.SETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo, configurations: false } },
+            function (response) {
+                if (response.success) { }
+            }
+        );
+    }, []);
+
+
+
+
     return (
         <Container sx={{ width: '1000px', height: '400px', }}>
             {/* <OptionsGrid processList={processesList} setProcessList={setProcessList} />
             <Button onClick={() => { chrome.storage.sync.remove(storageListName); window.close(); }}>Reset</Button> */}
-            <Button
-                variant='contained'
-                onClick={resetImpersonate}>Reset Impersonate on Active tab</Button>
-            <Button
-                variant='contained'
-                onClick={resetProcessList}>Reset Process List</Button>
+            <Stack direction='column' spacing={1}>
+                <Button
+                    variant='contained'
+                    onClick={resetImpersonate}>Reset Impersonate on Active tab</Button>
+                <Button
+                    variant='contained'
+                    onClick={resetProcessList}>Reset Process List</Button>
+                <Button
+                    variant='contained'
+                    onClick={resetDontShowImpersonationInfo}>Reset Impersonation Info</Button>
+            </Stack>
         </Container>
     )
 }
