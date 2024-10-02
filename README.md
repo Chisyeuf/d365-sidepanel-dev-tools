@@ -2,6 +2,19 @@
 Dynamics 365 SidePanel Tools
 ============================
 
+## Summary
+
+- [Introduction](#introduction)
+- [Available Tools](#available-tools)
+    - [Main Menu](#main-menu)
+    - [Form Tools](#form-tools)
+    - [Update Records](#update-records)
+- [Mise à jour des enregistrements](#mise-a-jour-des-enregistrements)
+- [Contribution](#contribution)
+- [Licence](#licence)
+
+# Introduction
+
 The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
 
 ![image](screenshots/jpg/0.OverallView.jpg)
