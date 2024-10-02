@@ -2,18 +2,17 @@
 Dynamics 365 SidePanel Tools
 ============================
 
-
-This chromium extension add a panel at the right side of Dynamics 365 pages. The purpose of this extension is to provide easy to use and automatic regreshing tools. Multiple tools are avalaible and can be opened independantly.
+The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
 
 ![image](screenshots/jpg/0.OverallView.jpg)
 
-# Avalaible Tools
+# Available Tools
 
 ## Main Menu
 
 <img align="right" src="screenshots/jpg/0.MainMenu.jpg">
 
-The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools.
+The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools describes below.
 
 <img height="550px" width="10px" src="screenshots/jpg/0.MainMenu.jpg">
 
@@ -25,8 +24,8 @@ The main menu can be opened or closed by clicking on the magic wand. The display
 This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
 
 1. Label Tools
-   - Show Tabs and Sections logical names
-   - Show Fields and Grids logical names
+   - Show Tab and Section logical names
+   - Show Field and Grid logical names
 2. God Mode
    *   Mark all fields optionnal
    *   Unlock all fields
