@@ -140,3 +140,20 @@ Here's how it works:
 
 <img height="550px" width="10px">
 
+
+
+## 8\. Impersonation
+<img align="right" src="screenshots/jpg/8.Impersonation.jpg">
+
+Empower yourself with the ability to impersonate any user on your environment.
+
+The user list is :
+* Online: Enabled users with valid licenses associated with a security role
+* OnPremise: Enabled users associated with a security role
+
+You can filter the list by name, email address and even with security roles.
+
+You can also check each user's security by hovering over their entry in the list.
+
+<img height="550px" width="10px">
+
