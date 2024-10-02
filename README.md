@@ -77,6 +77,8 @@ This tool provide functionnalities used on records form. Each button are reversi
 ## 2\. Update Records
 <img align="right" src="screenshots/jpg/2.UpdateRecords.jpg">
 
+Save time and effort with updates.
+
 With this tool, you can update any field of any record on your environment. You can even update multiple records at once for bulk updates.
 
 The default record loaded is the currently opened record. You can select different entity and records using the input fields at the top.
@@ -200,6 +202,8 @@ The Plugin Trace Logs Explorer provides a streamlined way to view and analyze lo
 ## 10\. Navigation
 <img align="right" src="screenshots/jpg/10.Navigation.jpg">
 
+Access everything you need in one place.
+
 This tool provides quick access to various essential resources:
 * **Solutions**: `Opens the solution list or the selected solution in an other tab. Choose between the classic interface or PowerApps.`
 * **Form Editor**: `Opens the form editor of the currently opened form in an other tab. Choose between the classic interface or PowerApps.`
@@ -224,7 +228,9 @@ This button enable or disable the debugger for model-app ribbons.
 ## 12. Configuration Manager
 <img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
 
-This tool lets you configure which tools automatically open when a page loads. You can also specify a tool to be expanded by default.
+Configure your Dynamics 365 experience.
+
+This tool lets you select which tools automatically open when a page loads. You can also specify a tool to be expanded by default.
 
 A "foreground" option is available to disable automatic width adjustments of the main Dynamics screen.
 
