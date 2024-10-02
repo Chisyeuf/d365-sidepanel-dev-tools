@@ -27,7 +27,7 @@ The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilitie
 
 The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools describes below.
 
-<img height="550px" width="10px" src="screenshots/jpg/0.MainMenu.jpg">
+<img height="550px" width="10px">
 
 
 
@@ -58,7 +58,7 @@ This tool provide functionnalities used on records form. Each button are reversi
 7. Clone the current record: ___Open a dialog with a record duplicating the data of the current record. The open record is not saved at this state___
 8. Blur data: ___Blur fields and grids data. This button can be used on Homepage grids.___
 
-<img height="550px" width="10px" src="screenshots/jpg/1.FormTools.jpg">
+<img height="550px" width="10px">
 
 
 
@@ -76,7 +76,7 @@ To remove a field from the update list, click the trash bin icon.
 
 Each field type has a matching input type, such as a text box for text fields or a date picker for date fields. Input fields have an icon that you can click to open a tool that helps with data entry.
 
-<img height="550px" width="10px" src="screenshots/jpg/2.UpdateRecords.jpg">
+<img height="550px" width="10px">
 
 
 
@@ -84,6 +84,38 @@ Each field type has a matching input type, such as a text box for text fields or
 
 <img align="right" src="screenshots/jpg/3.AllAttributes.jpg">
 
-This tool allow you to 
+This tool provides a convenient way to quickly access and review all the data of your open record.
 
-<img height="550px" width="10px" src="screenshots/jpg/3.AllAttributes.jpg">
+It displays all the fields and values of the currently open records.
+
+Expand the box to reveal additional values from the WebApi, such as the _FormattedValue_.
+
+<img height="550px" width="10px">
+
+
+
+## 4\. Option Set Tables
+
+<img align="right" src="screenshots/jpg/4.OptionSetTables.jpg">
+
+This tool offers a quick way to view all option sets associated with the currently open entity.
+
+Each table displays all option labels and values for every available option set on the entity. You'll also find the list of fields that utilize it.
+
+You can copy labels or values by simply clicking on them. Alternatively, you can copy the entire table to your clipboard.
+
+<img height="550px" width="10px">
+
+
+
+## 5\. Dirty Fields
+
+<img align="right" src="screenshots/jpg/5.DirtyFields.jpg">
+
+This tool displays the fields that have been changed but not yet saved.
+
+By clicking on the box, you can trigger the focus of the fields on the form. This can even be on a different tab.
+
+You can also enable an option to display a red box around the field controls on the form, making them visually stand out.
+
+<img height="550px" width="10px">
