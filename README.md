@@ -45,6 +45,8 @@ The main menu can be opened or closed by clicking on the magic wand. The display
 ## 1\. Form Tools
 <img align="right" src="screenshots/jpg/1.FormTools.jpg">
 
+Randomize, visualize, and master your data.
+
 This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
 
 1. Label Tools: `Display or hide logical names next to field names. Logical names can be clicked to be copied.`
@@ -92,6 +94,8 @@ Each field type has a matching input type, such as a text box for text fields or
 ## 3\. All Attributes
 <img align="right" src="screenshots/jpg/3.AllAttributes.jpg">
 
+See every field, every value, all in one place.
+
 This tool provides a convenient way to quickly access and review all the data of your open record.
 
 It displays all the fields and values of the currently open records.
@@ -104,6 +108,8 @@ Expand the box to reveal additional values from the WebApi, such as the _Formatt
 
 ## 4\. Option Set Tables
 <img align="right" src="screenshots/jpg/4.OptionSetTables.jpg">
+
+See every option set, every label, every value.
 
 This tool offers a quick way to view all option sets associated with the currently open entity.
 
@@ -131,6 +137,8 @@ You can also enable an option to display a red box around the field controls on 
 ## 6\. Related Records
 <img align="right" src="screenshots/jpg/6.RelatedRecords.jpg">
 
+Explore entity relationships and related records.
+
 This tool displays all relationships associated with the selected entity. It also lists related records for the selected record.
 
 To view a record in detail, click on it to open a dialog. Alternatively, you can access a contextual menu (right-click) for other opening options.
@@ -141,6 +149,8 @@ To view a record in detail, click on it to open a dialog. Alternatively, you can
 
 ## 7\. WebResources Editor
 <img align="right" src="screenshots/jpg/7.WebResourcesEditor.jpg">
+
+Edit, test, and publish - all within your browser!
 
 This tool adds an editor directly to your browser, allowing you to modify web resources with ease. No more tedious updates or deployments! You can test your changes live in local, seeing the results instantly.
 
