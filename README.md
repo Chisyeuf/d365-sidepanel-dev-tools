@@ -9,7 +9,6 @@ Dynamics 365 SidePanel Tools
     - [Main Menu](#main-menu)
     - [Form Tools](#1-form-tools)
     - [Update Records](#2-update-records)
-- [Mise à jour des enregistrements](#mise-a-jour-des-enregistrements)
 - [Contribution](#contribution)
 - [Licence](#licence)
 
