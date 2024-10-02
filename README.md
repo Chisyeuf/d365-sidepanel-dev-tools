@@ -35,26 +35,26 @@ The main menu can be opened or closed by clicking on the magic wand. The display
 
 This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
 
-1. Label Tools: ___Display or hide logical names next to field names. Logical names can be clicked to be copied.___
+1. Label Tools: `Display or hide logical names next to field names. Logical names can be clicked to be copied.`
    * Show/Hide Tab and Section logical names
    * Show/Hide Field and Grid logical names
-2. God Mode: ___Change field configurations or restore default configurations.___
+2. God Mode: `Change field configurations or restore default configurations.`
    * Mark all fields optionnal
    * Enable all fields
    * Set all fields visible
 3. Refresh
-   * Refresh Ribbon: ___Reload ribbon__
-   * Refresh fields data: __Reload form data__
-4. Show option set values in fields: ___Display option set values in option labels___
-5. Fill fields with randomized data: ___Allow to generate random data using different methods___
-   * Enable Fill on Click: ___Allow to set random data in clicked fields. Can be deactivated.___
-   * Fill Mandatory fields: ___Set random data in all mandatory fields on the form.___
-   * Fill BPF fields: ___Set random data in all fields on the Business Process Flow.___
-   * Fill All fields: ___Set random data in all fields on the form.___
-   * Clear all fields: ___Set empty in all fields on the form.___
-   * Restore original values: ___Allow you to rollback the fields data to the state at the form loading___
-7. Clone the current record: ___Open a dialog with a record duplicating the data of the current record. The open record is not saved at this state___
-8. Blur data: ___Blur fields and grids data. This button can be used on Homepage grids.___
+   * Refresh Ribbon: `Reload ribbon`
+   * Refresh fields data: `Reload form data`
+4. Show option set values in fields: `Display option set values in option labels`
+5. Fill fields with randomized data: `Allow to generate random data using different methods`
+   * Enable Fill on Click: `Allow to set random data in clicked fields. Can be deactivated.`
+   * Fill Mandatory fields: `Set random data in all mandatory fields on the form.`
+   * Fill BPF fields: `Set random data in all fields on the Business Process Flow.`
+   * Fill All fields: `Set random data in all fields on the form.`
+   * Clear all fields: `Set empty in all fields on the form.`
+   * Restore original values: `Allow you to rollback the fields data to the state at the form loading`
+7. Clone the current record: `Open a dialog with a record duplicating the data of the current record. The open record is not saved at this state`
+8. Blur data: `Blur fields and grids data. This button can be used on Homepage grids.`
 
 <img height="550px" width="10px">
 
@@ -134,9 +134,9 @@ This tool adds an editor directly to your browser, allowing you to modify web re
 
 Here's how it works:
 
-1. **Edit**: Modify any loaded file on the current page using the **Monaco Editor**, the same robust code editor that powers VS Code.
-2. **Live Test**: After saving your changes, enable **live testing**. This reloads your page in debug mode, allowing your edited scripts to override the originals.
-3. **Publish**: Once you're satisfied with your modifications, **publish** the files to make them permanent.
+1. **Edit**: `Modify any loaded file on the current page using the Monaco Editor, the same robust code editor that powers VS Code.`
+2. **Live Test**: `After saving your changes, enable live testing. This reloads your page in debug mode, allowing your edited scripts to override the originals.`
+3. **Publish**: `Once you're satisfied with your modifications, publish the files to make them permanent.`
 
 <img height="550px" width="10px">
 
@@ -148,12 +148,50 @@ Here's how it works:
 Empower yourself with the ability to impersonate any user on your environment.
 
 The user list is :
-* Online: Enabled users with valid licenses associated with a security role
-* OnPremise: Enabled users associated with a security role
+* Online: `Enabled users with valid licenses associated with a security role`
+* OnPremise: `Enabled users associated with a security role`
 
 You can filter the list by name, email address and even with security roles.
 
 You can also check each user's security by hovering over their entry in the list.
+
+<img height="550px" width="10px">
+
+
+
+## 9\. Plugin Trace Logs Explorer
+<img align="right" src="screenshots/jpg/9.PluginTraceLogsExplorer.jpg">
+
+Tired of sifting through cluttered and unoptimized log lists?
+
+The Plugin Trace Logs Explorer provides a streamlined way to view and analyze logs for plugins and custom workflows. Enjoy:
+* **Enhanced Information**: `Access detailed log information with a clear and easy-to-read layout.`
+* **Efficient Filtering**: `Quickly find the logs you need by filtering by involved entity, message name, and date range.`
+* **Log Correlation**: `After selecting a log, explore the correlation — a view of all related processes, both before and after the selected log.`
+
+<img height="550px" width="10px">
+
+
+
+## 10\. Navigation
+<img align="right" src="screenshots/jpg/10.Navigation.jpg">
+
+This tool provides quick access to various essential resources:
+* **Solutions**: `Opens the solution list or the selected solution in an other tab. Choose between the classic interface or PowerApps.`
+* **Form Editor**: `Opens the form editor of the currently opened form in an other tab. Choose between the classic interface or PowerApps.`
+* **Advanced Find**: `Opens the good old Advanced Find in a new tab, automatically focusing on the currently viewed entity.`
+* **Environments**: `Opens the environment list of the tenant on admin center.`
+* **Azure Portal**: `Opens the tenant's Azure portal.`
+* **Security**: `Opens the classic interface security page of the advanced settings.`
+
+<img height="550px" width="10px">
+
+
+
+## 11\. Command Checker
+<img align="right" src="https://www.microsoft.com/en-us/power-platform/blog/wp-content/uploads/2020/03/3.webp">
+
+This button enable or disable the debugger for model-app ribbons.
 
 <img height="550px" width="10px">
 
