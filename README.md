@@ -124,6 +124,8 @@ You can copy labels or values by simply clicking on them. Alternatively, you can
 ## 5\. Dirty Fields
 <img align="right" src="screenshots/jpg/5.DirtyFields.jpg">
 
+See your unsaved changes at a glance, and easily navigate to them with a click.
+
 This tool displays the fields that have been changed but not yet saved.
 
 By clicking on the box, you can trigger the focus of the fields on the form. This can even be on a different tab.
