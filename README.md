@@ -1,4 +1,3 @@
-<link href="screenshots/style.css" rel="stylesheet"></link>
 
 Dynamics 365 SidePanel Tools
 ============================
@@ -15,12 +14,13 @@ This chromium extension add a panel at the right side of Dynamics 365 pages. The
 <img align="right" src="screenshots/jpg/0.MainMenu.jpg">
 
 The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools.
-<br />
+
+<img height="550px" width="10px" src="screenshots/jpg/0.MainMenu.jpg">
+
 
 ## 1\. Form Tools
 
-<img class="clear" align="right" src="screenshots/jpg/1.FormTools.jpg">
-
+<img align="right" src="screenshots/jpg/1.FormTools.jpg">
 
 This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
 
@@ -39,18 +39,17 @@ This tool provide functionnalities used on records form. Each button are reversi
 6.  Clone the current record
 7.  Blur data
 
+<img height="550px" width="10px" src="screenshots/jpg/1.FormTools.jpg">
 
 
 
+## 2\. Update Records
+
+<img align="right" src="screenshots/jpg/2.UpdateRecords.jpg">
+
+With this tool, you will be able to update any field of any record on your environment.
+
+The default loaded record will be the current opened record. The entity and/or record can be selected with the two input on top.
 
 
-|D                              |I                            |
-|-------------------------------|-----------------------------|
-|  ![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/0.MainMenu.jpg?raw=true)        |**Main Menu** <br/> The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools.        |
-|   ![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/raw/master/screenshots/jpg/1.FormTools.jpg?raw=true)     | **Form Tools** <br/> This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page. <br/> 1.  Label Tools <br />    *   Show Tabs and Sections logical names<br />    *   Show Fields and Grids logical names<br />2.  God Mode<br />    *   Mark all fields optionnal<br />    *   Unlock all fields<br />    *   Change all fields visibility<br />3.  Refresh<br />    *   Refresh Ribbon<br />    *   Refresh fields data<br />4.  Show option set values in fields<br />5.  Fill fields with randomized data<br />6.  Clone the current record<br />7.  Blur data          <br /> |
-|![image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/2.UpdateRecords.jpg?raw=true)|fin |
-|fin | fin |
-
-
-[image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/blob/master/screenshots/jpg/0.MainMenu.jpg?raw=true)
-[image](https://github.com/Chisyeuf/d365-sidepanel-dev-tools/raw/master/screenshots/jpg/1.FormTools.jpg?raw=true)
+<img height="550px" width="10px" src="screenshots/jpg/2.UpdateRecords.jpg">
