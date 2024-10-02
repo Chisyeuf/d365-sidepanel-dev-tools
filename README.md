@@ -14,7 +14,9 @@ Dynamics 365 SidePanel Tools
 
 # Introduction
 
-The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
+The Dynamics 365 SidePanel Tools extension provides a powerful set of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
+
+A configuration tool is available to customize the extension's loading settings.
 
 ![image](screenshots/jpg/0.OverallView.jpg)
 
@@ -26,7 +28,7 @@ The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilitie
 
 The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools describes below.
 
-<img height="550px" width="10px">
+<img height="500px" width="0px">
 
 
 
@@ -56,7 +58,7 @@ This tool provide functionnalities used on records form. Each button are reversi
 7. Clone the current record: `Open a dialog with a record duplicating the data of the current record. The open record is not saved at this state`
 8. Blur data: `Blur fields and grids data. This button can be used on Homepage grids.`
 
-<img height="550px" width="10px">
+<img height="250px" width="0px">
 
 
 
@@ -73,7 +75,7 @@ To remove a field from the update list, click the trash bin icon.
 
 Each field type has a matching input type, such as a text box for text fields or a date picker for date fields. Input fields have an icon that you can click to open a tool that helps with data entry.
 
-<img height="550px" width="10px">
+<img height="220px" width="0px">
 
 
 
@@ -86,7 +88,7 @@ It displays all the fields and values of the currently open records.
 
 Expand the box to reveal additional values from the WebApi, such as the _FormattedValue_.
 
-<img height="550px" width="10px">
+<img height="570px" width="0px">
 
 
 
@@ -99,7 +101,7 @@ Each table displays all option labels and values for every available option set 
 
 You can copy labels or values by simply clicking on them. Alternatively, you can copy the entire table to your clipboard.
 
-<img height="550px" width="10px">
+<img height="540px" width="0px">
 
 
 
@@ -112,7 +114,7 @@ By clicking on the box, you can trigger the focus of the fields on the form. Thi
 
 You can also enable an option to display a red box around the field controls on the form, making them visually stand out.
 
-<img height="550px" width="10px">
+<img height="240px" width="0px">
 
 
 
@@ -123,7 +125,7 @@ This tool displays all relationships associated with the selected entity. It als
 
 To view a record in detail, click on it to open a dialog. Alternatively, you can access a contextual menu (right-click) for other opening options.
 
-<img height="550px" width="10px">
+<img height="530px" width="0px">
 
 
 
@@ -138,7 +140,7 @@ Here's how it works:
 2. **Live Test**: `After saving your changes, enable live testing. This reloads your page in debug mode, allowing your edited scripts to override the originals.`
 3. **Publish**: `Once you're satisfied with your modifications, publish the files to make them permanent.`
 
-<img height="550px" width="10px">
+<img height="640px" width="0px">
 
 
 
@@ -155,7 +157,7 @@ You can filter the list by name, email address and even with security roles.
 
 You can also check each user's security by hovering over their entry in the list.
 
-<img height="550px" width="10px">
+<img height="210px" width="0px">
 
 
 
@@ -169,7 +171,7 @@ The Plugin Trace Logs Explorer provides a streamlined way to view and analyze lo
 * **Efficient Filtering**: `Quickly find the logs you need by filtering by involved entity, message name, and date range.`
 * **Log Correlation**: `After selecting a log, explore the correlation — a view of all related processes, both before and after the selected log.`
 
-<img height="550px" width="10px">
+<img height="430px" width="0px">
 
 
 
@@ -184,14 +186,24 @@ This tool provides quick access to various essential resources:
 * **Azure Portal**: `Opens the tenant's Azure portal.`
 * **Security**: `Opens the classic interface security page of the advanced settings.`
 
-<img height="550px" width="10px">
+<img height="220px" width="0px">
 
 
 
 ## 11\. Command Checker
-<img align="right" src="https://www.microsoft.com/en-us/power-platform/blog/wp-content/uploads/2020/03/3.webp">
+<img align="right" width="70%" src="screenshots/jpg/11.ribbondebug.jpg">
 
 This button enable or disable the debugger for model-app ribbons.
 
-<img height="550px" width="10px">
+<img height="250px" width="0px">
 
+
+
+## 12. Configuration Manager
+<img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
+
+This tool lets you configure which tools automatically open when a page loads. You can also specify a tool to be expanded by default.
+
+A "foreground" option is available to disable automatic width adjustments of the main Dynamics screen.
+
+<img height="0px" width="0px">
