@@ -1,3 +1,10 @@
 .clear {
   clear:both;
 }
+
+a>img {
+  clear: both;
+  float: right;
+  width: 33%;
+  margin: 0 0 0.4rem 0.4rem;
+}
