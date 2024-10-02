@@ -22,7 +22,6 @@ The Dynamics 365 SidePanel Tools extension provides a powerful suite of utilitie
 
 
 ## Main Menu
-
 <img align="right" src="screenshots/jpg/0.MainMenu.jpg">
 
 The main menu can be opened or closed by clicking on the magic wand. The displayed button are used to open the corresponding tools describes below.
@@ -32,7 +31,6 @@ The main menu can be opened or closed by clicking on the magic wand. The display
 
 
 ## 1\. Form Tools
-
 <img align="right" src="screenshots/jpg/1.FormTools.jpg">
 
 This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
@@ -63,7 +61,6 @@ This tool provide functionnalities used on records form. Each button are reversi
 
 
 ## 2\. Update Records
-
 <img align="right" src="screenshots/jpg/2.UpdateRecords.jpg">
 
 With this tool, you can update any field of any record on your environment. You can even update multiple records at once for bulk updates.
@@ -81,7 +78,6 @@ Each field type has a matching input type, such as a text box for text fields or
 
 
 ## 3\. All Attributes
-
 <img align="right" src="screenshots/jpg/3.AllAttributes.jpg">
 
 This tool provides a convenient way to quickly access and review all the data of your open record.
@@ -95,7 +91,6 @@ Expand the box to reveal additional values from the WebApi, such as the _Formatt
 
 
 ## 4\. Option Set Tables
-
 <img align="right" src="screenshots/jpg/4.OptionSetTables.jpg">
 
 This tool offers a quick way to view all option sets associated with the currently open entity.
@@ -109,7 +104,6 @@ You can copy labels or values by simply clicking on them. Alternatively, you can
 
 
 ## 5\. Dirty Fields
-
 <img align="right" src="screenshots/jpg/5.DirtyFields.jpg">
 
 This tool displays the fields that have been changed but not yet saved.
@@ -119,3 +113,30 @@ By clicking on the box, you can trigger the focus of the fields on the form. Thi
 You can also enable an option to display a red box around the field controls on the form, making them visually stand out.
 
 <img height="550px" width="10px">
+
+
+
+## 6\. Related Records
+<img align="right" src="screenshots/jpg/6.RelatedRecords.jpg">
+
+This tool displays all relationships associated with the selected entity. It also lists related records for the selected record.
+
+To view a record in detail, click on it to open a dialog. Alternatively, you can access a contextual menu (right-click) for other opening options.
+
+<img height="550px" width="10px">
+
+
+
+## 7\. WebResources Editor
+<img align="right" src="screenshots/jpg/7.WebResourcesEditor.jpg">
+
+This tool adds an editor directly to your browser, allowing you to modify web resources with ease. No more tedious updates or deployments! You can test your changes live in local, seeing the results instantly.
+
+Here's how it works:
+
+1. **Edit**: Modify any loaded file on the current page using the **Monaco Editor**, the same robust code editor that powers VS Code.
+2. **Live Test**: After saving your changes, enable **live testing**. This reloads your page in debug mode, allowing your edited scripts to override the originals.
+3. **Publish**: Once you're satisfied with your modifications, **publish** the files to make them permanent.
+
+<img height="550px" width="10px">
+
