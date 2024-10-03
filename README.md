@@ -228,7 +228,7 @@ This button enable or disable the debugger for model-app ribbons.
 ## 12. Configuration Manager
 <img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
 
-Configure your Dynamics 365 experience.
+Configure your Dynamics 365 SidePanel experience.
 
 This tool lets you select which tools automatically open when a page loads. You can also specify a tool to be expanded by default.
 
