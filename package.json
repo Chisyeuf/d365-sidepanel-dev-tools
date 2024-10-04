@@ -1,6 +1,6 @@
 {
     "name": "chisyeuf-d365-sidepanel-dev-tools",
-    "version": "0.9.7.1",
+    "version": "0.9.7.2",
     "private": true,
     "dependencies": {
         "@emotion/react": "^11.10.6",
