@@ -87,7 +87,9 @@ const jsonStyle: React.CSSProperties = {
     width: 'calc(100% - 16px)',
     height: 'calc(100% - 16px)',
     overflow: 'auto',
-    padding: 8
+    padding: 8,
+    fontSize: 15,
+    overflowWrap: 'break-word',
 }
 
 type AttributeSetType = {
@@ -192,9 +194,9 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const openRawInTab = useCallback(() => {
             // window.open("data:text/json," + encodeURIComponent(attributesRawFilteredString), "_blank");
-            var x = window.open();
-            x?.document.open();
-            x?.document.write('<html><body style="margin:0"></body></html>');
+            var newTab = window.open();
+            newTab?.document.open();
+            newTab?.document.write('<html><body style="margin:0"></body></html>');
             ReactDOM.render(
                 <Box height='calc(100% - 96px)' width='100%'>
                     <JsonView
@@ -202,15 +204,17 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         style={{ ...vscodeTheme, ...jsonStyle }}
                         collapsed={1}
                         highlightUpdates={false}
+                        // displayDataTypes={false}
                         shortenTextAfterLength={36}
+                        indentWidth={50}
                     >
                         <JsonView.Quote>
                             <span />
                         </JsonView.Quote>
                     </JsonView>
                 </Box>
-                , x?.document.querySelector('body')!);
-            x?.document.close();
+                , newTab?.document.querySelector('body')!);
+            newTab?.document.close();
         }, [attributesRawFiltered]);
 
         const [copying, setCopying] = useState(false);
@@ -254,30 +258,32 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         >
                             {
                                 showRaw ?
-                                    <Editor
-                                        height='calc(100% - 96px)'
-                                        path={`allattributeraw${entityName}${recordId}`}
-                                        value={isFetching ? "{Fetching...}" : attributesRawFilteredString}
-                                        language='json'
-                                        options={{
-                                            readOnly: true,
-                                            domReadOnly: true,
-                                            wordWrap: 'on',
-                                        }}
-                                    />
-                                    // <Box height='calc(100% - 96px)' width='100%'>
-                                    //     <JsonView
-                                    //         value={attributesRawFiltered}
-                                    //         style={jsonStyle}
-                                    //         collapsed={1}
-                                    //         highlightUpdates={false}
-                                    //         shortenTextAfterLength={36}
-                                    //     >
-                                    //         <JsonView.Quote>
-                                    //             <span />
-                                    //         </JsonView.Quote>
-                                    //     </JsonView>
-                                    // </Box>
+                                    // <Editor
+                                    //     height='calc(100% - 96px)'
+                                    //     path={`allattributeraw${entityName}${recordId}`}
+                                    //     value={isFetching ? "{Fetching...}" : attributesRawFilteredString}
+                                    //     language='json'
+                                    //     options={{
+                                    //         readOnly: true,
+                                    //         domReadOnly: true,
+                                    //         wordWrap: 'on',
+                                    //     }}
+                                    // />
+                                    <Box height='calc(100% - 96px)' width='100%'>
+                                        <JsonView
+                                            value={isFetching ? { "Fetching...": "" } : attributesRawFiltered}
+                                            style={jsonStyle}
+                                            collapsed={1}
+                                            highlightUpdates={false}
+                                            // displayDataTypes={false}
+                                            shortenTextAfterLength={36}
+                                            indentWidth={20}
+                                        >
+                                            <JsonView.Quote>
+                                                <span />
+                                            </JsonView.Quote>
+                                        </JsonView>
+                                    </Box>
                                     :
                                     (
                                         isFetching ?
