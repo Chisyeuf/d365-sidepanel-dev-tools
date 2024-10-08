@@ -11,7 +11,8 @@ export default class XrmObserver {
     }
 
     ObservePageChanges() {
-        const selector: string = "#panels > [role=main]";
+        const selector: string = "#navigationcontextprovider";
+        // const selector: string = "#panels > [role=main]";
         waitForElm(selector).then((mainContainer) => {
             const observer = new MutationObserver(mutations => {
                 this.Xrm = Xrm;
@@ -20,7 +21,8 @@ export default class XrmObserver {
             observer.observe(mainContainer!, {
                 childList: false,
                 subtree: false,
-                attributes: true
+                attributes: true,
+                attributeFilter: ["route"],
             });
         });
     }

@@ -1,6 +1,6 @@
 
-import { Button, ButtonGroup, createTheme, Divider, List, ListItemButton, ListItemText, ListSubheader, Skeleton, Stack, ThemeProvider } from '@mui/material';
-import React, { forwardRef, useCallback, useEffect, useMemo, useState, } from 'react';
+import { Box, Button, ButtonGroup, createTheme, Divider, List, ListItem, ListItemButton, ListItemText, ListSubheader, Skeleton, Stack, ThemeProvider } from '@mui/material';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttributes';
@@ -11,6 +11,13 @@ import FilterInput from '../../utils/components/FilterInput';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import CopyMenu from '../../utils/components/CopyMenu';
+import { useBoolean, useCopyToClipboard } from 'usehooks-ts';
+import { Editor, Monaco } from '@monaco-editor/react';
+import { editor } from 'monaco-editor';
+import JsonView from '@uiw/react-json-view';
+import { vscodeTheme } from '@uiw/react-json-view/vscode';
+import ReactDOM from 'react-dom';
+
 
 class AllFieldsButton extends ProcessButton {
     constructor() {
@@ -18,7 +25,7 @@ class AllFieldsButton extends ProcessButton {
             'allfields',
             'All Attributes',
             <FormatListBulletedIcon />,
-            350
+            450
         );
         this.process = AllFieldsButtonProcess;
     }
@@ -76,6 +83,13 @@ theme = createTheme(theme, {
     }
 });
 
+const jsonStyle: React.CSSProperties = {
+    width: 'calc(100% - 16px)',
+    height: 'calc(100% - 16px)',
+    overflow: 'auto',
+    padding: 8
+}
+
 type AttributeSetType = {
     [attributeName: string]: {
         value: { value: any, selector: string },
@@ -86,8 +100,7 @@ type AttributeSetType = {
 const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
     function AllFieldsButtonProcess(props: ProcessProps, ref) {
 
-        // const entityName: string = 'opportunity';
-        // const recordId: string = 'a97587bd-4cb1-4d9b-ad8b-927bfc71b560';
+        const [, copy] = useCopyToClipboard();
 
         const { entityName, isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
 
@@ -96,6 +109,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         const [filter, setFilter] = useState<string>('');
         const [forceOpenAll, setForceOpenAll] = useState<boolean>(false);
         const [forceCloseAll, setForceCloseAll] = useState<boolean>(false);
+        const { value: showRaw, toggle: toggleShowRaw } = useBoolean(false);
 
 
         const toggleForceOpen = useCallback(() => {
@@ -111,6 +125,19 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                 setForceCloseAll(false);
             }, 500);
         }, [setForceCloseAll]);
+
+        const attributesRawFiltered = useMemo(() => {
+            return Object.entries(attributes).reduce<{ [key: string]: any }>((acc, [key, value]) => {
+                if (key.includes(filter) || value?.toString().includes(filter)) {
+                    acc[key] = attributes[key];
+                }
+                return acc;
+            }, {});
+        }, [attributes, filter]);
+
+        const attributesRawFilteredString = useMemo(() => {
+            return JSON.stringify(attributesRawFiltered, null, 2);
+        }, [attributesRawFiltered]);
 
         const attributesSet: AttributeSetType = useMemo(() => {
             return Object.entries(attributes)
@@ -162,43 +189,119 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             );
         }, [attributesSet, filter]);
 
+
+        const openRawInTab = useCallback(() => {
+            // window.open("data:text/json," + encodeURIComponent(attributesRawFilteredString), "_blank");
+            var x = window.open();
+            x?.document.open();
+            x?.document.write('<html><body style="margin:0"></body></html>');
+            ReactDOM.render(
+                <Box height='calc(100% - 96px)' width='100%'>
+                    <JsonView
+                        value={attributesRawFiltered}
+                        style={{ ...vscodeTheme, ...jsonStyle }}
+                        collapsed={1}
+                        highlightUpdates={false}
+                        shortenTextAfterLength={36}
+                    >
+                        <JsonView.Quote>
+                            <span />
+                        </JsonView.Quote>
+                    </JsonView>
+                </Box>
+                , x?.document.querySelector('body')!);
+            x?.document.close();
+        }, [attributesRawFiltered]);
+
+        const [copying, setCopying] = useState(false);
+        const copyRawInClipboard = useCallback(() => {
+            setCopying(true);
+            copy(attributesRawFilteredString);
+            setTimeout(() => {
+                setCopying(false);
+            }, 1500);
+        }, [attributesRawFiltered, copy]);
+
+
         return (
             <ThemeProvider theme={theme}>
                 <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
-                    <List
-                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
-                        component="nav"
-                        subheader={
-                            <ListSubheader component="div">
-                                <ButtonGroup variant="contained" fullWidth size='small'>
-                                    <Button onClick={toggleForceOpen}>Open All</Button>
-                                    <Button onClick={toggleForceClose}>Close All</Button>
-                                    <Button onClick={forceRefresh}>Refresh</Button>
-                                </ButtonGroup>
-                                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
-                            </ListSubheader>
-                        }
-                    >
-                        {
-                            isFetching ?
-                                <Stack width='100%' height='100%' spacing={0.5}>
-                                    {[...Array(13)].map(() => <Skeleton variant='rounded' height={'55px'} />)}
-                                </Stack>
-                                :
-                                Object.entries(attributesSetFiltered).map(([key, value], index) => {
-                                    return (
-                                        <AttributeListItem
-                                            forceOpen={forceOpenAll}
-                                            forceClose={forceCloseAll}
-                                            key={'attributelistitem' + index}
-                                            attributeName={key}
-                                            values={value}
-                                        />
-                                    );
-                                })
-                        }
-                    </List>
-
+                    {
+                        <List
+                            sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
+                            component="nav"
+                            subheader={
+                                <ListSubheader component="div">
+                                    {
+                                        showRaw ?
+                                            <ButtonGroup variant="contained" fullWidth size='small'>
+                                                <Button onClick={copyRawInClipboard}>{copying ? "Copied!" : "Copy"}</Button>
+                                                <Button onClick={openRawInTab}>Open in tab</Button>
+                                                <Button onClick={forceRefresh}>Refresh</Button>
+                                                <Button onClick={toggleShowRaw}>Hide Raw</Button>
+                                            </ButtonGroup>
+                                            :
+                                            <ButtonGroup variant="contained" fullWidth size='small'>
+                                                <Button onClick={toggleForceOpen}>Open All</Button>
+                                                <Button onClick={toggleForceClose}>Close All</Button>
+                                                <Button onClick={forceRefresh}>Refresh</Button>
+                                                <Button onClick={toggleShowRaw}>Show Raw</Button>
+                                            </ButtonGroup>
+                                    }
+                                    <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
+                                </ListSubheader>
+                            }
+                        >
+                            {
+                                showRaw ?
+                                    <Editor
+                                        height='calc(100% - 96px)'
+                                        path={`allattributeraw${entityName}${recordId}`}
+                                        value={isFetching ? "{Fetching...}" : attributesRawFilteredString}
+                                        language='json'
+                                        options={{
+                                            readOnly: true,
+                                            domReadOnly: true,
+                                            wordWrap: 'on',
+                                        }}
+                                    />
+                                    // <Box height='calc(100% - 96px)' width='100%'>
+                                    //     <JsonView
+                                    //         value={attributesRawFiltered}
+                                    //         style={jsonStyle}
+                                    //         collapsed={1}
+                                    //         highlightUpdates={false}
+                                    //         shortenTextAfterLength={36}
+                                    //     >
+                                    //         <JsonView.Quote>
+                                    //             <span />
+                                    //         </JsonView.Quote>
+                                    //     </JsonView>
+                                    // </Box>
+                                    :
+                                    (
+                                        isFetching ?
+                                            <Stack width='100%' height='100%' spacing={0.5}>
+                                                {[...Array(13)].map(() => <Skeleton variant='rounded' height={'55px'} />)}
+                                            </Stack>
+                                            :
+                                            (
+                                                Object.entries(attributesSetFiltered).map(([key, value], index) => {
+                                                    return (
+                                                        <AttributeListItem
+                                                            forceOpen={forceOpenAll}
+                                                            forceClose={forceCloseAll}
+                                                            key={'attributelistitem' + index}
+                                                            attributeName={key}
+                                                            values={value}
+                                                        />
+                                                    );
+                                                })
+                                            )
+                                    )
+                            }
+                        </List>
+                    }
                 </Stack>
             </ThemeProvider>
         );

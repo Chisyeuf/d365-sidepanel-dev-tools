@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { debugLog, formatId } from "../../global/common";
 import XrmObserver from "../../global/XrmObserver";
 
 
