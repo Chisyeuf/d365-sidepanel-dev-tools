@@ -14,6 +14,7 @@ import dirtyFields from './dirtyFields/main';
 import navigation from './navigation/main';
 import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
 import optionSetTable from './optionSetTable/main';
+import entitiesList from './entitiesList/main';
 
 const Processes: ProcessButton[] = [
     formTools,
@@ -22,6 +23,7 @@ const Processes: ProcessButton[] = [
     optionSetTable,
     dirtyFields,
     relatedRecords,
+    entitiesList,
     webResourceEditor,
     impersonation,
     pluginTraceLogsExplorer,
@@ -82,11 +84,11 @@ export default Processes;
 //     },
 // chrome.storage.onChanged.addListener
 
-// Edit JS en temps réel et publier
-// Visualization/Tracking des processus sur le record
-// lister tous les related records
+// // Edit JS en temps réel et publier
+// // Visualization/Tracking des processus sur le record
+// // lister tous les related records
 // lister les users qui ont accès à un enregistrement avec leur niveau d'accès
 // lister les entities pour afficher les grilles de records non présent dans l'apps
-// lister les environnements
-// Navigation vers Power Apps et Power Admin et les différent environnement du tenant
+// // lister les environnements
+// // Navigation vers Power Apps et Power Admin et les différent environnement du tenant
 // ];

@@ -129,8 +129,9 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [setForceCloseAll]);
 
         const attributesRawFiltered = useMemo(() => {
+            const filterLower = filter.toLowerCase();
             return Object.entries(attributes).reduce<{ [key: string]: any }>((acc, [key, value]) => {
-                if (key.includes(filter) || value?.toString().includes(filter)) {
+                if (key.toLowerCase().includes(filterLower) || value?.toString().toLowerCase().includes(filterLower)) {
                     acc[key] = attributes[key];
                 }
                 return acc;
