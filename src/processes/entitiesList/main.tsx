@@ -1,5 +1,5 @@
 
-import { createTheme, List, ListItemButton, ListItemText, ListSubheader, Stack, ThemeProvider } from '@mui/material';
+import { createTheme, Divider, List, ListItemButton, ListItemText, ListSubheader, Stack, ThemeProvider } from '@mui/material';
 import React, { forwardRef, useCallback, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -56,12 +56,15 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                     {
                         entitiesFiltered?.map((entity, index) => {
                             return (
-                                <ListItemButton
-                                    sx={{ pt: 0, pb: 0 }}
-                                    onClick={() => openEntityList(entity.logicalname)}
-                                >
-                                    <ListItemText title={entity.name} primary={entity.name} secondary={entity.logicalname} />
-                                </ListItemButton>
+                                <>
+                                    <ListItemButton
+                                        sx={{ pt: 0, pb: 0 }}
+                                        onClick={() => openEntityList(entity.logicalname)}
+                                    >
+                                        <ListItemText title={entity.name} primary={entity.name} secondary={entity.logicalname} sx={{ mt: 0.5, mb: 0.5 }} />
+                                    </ListItemButton>
+                                    <Divider />
+                                </>
                             );
                         })
                     }
