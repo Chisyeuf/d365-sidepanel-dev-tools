@@ -217,8 +217,9 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
             if (recordsIds.length === 0 || attributesValueKeys.length === 0) return;
 
+            Xrm.Utility.showProgressIndicator(`Updating ${recordsIds.length} ${entityName}`);
+
             recordsIds.forEach((recordid) => {
-                Xrm.Utility.showProgressIndicator("Updating " + entityName + ": " + recordid);
                 Xrm.WebApi.online.updateRecord(entityName, recordid, attributesValues).then(
                     function success(result) {
                         Xrm.Utility.closeProgressIndicator();
@@ -252,7 +253,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                         console.error(error.message);
                     }
                 );
-            })
+            });
         }
 
         const launchCreate = () => {
