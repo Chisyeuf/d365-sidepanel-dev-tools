@@ -73,15 +73,20 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
     const renderElement = useMemo(() => {
         return (
             <>
-                <Tooltip enterDelay={600} title={<><Typography variant='caption'>Left click: open record selector</Typography><Typography variant='caption'>Right click: open contextual menu</Typography></>}>
-                    <CircularProgressOverflow
-                        onClick={openDialog}
-                        loading={isGridLoading || fetchingDisplayName}
-                        sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                        disableShrink
-                        theme={props.theme}
-                        onHover={setIsHover}
-                    >
+                <CircularProgressOverflow
+                    onClick={openDialog}
+                    loading={isGridLoading || fetchingDisplayName}
+                    sx={{ cursor: !disabled ? "pointer" : "auto" }}
+                    disableShrink
+                    theme={props.theme}
+                    onHover={setIsHover}
+                >
+                    <Tooltip arrow disableInteractive enterDelay={600} title={
+                        <Stack direction='column'>
+                            <Typography variant='caption'><b>Left click</b>: Open record selector</Typography>
+                            <Typography variant='caption'><b>Right click</b>: Open contextual menu</Typography>
+                        </Stack>
+                    }>
                         <TextField
                             size='small'
                             fullWidth
@@ -117,8 +122,8 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                             disabled={disabled}
                             onContextMenu={handleOpenContextualMenu}
                         />
-                    </CircularProgressOverflow>
-                </Tooltip>
+                    </Tooltip>
+                </CircularProgressOverflow>
                 <RecordContextualMenu
                     open={isContextualMenuOpen}
                     anchorElement={anchorEl}

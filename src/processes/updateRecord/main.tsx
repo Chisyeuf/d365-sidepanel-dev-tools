@@ -400,7 +400,7 @@ function AttributesList(props: AttributesListProps) {
                                         entityname={props.entityname}
                                         value={attributesRetrieved[attributeName]}
                                         filter={filter}
-                                        resetTotal={props.resetAttributes}
+                                        resetAttributes={props.resetAttributes}
                                         attributeToUpdateManager={props.attributeToUpdateManager}
                                         unselectAttribute={handleUnselectAttribute}
                                     />
@@ -427,7 +427,7 @@ type AttributeNodeProps = {
     value: any,
     disabled: boolean,
     filter: string,
-    resetTotal: boolean,
+    resetAttributes: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
     unselectAttribute: (selectedAttribute: AttributeMetadata[]) => void
 }
@@ -497,7 +497,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     useUpdateEffect(() => {
         // removeToUpdate();
         setToReset();
-    }, [props.resetTotal]);
+    }, [props.resetAttributes]);
 
     useEffect(() => {
         if (props.value !== undefined)
@@ -805,6 +805,7 @@ function NavTopBar(props: NavBarProps) {
                 reset={props.setCurrentRecord}
                 entityName={props.entityname}
                 recordIds={props.recordsIds}
+                multiple
             />
 
 
