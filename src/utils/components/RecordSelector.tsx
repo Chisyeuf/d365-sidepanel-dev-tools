@@ -5,7 +5,7 @@ import { RetrievePrimaryNameAttribute } from '../hooks/XrmApi/RetrievePrimaryNam
 import React from 'react'
 import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMetaData'
 import { useBoolean } from 'usehooks-ts'
-import { Stack, Button, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Pagination, Chip, Box, Paper, ListItem, Theme } from '@mui/material';
+import { Stack, Button, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Pagination, Chip, Box, Paper, ListItem, Theme, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector, gridPaginationRowRangeSelector } from '@mui/x-data-grid';
 import { DialogActions, LinearProgress } from '@material-ui/core'
@@ -73,50 +73,52 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
     const renderElement = useMemo(() => {
         return (
             <>
-                <CircularProgressOverflow
-                    onClick={openDialog}
-                    loading={isGridLoading || fetchingDisplayName}
-                    sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                    disableShrink
-                    theme={props.theme}
-                    onHover={setIsHover}
-                >
-                    <TextField
-                        size='small'
-                        fullWidth
-                        placeholder={entityname ? 'Search ' + entityname : "Select entity first"}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    {
-                                        recordsDisplayNames?.length > 0 ?
-                                            isHover && !props.disabled ?
-                                                ClearButton
-                                                : recordsDisplayNames?.length > 1 ?
-                                                    <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
-                                                    : null
-                                            : null
-                                    }
-                                </InputAdornment>
-                            ),
-                            readOnly: true,
-                            style: { cursor: !disabled ? "pointer" : "auto" }
-                        }}
-                        inputProps={{
-                            style: { cursor: !disabled ? "pointer" : "auto" }
-                        }}
+                <Tooltip enterDelay={600} title={<><Typography variant='caption'>Left click: open record selector</Typography><Typography variant='caption'>Right click: open contextual menu</Typography></>}>
+                    <CircularProgressOverflow
+                        onClick={openDialog}
+                        loading={isGridLoading || fetchingDisplayName}
                         sx={{ cursor: !disabled ? "pointer" : "auto" }}
-                        value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
-                        // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
-                        disabled={disabled}
-                        onContextMenu={handleOpenContextualMenu}
-                    />
-                </CircularProgressOverflow>
+                        disableShrink
+                        theme={props.theme}
+                        onHover={setIsHover}
+                    >
+                        <TextField
+                            size='small'
+                            fullWidth
+                            placeholder={entityname ? 'Search ' + entityname : "Select entity first"}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        {
+                                            recordsDisplayNames?.length > 0 ?
+                                                isHover && !props.disabled ?
+                                                    ClearButton
+                                                    : recordsDisplayNames?.length > 1 ?
+                                                        <Chip label={"+" + (recordsDisplayNames.length - 1)} size='small' />
+                                                        : null
+                                                : null
+                                        }
+                                    </InputAdornment>
+                                ),
+                                readOnly: true,
+                                style: { cursor: !disabled ? "pointer" : "auto" }
+                            }}
+                            inputProps={{
+                                style: { cursor: !disabled ? "pointer" : "auto" }
+                            }}
+                            sx={{ cursor: !disabled ? "pointer" : "auto" }}
+                            value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
+                            // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
+                            disabled={disabled}
+                            onContextMenu={handleOpenContextualMenu}
+                        />
+                    </CircularProgressOverflow>
+                </Tooltip>
                 <RecordContextualMenu
                     open={isContextualMenuOpen}
                     anchorElement={anchorEl}
@@ -239,7 +241,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
         return [checkboxes,
             {
                 field: firstColumnsMetadata.LogicalName,
-                headerName: "GUID" ?? firstColumnsMetadata.DisplayName,
+                headerName: "GUID",// ?? firstColumnsMetadata.DisplayName,
                 resizable: true,
                 hideable: false,
                 hide: false,

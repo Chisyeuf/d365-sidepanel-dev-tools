@@ -12,7 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 // Material UI imports
-import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
+import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider, Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -42,12 +42,17 @@ import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import RestoreIcon from '@mui/icons-material/Restore';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
+import SplitButton from '../../utils/components/SplitButton';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
+import usePrevious from '../../utils/hooks/use/usePrevious';
+
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
         super(
             'updaterecord',
-            'Update Record',
+            'Create / Update Record',
             <SyncIcon />,
             500
         )
@@ -160,11 +165,13 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             },
         }));
 
-        const [entityname, _setEntityname] = useState<string>(Xrm.Page.data?.entity?.getEntityName());
+        const [entityName, _setEntityname] = useState<string>(Xrm.Utility.getPageContext()?.input?.entityName);
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
+        // const previousRecordsIds = usePrevious(recordsIds);
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
-        const { value: resetTotal, toggle: toggleResetTotal } = useBoolean(false);
+        const { value: resetAttributes, toggle: toggleResetAttributes } = useBoolean(false);
+        const { value: resetEntity, toggle: toggleResetEntity } = useBoolean(false);
 
 
         const setEntityname = (entityname: string) => {
@@ -173,7 +180,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }
 
         const setCurrentRecord = useCallback(() => {
-            const entityName = Xrm.Utility.getPageContext().input.entityName;
+            const entityName = Xrm.Utility.getPageContext()?.input?.entityName;
             const recordid = formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase());
             if (!entityName) return;
             setEntityname(entityName);
@@ -184,16 +191,18 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, []);
 
         useUpdateEffect(() => {
-            toggleResetTotal();
-        }, [entityname, recordsIds]);
+            // if (!previousRecordsIds || previousRecordsIds.length > 0)
+            toggleResetAttributes();
+        }, [recordsIds]);
 
         useUpdateEffect(() => {
             setAttributes({});
-        }, [entityname]);
+            toggleResetEntity();
+        }, [entityName]);
 
 
         const xrmObserverCallback = () => {
-            if (entityname) return
+            if (entityName) return;
             // if (!XrmObserver.isEntityRecord() || entityname) return
             setCurrentRecord();
             XrmObserver.removeListener(xrmObserverCallback);
@@ -204,24 +213,24 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, []);
 
         const launchUpdate = () => {
-            debugLog("Launch Update for", entityname, recordsIds, "on", attributesValues);
+            debugLog("Launch Update for", entityName, recordsIds, "with", attributesValues);
 
             if (recordsIds.length === 0 || attributesValueKeys.length === 0) return;
 
             recordsIds.forEach((recordid) => {
-                Xrm.Utility.showProgressIndicator("Updating " + entityname + ": " + recordid);
-                Xrm.WebApi.online.updateRecord(entityname, recordid, attributesValues).then(
+                Xrm.Utility.showProgressIndicator("Updating " + entityName + ": " + recordid);
+                Xrm.WebApi.online.updateRecord(entityName, recordid, attributesValues).then(
                     function success(result) {
                         Xrm.Utility.closeProgressIndicator();
                         props.snackbarProvider.enqueueSnackbar(
-                            entityname + " " + recordid + " updated.",
+                            entityName + " " + recordid + " updated.",
                             { variant: 'success' }
                         );
                     },
                     function (error) {
                         Xrm.Utility.closeProgressIndicator();
                         props.snackbarProvider.enqueueSnackbar(
-                            "Updating " + entityname + " " + recordid + " has encountered an error.",
+                            "Updating " + entityName + " " + recordid + " has encountered an error.",
                             {
                                 variant: 'detailsFile',
                                 detailsVariant: 'error',
@@ -246,6 +255,48 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             })
         }
 
+        const launchCreate = () => {
+            debugLog("Launch Create for", entityName, "with", attributesValues);
+
+            if (attributesValueKeys.length === 0) return;
+
+            Xrm.Utility.showProgressIndicator("Creating " + entityName);
+            Xrm.WebApi.online.createRecord(entityName, attributesValues).then(
+                function success(result) {
+                    Xrm.Utility.closeProgressIndicator();
+                    setRecordsIds([result.id]);
+                    props.snackbarProvider.enqueueSnackbar(
+                        entityName + " " + result.id + " created.",
+                        { variant: 'success' }
+                    );
+                },
+                function (error) {
+                    Xrm.Utility.closeProgressIndicator();
+                    props.snackbarProvider.enqueueSnackbar(
+                        "Creating " + entityName + " has encountered an error.",
+                        {
+                            variant: 'detailsFile',
+                            detailsVariant: 'error',
+                            persist: true,
+                            allowDownload: true,
+                            detailsNode: <Typography
+                                gutterBottom
+                                variant="caption"
+                                style={{ color: "#000", display: "block" }}
+                            >
+                                {`(0x${error.errorCode.toString(16)}) ${error.message}`}
+                            </Typography>,
+                            downloadButtonLabel: "Download log file",
+                            fileContent: error.raw,
+                            fileName: "ErrorDetails.txt"
+                        }
+                    );
+
+                    console.error(error.message);
+                }
+            );
+        }
+
 
         return (
             <Stack spacing={0.5} width="-webkit-fill-available" padding="10px" height='calc(100% - 10px)'>
@@ -254,19 +305,21 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     setRecordsIds={setRecordsIds}
                     setCurrentRecord={setCurrentRecord}
                     launchUpdate={launchUpdate}
+                    launchCreate={launchCreate}
                     setFilterAttribute={setFilterAttribute}
-                    entityname={entityname}
+                    entityname={entityName}
                     recordsIds={recordsIds} />
                 <Divider />
                 <AttributesList
-                    entityname={entityname}
+                    entityname={entityName}
                     recordsIds={recordsIds}
                     filter={filterAttribute}
-                    resetTotal={resetTotal}
+                    resetEntity={resetEntity}
+                    resetAttributes={resetAttributes}
                     attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
                 />
                 <Divider />
-                <Typography maxHeight='19px'>{entityname + " / " + recordsIds}</Typography>
+                <Typography maxHeight='19px'>{entityName + " / " + recordsIds}</Typography>
             </Stack>
         );
     }
@@ -292,7 +345,8 @@ type AttributesListProps = {
     entityname: string,
     recordsIds: string[],
     filter: string,
-    resetTotal: boolean,
+    resetEntity: boolean,
+    resetAttributes: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
 }
 function AttributesList(props: AttributesListProps) {
@@ -323,7 +377,7 @@ function AttributesList(props: AttributesListProps) {
 
     useEffect(() => {
         setSelectedAttribute([]);
-    }, [props.resetTotal]);
+    }, [props.resetEntity]);
 
 
     const nodeContent = useMemo(() =>
@@ -346,7 +400,7 @@ function AttributesList(props: AttributesListProps) {
                                         entityname={props.entityname}
                                         value={attributesRetrieved[attributeName]}
                                         filter={filter}
-                                        resetTotal={props.resetTotal}
+                                        resetTotal={props.resetAttributes}
                                         attributeToUpdateManager={props.attributeToUpdateManager}
                                         unselectAttribute={handleUnselectAttribute}
                                     />
@@ -735,6 +789,7 @@ type NavBarProps = {
     setRecordsIds: Dispatch<SetStateAction<string[]>>,
     setCurrentRecord: () => void,
     launchUpdate: () => void,
+    launchCreate: () => void,
     setFilterAttribute: (str: string) => void,
     entityname: string,
     recordsIds: string[],
@@ -744,40 +799,65 @@ function NavTopBar(props: NavBarProps) {
     return (
         <Stack key="topbar" spacing={0.5} width="100%">
 
-            {/* <Divider /> */}
-            <RecordSearchBar setEntityName={props.setEntityname} setRecordIds={props.setRecordsIds} reset={() => {
-                props.setCurrentRecord();
-            }} entityName={props.entityname} recordIds={props.recordsIds} />
-            <Stack direction={"row"} key="attributesselector" spacing={0.5} width="100%">
-                {/* <FilterInput fullWidth returnFilterInput={props.setFilterAttribute} key='attributefilterinput' placeholder='Filter attributes' /> */}
-                <Button
-                    variant='outlined'
-                    fullWidth
-                    size='small'
-                    onClick={() => {
-                        Xrm.Page.ui.refreshRibbon(true)
-                    }}
-                >
-                    Refresh Ribbon
-                </Button>
-                <Button
-                    variant='outlined'
-                    fullWidth
-                    size='small'
-                    onClick={() => {
-                        Xrm.Page.data.refresh(false)
-                    }}
-                >
-                    Refresh Form
-                </Button>
-                <Button
+            <RecordSearchBar
+                setEntityName={props.setEntityname}
+                setRecordIds={props.setRecordsIds}
+                reset={props.setCurrentRecord}
+                entityName={props.entityname}
+                recordIds={props.recordsIds}
+            />
+
+
+            <Stack direction={"row"} key="attributesselector" spacing={4} width="100%">
+
+                <Stack direction='row' spacing={0.5} alignItems='center' width="100%">
+
+                    <Typography>Refresh:</Typography>
+
+                    <ButtonGroup variant='outlined' fullWidth size='small' orientation='horizontal'>
+                        <Button
+                            onClick={() => {
+                                Xrm.Page.ui.refreshRibbon(true)
+                            }}
+                        >
+                            Ribbon
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                Xrm.Page.data.refresh(false)
+                            }}
+                        >
+                            Form
+                        </Button>
+                    </ButtonGroup>
+                </Stack>
+                {/* <Tooltip title={<Typography>Open last record</Typography>}>
+                    <Button>
+                        <OpenInNewIcon />
+                    </Button>
+                </Tooltip> */}
+                {/* <Button
                     variant='contained'
                     fullWidth
                     key='updatebutton'
                     onClick={props.launchUpdate}
+                    disabled={!props.entityname || props.recordsIds.length === 0}
                 >
                     <RocketLaunchIcon /> Launch Update
-                </Button>
+                </Button> */}
+                <SplitButton
+                    options={[
+                        {
+                            title: <Stack direction='row' spacing={2}><RocketLaunchIcon /> <div>Launch Create</div></Stack>,
+                            action: props.launchCreate
+                        },
+                        {
+                            title: <Stack direction='row' spacing={2}><RocketLaunchIcon /> <div>Launch Update</div></Stack>,
+                            action: props.launchUpdate
+                        },
+                    ]}
+                    actionIndex={props.recordsIds.length === 0 ? 0 : 1}
+                />
             </Stack>
         </Stack>
     );

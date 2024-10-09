@@ -23,7 +23,7 @@ function RecordContextualMenu(props: RecordContextualMenuProps) {
                 <MenuNewTab entityName={entityName} recordId={recordId} onClose={onClose} />
                 <MenuThisTab entityName={entityName} recordId={recordId} onClose={onClose} />
                 <MenuDialog entityName={entityName} recordId={recordId} onClose={onClose} />
-                <MenuSidePanel entityName={entityName} recordId={recordId} onClose={onClose} />
+                {/* <MenuSidePanel entityName={entityName} recordId={recordId} onClose={onClose} /> */}
             </Menu>
         </>
     );
