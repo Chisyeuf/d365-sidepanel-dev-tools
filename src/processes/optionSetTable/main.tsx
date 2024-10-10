@@ -13,6 +13,7 @@ import { TableCellProps } from '@material-ui/core';
 import { useCopyToClipboard } from 'usehooks-ts';
 import LightTooltip from '../../utils/components/LightTooltip';
 import { RetrieveEntityMetadata } from '../../utils/hooks/XrmApi/RetrieveEntityMetadata';
+import EntitySelector from '../../utils/components/EntitySelector';
 
 class OptionSetTableButton extends ProcessButton {
     constructor() {
@@ -93,9 +94,15 @@ type OptionSetTables = {
 const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
     function OptionSetTableProcess(props: ProcessProps, ref) {
 
-        const { entityName = '', isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
+        const { entityName: currentEntityName = '', isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
+        const [entityName, setEntityName] = useState(currentEntityName);
 
-        const entityMetadata = RetrieveEntityMetadata(entityName);
+        useEffect(() => {
+            if (currentEntityName)
+                setEntityName(currentEntityName);
+        }, [currentEntityName]);
+
+        // const entityMetadata = RetrieveEntityMetadata(entityName);
 
         const [filter, setFilter] = useState<string>('');
 
@@ -131,16 +138,17 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
             <ThemeProvider theme={theme}>
                 <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
                     <List
-                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
+                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto', pt: 1 }}
                         component="nav"
                         subheader={
                             <ListSubheader component="div">
-                                <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography>
-                                <Stack direction='row' spacing={1} mt={1} mb={1} >
-                                    {/* <ButtonGroup variant="contained" fullWidth size='small'>
-                                    </ButtonGroup> */}
-                                    <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
-                                    <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
+                                <Stack direction='column' spacing={0.5}>
+                                    {/* <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography> */}
+                                    <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
+                                    <Stack direction='row' spacing={1} mt={1} mb={1} >
+                                        <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
+                                        <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
+                                    </Stack>
                                 </Stack>
                             </ListSubheader>
                         }

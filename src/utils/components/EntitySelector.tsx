@@ -1,4 +1,4 @@
-import { Autocomplete, FilterOptionsState, FormControl, TextField } from "@mui/material"
+import { Autocomplete, FilterOptionsState, FormControl, SxProps, TextField, Theme, Tooltip, Typography } from "@mui/material"
 import React, { useMemo } from "react"
 import { useEffect, useState } from "react"
 import { Entity } from "../types/requestsType"
@@ -17,6 +17,7 @@ type EntitySelectorProps = {
     setEntityname: (str: string) => void,
     entityname: string,
     moreOptions?: EntityOption[],
+    sx?: SxProps<Theme>
 }
 type EntityOption = {
     id: string,
@@ -40,7 +41,7 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
     }, [entityname, options]);
 
     return (
-        <FormControl size='small' fullWidth>
+        <Tooltip title={<Typography variant='body2'>{value.label}</Typography>} arrow disableInteractive enterDelay={600} placement='left'>
             <Autocomplete
                 filterOptions={filterOptions}
                 size='small'
@@ -53,8 +54,9 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
                 renderOption={(props, item) => <li {...props} key={item.id}> {item.label} </li>}
                 value={value}
                 fullWidth
+                sx={props.sx}
             />
-        </FormControl>
+        </Tooltip>
     );
 });
 
