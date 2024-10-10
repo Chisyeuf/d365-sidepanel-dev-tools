@@ -80,7 +80,7 @@ const LegendContent = styled("span", {
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "white",
-    whiteSpace:'nowrap',
+    whiteSpace: 'nowrap',
     width: props.location === Location.top || props.location === Location.bottom ? "80%" : "auto",
     flexDirection:
         props.location === Location.left || props.location === Location.right
@@ -153,97 +153,101 @@ function ComponentContainer(props: ComponentContainerProps) {
     const refLeft = React.useRef<HTMLSpanElement>(null);
     const refRight = React.useRef<HTMLSpanElement>(null);
 
-    const [topComponentHeight, setTopComponentHeight] = useState<number>(0);
-    const [bottomComponentHeight, setBottomComponentHeight] = useState<number>(0);
-    const [leftComponentWidth, setLeftComponentWidth] = useState<number>(0);
-    const [rightComponentWidth, setRightComponentWidth] = useState<number>(0);
+    // const [topComponentHeight, setTopComponentHeight] = useState<number>(0);
+    // const [bottomComponentHeight, setBottomComponentHeight] = useState<number>(0);
+    // const [leftComponentWidth, setLeftComponentWidth] = useState<number>(0);
+    // const [rightComponentWidth, setRightComponentWidth] = useState<number>(0);
 
-    useEffect(() => {
-        setTopComponentHeight(refTop.current?.clientHeight ?? 0);
-    }, [refTop.current])
-    useEffect(() => {
-        setBottomComponentHeight(refBottom.current?.clientHeight ?? 0);
-    }, [refBottom.current])
-    useEffect(() => {
-        setLeftComponentWidth(refLeft.current?.clientWidth ?? 0);
-    }, [refLeft.current])
-    useEffect(() => {
-        setRightComponentWidth(refRight.current?.clientWidth ?? 0);
-    }, [refRight.current])
+    // useEffect(() => {
+    //     setTopComponentHeight(refTop.current?.clientHeight ?? 0);
+    // }, [refTop.current])
+    // useEffect(() => {
+    //     setBottomComponentHeight(refBottom.current?.clientHeight ?? 0);
+    // }, [refBottom.current])
+    // useEffect(() => {
+    //     setLeftComponentWidth(refLeft.current?.clientWidth ?? 0);
+    // }, [refLeft.current])
+    // useEffect(() => {
+    //     setRightComponentWidth(refRight.current?.clientWidth ?? 0);
+    // }, [refRight.current])
 
     return (
-        <Box
-            component='div'
-            position='relative'
-            height='fit-content'
-            width={props.width ?? 'fit-content'}
-            sx={{
-                p: props.padding ?? 0,
-                borderStyle: props.borderStyle ?? 'solid',
-                borderWidth: props.borderWidth ?? '1px',
-                borderColor: (theme) => props.borderColor ?? theme.palette.divider,
-                borderRadius: (theme) => props.borderRadius ?? theme.shape.borderRadius + 'px',
-                paddingTop: props.Legends?.top?.padding,
-                paddingBottom: props.Legends?.bottom?.padding,
-                paddingLeft: props.Legends?.left?.padding,
-                paddingRight: props.Legends?.right?.padding,
-                marginTop: props.Legends?.top?.margin,
-                marginBottom: props.Legends?.bottom?.margin,
-                marginLeft: props.Legends?.left?.margin,
-                marginRight: props.Legends?.right?.margin,
-            }
-            }
-        >
-            {props.Legends && (
-                <>
-                    {props.Legends.top && (
-                        <LegendContainer
-                            ref={refTop}
-                            location="top"
-                            position={props.Legends.top.position}
-                        >
-                            <LegendContent location="top">
-                                {props.Legends.top.component}
-                            </LegendContent>
-                        </LegendContainer>
-                    )}
-                    {props.Legends?.bottom && (
-                        <LegendContainer
-                            ref={refBottom}
-                            location="bottom"
-                            position={props.Legends.bottom.position}
-                        >
-                            <LegendContent location="bottom">
-                                {props.Legends.bottom.component}
-                            </LegendContent>
-                        </LegendContainer>
-                    )}
-                    {props.Legends?.left && (
-                        <LegendContainer
-                            ref={refLeft}
-                            location="left"
-                            position={props.Legends.left.position}
-                        >
-                            <LegendContent location="left">
-                                {props.Legends.left.component}
-                            </LegendContent>
-                        </LegendContainer>
-                    )}
-                    {props.Legends?.right && (
-                        <LegendContainer
-                            ref={refRight}
-                            location="right"
-                            position={props.Legends.right.position}
-                        >
-                            <LegendContent location="right">
-                                {props.Legends.right.component}
-                            </LegendContent>
-                        </LegendContainer>
-                    )}
-                </>
-            )}
-            {children}
-        </Box >
+        <Box sx={{ width: '100%' }}>
+            <Box
+                component='div'
+                position='relative'
+                height='fit-content'
+                width={props.width ?? 'fit-content'}
+                sx={{
+                    p: props.padding ?? 0,
+                    borderStyle: props.borderStyle ?? 'solid',
+                    borderWidth: props.borderWidth ?? '1px',
+                    borderColor: (theme) => props.borderColor ?? theme.palette.divider,
+                    borderRadius: (theme) => props.borderRadius ?? theme.shape.borderRadius + 'px',
+
+                    paddingTop: props.Legends?.top?.padding,
+                    paddingBottom: props.Legends?.bottom?.padding,
+                    paddingLeft: props.Legends?.left?.padding,
+                    paddingRight: props.Legends?.right?.padding,
+
+                    marginTop: props.Legends?.top?.margin,
+                    marginBottom: props.Legends?.bottom?.margin,
+                    marginLeft: props.Legends?.left?.margin,
+                    marginRight: props.Legends?.right?.margin,
+                }
+                }
+            >
+                {props.Legends && (
+                    <>
+                        {props.Legends.top && (
+                            <LegendContainer
+                                ref={refTop}
+                                location="top"
+                                position={props.Legends.top.position}
+                            >
+                                <LegendContent location="top">
+                                    {props.Legends.top.component}
+                                </LegendContent>
+                            </LegendContainer>
+                        )}
+                        {props.Legends?.bottom && (
+                            <LegendContainer
+                                ref={refBottom}
+                                location="bottom"
+                                position={props.Legends.bottom.position}
+                            >
+                                <LegendContent location="bottom">
+                                    {props.Legends.bottom.component}
+                                </LegendContent>
+                            </LegendContainer>
+                        )}
+                        {props.Legends?.left && (
+                            <LegendContainer
+                                ref={refLeft}
+                                location="left"
+                                position={props.Legends.left.position}
+                            >
+                                <LegendContent location="left">
+                                    {props.Legends.left.component}
+                                </LegendContent>
+                            </LegendContainer>
+                        )}
+                        {props.Legends?.right && (
+                            <LegendContainer
+                                ref={refRight}
+                                location="right"
+                                position={props.Legends.right.position}
+                            >
+                                <LegendContent location="right">
+                                    {props.Legends.right.component}
+                                </LegendContent>
+                            </LegendContainer>
+                        )}
+                    </>
+                )}
+                {children}
+            </Box >
+        </Box>
     );
 }
 

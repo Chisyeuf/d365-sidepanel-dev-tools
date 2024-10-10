@@ -68,7 +68,7 @@ const NavigationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={3} height='calc(100% - 10px)' padding='10px' alignItems='center'>
+                <Stack spacing={2} height='calc(100% - 10px)' padding='10px' alignItems='center'>
                     {
                         buttons.map(Button => {
                             return <Button environmentId={environmentId} clientUrl={clientUrl} />

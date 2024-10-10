@@ -85,7 +85,7 @@ function SolutionList(props: NavigationButton) {
         <>
             <ComponentContainer width='100%' Legends={{
                 top: { position: 'center', component: 'Solutions', padding: '5px' },
-                bottom: { position: 'center', component: selectSolutionButton, padding: '15px' }
+                bottom: { position: 'center', component: selectSolutionButton, padding: '10px' }
             }}>
                 <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 

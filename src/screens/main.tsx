@@ -399,7 +399,7 @@ function DrawerTool(props: DrawerToolProps) {
                     </IconButton>
                 </Stack>
 
-                <Stack flex='1 1 auto' minHeight={0}>
+                <Stack flex='1 1 auto' minHeight={0} sx={{ overflowX:'auto' }}>
                     {process.getProcess(setBadgeInner, snackbarProviderContext)}
                 </Stack>
             </Stack>

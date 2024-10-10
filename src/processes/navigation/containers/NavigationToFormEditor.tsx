@@ -49,8 +49,19 @@ function FormEditor(props: NavigationButton) {
     return (
         <>
             <ComponentContainer width='100%' Legends={{
-                top: { position: 'center', component: 'Form Editor', padding: '10px' },
-                bottom: { position: 'center', component: (<Box sx={{ overflow: 'hidden', maxWidth: '100%', flex: '1 0 auto' }}><Typography title={currentFormName} overflow='hidden' textOverflow='ellipsis'>{currentFormName}</Typography></Box> ?? <i>Unavailable</i>), padding: '5px' }
+                top: { position: 'center', component: 'Form Editor', padding: '5px', margin: '20px' },
+                bottom: {
+                    position: 'center',
+                    component: (
+                        currentFormName ?
+                            <Box sx={{ overflow: 'hidden', maxWidth: '100%', flex: '1 0 auto' }}>
+                                <Typography title={currentFormName} overflow='hidden' textOverflow='ellipsis'>{currentFormName}</Typography>
+                            </Box>
+                            :
+                            <i>Unavailable</i>),
+                    padding: '5px',
+                    margin: '10px'
+                }
             }}>
                 <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
