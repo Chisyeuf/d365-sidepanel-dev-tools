@@ -138,10 +138,10 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
             <ThemeProvider theme={theme}>
                 <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
                     <List
-                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto', pt: 1 }}
+                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
                         component="nav"
                         subheader={
-                            <ListSubheader component="div">
+                            <ListSubheader component="div" sx={{ pt: 1 }}>
                                 <Stack direction='column' spacing={0.5}>
                                     {/* <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography> */}
                                     <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />

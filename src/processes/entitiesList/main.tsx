@@ -43,9 +43,9 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack spacing={4} height='calc(100% - 10px)' padding='10px' alignItems='center'>
+            <Stack spacing={4} height='calc(100% - 20px)' padding='10px' alignItems='center'>
                 <List
-                    sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
+                    sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'hidden' }}
                     component="nav"
                     subheader={
                         <ListSubheader component="div">
