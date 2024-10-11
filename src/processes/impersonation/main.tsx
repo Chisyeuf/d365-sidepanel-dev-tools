@@ -158,7 +158,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
                     <Alert severity='info'>
                         <Stack direction='column'>
-                            If you made a mistake and you can no longer access this tool, you can reset the impersonation mode by going to the options screen.
+                            If you made a mistake and you can no longer access this tool, you can reset the impersonation by going to the options screen.
                             <FormControlLabel control={<Checkbox checked={dontShowInfo} onChange={handleChange} size='small' />} label="Don't show again" />
                             <Stack direction='row' spacing={1}>
                                 <OpenOptionsButton variant='outlined' />

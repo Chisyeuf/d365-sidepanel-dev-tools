@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps } from '@mui/material';
+import { Alert, Button, Checkbox, Container, IconButton, SvgIcon, SvgIconProps, Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -18,7 +18,9 @@ import { MessageType } from '../utils/types/Message';
 import { storage_DontShowImpersonationInfo, storage_ListName } from '../utils/global/var';
 
 const OptionsScreen: React.FunctionComponent = () => {
+
     const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storage_ListName, defaultProcessesList);
+
 
     const resetImpersonate = useCallback(() => {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -55,19 +57,45 @@ const OptionsScreen: React.FunctionComponent = () => {
 
 
     return (
-        <Container sx={{ width: '1000px', height: '400px', }}>
+        <Container sx={{ width: '600px', p: 2 }}>
+
             {/* <OptionsGrid processList={processesList} setProcessList={setProcessList} />
             <Button onClick={() => { chrome.storage.sync.remove(storageListName); window.close(); }}>Reset</Button> */}
             <Stack direction='column' spacing={1}>
+
+                <Alert severity='warning'>
+                    <Typography component='p' fontWeight='bold' fontSize='0.95rem'>
+                        This section is not where you can use this extension:
+                    </Typography>
+                    <Typography component='p' fontSize='0.95rem'>
+                        D365 SidePanel Tools adds a panel at the right of Dynamics 365 pages.
+                    </Typography>
+                </Alert>
+
+                <Alert severity='info'>
+                    <Typography component='p' fontSize='0.95rem'>
+                        This screen contains buttons that can be used to reset some features of this extension.
+                    </Typography>
+                </Alert>
+
                 <Button
                     variant='contained'
-                    onClick={resetImpersonate}>Reset Impersonate on Active tab</Button>
+                    onClick={resetProcessList}>
+                    Reset Tool List
+                </Button>
+
                 <Button
                     variant='contained'
-                    onClick={resetProcessList}>Reset Process List</Button>
+                    onClick={resetImpersonate}>
+                    Rest Impersonation on Active tab
+                </Button>
+
                 <Button
                     variant='contained'
-                    onClick={resetDontShowImpersonationInfo}>Reset Impersonation Info</Button>
+                    onClick={resetDontShowImpersonationInfo}>
+                    Reset "Don't Show" Impersonation Info
+                </Button>
+
             </Stack>
         </Container>
     )
