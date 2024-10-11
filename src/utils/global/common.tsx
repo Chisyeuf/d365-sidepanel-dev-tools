@@ -43,6 +43,26 @@ export function waitForElm<T extends HTMLElement>(selector: string) {
     });
 }
 
+export function waitForElmList<T extends HTMLElement>(selector: string) {
+    return new Promise<NodeListOf<T> | null>(resolve => {
+        if (document.querySelectorAll(selector).length > 0) {
+            return resolve(document.querySelectorAll<T>(selector));
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelectorAll(selector).length > 0) {
+                resolve(document.querySelectorAll<T>(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+
 export function GetData(id: string): string {
     var data = document.getElementById(id);
     return data?.getAttribute("data") ?? '';

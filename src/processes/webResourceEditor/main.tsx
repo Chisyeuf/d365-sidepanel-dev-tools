@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch } from '@mui/material';
+import { Button, ButtonGroup, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch, Typography } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
@@ -8,13 +8,14 @@ import CodeEditor from '../../utils/components/CodeEditorComponent/CodeEditor';
 import { buildFileTree, getAllFiles, getFiles } from '../../utils/components/CodeEditorComponent/utils/fileManagement';
 import { TransitionProps } from '@mui/material/transitions';
 import RestoreIcon from '@mui/icons-material/Restore';
-import { GetExtensionId, debugLog } from '../../utils/global/common';
+import { GetExtensionId, debugLog, waitForElmList } from '../../utils/global/common';
 import { MessageType } from '../../utils/types/Message';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { ScriptOverride, ScriptOverrideContent } from '../../utils/types/ScriptOverride';
 import CodeIcon from '@mui/icons-material/Code';
 import { SvgIconComponent } from '@mui/icons-material';
 import { useBoolean } from 'usehooks-ts';
+import CircularProgressOverflow from '../../utils/components/CircularProgressOverflow';
 
 const separationOfUrlAndFileName = 'webresources/';
 
@@ -36,6 +37,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const xrmUpdated = useXrmUpdated();
 
+        const [isFetching, setIsFetching] = useState(false);
         const [scriptNodeContent, setScriptNodeContent] = useState<ScriptNodeContent[] | null>(null);
         const { dict: scriptsOverrided, keys: scriptsOverridedSrc, setDict: setScriptsOverride, setValue: setScriptOverrideItem, removeValue: removeScriptOverrideItem } = useDictionnary<ScriptOverrideContent>({})
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
@@ -68,36 +70,41 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            // document.querySelectorAll('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
             setScriptNodeContent(null);
-            const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
-            Promise.all(Array.from(docs).flatMap(doc => {
-                if (doc.contentWindow)
-                    return Array.prototype.slice
-                        .apply(doc.contentWindow.document.querySelectorAll('script'))
-                        .filter((s: HTMLScriptElement, index, array) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()))
-                        .map<Promise<ScriptNodeContent>>(async (s: HTMLScriptElement) => {
-                            const fileName = s.src.substring(s.src.search(separationOfUrlAndFileName) + separationOfUrlAndFileName.length);
-                            return {
-                                srcRegex: s.src.replace(/\/%7b.*%7d\/webresources/, "/.*/webresources"),
-                                fileName: fileName,
-                                content: await fetch(s.src).then(r => r.text()),
-                                crmId: (await Xrm.WebApi.retrieveMultipleRecords("webresource", `?$select=webresourceid&$filter=(name eq '${fileName}')`).then(
-                                    function success(results) {
-                                        return results.entities[0]["webresourceid"] as string;
-                                    },
-                                    function (error) {
-                                        console.error(`Error when attempt of retrieve webresource id with : ${error.message}`);
-                                    }
-                                ))
-                            } as ScriptNodeContent;
-                        });
-            })).then((scriptNodeContents) => {
-                if (!scriptNodeContents) return;
-                const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.srcRegex === i.srcRegex) === index) as any;
-                debugLog("Scripts found:", scriptNodeContentsDistinctNotNull);
-                setScriptNodeContent(scriptNodeContentsDistinctNotNull);
+            setIsFetching(true);
+            // const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
+            waitForElmList<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])').then((docs) => {
+                docs &&
+                    Promise.all(Array.from(docs).flatMap(doc => {
+                        if (doc.contentWindow)
+                            return Array.prototype.slice
+                                .apply(doc.contentWindow.document.querySelectorAll('script'))
+                                .filter((s: HTMLScriptElement, index, array) => s.src.startsWith(Xrm.Utility.getGlobalContext().getClientUrl()))
+                                .map<Promise<ScriptNodeContent>>(async (s: HTMLScriptElement) => {
+                                    const fileName = s.src.substring(s.src.search(separationOfUrlAndFileName) + separationOfUrlAndFileName.length);
+                                    return {
+                                        srcRegex: s.src.replace(/\/%7b.*%7d\/webresources/, "/.*/webresources"),
+                                        fileName: fileName,
+                                        content: await fetch(s.src).then(r => r.text()),
+                                        crmId: (await Xrm.WebApi.retrieveMultipleRecords("webresource", `?$select=webresourceid&$filter=(name eq '${fileName}')`).then(
+                                            function success(results) {
+                                                return results.entities[0]["webresourceid"] as string;
+                                            },
+                                            function (error) {
+                                                console.error(`Error when attempt of retrieve webresource id with : ${error.message}`);
+                                            }
+                                        ))
+                                    } as ScriptNodeContent;
+                                });
+                    })).then((scriptNodeContents) => {
+                        if (!scriptNodeContents) return;
+                        const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.srcRegex === i.srcRegex) === index) as any;
+                        debugLog("Scripts found:", scriptNodeContentsDistinctNotNull);
+                        setScriptNodeContent(scriptNodeContentsDistinctNotNull);
+                        setIsFetching(false);
+                    });
             });
+
         }, [xrmUpdated]);
 
 
@@ -356,12 +363,18 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                         secondaryIcon={RestoreIcon}
                         secondaryTitle='Restore file'
                     />
-                    <ScriptList
-                        text='Scripts found on this page:'
-                        items={root && getAllFiles(root) || []}
-                        primaryLabel={(item) => scriptsOverrided[item.src] ? <strong>{item.name}</strong> : item.name}
-                        primaryAction={selectFile}
-                    />
+                    <CircularProgressOverflow
+                        loading={isFetching}
+                        disableShrink
+                        size={60}
+                    >
+                        <ScriptList
+                            text='Scripts found on this page:'
+                            items={root && getAllFiles(root) || []}
+                            primaryLabel={(item) => scriptsOverrided[item.src] ? <strong>{item.name}</strong> : item.name}
+                            primaryAction={selectFile}
+                        />
+                    </CircularProgressOverflow>
                 </Stack >
                 <Dialog
                     fullScreen
@@ -428,12 +441,12 @@ type ScriptListProps<T> = {
 function ScriptList<T>(props: ScriptListProps<T>) {
     return (
         <List
-            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto', flex: '1' }}
+            sx={{ width: '100%', bgcolor: 'background.paper', overflowX: 'hidden', overflowY: 'auto', flex: '1 1 50%', height: '100%' }}
             component="nav"
             disablePadding
             subheader={
                 <ListSubheader component="div">
-                    <strong>{props.text}</strong>
+                    <Typography variant='h6' color='black'>{props.text}</Typography>
                 </ListSubheader>
             }
         >
