@@ -55,9 +55,6 @@ function MenuThisTab(props: RecordContextualMenuItemProps) {
                 },
                 {
                     target: 1,
-                    // height: {value: 80, unit:"%"},
-                    // width: {value: 70, unit:"%"},
-                    // position: 1
                 }).then();
         },
         [entityName, recordId]);

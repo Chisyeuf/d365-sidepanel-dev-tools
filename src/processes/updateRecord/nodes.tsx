@@ -52,9 +52,7 @@ const DecimalIcon = createSvgIcon(
 
 export type AttributeProps = {
     attribute: AttributeMetadata,
-    // entityname: string,
     value: any,
-    // setToUpdate: () => void,
     reset: boolean,
     remove: boolean,
     manageDirty: { set: () => void, remove: () => void },
@@ -112,7 +110,6 @@ export function LookupNode(props: AttributeProps & { theme: Theme }) {
 
     useUpdateEffect(() => {
         if (isArraysEquals(value, updatingValue)) return;
-        // props.setToUpdate();
         setValue(updatingValue ? updatingValue : []);
         setDirty(updatingValue ? updatingValue : []);
     }, [updatingValue]);
@@ -165,7 +162,6 @@ export function StringNode(props: AttributeProps) {
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = event.target.value
-        // props.setToUpdate()
         setValue(newValue ? newValue : null)
         setDirty(newValue ? newValue : null)
     }
@@ -178,7 +174,6 @@ export function StringNode(props: AttributeProps) {
                 fullWidth
                 inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
                 value={value ?? ''}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 disabled={props.disabled}
                 InputProps={{
@@ -207,7 +202,6 @@ export function StringNode(props: AttributeProps) {
                             rows={25}
                             fullWidth
                             inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-                        // onFocus={props.setToUpdate}
                         />
                     </DialogContent>
                     <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
@@ -260,7 +254,6 @@ export function MemoNode(props: AttributeProps) {
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = event.target.value
-        // props.setToUpdate()
         setValue(newValue ? newValue : null)
         setDirty(newValue ? newValue : null)
     }
@@ -276,7 +269,6 @@ export function MemoNode(props: AttributeProps) {
                 rows={1}
                 inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
                 value={value ?? ''}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 disabled={props.disabled}
                 InputProps={{
@@ -305,7 +297,6 @@ export function MemoNode(props: AttributeProps) {
                             rows={25}
                             fullWidth
                             inputProps={{ maxLength: props.attribute.Parameters.MaxLength }}
-                        // onFocus={props.setToUpdate}
                         />
                     </DialogContent>
                     <Stack direction='row' justifyContent='space-between' margin='10px' marginTop='0' marginLeft='25px'>
@@ -357,7 +348,6 @@ export function DecimalNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -368,7 +358,6 @@ export function DecimalNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Decimal by " + props.attribute.Parameters.Precision}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -451,7 +440,6 @@ export function DoubleNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -462,7 +450,6 @@ export function DoubleNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Double by " + props.attribute.Parameters.Precision}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -545,7 +532,6 @@ export function MoneyNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -556,7 +542,6 @@ export function MoneyNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Money by " + props.attribute.Parameters.Precision}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -639,7 +624,6 @@ export function IntegerNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -650,7 +634,6 @@ export function IntegerNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"Integer"}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -732,7 +715,6 @@ export function BigIntNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (newValue: number | null) => {
-        // props.setToUpdate()
         setValue(newValue)
         setDirty(newValue)
     }
@@ -743,7 +725,6 @@ export function BigIntNode(props: AttributeProps) {
                 fullWidth
                 placeholder={"BigInt"}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 variant='outlined'
                 size='small'
@@ -826,7 +807,6 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
 
     const onChange = (event: SelectChangeEvent<number>, checked: ReactNode) => {
         const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null;
-        // props.setToUpdate()
         setValue(result);
         setDirty(result);
     }
@@ -842,7 +822,6 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
             <Select
                 open={open}
                 value={value == true ? 1 : value == false ? 0 : -1}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 onClick={handleOnClick}
                 size={"small"}
@@ -854,7 +833,6 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
                         onClick={() => {
                             !props.disabled &&
                                 setValue(old => {
-                                    // props.setToUpdate()
                                     setDirty(!old)
                                     return !old
                                 })
@@ -920,7 +898,6 @@ export function DateTimeNode(props: AttributeProps) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (date: Dayjs | null) => {
-        // props.setToUpdate()
         setValue(date ? dayjs(date) : null);
         setDirty(date ? dayjs(date) : null);
     }
@@ -1012,7 +989,6 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>) => {
-        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? -1 : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -1029,7 +1005,6 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
             <Select
                 open={open}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth
@@ -1090,7 +1065,6 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>) => {
-        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? -1 : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -1108,7 +1082,6 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
             <Select
                 open={open}
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth
@@ -1186,7 +1159,6 @@ export function MultiplePicklistNode(props: AttributeProps & { entityname: strin
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number[]>) => {
-        // props.setToUpdate()
         const newValue = typeof event.target.value == 'string' ? [] : event.target.value
         setValue(newValue)
         setDirty(newValue)
@@ -1204,7 +1176,6 @@ export function MultiplePicklistNode(props: AttributeProps & { entityname: strin
                 open={open}
                 multiple
                 value={value}
-                // onFocus={props.setToUpdate}
                 onChange={onChange}
                 size={"small"}
                 fullWidth

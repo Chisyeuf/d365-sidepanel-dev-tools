@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
-import { AttributeMetadata, MSType, getMSTypeKeyByValue, getMSFormatDateKeyByValue } from '../../types/requestsType';
+import { AttributeMetadata,  getMSTypeKeyByValue } from '../../types/requestsType';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
 export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {
@@ -18,7 +18,6 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
                 Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.0/EntityDefinitions(LogicalName='" +
                 _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "') and (IsFilterable eq true or IsValidODataAttribute eq true)", {
-                // _entityname + "')/Attributes?$filter=DisplayName ne null and IsValidODataAttribute eq true and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "')", {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",
@@ -30,7 +29,6 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
             });
 
             const results = await response.json();
-            // results.value?.filter((r: any) => r?.IsPrimaryId != false)
             results.value?.sort((a: any, b: any) => {
                 var n = a.DisplayName?.UserLocalizedLabel?.Label?.localeCompare(b.DisplayName?.UserLocalizedLabel?.Label);
                 if (n != null && n !== 0) {
@@ -70,7 +68,6 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
         fetchData()
 
     }, [idAttribute]);
-    // }, [_entityname, idAttribute]);
 
     return [data, isFetching];
 }

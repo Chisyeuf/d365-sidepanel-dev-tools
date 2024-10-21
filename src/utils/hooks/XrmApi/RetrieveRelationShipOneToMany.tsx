@@ -27,7 +27,7 @@ export function RetrieveRelationShipOneToMany(entityname: string): [RelationShip
             });
 
             const results = await response.json();
-            // results.value?.filter((r: any) => r?.IsPrimaryId != false)
+
             results.value?.sort((a: any, b: any) => {
                 var n = a.DisplayName?.UserLocalizedLabel?.Label?.localeCompare(b.DisplayName?.UserLocalizedLabel?.Label);
                 if (n != null && n !== 0) {

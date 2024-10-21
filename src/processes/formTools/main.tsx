@@ -118,9 +118,6 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
                 if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
                     setCurrentFormContext(Xrm.Page);
-                    // Xrm.Page.data.addOnLoad(() => {
-                    //     setCurrentFormContext(Xrm.Page);
-                    // });
                 }
                 else {
                     setCurrentFormContext(null);
@@ -164,7 +161,6 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
 export type SubProcessProps = {
-    // xrmStatus: XrmStatus
     currentFormContext: FormContext,
     domUpdated?: boolean
 }

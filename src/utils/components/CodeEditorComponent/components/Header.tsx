@@ -59,27 +59,6 @@ function CodeEditorHeader(props: CodeEditorHeaderProps & PropsWithChildren) {
                 }
             </Toolbar>
         </AppBar>
-        // <Stack
-        //     direction='row'
-        //     sx={{
-        //         backgroundColor: theme === 'vs-dark' ? 'rgb(37, 37, 38)' : '#F3F3F3'
-        //     }}
-        // >
-        //     <TabsList
-        //         files={files}
-        //         selectedFile={selectedFile}
-        //         onSelect={onSelectedFileChanged}
-        //         onFileClose={onFileClose}
-        //         theme={theme}
-        //     />
-        //     {props.children &&
-        //         <Stack
-        //             direction='row'
-        //         >
-        //             {props.children}
-        //         </Stack>
-        //     }
-        // </Stack>
     );
 }
 
@@ -138,18 +117,6 @@ function Tab(props: CodeEditorTabProps) {
     const isHover = useHover(tabRef);
 
     const tabsColor = theme === 'vs-dark' ? darkTabs : lightTabs;
-
-    // useEffect(() => {
-    //     if (tabRef.current) {
-    //         tabRef.current.onmousedown = (event) => {
-    //             if (event.button === 1) {
-    //                 handleClose(event);
-    //             }
-    //         }
-    //     }
-    // }, [tabRef])
-
-
 
     const handleSelect = () => {
         onSelect(file);

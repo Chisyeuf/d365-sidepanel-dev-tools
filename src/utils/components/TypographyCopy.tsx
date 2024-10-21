@@ -1,5 +1,4 @@
-import { Box, Button, Typography, TypographyProps } from "@mui/material";
-import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import { Typography, TypographyProps } from "@mui/material";
 import { useCopyToClipboard } from "usehooks-ts";
 import { useCallback, useState } from "react";
 import React from "react";
@@ -24,7 +23,6 @@ function TypographyCopy(props: TypographyProps & { copyValue?: string }) {
             sx={(theme) => ({
                 color: clicked ? theme.palette.primary.light : 'inherit',
                 transition: 'color 200ms ease 0s',
-                // ...(props.sx instanceof Function ? props.sx?.(theme) : (!!props.sx ? props.sx : {})),
             })}
         >
             {props.children}

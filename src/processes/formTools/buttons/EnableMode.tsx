@@ -13,8 +13,6 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { currentFormContext, enabled: enableModeEnable, setEnabled: setEnableMode } = props;
 
-    // const [enableModeEnable, setEnableMode] = useState(false);
-
     useEffect(() => {
         toggle();
     }, [currentFormContext]);
@@ -61,7 +59,6 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleEnableMode}
                 startIcon={enableModeEnable ? <VpnKeyIcon /> : <VpnKeyOffOutlinedIcon />}
-            // disabled={!executionContext}
             />
         </Tooltip>
     );

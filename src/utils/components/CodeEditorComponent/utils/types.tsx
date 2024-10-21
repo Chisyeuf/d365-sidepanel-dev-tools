@@ -34,8 +34,6 @@ export interface CodeEditorFile extends CodeEditorCommon {
 export interface CodeEditorDirectory extends CodeEditorCommon {
     files: CodeEditorFile[];
     dirs: CodeEditorDirectory[];
-    // getFiles(predicate: (file: CodeEditorFile) => boolean) : CodeEditorFile[];
-    // getFile(predicate: (file: CodeEditorFile) => boolean) : CodeEditorFile[];
 }
 
 export type CodeEditorWindowProps = {
@@ -87,10 +85,6 @@ export type CodeEditorTabProps = {
 export type EditorActionProps = {
     onClick?: () => void,
 }
-
-// export type ChildrenProp = {
-//     children?: ReactNode | ReactElement | JSX.Element
-// }
 
 export type FileTreeProps = {
     directory: CodeEditorDirectory

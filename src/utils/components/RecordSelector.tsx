@@ -50,15 +50,6 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
         closeContextualMenuOpen();
         setAnchorEl(null);
     }
-    // const NavigateToUpdate = () => {
-    //     const extensionId = GetExtensionId();
-    //     chrome.runtime.sendMessage(extensionId, { type: MessageType.CALLMESSAGECALLBACK, data: { toolId: ProcessButton.prefixId + 'updaterecord', data: { entityName: entityname, recordId: recordsIds?.at(0) } } },
-    //         function (response) {
-    //             if (response.success) {
-    //             }
-    //         }
-    //     );
-    // }
 
     const ClearButton: JSX.Element = useMemo(() =>
         <IconButton
@@ -118,7 +109,6 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                             }}
                             sx={{ cursor: !disabled ? "pointer" : "auto" }}
                             value={recordsDisplayNames.length > 0 ? (recordsDisplayNames.at(0)?.displayName ?? ("No name " + entityname)) : ''}
-                            // value={recordsDisplayNames.map(r => r.displayName).join(", ")}
                             disabled={disabled}
                             onContextMenu={handleOpenContextualMenu}
                         />
@@ -175,8 +165,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     const maxRowCount = RetrieveCount(entityname)
-    // const [pageSize, setPageSize] = useState<number>(25)
-    // const [page, setPage] = useState<number>(0)
+    
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
         pageSize: 25,
         page: 0,
@@ -264,15 +253,6 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             },
             ...entityMetadata.filter(meta => meta.LogicalName !== primaryNameLogicalName && meta.MStype !== MSType.Uniqueidentifier).map<GridColDef>(meta => {
                 return GridColDefGenerator(meta)
-                // {
-                //     field: meta.LogicalName,
-                //     headerName: meta.DisplayName,
-                //     resizable: true,
-                //     hideable: true,
-                //     hide: true,
-                //     minWidth: 100,
-                //     type: ConvertMSTypeToGridColDefType(meta.MStype)
-                // }
             })]
     }, [entityMetadata, entityname, primaryNameLogicalName])
 
@@ -288,28 +268,15 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                     rowCount={filterXml ? fetchXmlRecords.length : maxRowCount}
                     columns={columns}
                     loading={isFetchingAllRecords || isFetchingFetchXML}
-                    // initialState={{
-                    //     pagination: {
-                    //         paginationModel: {
-                    //             page: page,
-                    //             pageSize: pageSize
-                    //         }
-                    //     }
-                    // }}
-                    // checkboxSelection={multiple ?? false}
                     onRowClick={(params) => {
-                        // click = setTimeout(() => {
                         addRecord(params.id as string)
-                        // }, 200)
                     }}
                     onRowDoubleClick={(params) => {
-                        // clearTimeout(click)
                         addRecord(params.id as string)
                         onClose()
                     }}
                     components={{
                         Toolbar: CustomToolBar,
-                        // Pagination: CustomPagination,
                         LoadingOverlay: LinearProgress,
                         Footer: CustomFooter,
                     }}
@@ -330,17 +297,10 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                     pagination
                     paginationModel={paginationModel}
                     onPaginationModelChange={setPaginationModel}
-                    // onPageChange={(newPage) => setPage(newPage)}
-                    // onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
                     rowSelectionModel={recordsIds}
                     onRowSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
                     checkboxSelection={multiple}
                     keepNonExistentRowsSelected
-                    // onStateChange={(state: GridState, event, details) => {
-                    //     setVisibleColumns(state.columns.columnVisibilityModel);
-                    //     setFilterModel(state.filter.filterModel)
-                    //     setSortModel(state.sorting.sortModel)
-                    // }}
                     filterModel={filterModel}
                     onFilterModelChange={setFilterModel}
 
@@ -376,12 +336,8 @@ function CustomToolBar(props: CustomToolBarProps) {
 function CustomPagination() {
     const apiRef = useGridApiContext();
     const page = useGridSelector(apiRef, gridPageSelector);
-    // const pageCount = useGridSelector(apiRef, gridPageCountSelector);
     const numberRows = useGridSelector(apiRef, gridRowCountSelector);
     const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-    // const rowsDisplayed = useGridSelector(apiRef, gridPaginatedVisibleSortedGridRowEntriesSelector);
-    // const rowRange = useGridSelector(apiRef, gridPaginationRowRangeSelector);
-    // const numberRows = useGridSelector(apiRef, GridRowCount);
 
     const countMin = pageSize * page;
     const countMinPlusPageSize = countMin + pageSize;
@@ -409,11 +365,6 @@ declare module "@mui/x-data-grid" {
         recordCount: number
     }
 }
-// type CustomFooterProps = {
-//     onClose: () => void
-//     selectedRecordIds: RecordsDisplayNamesResponse[],
-//     registerRecordIds: Dispatch<SetStateAction<string[]>>
-// }
 function CustomFooter(props: FooterPropsOverrides) {
     const handleDelete = (chipToDelete: RecordsDisplayNamesResponse) => {
         const newSelectedRecords = props.selectedRecordIds.filter(r => r.id !== chipToDelete.id)

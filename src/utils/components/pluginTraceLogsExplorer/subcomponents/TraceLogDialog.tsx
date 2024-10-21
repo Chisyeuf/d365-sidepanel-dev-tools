@@ -17,8 +17,6 @@ const theme = createTheme({
         MuiGrid2: {
             styleOverrides: {
                 root: {
-                    // boxSizing: "border-box",
-                    // padding: defaultTheme.spacing(1)
                 }
             },
         }
@@ -40,7 +38,6 @@ interface DialogProps {
 
 }
 const TraceLogDialog = React.memo((props: DialogProps) => {
-    // const { } = props;
 
     const { pluginTraceLogs } = useContext(TraceLogsAPI);
 

@@ -9,8 +9,6 @@ interface PanelDrawerItemProps {
 function PanelDrawerItem(props: PanelDrawerItemProps & PropsWithChildren) {
     const { width, open, children } = props;
 
-    // const refButton = React.useRef<HTMLButtonElement>(null);
-
     return (
         <div>
             <Drawer

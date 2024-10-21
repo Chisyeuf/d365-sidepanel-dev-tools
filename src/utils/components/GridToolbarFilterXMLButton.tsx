@@ -12,9 +12,6 @@ type GridToolbarFilterXMLButtonProps = {
     filterXMLsetter: (filterXML: string | null) => void
 }
 
-// const CustomInputComponent = ({ inputRef, ...rest } : InputBaseComponentProps) => (
-// );
-
 export const GridToolbarFilterXMLButton = React.forwardRef<HTMLButtonElement, ButtonProps & GridToolbarFilterXMLButtonProps>(
     function GridToolbarFilterXMLButton(props, ref) {
         const { onClick, filterXMLsetter, ...other } = props;
@@ -35,7 +32,6 @@ export const GridToolbarFilterXMLButton = React.forwardRef<HTMLButtonElement, Bu
         }
 
         const onClose = () => {
-            // setContent('')
             setOpen(false)
         }
 
@@ -68,13 +64,8 @@ export const GridToolbarFilterXMLButton = React.forwardRef<HTMLButtonElement, Bu
                             multiline
                             value={content}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setContent(event.target.value) }}
-                            // margin="normal"
-                            // variant="outlined"
                             rows={32}
                             fullWidth
-                            // InputProps={{
-                            //     inputComponent: CustomInputComponent
-                            // }}
                         />
                     </DialogContent>
                     <DialogActions>

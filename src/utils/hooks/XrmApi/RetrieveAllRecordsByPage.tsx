@@ -29,11 +29,7 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
         else
             return "contains(" + primaryNameLogicalName + ",'" + encodeURIComponent(filter).replace(/'/g, "''") + "')"
     }, [primaryNameLogicalName, filter, idAttribute])
-    // const _filter = useMemo(() => {
-    //     return filter?.items.map(item => {
-    //         return item.columnField + " " + item.operatorValue + " " + item.value
-    //     }).join(filter.linkOperator)
-    // }, [filter])
+    
     const _orderBy = useMemo(() => {
         return orderBy?.map(item => {
             return item.field + " " + item.sort
@@ -43,8 +39,6 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
     useEffect(() => {
 
         if (!_entityname || !_select || _select.length === 0) return;
-
-        // if (_select.indexOf(_entityname + "id") == -1) return;
 
         async function fetchData() {
             debugLog("RetrieveAllRecordsByPage");

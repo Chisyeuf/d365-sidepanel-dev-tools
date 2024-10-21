@@ -50,7 +50,6 @@ class ImpersonationButton extends ProcessButton {
 
                         const result = await Xrm.WebApi.online.retrieveMultipleRecords("systemuser", `?$select=systemuserid,fullname&$filter=(systemuserid eq ${currentAzureIdOrUserId} or azureactivedirectoryobjectid eq ${currentAzureIdOrUserId})&$expand=systemuserroles_association($select=roleid,name,roleidunique),teammembership_association($select=teamid,name)`);
                         if (result.entities.length > 0) {
-                            // const user: ActiveUser = result.entities[0];
                             const user: ActiveUser = await ConvertToActiveUserObject(result.entities[0]);
 
                             snackbarProviderContext.enqueueSnackbar(`You are impersonating **${user.fullname}** (${user.systemuserid})`, {
@@ -256,18 +255,6 @@ interface UserItemProps {
 const UserItem = React.memo((props: UserItemProps) => {
     const { user, userSelected, handleSelect } = props;
 
-    const aa = user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
-        // Récupérer la valeur de l'attribut sur lequel grouper
-        const groupKey = currentItem["roleid"];
-        // Initialiser le groupe si ce n'est pas déjà fait
-        if (!result[groupKey]) {
-            result[groupKey] = [];
-        }
-        // Ajouter l'élément au groupe
-        result[groupKey].push(currentItem);
-        return result;
-    }, {})
-
     const securityRoleList = useMemo(() => {
         return <RolesDisplayList user={user} />;
     }, [user]);
@@ -449,13 +436,13 @@ const RolesDisplayList = React.memo((props: RolesDisplayListProps) => {
             {user.securityRoles.map(s => <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}><ListItemText primary={s.name} /></ListItem>)}
             {
                 Object.values(user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
-                    // Récupérer la valeur de l'attribut sur lequel grouper
+                    // Retrieve attribute value to group by
                     const groupKey = currentItem["teamid"];
-                    // Initialiser le groupe si ce n'est pas déjà fait
+                    // Initialize the group if not existing
                     if (!result[groupKey]) {
                         result[groupKey] = [];
                     }
-                    // Ajouter l'élément au groupe
+                    // Add element to group
                     result[groupKey].push(currentItem);
                     return result;
                 }, {})).map((roles) => {

@@ -43,10 +43,6 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const [root, setRoot] = useState<CodeEditorDirectory | undefined>();
         const [editorOpen, setEditorOpen] = useState(false);
         const { value: confirmPublishOpen, setTrue: openConfirmPublish, setFalse: closeConfirmPublish } = useBoolean(false);
-        // const [liveTestEnabled, setLiveTestEnabled] = useState<boolean>(false);
-
-        // const [liveTestEnabledInitDone, setLiveTestEnabledInitDone] = useState<boolean>(false);
-        // const [scriptOverrideIntiDone, setScriptOverrideIntiDone] = useState<boolean>(false);
 
         useEffect(() => {
             const extensionId = GetExtensionId();
@@ -55,24 +51,15 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (response) {
                         setScriptsOverride(response);
                     }
-                    // setScriptOverrideIntiDone(true);
                 }
             );
-            // chrome.runtime.sendMessage(extensionId, { type: MessageType.ISDEBUGGERATTACHED },
-            //     function (response: boolean) {
-            //         setLiveTestEnabled(response);
-            //         setTimeout(() => {
-            //             setLiveTestEnabledInitDone(true);
-            //         }, 500);
-            //     }
-            // );
         }, []);
 
 
         useEffect(() => {
             setScriptNodeContent(null);
             setIsFetching(true);
-            // const docs = document.querySelectorAll<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])');
+
             waitForElmList<HTMLIFrameElement>('[id^="ClientApiFrame"]:not([id*="crm_header_global"]):not([id*="id"])').then((docs) => {
                 docs &&
                     Promise.all(Array.from(docs).flatMap(doc => {
@@ -151,7 +138,6 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         const _publishChanges = useCallback(() => {
-            // alert("PUBLISH!!!");
             closeConfirmPublish();
             setEditorOpen(false);
 
@@ -206,35 +192,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             if (scriptsOverridedSrc.length === 0) return;
             openConfirmPublish();
         }, [openConfirmPublish, scriptsOverridedSrc]);
-
-        // useEffect(() => {
-        //     if (!liveTestEnabledInitDone) return;
-        //     if (!scriptOverrideIntiDone) return;
-
-        //     const extensionId = GetExtensionId();
-
-        //     if (liveTestEnabled && scriptNodeContent) {
-        //         debugLog("scriptsOverride sent", scriptsOverrided);
-        //         // const scriptsToSendToBackground: ScriptOverride = scriptsOverrided;
-        //         chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
-        //             function (response) {
-        //                 debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
-        //                 if (response.success) {
-        //                 }
-        //             }
-        //         );
-        //     }
-        //     else {
-        //         debugLog("scriptsOverride disabled");
-        //         chrome.runtime.sendMessage(extensionId, { type: MessageType.DISABLESCRIPTOVERRIDING },
-        //             function (response) {
-        //                 debugLog("WebRessourceEditorProcess ", MessageType.DISABLESCRIPTOVERRIDING, response);
-        //                 if (response.success) {
-        //                 }
-        //             }
-        //         );
-        //     }
-        // }, [liveTestEnabled, scriptsOverrided, scriptsOverridedSrc]);
+        
 
         const launchLiveTest = useCallback(() => {
             const extensionId = GetExtensionId();
@@ -283,19 +241,6 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
                     <Stack width='100%' direction='column'>
                         <ButtonGroup variant="contained" fullWidth>
-
-                            {/* <FormControlLabel
-                                control={<Checkbox sx={{ pt: 0, pb: 0 }} />}
-                                label="Live Testing Enabled"
-                                sx={{
-                                    mr: 1.5,
-                                    ml: 0,
-                                }}
-                                checked={liveTestEnabled}
-                                onClick={() => {
-                                    setLiveTestEnabled(prev => !prev);
-                                }}
-                            /> */}
 
                             <Button
                                 sx={{
@@ -356,7 +301,6 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     <ScriptList
                         text='Overrided scripts:'
                         items={overridedFiles}
-                        // items={root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1)) || []}
                         primaryLabel={(item) => item.name}
                         primaryAction={selectFile}
                         secondaryAction={removeScriptOverride}

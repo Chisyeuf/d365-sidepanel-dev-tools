@@ -13,7 +13,4 @@ export enum MessageType {
     ISDEBUGGERATTACHED = 'IsDebuggerAttached',
 
     OPENOPTIONS = 'OpenOptions',
-
-    // REGISTERMESSAGECALLBACK = "RegisterMessageCallback",
-    // CALLMESSAGECALLBACK = "CallMessageCallback",
 }

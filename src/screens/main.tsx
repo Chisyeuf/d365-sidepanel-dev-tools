@@ -197,7 +197,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         <>
             <Drawer
                 anchor={"right"}
-                // open={open}
                 hideBackdrop
                 sx={{
                     width: drawerButtonContainerWidth,
@@ -269,7 +268,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                             aspectRatio: '1 / 1',
                                                                             borderRadius: 0,
                                                                             boxShadow: 'unset',
-                                                                            // zoom: 1.2,
                                                                             color: panelOpenedId === process.id ? 'white' : 'black'
                                                                         }}
                                                                     >
@@ -278,7 +276,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                             color="info"
                                                                             sx={(theme) => ({
                                                                                 [`& .${projectPrefix}Badge-badge`]: {
-                                                                                    // zoom: 0.8,
                                                                                     aspectRatio: '1 / 1',
                                                                                     border: `2px solid ${theme.palette.background.paper}`
                                                                                 }
@@ -390,7 +387,6 @@ function DrawerTool(props: DrawerToolProps) {
         <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedId === process.id}>
 
             <Stack direction='column' width='100%' height='100%'>
-                {/* <Stack direction='column' width='100%' height={`calc(100% - ${titleHeight}px)`}> */}
 
                 <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
                     <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>

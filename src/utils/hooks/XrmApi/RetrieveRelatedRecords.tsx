@@ -18,15 +18,12 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
     const { dict: relatedRecordPrimaryAttributes, setDict: setRelatedRecordPrimaryAttributes, setValue: setRelatedRecordPrimaryAttributesItem } = useDictionnary<{ primaryId: string }>({});
     const [init, setInit] = useState(false);
 
-    // const [_relatedRecordsExpand, setRelatedRecordExpand] = useState<string>('');
     useEffect(() => {
         setInit(false);
         setRelatedRecordPrimaryAttributes({});
         Promise.all(relatedRecords.map(async r => {
             const primaryIdAttribute = await GetPrimaryIdAttribute(r.entityName);
-            // const primaryNameAttribute = await GetPrimaryNameAttribute(r.entityName);
             setRelatedRecordPrimaryAttributesItem(r.navigationPropertyName, { primaryId: primaryIdAttribute });
-            // return `${r.navigationPropertyName}($select=${primaryIdAttribute ?? ''})`
         })).then(() => {
             setInit(true);
         });

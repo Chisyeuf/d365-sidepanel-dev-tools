@@ -69,17 +69,3 @@ export async function ConvertToActiveUserObject(user:any) {
         }
     )
 }
-// teamsRoles: (await Promise.all((user.teammembership_association as any[]).map(async (team: any) => {
-//     const teams = await Xrm.WebApi.online.retrieveMultipleRecords("team", `?$select=teamid,name&$expand=teamroles_association($select=roleid,name,roleidunique)&$filter=(${team.map((t: any) => `teamid eq ${t.teamid}`).join(' or ')})`);
-
-//     const a = teams.entities.map<TeamsSecurityRole>(team => {
-//         return {
-//             name: team.teamroles_association["name"],
-//             roleid: team.teamroles_association["roleid"],
-//             uniqueid: team.teamroles_association["roleidunique"],
-//             teamid: team["teamid"],
-//             teamname: team["name"],
-//         }
-//     });
-//     return a;
-// }))).flatMap(t => t)

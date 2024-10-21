@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const LogicalNameRoot = styled(Stack<'span'>)(({ theme }) => ({
-    // color: theme.palette.text.secondary,
     fontSize: '11.2px',
     lineHeight: '1.1em',
     overflow: 'hidden',

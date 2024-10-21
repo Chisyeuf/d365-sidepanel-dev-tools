@@ -183,12 +183,7 @@ const MuiCalculator: React.FunctionComponent<MuiCalculatorProps> = (props: MuiCa
         }, 0);
     }, [input]);
 
-    // useEffect(() => {
-
-    // }, [output]);
-
     useEffect(() => {
-        // if ((value === null && output !== null) || value !== Number(output))
         setOutput(value ? '' + value : null);
     }, [value])
 

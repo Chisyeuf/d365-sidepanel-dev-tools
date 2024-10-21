@@ -29,7 +29,6 @@ export function RetrieveAttributes(entityname: string, recordid: string | undefi
             setIsFetching(false);
         }
         setIsFetching(true);
-        // setData({})
         fetchData();
 
     }, [attributes, _recordid]);

@@ -35,7 +35,6 @@ export function RetrieveRecordsByFilter(entityname: string, attributesList: stri
             }
             setFetching(false);
         }
-        // setData([]);
         setFetching(true);
         fetchData();
 

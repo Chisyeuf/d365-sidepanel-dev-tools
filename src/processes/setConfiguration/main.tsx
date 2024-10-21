@@ -144,7 +144,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
         const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
-        // const [useStandardPanels, setUseStandardPanels] = useState<boolean>(false);
         const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
 
@@ -154,11 +153,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     setProcessesList(response ?? []);
                 }
             );
-            // chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storageStandardPanels } },
-            //     function (response: boolean | null) {
-            //         setUseStandardPanels(response ?? false);
-            //     }
-            // );
             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ForegroundPanes } },
                 function (response: boolean | null) {
                     setIsForegroundPanes(response ?? false);
@@ -189,11 +183,6 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (response.success) { }
                 }
             );
-            // chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storageStandardPanels, configurations: useStandardPanels } },
-            //     function (response) {
-            //         if (response.success) { }
-            //     }
-            // );
             chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_ForegroundPanes, configurations: isForegroundPanes } },
                 function (response) {
                     if (response.success) { }

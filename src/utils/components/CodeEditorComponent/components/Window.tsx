@@ -71,13 +71,6 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
         setRef(ref, editor);
         editor.focus();
 
-        // if (cursorSelection)
-        //     editor.setSelection(cursorSelection);
-
-        // editor.onDidChangeCursorSelection((e: editor.ICursorSelectionChangedEvent) => {
-        //     setCursorSelection(e.selection);
-        // });
-
         const sendNewContentValue = (_: any) => {
             sendNewContentValue(editor.getValue());
         }

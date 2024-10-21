@@ -21,10 +21,6 @@ const darkTheme = createTheme({
     },
 });
 
-// const CodeEditor = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: CodeEditorProps, ref) => {
-//     return <CodeEditorContainer {...props} />
-// })
-
 const CodeEditor = forwardRef<CodeEditorForwardRef, CodeEditorProps>((props: CodeEditorProps, ref) => {
     const editorRef = useRef<CodeEditorForwardRef>(null);
 

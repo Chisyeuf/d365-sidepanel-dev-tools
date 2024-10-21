@@ -47,26 +47,6 @@ const Section = React.memo((props: PropsWithChildren<SectionProps>) => {
                 {props.children}
             </Stack>
         </GridPaper>
-
-        // <Accordion
-        //     disableGutters
-        //     expanded={open}
-        //     onChange={handleOnChange}
-        //     sx={{ ...props.sx, '& .sidepanel-dev-tools-Accordion-region': { height: '100%' } }}
-        //     TransitionProps={{ sx: { height: '100%' } }}
-        // >
-        //     {
-        //         props.title &&
-        //         <AccordionSummary
-        //             expandIcon={(props.expandable === undefined || props.expandable) && <ExpandMore />}
-        //         >
-        //             <Typography component='span' variant="h6" sx={{ ml: 1.5 }}>{props.title}</Typography>
-        //         </AccordionSummary>
-        //     }
-        //         <GridPaper>
-        //             {props.children}
-        //         </GridPaper>
-        // </Accordion>
     );
 });
 

@@ -72,11 +72,6 @@ class UpdateRecordButton extends ProcessButton {
 
 const rowHeight = 42.625
 
-// declare module '@mui/material/Checkbox' {
-//     interface CheckboxPropsColorOverrides {
-//         contrastChecked: true
-//     }
-// }
 const defaultTheme = createTheme()
 const theme = createTheme({
     components: {
@@ -102,12 +97,6 @@ const theme = createTheme({
             ]
         },
         MuiTypography: {
-            // styleOverrides: {
-            //     root: {
-            //         fontSize: '0.85rem',
-            //         lineHeight: '1',
-            //     }
-            // },
             variants: [
                 {
                     props: { className: "disabled" },
@@ -148,14 +137,6 @@ const theme = createTheme({
 })
 
 
-// type ContextType = {
-//     attributesMetadata: AttributeMetadata[],
-//     attributes: { [key: string]: any },
-//     recordsId: string[],
-//     entityName: string
-// }
-// const updateContext = createContext<ContextType>({ attributesMetadata: [], attributes: {}, recordsId: [], entityName: '' });
-
 const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     function UpdateRecordProcess(props: ProcessProps, ref) {
 
@@ -167,7 +148,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [entityName, _setEntityname] = useState<string>(Xrm.Utility.getPageContext()?.input?.entityName);
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
-        // const previousRecordsIds = usePrevious(recordsIds);
+
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
         const { value: resetAttributes, toggle: toggleResetAttributes } = useBoolean(false);
@@ -191,7 +172,6 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }, []);
 
         useUpdateEffect(() => {
-            // if (!previousRecordsIds || previousRecordsIds.length > 0)
             toggleResetAttributes();
         }, [recordsIds]);
 
@@ -203,7 +183,6 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const xrmObserverCallback = () => {
             if (entityName) return;
-            // if (!XrmObserver.isEntityRecord() || entityname) return
             setCurrentRecord();
             XrmObserver.removeListener(xrmObserverCallback);
         }
@@ -391,7 +370,6 @@ function AttributesList(props: AttributesListProps) {
                         !fetchingValues
                             ?
                             selectedAttribute?.map((metadata) => {
-                                // const { isVisible, metadata } = attribute
                                 const attributeName = metadata.MStype !== MSType.Lookup ? metadata.LogicalName : "_" + metadata.LogicalName + "_value"
                                 return (
                                     <AttributeNode
@@ -436,11 +414,8 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     const { value: isDirty, setTrue, setFalse } = useBoolean(false);
     const manageDirty = { setTrue, setFalse };
 
-    // const { value: valueChanged, toggle: triggerValueChange } = useBoolean(false);
-    // const { value: isToUpdate, setTrue: setToUpdate, setFalse: removeToUpdate } = useBoolean(false);
     const { value: toReset, setTrue: setToReset, setFalse: resetToReset } = useBoolean(false);
     const { value: toRemove, setTrue: setToRemove, setFalse: resetToRemove } = useBoolean(false);
-    const { value: loading, setTrue: isLoading, setFalse: doneLoading } = useBoolean(true);
     const [isVisible, setIsVisible] = useState<boolean>(true);
 
     const tooltipText = useMemo(() => {
@@ -450,9 +425,6 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     const className: string = useMemo(() =>
         props.disabled ? "disabled" : (isDirty ? "dirty" : ""),
         [props.disabled, isDirty]);
-    // const className: string = useMemo(() =>
-    //     props.disabled ? "disabled" : (isDirty ? "dirty" : (isToUpdate ? "toupdate" : "")),
-    //     [props.disabled, isDirty, isToUpdate]);
 
     const isVisibleStyle: string = useMemo(() =>
         isVisible ? '' : 'none',
@@ -461,9 +433,6 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     const backgroundColorStyle: string = useMemo(() =>
         props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.primary.main : "")
         , [props.disabled, isDirty]);
-    // const backgroundColorStyle: string = useMemo(() =>
-    //     props.disabled ? defaultTheme.palette.grey[200] : (isDirty ? defaultTheme.palette.secondary.main : (isToUpdate ? defaultTheme.palette.primary.dark : "")),
-    //     [props.disabled, isDirty, isToUpdate]);
 
 
     useEffect(() => {
@@ -475,12 +444,6 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
             setIsVisible(result);
         });
     }, [props.filter, props.attribute]);
-
-    // useEffect(() => {
-    //     if (isToUpdate === false) {
-    //         setToReset();
-    //     }
-    // }, [isToUpdate, setToReset]);
 
     useEffect(() => {
         if (toReset === true) {
@@ -496,32 +459,8 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     }, [props.unselectAttribute, toRemove, resetToRemove]);
 
     useUpdateEffect(() => {
-        // removeToUpdate();
         setToReset();
     }, [props.resetAttributes]);
-
-    useEffect(() => {
-        if (props.value !== undefined)
-            doneLoading()
-    }, [doneLoading, props.value]);
-
-    // const setToUpdateCallback = useCallback(
-    //     () => {
-    //         if (props.disabled) return;
-    //         // setToUpdate();
-    //         triggerValueChange();
-    //     },
-    //     [props.disabled, triggerValueChange],
-    // );
-
-    // const doubleClickCallback = useCallback(
-    //     () => {
-    //         navigator.clipboard.writeText(props.attribute.LogicalName);
-    //         setToUpdateCallback();
-    //     },
-    //     [props.attribute, setToUpdateCallback],
-    // );
-
 
 
     const NodeContent: JSX.Element = useMemo(() =>
@@ -543,12 +482,9 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                     justifyContent='center'
                     width='80%'
                     overflow='hidden'
-                // onDoubleClick={doubleClickCallback}
                 >
                     <Typography
                         key={props.attribute.LogicalName + "_label"}
-                        // title={props.attribute.DisplayName + "(" + props.attribute.LogicalName + ")"}
-                        // width="80%"
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
                         overflow="hidden"
@@ -565,7 +501,6 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={setToUpdateCallback}
                 manageDirty={{ set: manageDirty.setTrue, remove: manageDirty.setFalse }}
                 reset={toReset}
                 remove={toRemove}
@@ -576,11 +511,11 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                 (
                     isDirty ?
                         <IconButton title="Restore to initial value" onClick={setToReset} sx={{ padding: '6px' }}>
-                            <RestoreIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
+                            <RestoreIcon fontSize='large' />
                         </IconButton>
                         :
                         <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }}>
-                            <DeleteIcon fontSize='large' /*htmlColor='ghostwhite'*/ />
+                            <DeleteIcon fontSize='large' />
                         </IconButton>
                 )
             }
@@ -598,9 +533,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Lookup:
             return (<LookupNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -611,9 +544,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.String:
             return (<StringNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -623,9 +554,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Memo:
             return (<MemoNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -635,9 +564,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Decimal:
             return (<DecimalNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -647,9 +574,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Double:
             return (<DoubleNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -659,9 +584,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Money:
             return (<MoneyNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -671,9 +594,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Integer:
             return (<IntegerNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -683,9 +604,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.BigInt:
             return (<BigIntNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -697,7 +616,6 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -707,9 +625,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.DateTime:
             return (<DateTimeNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -721,7 +637,6 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -734,7 +649,6 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -747,7 +661,6 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -759,7 +672,6 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
                 attribute={props.attribute}
                 entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -769,9 +681,7 @@ function AttributeFactory(props: AttributeProps & { entityname: string }) {
         case MSType.Image:
             return (<ImageNode
                 attribute={props.attribute}
-                // entityname={props.entityname}
                 value={props.value}
-                // setToUpdate={props.setToUpdate}
                 manageDirty={props.manageDirty}
                 reset={props.reset}
                 remove={props.remove}
@@ -833,20 +743,6 @@ function NavTopBar(props: NavBarProps) {
                         </Button>
                     </ButtonGroup>
                 </Stack>
-                {/* <Tooltip title={<Typography>Open last record</Typography>}>
-                    <Button>
-                        <OpenInNewIcon />
-                    </Button>
-                </Tooltip> */}
-                {/* <Button
-                    variant='contained'
-                    fullWidth
-                    key='updatebutton'
-                    onClick={props.launchUpdate}
-                    disabled={!props.entityname || props.recordsIds.length === 0}
-                >
-                    <RocketLaunchIcon /> Launch Update
-                </Button> */}
                 <SplitButton
                     options={[
                         {

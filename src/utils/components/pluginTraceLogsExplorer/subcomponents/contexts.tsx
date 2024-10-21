@@ -1,9 +1,5 @@
 import { createContext } from "react";
 import { IPluginTraceLogControllerContext, ITraceLogsAPI, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
-import { RetrieveAttributes } from "../../../hooks/XrmApi/RetrieveAttributes";
-import { RetrieveRecordsByFilter } from "../../../hooks/XrmApi/RetrieveRecordsByFilter";
-
-// export const TraceLogsContext = createContext<PluginTraceLog[]>([]);
 
 const defaultPluginTraceLogController: IPluginTraceLogControllerContext = {
     dialogOpened: false,

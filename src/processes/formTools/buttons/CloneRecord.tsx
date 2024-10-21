@@ -2,7 +2,6 @@ import { Tooltip, Button } from '@mui/material';
 import React from 'react';
 import { SubProcessProps } from '../main';
 
-import { useBoolean } from 'usehooks-ts';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 function CloneRecord(props: SubProcessProps) {
@@ -23,14 +22,7 @@ function CloneRecord(props: SubProcessProps) {
             width: { value: 70, unit: "%" },
             position: 1
         };
-        Xrm.Navigation.navigateTo(pageInput, navigationOptions).then(
-            function success() {
-                // Run code on success
-            },
-            function error() {
-                // Handle errors
-            }
-        );
+        Xrm.Navigation.navigateTo(pageInput, navigationOptions);
     }
 
     return (<>

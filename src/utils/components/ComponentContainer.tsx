@@ -37,15 +37,12 @@ const LegendContainer = styled("span", {
     slot: "Root",
     overridesResolver: (props, styles) => styles.root
 })<ComponentContainerProps & LegendRootProps>(({ theme, ...props }) => ({
-    // backgroundColor: "white",
     position: "absolute",
 
-    // ...((props.location === Location.left || props.location === Location.right) && {
     display: 'flex',
     alignItems: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
     justifyContent: props.position ? PositionFlex[props.position] : PositionFlex[Position.center],
     alignContent: 'center',
-    // }),
 
     top: props.location === Location.top ? "-1px" : "0",
     bottom: props.location === Location.bottom ? "-1px" : "auto",

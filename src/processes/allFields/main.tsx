@@ -194,7 +194,6 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         const openRawInTab = useCallback(() => {
-            // window.open("data:text/json," + encodeURIComponent(attributesRawFilteredString), "_blank");
             var newTab = window.open();
             newTab?.document.open();
             newTab?.document.write('<html><body style="margin:0"></body></html>');

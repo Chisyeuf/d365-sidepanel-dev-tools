@@ -14,11 +14,6 @@ export function useDictionnary<DictValueType>(defaultValue: { [key: string]: Dic
             return Object.values(dict)
         }, [dict]
     );
-    // const entries: [string, DictValueType][] = useMemo(
-    //     () => {
-    //         return Object.entries(dict)
-    //     }, [dict]
-    // )
 
 
     const setValue = useCallback(

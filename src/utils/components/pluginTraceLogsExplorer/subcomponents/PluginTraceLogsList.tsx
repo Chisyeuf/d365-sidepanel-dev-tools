@@ -22,11 +22,6 @@ const Row = React.memo(({ data, index, style }: { data: any, index: number, styl
     );
 }, areEqual);
 
-// const createItemData = memoize((items, toggleItemActive) => ({
-//     items,
-//     toggleItemActive,
-//   }));
-
 interface LittleListProps {
     pluginTraceLogs: PluginTraceLog[]
     isFetching?: boolean
@@ -54,7 +49,6 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
                             itemCount={pluginTraceLogs.length}
                             overscanCount={2}
                             style={{ overflow: 'clip auto' }}
-                        // innerRef={listRef}
                         >
                             {(props) => <Row {...props} />}
                         </FixedSizeList>

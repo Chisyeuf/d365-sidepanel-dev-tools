@@ -32,8 +32,6 @@ const Processes: ProcessButton[] = [
     createConfiguration,
 ];
 
-// Xrm.Internal.addPopupNotification({entityLookUpValue:"", title:"dzf", acceptAction:{}, declineAction:{} })
-
 export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
     return {
         id: p.id,

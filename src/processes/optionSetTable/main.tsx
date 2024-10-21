@@ -102,8 +102,6 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
                 setEntityName(currentEntityName);
         }, [currentEntityName]);
 
-        // const entityMetadata = RetrieveEntityMetadata(entityName);
-
         const [filter, setFilter] = useState<string>('');
 
         const [pickList, isFetchingPickList] = RetrievePicklistValues(entityName, MSType.Picklist);
@@ -197,9 +195,6 @@ function OptionSetTable(props: OptionSetTableProps) {
 
     const copyFn = () => {
         if (!tableRef.current) return;
-
-        // const titleHTMLString = titleRef.current.outerHTML;
-        // const titleTextString = titleRef.current.innerText;
 
         const tableHTMLString = tableRef.current.outerHTML;
         const tableTextString = tableRef.current.innerText;

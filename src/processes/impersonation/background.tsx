@@ -1,14 +1,5 @@
 import { ActiveUser } from "../../utils/types/ActiveUser";
 
-interface ruleByEnvironment {
-    [url: string]: {
-        rule: chrome.declarativeNetRequest.Rule,
-        activated: boolean
-    }
-}
-
-// const rules: ruleByEnvironment = {};
-
 const prefixId: number = 56850000;
 
 const createImpersonationRule = async (azureObjectId: string, headerItem:string, url: string) => {
@@ -31,23 +22,6 @@ const createImpersonationRule = async (azureObjectId: string, headerItem:string,
             urlFilter: url + '/api/*',
         }
     };
-    // const rule: chrome.declarativeNetRequest.Rule = {
-    //     id: prefixId + Object.keys(exitingRules).length + 1,
-    //     priority: 1,
-    //     action: {
-    //         type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-    //         requestHeaders: [
-    //             {
-    //                 operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-    //                 header: 'CallerObjectId' | 'MSCRMCallerId',
-    //                 value: azureObjectId
-    //             },
-    //         ]
-    //     },
-    //     condition: {
-    //         urlFilter: url + '/api/*',
-    //     }
-    // };
     return rule;
 }
 
@@ -64,7 +38,6 @@ const updateImpersonationRules = async (azureObjectId: string, headerItem:string
         ruleByUrl.action.requestHeaders!.at(0)!.value = azureObjectId;
         ruleByUrl.action.requestHeaders!.at(0)!.header = headerItem;
         ruleByUrl.condition.urlFilter = url + '/api/*';
-        // ruleByUrl.condition.urlFilter = url + '/api/*/GetClientMetadata*';
     }
 
     return exitingRules;
@@ -100,18 +73,10 @@ export async function manageImpersonation(data: { userSelected: ActiveUser, sele
         }
     }
 
-    // chrome.declarativeNetRequest.updateSessionRules({
-    //     removeRuleIds: [...removedRules, ...Object.values(rules).map((rule) => rule.id)], // remove existing rules
-    //     addRules: Object.values(rules)
     chrome.declarativeNetRequest.updateSessionRules({
         removeRuleIds: ruleList?.map(r => r.id), // remove existing rules
         addRules: ruleList
     }).then(() => {
         sender.tab && sender.tab.id && chrome.tabs.reload(sender.tab.id, { bypassCache: true });
-        // chrome.tabs.query({ url: `${data.url}/*` }, (tabs) => {
-        //     tabs.forEach((tab) => {
-        //         tab && tab.id && chrome.tabs.reload(tab.id, { bypassCache: true });
-        //     })
-        // })
     });
 }

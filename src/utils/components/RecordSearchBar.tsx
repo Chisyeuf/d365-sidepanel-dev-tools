@@ -18,38 +18,6 @@ const RecordSearchBar: React.FunctionComponent<RecordSearchBarProps> = (props) =
 
     const { entityName, multiple, recordIds, setEntityName, setRecordIds, theme, reset } = props;
 
-
-    // const { entityName: currentEntityName, isEntityRecord, recordId: currentRecordId } = useCurrentRecord();
-
-    // const [entityName, setEntityName] = useState<string>(currentEntityName ?? '');
-    // const [recordIds, setRecordIds] = useState<string[]>([currentRecordId ?? '']);
-    // const [isOverrided, setIsOverrided] = useState<boolean>(false);
-    // const [autoRefresh, setAutoRefresh] = useState<boolean>(props.autoRefresh ?? false);
-
-    // useEffect(() => {
-    //     if (!isOverrided || !autoRefresh) return;
-    //     setEntityName(currentEntityName ?? '');
-    // }, [currentEntityName, isOverrided]);
-
-    // useEffect(() => {
-    //     if (!isOverrided || !autoRefresh) return;
-    //     setRecordIds([currentRecordId ?? '']);
-    // }, [currentRecordId, isOverrided]);
-
-    // const override = useCallback((newEntityName: string, newRecordIds: string[]) => {
-    //     setEntityName(newEntityName);
-    //     setRecordIds(newRecordIds);
-    //     setIsOverrided(true);
-    //     setAutoRefresh(false);
-    // }, []);
-
-    // const reset = useCallback(() => {
-    //     setIsOverrided(false);
-    //     setAutoRefresh(props.autoRefresh ?? false);
-    // }, []);
-
-
-
     return (
         <Stack direction={"row"} spacing={0.5} width="100%">
             <EntitySelector setEntityname={setEntityName} entityname={entityName} />

@@ -33,14 +33,7 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         const ownerState = { classes: rootProps.classes };
         const classes = useUtilityClasses(ownerState);
         const tabIndexState = useGridSelector(apiRef, gridTabIndexColumnHeaderSelector);
-        // const selection = useGridSelector(apiRef, selectedGridRowsSelector);
         const currentSelectionSize = useGridSelector(apiRef, selectedGridRowsCountSelector);
-        // const selection = useGridSelector(apiRef, gridRowSelectionStateSelector);
-        // const visibleRowIds = useGridSelector(apiRef, gridVisibleSortedRowIdsSelector);
-        // const paginatedVisibleRowIds = useGridSelector(
-        //     apiRef,
-        //     gridPaginatedVisibleSortedGridRowIdsSelector,
-        // );
 
         const idAttribute = RetrievePrimaryIdAttribute(props.entityname);
 
@@ -54,55 +47,12 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
 
                 debugLog("handleHeaderSelectionCheckboxChange", rowsToBeSelected);
                 
-                // apiRef.current.selectRows(rowsToBeSelected, params.value);
                 rowsToBeSelected.forEach(rowToSelect => {
                     apiRef.current.selectRow(rowToSelect, params.value);
                 });
             },
             [apiRef, rowsAbleToBeSelected, idAttribute, props.retieveBatchSize],
         );
-
-        // const filteredSelection = React.useMemo(() => {
-        //     if (typeof rootProps.isRowSelectable !== 'function') {
-        //         return selection;
-        //     }
-
-        //     return selection.filter((id) => {
-        //         // The row might have been deleted
-        //         if (!apiRef.current.getRow(id)) {
-        //             return false;
-        //         }
-
-        //         return rootProps.isRowSelectable!(apiRef.current.getRowParams(id));
-        //     });
-        // }, [apiRef, rootProps.isRowSelectable, selection]);
-
-        // All the rows that could be selected / unselected by toggling this checkbox
-        // const selectionCandidates = React.useMemo(() => {
-        //     const rowIds =
-        //         !rootProps.pagination || !rootProps.checkboxSelectionVisibleOnly
-        //             ? visibleRowIds
-        //             : paginatedVisibleRowIds;
-
-        //     // Convert to an object to make O(1) checking if a row exists or not
-        //     // TODO create selector that returns visibleRowIds/paginatedVisibleRowIds as an object
-        //     return rowIds.reduce<Record<GridRowId, true>>((acc, id) => {
-        //         acc[id] = true;
-        //         return acc;
-        //     }, {});
-        // }, [
-        //     rootProps.pagination,
-        //     rootProps.checkboxSelectionVisibleOnly,
-        //     paginatedVisibleRowIds,
-        //     visibleRowIds,
-        // ]);
-
-        // Amount of rows selected and that are visible in the current page
-        // const currentSelectionSize = React.useMemo(() => selection.length, [selection])
-        // React.useMemo(
-        //     () => filteredSelection.filter((id) => selectionCandidates[id]).length,
-        //     [filteredSelection, selectionCandidates],
-        // );
 
         const numberRows = useGridSelector(apiRef, gridRowCountSelector);
         const isIndeterminate =
@@ -115,7 +65,6 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
                 value: event.target.checked,
             };
             handleHeaderSelectionCheckboxChange(params);
-            // apiRef.current.publishEvent('headerSelectionCheckboxChange', params);
         };
 
         const tabIndex = tabIndexState !== null && tabIndexState.field === props.field ? 0 : -1;
@@ -129,13 +78,9 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
         const handleKeyDown = React.useCallback(
             (event: React.KeyboardEvent<HTMLInputElement>) => {
                 if (event.key === ' ') {
-                    // imperative toggle the checkbox because Space is disable by some preventDefault
                     handleHeaderSelectionCheckboxChange({
                         value: !isChecked,
                     });
-                    // apiRef.current.publishEvent('headerSelectionCheckboxChange', {
-                    //     value: !isChecked,
-                    // });
                 }
             },
             [apiRef, isChecked],
@@ -147,7 +92,6 @@ const CustomGridHeaderCheckbox = React.forwardRef<HTMLInputElement, GridColumnHe
 
         React.useEffect(() => {
             return apiRef.current.subscribeEvent('rowSelectionChange', handleSelectionChange);
-            // return apiRef.current.subscribeEvent('rowSelectionChange', handleSelectionChange);
         }, [apiRef, handleSelectionChange]);
 
         const label = apiRef.current.getLocaleText(

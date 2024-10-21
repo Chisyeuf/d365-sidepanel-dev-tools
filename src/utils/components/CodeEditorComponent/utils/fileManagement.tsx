@@ -7,7 +7,7 @@ export function buildFileTree(filespath: ScriptNodeContent[]): CodeEditorDirecto
     const SEPARATOR_EXPRESSION = /[\\/¥₩]+/i;
 
     function searchAndCreateDirectory(root: CodeEditorDirectory, splitPath: string[], fileToCreate: ScriptNodeContent): void {
-        // const splitPath = fileToCreate.src.split(SEPARATOR_EXPRESSION);
+
         if (splitPath.length === 1) {
             const fileName = splitPath[0];
             const extension = fileName.split('.');

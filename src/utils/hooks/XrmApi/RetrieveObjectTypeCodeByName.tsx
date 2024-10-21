@@ -34,7 +34,6 @@ export function RetrieveObjectTypeCodeByName(entityname: string): [number | unde
         fetchData();
 
     }, [entityname]);
-    // }, [_entityname, idAttribute]);
 
     return [data, isFetching];
 }

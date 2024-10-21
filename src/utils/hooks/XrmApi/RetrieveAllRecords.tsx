@@ -8,21 +8,17 @@ export function RetrieveAllRecords(entityname: string, attributesList: string[],
 
     const attributes = useMemo(() => attributesList.join(","), [attributesList]);
     const _entityname = entityname;
-    // const _filter = filter
 
     useEffect(() => {
 
         if (!_entityname) return;
         
-        // if (attributes.indexOf(_entityname + "id") == -1) return;
-
         async function fetchData(link: string = "") {
             debugLog("RetrieveAllRecords");
             
             const options: string =
                 (attributes ? "?$select=" + attributes : '') +
                 (link ? (attributes ? "&" : '') + link : "")
-            //  +(_filter ? "&$filter=" + _filter : "")
 
             const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, options, pageSize);
 

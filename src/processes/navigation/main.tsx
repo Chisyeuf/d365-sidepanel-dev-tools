@@ -4,7 +4,6 @@ import { Stack } from '@mui/system';
 import React, { forwardRef, useMemo, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
-// import NavigationIcon from '@mui/icons-material/Navigation';
 import MapIcon from '@mui/icons-material/Map';
 
 import NavigationToSolutionList from './containers/NavigationToSolutionList';

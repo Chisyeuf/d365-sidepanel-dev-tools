@@ -11,7 +11,6 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { currentFormContext, enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
 
-    // const [visibleModeEnable, setVisibleMode] = useState(false);
 
     const onClick = () => {
         setVisibleMode(!visibleModeEnable);

@@ -18,7 +18,7 @@ const toolList: ((props: SubProcessProps & GodModeSubProcess) => JSX.Element)[] 
 
 export type GodModeSubProcess = {
     enabled: boolean,
-    setEnabled: ((value: boolean) => void)//React.Dispatch<React.SetStateAction<boolean>>
+    setEnabled: ((value: boolean) => void)
 }
 function GodMode(props: SubProcessProps) {
 

@@ -12,7 +12,6 @@ export default class XrmObserver {
 
     ObservePageChanges() {
         const selector: string = "#navigationcontextprovider";
-        // const selector: string = "#panels > [role=main]";
         waitForElm(selector).then((mainContainer) => {
             const observer = new MutationObserver(mutations => {
                 this.Xrm = Xrm;

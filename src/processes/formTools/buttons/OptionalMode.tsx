@@ -12,8 +12,6 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
 
     const { currentFormContext, enabled: optionalModeEnable, setEnabled: setOptionalMode } = props;
 
-    // const [optionalModeEnable, setOptionalMode] = useState(false);
-
     const toggleMode = () => {
         setOptionalMode(!optionalModeEnable);
     }
@@ -62,7 +60,6 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
                 variant='contained'
                 onClick={toggleMode}
                 startIcon={optionalModeEnable ? <CloudIcon /> : <CloudOffIcon />}
-            // disabled={!executionContext}
             />
         </Tooltip>
     );

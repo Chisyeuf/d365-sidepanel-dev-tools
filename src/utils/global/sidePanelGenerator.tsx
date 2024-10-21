@@ -6,9 +6,6 @@ export async function createPane(paneOptions: Xrm.App.PaneOptions, pageInput:
     | Xrm.Navigation.Dashboard) {
     var sidePane = await Xrm.App.sidePanes.createPane(paneOptions);
     sidePane.navigate(pageInput);
-    // if (paneOptions.currentScreenOnly) {
-    //     setSidePaneForCurrentScreen(sidePane);
-    // }
     return sidePane;
 }
 
@@ -40,7 +37,6 @@ export function definePaneOptions(
     paneOptions.hidden = hidden;
     paneOptions.alwaysRender = alwaysRender;
     paneOptions.keepBadgeOnSelect = keepBadgeOnSelect;
-    // paneOptions.currentScreenOnly = currentScreenOnly;
     if (imageSrc !== "" && imageSrc != null) {
         paneOptions.imageSrc = imageSrc;
     }
@@ -83,30 +79,3 @@ export function createDashboardSidePane(paneOptions: Xrm.App.PaneOptions, dashbo
     };
     return createPane(paneOptions, pageInput);
 }
-
-// export function setSidePaneForCurrentScreen(sidePane) {
-//     history.pushState = ((f) =>
-//         function pushState() {
-//             var ret = f.apply(this, arguments);
-//             window.dispatchEvent(new Event("pushstate"));
-//             window.dispatchEvent(new Event("locationchange"));
-//             return ret;
-//         })(history.pushState);
-//     history.replaceState = ((f) =>
-//         function replaceState() {
-//             var ret = f.apply(this, arguments);
-//             window.dispatchEvent(new Event("replacestate"));
-//             window.dispatchEvent(new Event("locationchange"));
-//             return ret;
-//         })(history.replaceState);
-//     window.addEventListener("popstate", () => {
-//         window.dispatchEvent(new Event("locationchange"));
-//     });
-//     window.addEventListener(
-//         "locationchange",
-//         function () {
-//             Xrm.App.sidePanes.getPane(sidePane.paneId)?.close();
-//         },
-//         { once: true }
-//     );
-// }

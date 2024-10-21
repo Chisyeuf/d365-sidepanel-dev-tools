@@ -27,7 +27,7 @@ export function RetrieveRelationShipManyToMany(entityname: string): [RelationShi
             });
 
             const results = await response.json();
-            // results.value?.filter((r: any) => r?.IsPrimaryId != false)
+
             results.value?.sort((a: any, b: any) => {
                 var n = a.DisplayName?.UserLocalizedLabel?.Label?.localeCompare(b.DisplayName?.UserLocalizedLabel?.Label);
                 if (n != null && n !== 0) {
@@ -35,21 +35,7 @@ export function RetrieveRelationShipManyToMany(entityname: string): [RelationShi
                 }
                 return a.SchemaName.localeCompare(b.SchemaName);
             });
-
-            // const relationShips: RelationShipMetadataManyToMany[] = results.value?.map((relationShip: any) => {
-            //     const t: RelationShipMetadataManyToMany = {
-            //         Entity1IntersectAttribute: relationShip.Entity1IntersectAttribute,
-            //         Entity1LogicalName: relationShip.Entity1LogicalName,
-            //         Entity2IntersectAttribute: relationShip.Entity2IntersectAttribute,
-            //         Entity2LogicalName: relationShip.Entity2LogicalName,
-            //         IntersectEntityName: relationShip.IntersectEntityName,
-            //         IsCustomRelationship: relationShip.IsCustomRelationship,
-            //         IsValidForAdvancedFind: relationShip.IsValidForAdvancedFind,
-            //         RelationshipType: relationShip.RelationshipType,
-            //         SchemaName: relationShip.SchemaName,
-            //     };
-            //     return t;
-            // });
+            
             setData(results.value)
             setIsFetching(false)
         }
