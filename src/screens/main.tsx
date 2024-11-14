@@ -94,7 +94,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             }
         }
         setStyle('resizedynamicsmainscreen', {
-            "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+            "#ApplicationShell > *:not(*:first-child)": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+            // "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
             "[id^=DialogContainer]": [`width: calc(100% - ${drawerButtonContainerWidth}px - ${dynamicsmainscreenWidth}px)`],
             "[id*=__flyoutRootNode] > div > div": ["z-index: 1200"],
         });
