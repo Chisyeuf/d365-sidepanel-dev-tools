@@ -1,5 +1,5 @@
-import { Box, Button, Drawer, List, ListItemButton } from "@mui/material";
-import React, { PropsWithChildren, useMemo } from "react";
+import { Drawer } from "@mui/material";
+import React, { PropsWithChildren } from "react";
 
 interface PanelDrawerItemProps {
     width: number;
@@ -17,6 +17,7 @@ function PanelDrawerItem(props: PanelDrawerItemProps & PropsWithChildren) {
                 hideBackdrop
                 ModalProps={{
                     disableScrollLock: true,
+                    keepMounted: true,
                 }}
                 PaperProps={{
                     sx: {
