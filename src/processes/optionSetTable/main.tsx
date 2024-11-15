@@ -1,5 +1,5 @@
 
-import { Box, Button, ButtonGroup, CircularProgress, createTheme, List, ListItem, ListSubheader, Paper, Stack, Table, TableBody, TableCell, TableCellBaseProps, TableContainer, TableHead, TableRow, ThemeProvider, Tooltip, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, createTheme, List, ListItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Tooltip, Typography } from '@mui/material';
 import React, { forwardRef, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -12,8 +12,8 @@ import { PickListOption, RetrievePicklistValues } from '../../utils/hooks/XrmApi
 import { TableCellProps } from '@material-ui/core';
 import { useCopyToClipboard } from 'usehooks-ts';
 import LightTooltip from '../../utils/components/LightTooltip';
-import { RetrieveEntityMetadata } from '../../utils/hooks/XrmApi/RetrieveEntityMetadata';
 import EntitySelector from '../../utils/components/EntitySelector';
+import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 
 class OptionSetTableButton extends ProcessButton {
     constructor() {
@@ -134,22 +134,19 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
+                <Stack spacing={1} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
+
+                    <Stack direction='column' spacing={0.5}>
+                        {/* <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography> */}
+                        <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
+                        <Stack direction='row' spacing={1} mt={1} mb={1} >
+                            <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
+                            <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
+                        </Stack>
+                    </Stack>
+
                     <List
-                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
-                        component="nav"
-                        subheader={
-                            <ListSubheader component="div" sx={{ pt: 1 }}>
-                                <Stack direction='column' spacing={0.5}>
-                                    {/* <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography> */}
-                                    <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
-                                    <Stack direction='row' spacing={1} mt={1} mb={1} >
-                                        <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
-                                        <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
-                                    </Stack>
-                                </Stack>
-                            </ListSubheader>
-                        }
+                        sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
                     >
                         {
                             isFetching ?
@@ -157,16 +154,29 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
                                     <CircularProgress sx={{ zoom: '2' }} />
                                 </Stack>
                                 :
-                                Object.entries(optionSetTable).map(([pickListLogicalName, metadata]) => {
-                                    const lowerFilter = filter.toLowerCase();
-                                    if (
-                                        pickListLogicalName.toLowerCase().includes(lowerFilter) ||
-                                        metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
-                                        metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
-                                    ) {
-                                        return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
-                                    }
-                                })
+                                <MuiVirtuoso
+                                    data={Object.entries(optionSetTable)}
+                                    itemContent={(index, [pickListLogicalName, metadata]) => {
+                                        const lowerFilter = filter.toLowerCase();
+                                        if (
+                                            pickListLogicalName.toLowerCase().includes(lowerFilter) ||
+                                            metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
+                                            metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
+                                        ) {
+                                            return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
+                                        }
+                                    }}
+                                />
+                            // Object.entries(optionSetTable).map(([pickListLogicalName, metadata]) => {
+                            //     const lowerFilter = filter.toLowerCase();
+                            //     if (
+                            //         pickListLogicalName.toLowerCase().includes(lowerFilter) ||
+                            //         metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
+                            //         metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
+                            //     ) {
+                            //         return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
+                            //     }
+                            // })
                         }
                     </List>
 

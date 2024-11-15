@@ -1,11 +1,12 @@
 
-import { createTheme, Divider, List, ListItemButton, ListItemText, ListSubheader, Stack, ThemeProvider } from '@mui/material';
+import { Divider, List, ListItemButton, ListItemText, Stack } from '@mui/material';
 import React, { forwardRef, useCallback, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { RetrieveEntities } from '../../utils/hooks/XrmApi/RetrieveEntities';
 import FilterInput from '../../utils/components/FilterInput';
 import TableViewIcon from '@mui/icons-material/TableView';
+import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 
 
 class EntityListButton extends ProcessButton {
@@ -43,17 +44,29 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack spacing={4} height='calc(100% - 20px)' padding='10px' alignItems='center'>
+            <Stack spacing={1} height='calc(100% - 20px)' padding='10px' alignItems='center'>
+                <FilterInput fullWidth placeholder='Search Name or LogicalName' defaultValue={filter} returnFilterInput={setFilter} />
+
                 <List
-                    sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'hidden' }}
-                    component="nav"
-                    subheader={
-                        <ListSubheader component="div">
-                            <FilterInput fullWidth placeholder='Search Name or LogicalName' defaultValue={filter} returnFilterInput={setFilter} />
-                        </ListSubheader>
-                    }
+                    sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'hidden' }}
                 >
-                    {
+                    <MuiVirtuoso
+                        data={entitiesFiltered}
+                        itemContent={(index, entity) => {
+                            return (
+                                <>
+                                    <ListItemButton
+                                        sx={{ pt: 0, pb: 0 }}
+                                        onClick={() => openEntityList(entity.logicalname)}
+                                    >
+                                        <ListItemText title={entity.name} primary={entity.name} secondary={entity.logicalname} sx={{ mt: 0.5, mb: 0.5 }} />
+                                    </ListItemButton>
+                                    <Divider />
+                                </>
+                            );
+                        }}
+                    />
+                    {/* {
                         entitiesFiltered?.map((entity, index) => {
                             return (
                                 <>
@@ -67,7 +80,7 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                                 </>
                             );
                         })
-                    }
+                    } */}
                 </List>
 
             </Stack>

@@ -191,3 +191,9 @@ export function getCurrentDynamics365DateTimeFormat() {
         FullDateTimePattern: dateFormattingInfo.FullDateTimePattern.replace(/\byyyy\b/, 'YYYY').replace(/\bdd\b/, 'DD').replace(/\bd\b/, 'DD'),
     }
 }
+
+export function yieldToMain() {
+    return new Promise(resolve => {
+        setTimeout(resolve, 0);
+    });
+}

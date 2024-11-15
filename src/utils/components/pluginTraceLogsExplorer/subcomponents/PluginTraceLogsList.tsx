@@ -1,26 +1,16 @@
-import { Box, Fab, List, ListItemButton, ListItemText, Tooltip, Typography } from "@mui/material";
-import React, { ComponentType, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Box, List, ListItemButton, ListItemText, Typography } from "@mui/material";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
 import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-import UpIcon from '@mui/icons-material/KeyboardArrowUp';
-
-import { FixedSizeList as _FixedSizeList, areEqual, FixedSizeListProps } from 'react-window';
-import AutoSizer from "react-virtualized-auto-sizer";
 import HorizontalSlider from "../../HorizontalSlider";
 import dayjs from "dayjs";
-import { getCurrentDynamics365DateTimeFormat } from "../../../global/common";
+import { debugLog, getCurrentDynamics365DateTimeFormat, yieldToMain } from "../../../global/common";
+import { VirtuosoHandle } from "react-virtuoso";
+import MuiVirtuoso from "../../MuiVirtuoso";
 
-const FixedSizeList = _FixedSizeList as ComponentType<FixedSizeListProps>;
-
-const Row = React.memo(({ data, index, style }: { data: any, index: number, style: React.CSSProperties }) => {
-    const pluginTraceLogs = data;
-    return (
-        <TraceLogsListItem pluginTraceLog={pluginTraceLogs[index]} boxStyle={style} />
-    );
-}, areEqual);
 
 interface LittleListProps {
     pluginTraceLogs: PluginTraceLog[]
@@ -29,8 +19,8 @@ interface LittleListProps {
 const PluginTraceLogsList = React.memo((props: LittleListProps) => {
     const { pluginTraceLogs, isFetching } = props;
 
-    const listRef = useRef<HTMLUListElement | null>(null);
-
+    const [scrollTop, setScrollTop] = useState<number>(0);
+    const ref = useRef<VirtuosoHandle>(null);
 
     return (
         <>
@@ -39,38 +29,15 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
                 sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', whiteSpace: 'nowrap' }}
                 key={`List-pluginTraceLogs`}
             >
-                <AutoSizer>
-                    {
-                        ({ height, width }: { height: number, width: number }) => <FixedSizeList
-                            height={height}
-                            width={width}
-                            itemSize={90}
-                            itemData={pluginTraceLogs}
-                            itemCount={pluginTraceLogs.length}
-                            overscanCount={2}
-                            style={{ overflow: 'clip auto' }}
-                        >
-                            {(props) => <Row {...props} />}
-                        </FixedSizeList>
-                    }
-                </AutoSizer>
+                <MuiVirtuoso
+                    ref={ref}
+                    onScroll={(e) => setScrollTop((e.target as HTMLElement).scrollTop)}
+                    data={pluginTraceLogs}
+                    itemContent={(index, pluginTraceLog) => {
+                        return <TraceLogsListItem pluginTraceLog={pluginTraceLog} />
+                    }}
+                />
             </List>
-            <Fab
-                sx={{
-                    position: 'absolute',
-                    bottom: 16,
-                    right: 16,
-                    opacity: 0.5,
-                    display: listRef.current?.scrollTop && listRef.current?.scrollTop > 50 ? 'auto' : 'none',
-                }}
-                color='primary'
-                size='medium'
-                onClick={() => {
-                    listRef.current?.scrollTo(0, 0);
-                }}
-            >
-                <UpIcon />
-            </Fab>
         </>
     );
 });
@@ -79,13 +46,12 @@ const PluginTraceLogsList = React.memo((props: LittleListProps) => {
 
 interface LittleListItemProps {
     pluginTraceLog: PluginTraceLog,
-    boxStyle: React.CSSProperties
+    // boxStyle?: React.CSSProperties
 }
 function TraceLogsListItem(props: LittleListItemProps) {
-    const { pluginTraceLog, boxStyle } = props;
+    const { pluginTraceLog } = props;
 
     const { selectedPluginTraceLog } = useContext(TraceLogControllerContext);
-
 
 
     const bgcolor = useMemo(() => {
@@ -114,13 +80,31 @@ function TraceLogsListItem(props: LittleListItemProps) {
         <ListItemButton
             alignItems="flex-start"
             key={`ListItemButton-${pluginTraceLog.plugintracelogid}`}
-            sx={{ alignItems: 'center', bgcolor: bgcolor, ...boxStyle }}
+            sx={{ alignItems: 'center', bgcolor: bgcolor }}
         >
             <HorizontalSlider>
                 {content}
             </HorizontalSlider>
         </ListItemButton>
     );
+}
+
+const fetchDataSteps = async (pluginTraceLog: PluginTraceLog, addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void, setIsFetchingStep: (value: React.SetStateAction<boolean>) => void) => {
+    debugLog("RetrievePluginSteps");
+    const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
+    delete result["@odata.context"];
+    delete result["@odata.etag"];
+    // await yieldToMain();
+    addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
+    setIsFetchingStep(false);
+}
+
+const fetchDataImages = async (pluginTraceLog: PluginTraceLog, addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage[]) => void, setIsFetchingImages: (value: React.SetStateAction<boolean>) => void) => {
+    debugLog("RetrievePluginImages");
+    const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+    // await yieldToMain();
+    addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
+    setIsFetchingImages(false);
 }
 
 function PluginTraceLogsListItem(props: LittleListItemProps) {
@@ -132,52 +116,52 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     const [isFetchingStep, setIsFetchingStep] = useState<boolean>(false);
     const [isFetchingImages, setIsFetchingImages] = useState<boolean>(false);
 
-    const ref = useRef<HTMLDivElement | null>(null);
+    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = useMemo(() => sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid]]);
 
-    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null;
-
-    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null;
+    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = useMemo(() => sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid]]);
 
     useEffect(() => {
         if (!sdkMessageProcessingStep) {
-            const fetchData = async () => {
-                const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
-                delete result["@odata.context"];
-                delete result["@odata.etag"];
-                addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
-                setIsFetchingStep(false);
-            }
-            fetchData();
+            // const fetchData = async () => {
+            //     const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
+            //     delete result["@odata.context"];
+            //     delete result["@odata.etag"];
+            //     await yieldToMain();
+            //     addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
+            //     setIsFetchingStep(false);
+            // }
+            fetchDataSteps(pluginTraceLog, addMessageProcessingSteps, setIsFetchingStep);
             setIsFetchingStep(true);
         }
     }, [sdkMessageProcessingStep?.sdkmessageprocessingstepid]);
 
     useEffect(() => {
         if (!sdkMessageProcessingStepImages) {
-            const fetchData = async () => {
-                const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
-                addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
-                setIsFetchingImages(false);
-            }
-            fetchData();
+            // const fetchData = async () => {
+            //     const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
+            //     await yieldToMain();
+            //     addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
+            //     setIsFetchingImages(false);
+            // }
+            fetchDataImages(pluginTraceLog, addMessageProcessingStepImages, setIsFetchingImages);
             setIsFetchingImages(true);
         }
     }, [sdkMessageProcessingStepImages]);
 
     const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
     const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
-    
+
     return (
         <Box
+            key={`ListItemBox-${pluginTraceLog.plugintracelogid}`}
             sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
                 width: 'fit-content',
-                minWidth:'100%'
+                minWidth: '100%'
             }}
             onClick={() => openDialog(pluginTraceLog, sdkMessageProcessingStep, sdkMessageProcessingStepImages)}
-            ref={ref}
         >
             <ListItemText
                 key={`ListItemText-${pluginTraceLog.plugintracelogid}`}
@@ -251,12 +235,13 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
 
     return (
         <Box
+            key={`ListItemBox-${pluginTraceLog.plugintracelogid}`}
             sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
                 width: 'fit-content',
-                minWidth:'100%'
+                minWidth: '100%'
             }}
             onClick={() => openDialog(pluginTraceLog, null, null)}
         >

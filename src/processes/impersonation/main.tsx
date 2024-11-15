@@ -23,6 +23,7 @@ import { ProviderContext } from 'notistack';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import { useEffectOnce } from 'usehooks-ts';
+import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -150,7 +151,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         return (
-            <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 10px)'>
+            <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 20px)'>
 
                 {
                     !closeInfo &&
@@ -211,8 +212,32 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         :
                         (
                             activeUsers.length > 0 ?
-                                <List sx={{ width: '100%', overflowY: 'scroll' }}>
-                                    {
+                                <List sx={{ width: '100%', height: '100%' }}>
+                                    <MuiVirtuoso
+                                        data={activeUsers}
+                                        itemContent={(index, user) => {
+                                            if (securityRoleSelected.filter(role =>
+                                                user.securityRoles.filter(r =>
+                                                    r.roleid === role.roleid).length +
+                                                user.teamsRoles.filter(r =>
+                                                    r.roleid === role.roleid).length).length !== securityRoleSelected.length) {
+                                                return null;
+                                            }
+
+                                            if (!user.fullname.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <UserItem
+                                                    user={user}
+                                                    userSelected={userSelected}
+                                                    handleSelect={handleSelect}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                    {/* {
                                         activeUsers.map((user) => {
 
                                             if (securityRoleSelected.filter(role =>
@@ -235,7 +260,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                                 />
                                             );
                                         })
-                                    }
+                                    } */}
                                 </List>
                                 :
                                 <Typography variant='caption' textAlign='center' color='grey' fontSize='small'>No enabled {!isOnPrem && "and licensed "}user found</Typography>
