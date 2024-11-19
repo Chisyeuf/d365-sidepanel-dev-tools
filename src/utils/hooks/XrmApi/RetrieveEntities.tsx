@@ -22,7 +22,7 @@ export function RetrieveEntities() {
 
             const results = await response.json();
 
-            results.value.sort((a: any, b: any) => a["SchemaName"]?.localeCompare(b["SchemaName"]));
+            results.value.sort((a: any, b: any) => a["DisplayName"]?.["UserLocalizedLabel"]?.Label?.localeCompare(b["DisplayName"]?.["UserLocalizedLabel"]?.Label));
             var entities: Entity[] = results.value.map((entity: any) => {
                 return { logicalname: entity["LogicalName"], name: entity["DisplayName"]?.["UserLocalizedLabel"]?.Label || entity["SchemaName"], entityid: entity["MetadataId"] };
             });

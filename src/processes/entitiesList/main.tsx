@@ -56,10 +56,17 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                             return (
                                 <>
                                     <ListItemButton
+                                        key={`EntityListButton-${entity.logicalname}`}
                                         sx={{ pt: 0, pb: 0 }}
                                         onClick={() => openEntityList(entity.logicalname)}
                                     >
-                                        <ListItemText title={entity.name} primary={entity.name} secondary={entity.logicalname} sx={{ mt: 0.5, mb: 0.5 }} />
+                                        <ListItemText
+                                            key={`EntityListText-${entity.logicalname}`}
+                                            title={entity.name}
+                                            primary={entity.name}
+                                            secondary={entity.logicalname}
+                                            sx={{ mt: 0.5, mb: 0.5 }}
+                                        />
                                     </ListItemButton>
                                     <Divider />
                                 </>

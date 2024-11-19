@@ -78,7 +78,7 @@ function SplitButton(props: SplitButtonProps) {
                 </Button>
             </ButtonGroup>
             <Popper
-                sx={{ zIndex: 1 }}
+                sx={{ zIndex: 10 }}
                 open={open}
                 anchorEl={anchorRef.current}
                 role={undefined}

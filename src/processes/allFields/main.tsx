@@ -15,6 +15,7 @@ import JsonView from '@uiw/react-json-view';
 import { vscodeTheme } from '@uiw/react-json-view/vscode';
 import ReactDOM from 'react-dom';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
+import FilterInput from '../../utils/components/FilterInput';
 
 
 class AllFieldsButton extends ProcessButton {
@@ -237,6 +238,8 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                             isFetching={isFetching}
                             openRawInTab={openRawInTab}
                             toggleShowRaw={toggleShowRaw}
+                            filter={filter}
+                            setFilter={setFilter}
                         />
                         :
                         <AttributeList
@@ -248,6 +251,8 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                             forceRefresh={forceRefresh}
                             toggleShowRaw={toggleShowRaw}
                             isFetching={isFetching}
+                            filter={filter}
+                            setFilter={setFilter}
                         />
                 }
             </ThemeProvider>
@@ -260,6 +265,8 @@ interface AttributeListCommonProps {
     forceRefresh: () => void
     toggleShowRaw: () => void
     isFetching: boolean
+    filter: string
+    setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 interface AttributeListProps {
     toggleForceOpen: () => void
@@ -286,7 +293,7 @@ interface AttributeListRawProps {
     attributesRawFiltered: { [key: string]: any; }
 }
 const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeListCommonProps) => {
-    const { attributesRawFiltered, copyRawInClipboard, forceRefresh, isFetching, openRawInTab, toggleShowRaw, copying } = props;
+    const { attributesRawFiltered, copyRawInClipboard, forceRefresh, isFetching, openRawInTab, toggleShowRaw, copying, filter, setFilter } = props;
 
     return (
         <ThemeProvider theme={theme}>
@@ -298,6 +305,7 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
                     <Button onClick={forceRefresh}>Refresh</Button>
                     <Button onClick={toggleShowRaw}>Hide Raw</Button>
                 </ButtonGroup>
+                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
 
                 <Box height='calc(100% - 30px)' width='100%'>
                     <JsonView
@@ -320,7 +328,7 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
 });
 
 const AttributeList = React.memo((props: AttributeListProps & AttributeListCommonProps) => {
-    const { attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll } = props;
+    const { attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll, filter, setFilter } = props;
 
     return (
         <ThemeProvider theme={theme}>
@@ -332,6 +340,7 @@ const AttributeList = React.memo((props: AttributeListProps & AttributeListCommo
                     <Button onClick={forceRefresh}>Refresh</Button>
                     <Button onClick={toggleShowRaw}>Show Raw</Button>
                 </ButtonGroup>
+                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
 
                 <List
                     sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
