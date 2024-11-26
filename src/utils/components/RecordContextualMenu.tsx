@@ -5,7 +5,7 @@ import React from 'react';
 interface RecordContextualMenuProps {
     open: boolean,
     onClose?: () => void,
-    anchorElement?: Element | ((element: Element) => Element) | null | undefined,
+    anchorElement?: Element | (() => Element) | null | undefined,
     recordId?: string,
     entityName?: string,
 }

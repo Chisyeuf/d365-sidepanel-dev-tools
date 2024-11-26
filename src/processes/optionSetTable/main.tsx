@@ -238,7 +238,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                         </Tooltip>
                         {
                             metadata.IsGlobal &&
-                            <Typography variant="caption" color={(theme) => theme.palette.grey[600]}>
+                            <Typography variant="caption" color='grey.600'>
                                 (Global)
                             </Typography>
                         }
@@ -257,7 +257,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                                 </Typography>
                                 {
                                     metadata.IsGlobal &&
-                                    <Typography variant="caption" color={(theme) => theme.palette.grey[600]}>
+                                    <Typography variant="caption" color='grey.600'>
                                         (Global)
                                     </Typography>
                                 }

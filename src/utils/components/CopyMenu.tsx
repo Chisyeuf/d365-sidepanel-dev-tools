@@ -5,7 +5,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 interface CopyMenuProps {
     onClose?: () => void,
-    anchorElement?: Element | ((element: Element) => Element) | null | undefined,
+    anchorElement?: Element | (() => Element) | null,
     items: {
         title: string,
         content: string

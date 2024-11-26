@@ -84,7 +84,11 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
                 // <Tooltip placement='left' title={<Typography variant='body2'>{item.id}</Typography>} arrow disableInteractive ><li {...props} key={item.id}> {item.label} </li></Tooltip>}
                 value={value}
                 fullWidth
-                ListboxComponent={ListboxComponent}
+                slotProps={{
+                    listbox: {
+                        component: ListboxComponent
+                    }
+                }}
             />
         </Tooltip>
     );

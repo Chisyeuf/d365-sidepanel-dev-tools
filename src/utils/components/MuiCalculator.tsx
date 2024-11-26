@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import { Dialog, DialogContent, TextField } from '@mui/material';
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 
 import type { TextFieldProps } from '@mui/material';
@@ -239,7 +239,7 @@ const NumPad: React.FunctionComponent<NumPadProps> = (props: NumPadProps) => {
     return (
         <Grid container spacing={1} columns={5} height='calc(100% - 100px)'>
             {buttonsList.map((button, index) => (
-                <Grid xs={button.sizeX ?? 1} key={button.label}>
+                <Grid size={{ xs:button.sizeX ?? 1 }} key={button.label}>
                     {
                         !button.empty &&
                         <NumPadButton label={button.label} value={button.value} setInput={setInput} height={button.sizeY} />
