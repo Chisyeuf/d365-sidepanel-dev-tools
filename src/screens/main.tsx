@@ -213,7 +213,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             >
                 <Stack direction='column'>
 
-                    <Tooltip title={<Typography variant='h6'>{applicationName}</Typography>} placement='left' arrow describeChild={false}>
+                    <Tooltip title={<Typography variant='h6'>{applicationName}</Typography>} placement='left' arrow disableInteractive describeChild={false}>
                         <Button
                             key={`${mainMenuId}-processButton`}
                             onClick={() => togglePanelDrawer(mainMenuId)}

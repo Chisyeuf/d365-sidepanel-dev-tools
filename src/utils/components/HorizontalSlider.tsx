@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { makeStyles } from "@mui/styles";
-import { Box, keyframes, styled } from "@mui/material";
+import { Box } from "@mui/material";
 
 type HorizontalSliderProps = {
 }

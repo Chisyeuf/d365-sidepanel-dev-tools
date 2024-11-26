@@ -1,5 +1,5 @@
 
-import { Divider, List, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { Divider, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import React, { forwardRef, useCallback, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -54,7 +54,7 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                         data={entitiesFiltered}
                         itemContent={(index, entity) => {
                             return (
-                                <>
+                                <ListItem key={`EntityListItem-${entity.logicalname}`}  sx={{ p: 0 }}>
                                     <ListItemButton
                                         key={`EntityListButton-${entity.logicalname}`}
                                         sx={{ pt: 0, pb: 0 }}
@@ -69,7 +69,7 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                                         />
                                     </ListItemButton>
                                     <Divider />
-                                </>
+                                </ListItem>
                             );
                         }}
                     />

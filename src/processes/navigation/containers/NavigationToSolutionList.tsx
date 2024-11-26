@@ -1,5 +1,5 @@
 
-import { Box, Button, Divider, Drawer, List, ListItemButton, ListItemText, Stack, Tooltip } from '@mui/material';
+import { Box, Button, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Tooltip } from '@mui/material';
 import React, { useMemo, useRef, useState, } from 'react';
 
 // import NavigationIcon from '@mui/icons-material/Navigation';
@@ -147,11 +147,13 @@ function SolutionList(props: NavigationButton) {
                 </Box>
                 <Divider />
                 <List sx={{ width: '25vw', overflowY: 'scroll' }}>
-                    <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
-                        <ListItemText
-                            primary={<i>Unselect Solution</i>}
-                        />
-                    </ListItemButton>
+                    <ListItem key={'nosolution'}  sx={{ p: 0 }}>
+                        <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
+                            <ListItemText
+                                primary={<i>Unselect Solution</i>}
+                            />
+                        </ListItemButton>
+                    </ListItem>
                     {
                         solutions.map((solutionItem) => {
                             if (!solutionItem.displayName.toLowerCase().includes(filter.toLowerCase())) {
@@ -159,16 +161,18 @@ function SolutionList(props: NavigationButton) {
                             }
 
                             return (
-                                <ListItemButton
-                                    sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
-                                    onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}
-                                    dense
-                                >
-                                    <ListItemText
-                                        primary={solutionItem.displayName}
-                                        secondary={solutionItem.uniqueName}
-                                    />
-                                </ListItemButton>
+                                <ListItem key={'solution' + solutionItem.uniqueName}  sx={{ p: 0 }}>
+                                    <ListItemButton
+                                        sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
+                                        onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}
+                                        dense
+                                    >
+                                        <ListItemText
+                                            primary={solutionItem.displayName}
+                                            secondary={solutionItem.uniqueName}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
                             );
                         })
                     }

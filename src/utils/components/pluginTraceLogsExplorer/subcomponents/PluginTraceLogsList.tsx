@@ -1,4 +1,4 @@
-import { Box, List, ListItemButton, ListItemText, Typography } from "@mui/material";
+import { Box, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
 import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
@@ -77,15 +77,22 @@ function TraceLogsListItem(props: LittleListItemProps) {
     }, [pluginTraceLog]);
 
     return (
-        <ListItemButton
-            alignItems="flex-start"
-            key={`ListItemButton-${pluginTraceLog.plugintracelogid}`}
-            sx={{ alignItems: 'center', bgcolor: bgcolor }}
+        <ListItem
+            key={`ListItem-${pluginTraceLog.plugintracelogid}`}
+            sx={{ p: 0 }}
         >
-            <HorizontalSlider>
-                {content}
-            </HorizontalSlider>
-        </ListItemButton>
+            <ListItemButton
+                alignItems="flex-start"
+                key={`ListItemButton-${pluginTraceLog.plugintracelogid}`}
+                sx={{ alignItems: 'center', flexDirection: 'column', bgcolor: bgcolor, pb: 1, pt: 0 }}
+            >
+                <Divider variant='middle' sx={{ width: '100%' }} />
+                <HorizontalSlider>
+                    {content}
+                </HorizontalSlider>
+                <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', width: '1.25em', position: 'absolute', right: 15, top: 5 }} />
+            </ListItemButton>
+        </ListItem>
     );
 }
 
@@ -222,7 +229,7 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                     </>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'fixed', right: 2 }} />
+            {/* <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'absolute', right: 2 }} /> */}
         </Box >
     );
 }
@@ -295,7 +302,7 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                     </>
                 }
             />
-            <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'fixed', right: 2 }} />
+            {/* <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'absolute', right: 2 }} /> */}
         </Box>
     );
 }

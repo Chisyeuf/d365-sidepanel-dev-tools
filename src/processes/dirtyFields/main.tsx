@@ -1,11 +1,9 @@
 
-import { createTheme, Divider, FormControl, FormControlLabel, List, ListItemButton, ListItemText, ListSubheader, Stack, Switch, ThemeProvider, Typography } from '@mui/material';
+import { createTheme, Divider, FormControl, FormControlLabel, List, ListItem, ListItemButton, ListItemText, ListSubheader, Stack, Switch, ThemeProvider, Typography } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import CopyMenu from '../../utils/components/CopyMenu';
 import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
 
@@ -201,7 +199,7 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
     }, [name, oldValue, value]);
 
     return (
-        <>
+        <ListItem key={'dirtyField' + name}  sx={{ p: 0 }}>
             <ListItemButton onClick={handleClick} onContextMenu={handleOpenContextualMenu}>
                 <ListItemText
                     primary={name}
@@ -216,7 +214,7 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
             </ListItemButton>
             <CopyMenu anchorElement={anchorEl} onClose={handleCloseContextualMenu} items={copyContent} />
             <Divider />
-        </>
+        </ListItem>
     );
 });
 

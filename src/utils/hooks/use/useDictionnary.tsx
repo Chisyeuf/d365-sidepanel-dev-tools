@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 
 export function useDictionnary<DictValueType>(defaultValue: { [key: string]: DictValueType }) {
 

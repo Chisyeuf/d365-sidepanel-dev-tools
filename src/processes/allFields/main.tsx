@@ -1,5 +1,5 @@
 
-import { Box, Button, ButtonGroup, createTheme, Divider, List, ListItemButton, ListItemText, Skeleton, Stack, ThemeProvider } from '@mui/material';
+import { Box, Button, ButtonGroup, createTheme, Divider, List, ListItem, ListItemButton, ListItemText, Skeleton, Stack, ThemeProvider } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -145,6 +145,16 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             return Object.entries(attributes)
                 .reduce((previousValue: { [key: string]: any; }, currentValue: [string, any], index) => {
                     const [key, value] = currentValue;
+
+                    if (key[0] === '@') {
+                        return {
+                            ...previousValue,
+                            [key]: {
+                                value: { value: value, selector: key }
+                            }
+                        };
+                    }
+
                     const attSplit = key.split("@");
                     const attName = attSplit[0];
                     const attMore = attSplit[1];
@@ -307,7 +317,7 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
                 </ButtonGroup>
                 <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
 
-                <Box height='calc(100% - 30px)' width='100%'>
+                <Box height='calc(100% - 80px)' width='100%'>
                     <JsonView
                         value={isFetching ? { "Fetching...": "" } : attributesRawFiltered}
                         style={jsonStyle}
@@ -500,7 +510,7 @@ const AttributeListItemValue = React.memo((props: AttributeListItemValueProps) =
     ), [title, value, selector]);
 
     return (
-        <>
+        <ListItem key={'attributevalue' + selector} sx={{ p: 0 }}>
             <ListItemButton sx={{ p: 0, pl: 1 }} onContextMenu={handleOpenContextualMenu}>
                 <ListItemText
                     title={value ?? "--empty--"}
@@ -518,7 +528,7 @@ const AttributeListItemValue = React.memo((props: AttributeListItemValueProps) =
             </ListItemButton>
             <CopyMenu anchorElement={anchorEl} onClose={handleCloseContextualMenu} items={copyContent} />
             <Divider variant="middle" />
-        </>
+        </ListItem>
     );
 });
 

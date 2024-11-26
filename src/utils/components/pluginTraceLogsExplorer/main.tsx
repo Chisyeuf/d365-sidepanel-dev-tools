@@ -3,7 +3,7 @@ import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
 import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
 import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
-import { Checkbox, Stack, SxProps, Theme, ThemeProvider, Tooltip, createTheme } from "@mui/material";
+import { Checkbox, Stack, SxProps, Theme, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
 import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import ButtonLinearProgress from "../ButtonLinearProgress";
@@ -11,7 +11,7 @@ import { useDictionnary } from "../../hooks/use/useDictionnary";
 import FilterInput from "../FilterInput";
 import ErrorIcon from '@mui/icons-material/Error';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import {  getCurrentDynamics365DateTimeFormat } from "../../global/common";
+import { getCurrentDynamics365DateTimeFormat } from "../../global/common";
 import EntitySelector from "../EntitySelector";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -146,7 +146,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                         moreOptions={[{ id: "none", label: "None" }]}
                                     />
                                     <FilterInput fullWidth returnFilterInput={setFilterMessageName} placeholder="Message Name" />
-                                    <Tooltip title='Display only logs in error'>
+                                    <Tooltip title={<Typography variant='body2'>Display only logs in error</Typography>} placement='top-end' disableInteractive arrow >
                                         <Checkbox
                                             checked={errorOnly}
                                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {

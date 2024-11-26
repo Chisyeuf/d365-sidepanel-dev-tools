@@ -1,9 +1,9 @@
-import { Autocomplete, FilterOptionsState, FormControl, SxProps, TextField, Theme, Tooltip, Typography } from "@mui/material"
+import { Autocomplete, Box, createTheme, FilterOptionsState, FormControl, ListItem, ListItemText, SxProps, TextField, Theme, Tooltip, Typography } from "@mui/material"
 import React, { useMemo } from "react"
 import { useEffect, useState } from "react"
-import { Entity } from "../types/requestsType"
 import { RetrieveEntities } from "../hooks/XrmApi/RetrieveEntities"
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import { Virtuoso } from "react-virtuoso";
 
 
 const filterOptions = createFilterOptions<EntityOption>({
@@ -12,6 +12,26 @@ const filterOptions = createFilterOptions<EntityOption>({
     matchFrom: "any",
     stringify: (option) => option.label + ";" + option.id,
 });
+
+
+// Adapter for react-window
+const ListboxComponent = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLElement>
+>(function ListboxComponent(props, ref) {
+    const { children, ...other } = props;
+
+    return (
+        <Box ref={ref} {...other} sx={{ height: '50vh' }}>
+            <Virtuoso
+                data={children as React.ReactElement<unknown>[]}
+                itemContent={(index, child) => child}
+                height={'100px'}
+            />
+        </Box>
+    );
+});
+
 
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,
@@ -41,7 +61,7 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
     }, [entityname, options]);
 
     return (
-        <Tooltip title={<Typography variant='body2'>{value.label}</Typography>} arrow disableInteractive enterDelay={600} placement='left'>
+        <Tooltip title={<Typography variant='body2'>{value.label ? value.label : <i>No entity selected</i>}</Typography>} arrow disableInteractive enterDelay={600} placement='left'>
             <Autocomplete
                 filterOptions={filterOptions}
                 size='small'
@@ -51,10 +71,20 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
                 key='entityselector'
                 onChange={(event, option, index) => { props.setEntityname(option?.id.toString() ?? "") }}
                 renderInput={(params) => <TextField {...params} label="Entity Name" />}
-                renderOption={(props, item) => <li {...props} key={item.id}> {item.label} </li>}
+                renderOption={(props, item) => {
+                    return (
+                        <li {...props} key={item.id} style={{ paddingTop: 0, paddingBottom: 0 }}>
+                            <ListItemText
+                                primary={item.label}
+                                secondary={item.id}
+                            />
+                        </li>
+                    )
+                }}
+                // <Tooltip placement='left' title={<Typography variant='body2'>{item.id}</Typography>} arrow disableInteractive ><li {...props} key={item.id}> {item.label} </li></Tooltip>}
                 value={value}
                 fullWidth
-                sx={props.sx}
+                ListboxComponent={ListboxComponent}
             />
         </Tooltip>
     );
