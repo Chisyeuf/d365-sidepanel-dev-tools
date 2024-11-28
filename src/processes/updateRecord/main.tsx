@@ -5,7 +5,7 @@ import React, {
     Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
     useMemo, useState
 } from 'react';
-import { useBoolean, useUpdateEffect } from 'usehooks-ts';
+import { useBoolean } from 'usehooks-ts';
 
 // Date picker imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -46,6 +46,7 @@ import SplitButton from '../../utils/components/SplitButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import usePrevious from '../../utils/hooks/use/usePrevious';
+import { useUpdateEffect } from '@custom-react-hooks/all';
 
 
 class UpdateRecordButton extends ProcessButton {

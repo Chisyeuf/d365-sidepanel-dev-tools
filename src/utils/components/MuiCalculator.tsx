@@ -4,8 +4,6 @@ import { Dialog, DialogContent, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 
-import type { TextFieldProps } from '@mui/material';
-import AutoNumeric, { Options } from 'autonumeric';
 
 enum Action {
     Clear = 100,

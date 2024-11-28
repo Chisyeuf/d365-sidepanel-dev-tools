@@ -1,9 +1,10 @@
 import { FormControl, IconButton, InputAdornment, TextField } from "@mui/material"
-import { ChangeEvent, useEffect, useImperativeHandle, useRef, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import React from "react";
-import { useDebounce } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
+import { useDebounce } from "@custom-react-hooks/all";
 
 type AttributeFilterInputProps = {
     returnFilterInput: (str: string) => void,
@@ -20,7 +21,7 @@ export type AttributeFilterInputRef = {
 const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInputProps>(
     (props: AttributeFilterInputProps, ref) => {
         const [value, setValue] = useState(props.defaultValue ?? '');
-        const debounceValue = useDebounce(value, props.debounceDelay ?? 250);
+        const [debounceValue, setDebounceValue] = useDebounceValue(value, props.debounceDelay ?? 250);
 
         const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,6 +33,11 @@ const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInp
                 inputRef.current?.focus();
             },
         }));
+
+        const handleChange = useCallback((value: string) => {
+            setValue(value);
+            setDebounceValue(value);
+        }, [setValue, setDebounceValue]);
 
         useEffect(() => {
             props.returnFilterInput(debounceValue);
@@ -45,7 +51,7 @@ const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInp
                     inputMode='search'
                     value={value}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        setValue(e?.target.value ?? "")
+                        handleChange(e?.target.value ?? "")
                     }}
                     placeholder={props.placeholder}
                     fullWidth={props.fullWidth}
@@ -59,7 +65,7 @@ const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInp
                             <IconButton
                                 sx={{ visibility: value ? "visible" : "hidden" }}
                                 onClick={() => {
-                                    setValue("")
+                                    handleChange("")
                                 }}
                             >
                                 <ClearIcon />

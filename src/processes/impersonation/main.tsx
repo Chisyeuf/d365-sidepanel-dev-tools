@@ -22,8 +22,8 @@ import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
-import { useEffectOnce } from 'usehooks-ts';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
+import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {

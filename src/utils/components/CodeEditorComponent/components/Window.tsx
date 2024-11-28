@@ -1,9 +1,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Editor, { DiffEditor, Monaco } from "@monaco-editor/react";
-import { IDisposable, KeyCode, KeyMod, Selection, editor } from 'monaco-editor';
+import { IDisposable, KeyCode, KeyMod, editor } from 'monaco-editor';
 import { CodeEditorWindowProps } from '../utils/types';
-import { useDebounce } from 'usehooks-ts';
 
 const setRef = (ref: React.ForwardedRef<editor.IStandaloneCodeEditor>, editor: editor.IStandaloneCodeEditor) => {
     if (typeof ref === 'function') {

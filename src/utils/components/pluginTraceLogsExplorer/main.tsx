@@ -1,20 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 import PluginTraceLogsList from "./subcomponents/PluginTraceLogsList";
-import { TraceLogControllerContext, TraceLogsAPI, defaultTraceLogsAPI } from "./subcomponents/contexts";
+import { TraceLogsAPIContext } from "./subcomponents/contexts";
 import TraceLogDialog from "./subcomponents/TraceLogDialog";
-import { PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "./type";
+import { PluginTraceLog } from "./type";
 import { Checkbox, Stack, SxProps, Theme, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
-import { RetrieveRecordsByFilter } from "../../hooks/XrmApi/RetrieveRecordsByFilter";
 import { RetrieveFirstRecordInterval } from "../../hooks/XrmApi/RetrieveFirstRecordInterval";
 import ButtonLinearProgress from "../ButtonLinearProgress";
-import { useDictionnary } from "../../hooks/use/useDictionnary";
 import FilterInput from "../FilterInput";
 import ErrorIcon from '@mui/icons-material/Error';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { getCurrentDynamics365DateTimeFormat } from "../../global/common";
 import EntitySelector from "../EntitySelector";
-import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 
 const refreshInterval = 60;
@@ -41,9 +38,11 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     const [decount, setDecount] = useState<number>(refreshInterval);
     const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
 
-    const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
-    const { dict: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
-    const { dict: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage[]>({});
+    // const [pluginTraceLogs, isFetching, refreshPluginTraceLogs]: [PluginTraceLog[], boolean, () => void] = RetrieveRecordsByFilter('plugintracelog', [], '', 'performanceexecutionstarttime desc');
+    // const { dict: sdkMessageProcessingSteps, setValue: addMessageProcessingSteps } = useDictionnary<SdkMessageProcessingStep>({});
+    // const { dict: sdkMessageProcessingStepImages, setValue: addMessageProcessingStepImages } = useDictionnary<SdkMessageProcessingStepImage[]>({});
+
+    const { pluginTraceLogs, sdkMessageProcessingSteps, isFetchingPluginTraceLogs, refreshPluginTraceLogs } = useContext(TraceLogsAPIContext);
 
     const [filterEntity, setFilterEntity] = useState<string>('');
     const [filterMessageName, setFilterMessageName] = useState<string>('');
@@ -63,10 +62,10 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     }), [pluginTraceLogs, sdkMessageProcessingSteps, filterEntity, filterMessageName, filterDateMin, filterDateMax, errorOnly]);
 
 
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
-    const [selectedSdkMessageProcessingStep, setSelectedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
-    const [selectedSdkMessageProcessingStepImages, setSelectedSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
+    // const [dialogOpen, setDialogOpen] = useState(false);
+    // const [selectedPluginTraceLog, setSelectedPluginTraceLog] = useState<PluginTraceLog | null>(null);
+    // const [selectedSdkMessageProcessingStep, setSelectedSdkMessageProcessingStep] = useState<SdkMessageProcessingStep | null>(null);
+    // const [selectedSdkMessageProcessingStepImages, setSelectedSdkMessageProcessingStepImages] = useState<SdkMessageProcessingStepImage[]>([]);
 
     const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
 
@@ -92,9 +91,9 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     }, [decount]);
 
     useEffect(() => {
-        if (isFetching) return;
+        if (isFetchingPluginTraceLogs) return;
         setDecount(refreshInterval);
-    }, [isFetching, isFetchingFirst]);
+    }, [isFetchingPluginTraceLogs, isFetchingFirst]);
 
     useEffect(() => {
         const firstPluginTraceLogsInList = pluginTraceLogs.at(0);
@@ -104,39 +103,38 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     }, [firstPluginTraceLogs, pluginTraceLogs]);
 
 
-    const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => {
-        setSelectedPluginTraceLog(selectedPluginTraceLog);
-        setSelectedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
-        setSelectedSdkMessageProcessingStepImages(sdkMessageProcessingStepImages ?? []);
-        setDialogOpen(true);
-    };
+    // const handleOpenDialog = (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => {
+    //     setSelectedPluginTraceLog(selectedPluginTraceLog);
+    //     setSelectedSdkMessageProcessingStep(relatedSdkMessageProcessingStep);
+    //     setSelectedSdkMessageProcessingStepImages(sdkMessageProcessingStepImages ?? []);
+    //     setDialogOpen(true);
+    // };
 
-    const handleCloseDialog = () => {
-        setDialogOpen(false);
-        setSelectedPluginTraceLog(null);
-        setSelectedSdkMessageProcessingStep(null);
-        setSelectedSdkMessageProcessingStepImages([]);
-    };
+    // const handleCloseDialog = () => {
+    //     setDialogOpen(false);
+    //     setSelectedPluginTraceLog(null);
+    //     setSelectedSdkMessageProcessingStep(null);
+    //     setSelectedSdkMessageProcessingStepImages([]);
+    // };
 
     return (
         <ThemeProvider theme={theme}>
-            <TraceLogControllerContext.Provider value={{
-                dialogOpened: dialogOpen,
+            {/* <TraceLogControllerContext.Provider value={{
+                detailsDialogOpened: dialogOpen,
                 closeDialog: handleCloseDialog,
                 openDialog: handleOpenDialog,
                 selectedPluginTraceLog: selectedPluginTraceLog,
                 selectedSdkMessageProcessingStep: selectedSdkMessageProcessingStep,
                 selectedSdkMessageProcessingStepImages: selectedSdkMessageProcessingStepImages
-            }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TraceLogsAPI.Provider value={{
+            }}> */}
+                    {/* <TraceLogsAPIContext.Provider value={{
                         ...defaultTraceLogsAPI,
                         pluginTraceLogs: pluginTraceLogs,
                         sdkMessageProcessingSteps: sdkMessageProcessingSteps,
                         sdkMessageProcessingStepImages: sdkMessageProcessingStepImages,
                         addMessageProcessingSteps: addMessageProcessingSteps,
                         addMessageProcessingStepImages: addMessageProcessingStepImages,
-                    }} >
+                    }} > */}
                         <Stack direction='column' width='100%' height='100%'>
                             <Stack direction='column' padding={1} spacing={0.5}>
                                 <Stack direction='row' spacing={0.5}>
@@ -181,14 +179,13 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                                         }}
                                     />
                                 </Stack>
-                                <ButtonLinearProgress loading={isFetching} onClick={refreshPluginTraceLogs} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
+                                <ButtonLinearProgress loading={isFetchingPluginTraceLogs} onClick={refreshPluginTraceLogs} variant='contained'>Refresh ({decount})</ButtonLinearProgress>
                             </Stack>
-                            <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetching || isFetchingFirst} />
+                            <PluginTraceLogsList pluginTraceLogs={pluginTraceLogsFiltered} isFetching={isFetchingPluginTraceLogs || isFetchingFirst} />
                         </Stack>
                         <TraceLogDialog />
-                    </TraceLogsAPI.Provider>
-                </LocalizationProvider>
-            </TraceLogControllerContext.Provider>
+                    {/* </TraceLogsAPIContext.Provider> */}
+            {/* </TraceLogControllerContext.Provider> */}
         </ThemeProvider>
     )
 });

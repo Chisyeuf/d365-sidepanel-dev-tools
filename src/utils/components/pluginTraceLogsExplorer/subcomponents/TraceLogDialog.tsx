@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid2';
 import CloseIcon from '@mui/icons-material/Close';
 import { TransitionProps } from '@mui/material/transitions';
 import React, { useContext, useMemo, useRef } from "react";
-import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
+import { TraceLogControllerContext, TraceLogsAPIContext } from "./contexts";
 import { OperationType } from "../type";
 
 import { ThemeProvider } from "@emotion/react";
@@ -39,9 +39,9 @@ interface DialogProps {
 }
 const TraceLogDialog = React.memo((props: DialogProps) => {
 
-    const { pluginTraceLogs } = useContext(TraceLogsAPI);
+    const { pluginTraceLogs } = useContext(TraceLogsAPIContext);
 
-    const { closeDialog, dialogOpened, selectedPluginTraceLog, selectedSdkMessageProcessingStep: relatedSdkMessageProcessingStep, selectedSdkMessageProcessingStepImages: relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
+    const { closeDialog, detailsDialogOpened, selectedPluginTraceLog, selectedSdkMessageProcessingStep: relatedSdkMessageProcessingStep, selectedSdkMessageProcessingStepImages: relatedSdkMessageProcessingStepImages } = useContext(TraceLogControllerContext);
 
     const imagesEnabled = useMemo(() => relatedSdkMessageProcessingStepImages.length > 0, [relatedSdkMessageProcessingStepImages]);
 
@@ -53,7 +53,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                 keepMounted
                 fullScreen
                 sx={{ width: 'calc(100% - 47px - 450px)' }}
-                open={dialogOpened}
+                open={detailsDialogOpened}
                 onClose={closeDialog}
                 TransitionComponent={Transition}
             >

@@ -1,7 +1,7 @@
 import { Box, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OperationType, PluginTraceLog, SdkMessageProcessingStep, SdkMessageProcessingStepImage } from "../type";
-import { TraceLogControllerContext, TraceLogsAPI } from "./contexts";
+import { TraceLogControllerContext, TraceLogsAPIContext } from "./contexts";
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
@@ -10,6 +10,8 @@ import dayjs from "dayjs";
 import { debugLog, getCurrentDynamics365DateTimeFormat, yieldToMain } from "../../../global/common";
 import { VirtuosoHandle } from "react-virtuoso";
 import MuiVirtuoso from "../../MuiVirtuoso";
+import { useDebounceCallback } from "usehooks-ts";
+import { useEffectOnce } from "../../../hooks/use/useEffectOnce";
 
 
 interface LittleListProps {
@@ -96,66 +98,23 @@ function TraceLogsListItem(props: LittleListItemProps) {
     );
 }
 
-const fetchDataSteps = async (pluginTraceLog: PluginTraceLog, addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void, setIsFetchingStep: (value: React.SetStateAction<boolean>) => void) => {
-    debugLog("RetrievePluginSteps");
-    const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
-    delete result["@odata.context"];
-    delete result["@odata.etag"];
-    // await yieldToMain();
-    addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
-    setIsFetchingStep(false);
-}
 
-const fetchDataImages = async (pluginTraceLog: PluginTraceLog, addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage[]) => void, setIsFetchingImages: (value: React.SetStateAction<boolean>) => void) => {
-    debugLog("RetrievePluginImages");
-    const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
-    // await yieldToMain();
-    addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
-    setIsFetchingImages(false);
-}
 
 function PluginTraceLogsListItem(props: LittleListItemProps) {
     const { pluginTraceLog } = props;
 
     const { openDialog } = useContext(TraceLogControllerContext);
-    const { sdkMessageProcessingSteps: sdkMessageProcessingStepsStore, addMessageProcessingSteps, sdkMessageProcessingStepImages: sdkMessageProcessingStepImagesStore, addMessageProcessingStepImages } = useContext(TraceLogsAPI);
-
-    const [isFetchingStep, setIsFetchingStep] = useState<boolean>(false);
-    const [isFetchingImages, setIsFetchingImages] = useState<boolean>(false);
+    const { sdkMessageProcessingSteps: sdkMessageProcessingStepsStore,  sdkMessageProcessingStepImages: sdkMessageProcessingStepImagesStore, addStepToFetchingQueue } = useContext(TraceLogsAPIContext);
+    
 
     const sdkMessageProcessingStep: SdkMessageProcessingStep | null = useMemo(() => sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid]]);
 
     const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = useMemo(() => sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid]]);
 
-    useEffect(() => {
-        if (!sdkMessageProcessingStep) {
-            // const fetchData = async () => {
-            //     const result = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
-            //     delete result["@odata.context"];
-            //     delete result["@odata.etag"];
-            //     await yieldToMain();
-            //     addMessageProcessingSteps(pluginTraceLog.plugintracelogid, result);
-            //     setIsFetchingStep(false);
-            // }
-            fetchDataSteps(pluginTraceLog, addMessageProcessingSteps, setIsFetchingStep);
-            setIsFetchingStep(true);
-        }
-    }, [sdkMessageProcessingStep?.sdkmessageprocessingstepid]);
+    useEffectOnce(() => {
+        addStepToFetchingQueue(pluginTraceLog);
+    });
 
-    useEffect(() => {
-        if (!sdkMessageProcessingStepImages) {
-            // const fetchData = async () => {
-            //     const result = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=${['entityalias', 'imagetype', 'attributes'].join(',')}&$filter=_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`);
-            //     await yieldToMain();
-            //     addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, result.entities);
-            //     setIsFetchingImages(false);
-            // }
-            fetchDataImages(pluginTraceLog, addMessageProcessingStepImages, setIsFetchingImages);
-            setIsFetchingImages(true);
-        }
-    }, [sdkMessageProcessingStepImages]);
-
-    const isFetching = useMemo(() => (isFetchingStep || isFetchingImages), [isFetchingStep, isFetchingImages]);
     const dateTimeFormat = useMemo(() => getCurrentDynamics365DateTimeFormat(), []);
 
     return (
@@ -202,14 +161,14 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                         >
                             {pluginTraceLog.primaryentity}
                         </Typography>
-                        {` — ${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
+                        {` — ${!sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep["stage@OData.Community.Display.V1.FormattedValue"]}`}
                         <Typography
                             component="p"
                             variant="caption"
                             color="text.primary"
                             whiteSpace='nowrap'
                         >
-                            {`${isFetching || !sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name}`}
+                            {`${!sdkMessageProcessingStep ? 'Loading...' : sdkMessageProcessingStep.name}`}
                         </Typography>
                     </>
                 }
@@ -229,7 +188,6 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
                     </>
                 }
             />
-            {/* <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'absolute', right: 2 }} /> */}
         </Box >
     );
 }
@@ -302,7 +260,6 @@ function WorkflowActivityTraceLogsListItem(props: LittleListItemProps) {
                     </>
                 }
             />
-            {/* <ErrorOutlineIcon sx={{ color: '#ff3333', visibility: pluginTraceLog.exceptiondetails ? 'visible' : 'hidden', mb: '10%', width: '1.25em', position: 'absolute', right: 2 }} /> */}
         </Box>
     );
 }

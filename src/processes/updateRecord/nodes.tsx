@@ -6,7 +6,6 @@ import React, {
     ReactNode, useEffect,
     useMemo, useState
 } from 'react';
-import { useUpdateEffect } from 'usehooks-ts';
 
 import ShortTextIcon from '@mui/icons-material/ShortText';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -40,6 +39,7 @@ import {
 } from '../../utils/hooks/XrmApi/RetrievePicklistValues';
 import { RetrieveSetName } from '../../utils/hooks/XrmApi/RetrieveSetName';
 import { createSvgIcon, Theme } from '@mui/material';
+import { useUpdateEffect } from '@custom-react-hooks/all';
 
 
 const DecimalIcon = createSvgIcon(

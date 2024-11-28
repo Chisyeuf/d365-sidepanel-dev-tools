@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from '@mui/material';
 import { ProviderContext as SnackbarProviderContext, useSnackbar } from "notistack";
 import { projectPrefix } from "./var";
-import { useEffectOnce } from "usehooks-ts";
+import { useEffectOnce } from "../hooks/use/useEffectOnce";
 
 export abstract class ProcessButton {
     static prefixId: string = projectPrefix;

@@ -185,7 +185,7 @@ export enum OperationType {
 
 
 export interface IPluginTraceLogControllerContext {
-    dialogOpened: boolean,
+    detailsDialogOpened: boolean,
     openDialog: (selectedPluginTraceLog: PluginTraceLog, relatedSdkMessageProcessingStep: SdkMessageProcessingStep | null, sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null) => void,
     closeDialog: () => void,
     selectedPluginTraceLog: PluginTraceLog | null,
@@ -196,8 +196,13 @@ export interface IPluginTraceLogControllerContext {
 
 export interface ITraceLogsAPI {
     pluginTraceLogs: PluginTraceLog[],
+    isFetchingPluginTraceLogs: boolean,
+    refreshPluginTraceLogs: () => void,
+
     sdkMessageProcessingSteps: { [key: string]: SdkMessageProcessingStep },
     sdkMessageProcessingStepImages: { [key: string]: SdkMessageProcessingStepImage[] },
-    addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void,
-    addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage[]) => void,
+    isFetchingSteps: boolean,
+    addStepToFetchingQueue: (pluginTraceLog: PluginTraceLog) => void
+    // addMessageProcessingSteps: (key: string, value: SdkMessageProcessingStep) => void,
+    // addMessageProcessingStepImages: (key: string, value: SdkMessageProcessingStepImage[]) => void,
 }
