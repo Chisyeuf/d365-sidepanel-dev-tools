@@ -42,39 +42,43 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
 
             if (!_referencedEntityName || !_referencedRecordid || !primaryIdReferencedEntity || !init) return;
 
+            try {
+                const expand = Object.entries(relatedRecordPrimaryAttributes).map(([key, value]) => `${key}($select=${value.primaryId})`);
 
-            const expand = Object.entries(relatedRecordPrimaryAttributes).map(([key, value]) => `${key}($select=${value.primaryId})`);
+                const results = await Xrm.WebApi.online.retrieveRecord(_referencedEntityName, _referencedRecordid, "?$select=" + primaryIdReferencedEntity + "&$expand=" + expand);
 
-            const results = await Xrm.WebApi.online.retrieveRecord(_referencedEntityName, _referencedRecordid, "?$select=" + primaryIdReferencedEntity + "&$expand=" + expand);
-            
-            const computedResult: { [relationshipName: string]: LookupValue[] | null } = {};
+                const computedResult: { [relationshipName: string]: LookupValue[] | null } = {};
 
-            relatedRecords.forEach(r => {
-                const relationshipAttributeContent = results[r.navigationPropertyName];
-                if (relationshipAttributeContent instanceof Array) {
-                    computedResult[r.relationshipSchemaName] =
-                        relationshipAttributeContent.map((relatedRecord: any) => {
-                            const primaryAttributes = relatedRecordPrimaryAttributes[r.relationshipSchemaName];
-                            const primaryId = primaryAttributes?.primaryId;
-                            const t: LookupValue = {
-                                id: primaryId ? relatedRecord[primaryId] : '',
-                                entityType: r.entityName,
-                            }
-                            return t;
-                        }) ?? null;
-                }
-                else {
-                    const primaryAttributes = relatedRecordPrimaryAttributes[r.navigationPropertyName];
-                    const primaryId = primaryAttributes?.primaryId;
-                    computedResult[r.relationshipSchemaName] = relationshipAttributeContent ? [{
-                        id: primaryId ? relationshipAttributeContent[primaryId] : '',
-                        entityType: r.entityName,
-                    }] : null;
-                }
-            });
+                relatedRecords.forEach(r => {
+                    const relationshipAttributeContent = results[r.navigationPropertyName];
+                    if (relationshipAttributeContent instanceof Array) {
+                        computedResult[r.relationshipSchemaName] =
+                            relationshipAttributeContent.map((relatedRecord: any) => {
+                                const primaryAttributes = relatedRecordPrimaryAttributes[r.relationshipSchemaName];
+                                const primaryId = primaryAttributes?.primaryId;
+                                const t: LookupValue = {
+                                    id: primaryId ? relatedRecord[primaryId] : '',
+                                    entityType: r.entityName,
+                                }
+                                return t;
+                            }) ?? null;
+                    }
+                    else {
+                        const primaryAttributes = relatedRecordPrimaryAttributes[r.navigationPropertyName];
+                        const primaryId = primaryAttributes?.primaryId;
+                        computedResult[r.relationshipSchemaName] = relationshipAttributeContent ? [{
+                            id: primaryId ? relationshipAttributeContent[primaryId] : '',
+                            entityType: r.entityName,
+                        }] : null;
+                    }
+                });
 
-            setData(computedResult);
-            setIsFetching(false);
+                setData(computedResult);
+            }
+            finally {
+                setIsFetching(false);
+            }
+
         }
 
         setIsFetching(true);

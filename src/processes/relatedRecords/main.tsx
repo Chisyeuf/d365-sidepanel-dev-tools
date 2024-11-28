@@ -1,5 +1,5 @@
 
-import { Chip, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography, createTheme } from '@mui/material';
+import { Chip, CircularProgress, Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Typography, createTheme } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import ShareIcon from '@mui/icons-material/Share';
@@ -48,7 +48,7 @@ class RelatedRecordsButton extends ProcessButton {
 }
 
 const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
-    function RelatiedRecordsProcess(props: ProcessProps, ref) {
+    function RelatedRecordsProcess(props: ProcessProps, ref) {
 
         const { entityName: currentEntityName, recordId: currentRecordId, isEntityRecord } = useCurrentRecord();
 
@@ -180,7 +180,7 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
                     </ListItemButton>
                 }
             >
-                <Collapse in={open} timeout="auto">
+                <Collapse in={open} timeout="auto" unmountOnExit mountOnEnter>
                     {
                         sortArray.map((s, index) => ({ index: index, number: s })).sort((pA, pB) => pA.number !== undefined && pB.number !== undefined ? pB.number - pA.number : -1)
                             .map(position => relationShipItems[position.index])
@@ -239,6 +239,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
     }, [relationShipMetadata]);
 
     const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
+
     const relatedRecords = useMemo(() => {
         return relatedRecordsDict[relationShipMetadata.SchemaName];
     }, [relatedRecordsDict]);
@@ -251,6 +252,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
         if (relatedRecords === undefined) return '?';
         return relatedRecords?.length ?? 0;
     }, [relatedRecords]);
+
     const numberOfRecordsSmall = useMemo(() => {
         if (relatedRecords === undefined) return '?';
         if (relatedRecords === null) return 0;
@@ -313,18 +315,14 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
 
     const isVisible = useMemo(() => relationShipMetadata.SchemaName.toLowerCase().includes(filter.toLowerCase()), [filter]);
 
-    useEffect(() => {
-        debugLog('filter', filter);
-    }, [filter])
-
 
     return (
-        <>
+        <ListItem key={"relationshipitem" + relationShipMetadata.SchemaName} sx={{ p: 0, flexDirection:'column', alignItems:'stretch' }}>
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
                 <ListItemButton onClick={handleClick} sx={{ display: isVisible ? 'flex' : 'none' }}>
                     <ListItemIcon>
                         <SubdirectoryArrowRightIcon />
-                        <Chip ref={numberOfRecordsChip} size="small" label={numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall} sx={{ height: 'unset' }} />
+                        <Chip ref={numberOfRecordsChip} size="small" label={isFetching ? <CircularProgress disableShrink size={10}/>: (numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall)} sx={{ height: 'unset' }} />
                     </ListItemIcon>
                     <ListItemText
                         primary={relationShipMetadata.SchemaName}
@@ -339,7 +337,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
             </NoMaxWidthTooltip>
             {
                 <List component="div" disablePadding sx={{ display: isVisible ? 'block' : 'none' }}>
-                    <Collapse in={open} timeout="auto">
+                    <Collapse in={open} timeout="auto" unmountOnExit mountOnEnter>
                         {
                             relatedRecords?.map(relatedRecord => {
                                 return (
@@ -350,7 +348,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                     </Collapse>
                 </List>
             }
-        </>
+        </ListItem>
     );
 });
 
@@ -397,12 +395,12 @@ const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
     }
 
     return (
-        <>
+        <ListItem key={"relatedrecorditem" + recordId}  sx={{ p: 0 }}>
             <ListItemButton sx={{ pl: 4 }} onContextMenu={handleOpenContextualMenu} onClick={handleClick}>
                 <ListItemText primary={<><b>{displayName || 'No name'}</b> <i>({recordId})</i></>} />
             </ListItemButton>
             <RecordContextualMenu anchorElement={anchorEl} entityName={entityName} recordId={recordId} open={!!anchorEl} onClose={handleCloseContextualMenu} />
-        </>
+        </ListItem>
     )
 });
 

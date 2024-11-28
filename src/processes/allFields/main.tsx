@@ -1,5 +1,5 @@
 
-import { Box, Button, ButtonGroup, createTheme, Divider, List, ListItem, ListItemButton, ListItemText, Skeleton, Stack, ThemeProvider } from '@mui/material';
+import { Box, Button, ButtonGroup, Collapse, createTheme, Divider, List, ListItem, ListItemButton, ListItemText, Skeleton, Stack, ThemeProvider } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
@@ -451,7 +451,7 @@ const AttributeListItem = React.memo((props: AttributeListItemProps) => {
     ), [attributeName, value]);
 
     return (
-        <>
+        <ListItem key={"attributelistitem" + attributeName}  sx={{ p: 0, flexDirection:'column', alignItems:'stretch' }}>
             <Divider variant='bold' />
 
             <ListItemButton sx={{ pl: 1, pb: 0, pt: 0 }} onClick={handleClick} onContextMenu={handleOpenContextualMenu}>
@@ -460,7 +460,7 @@ const AttributeListItem = React.memo((props: AttributeListItemProps) => {
             </ListItemButton>
             <CopyMenu anchorElement={anchorEl} onClose={handleCloseContextualMenu} items={copyContent} />
 
-            {open && <>
+            <Collapse in={open} mountOnEnter unmountOnExit>
                 <Divider variant="middle" />
 
                 <List component="div" sx={{ pt: 0 }}>
@@ -474,8 +474,8 @@ const AttributeListItem = React.memo((props: AttributeListItemProps) => {
                     }
 
                 </List>
-            </>}
-        </>
+            </Collapse>
+        </ListItem>
     )
 });
 
