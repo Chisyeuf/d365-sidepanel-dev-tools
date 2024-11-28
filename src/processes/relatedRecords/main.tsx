@@ -1,5 +1,5 @@
 
-import { Chip, CircularProgress, Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Typography, createTheme } from '@mui/material';
+import { Chip, CircularProgress, Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, SxProps, Typography, createTheme } from '@mui/material';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import ShareIcon from '@mui/icons-material/Share';
@@ -12,7 +12,7 @@ import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRig
 import { RelationShipMetadata, RelationshipType } from '../../utils/types/requestsType';
 import { RetrieveRelatedRecords } from '../../utils/hooks/XrmApi/RetrieveRelatedRecords';
 import { debugLog } from '../../utils/global/common';
-import { ThemeProvider } from '@emotion/react';
+import { Theme, ThemeProvider } from '@emotion/react';
 import { RetrievePrimaryNameAttribute } from '../../utils/hooks/XrmApi/RetrievePrimaryNameAttribute';
 import { useHover } from 'usehooks-ts';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
@@ -191,6 +191,7 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
     );
 }
 
+const sxTooltip: SxProps<Theme> = { p: '0px 16px' };
 interface RelationShipItemProps {
     relationShipMetadata: RelationShipMetadata,
     entityName: string,
@@ -274,25 +275,35 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
         switch (relationShipMetadata.RelationshipType) {
             case RelationshipType.ManyToManyRelationship:
                 details = <>
-                    <Typography variant="body2"><strong>Entity1LogicalName:</strong> {'' + relationShipMetadata.Entity1LogicalName}</Typography>
-                    <Typography variant="body2"><strong>Entity1NavigationPropertyName:</strong> {'' + relationShipMetadata.Entity1NavigationPropertyName}</Typography>
-                    <Typography variant="body2"><strong>Entity1IntersectAttribute:</strong> {relationShipMetadata.Entity1IntersectAttribute}</Typography>
-                    <Typography variant="body2"><strong>Entity2LogicalName:</strong> {relationShipMetadata.Entity2LogicalName}</Typography>
-                    <Typography variant="body2"><strong>Entity2NavigationPropertyName:</strong> {relationShipMetadata.Entity2NavigationPropertyName}</Typography>
-                    <Typography variant="body2"><strong>Entity2IntersectAttribute:</strong> {relationShipMetadata.Entity2IntersectAttribute}</Typography>
-                    <Typography variant="body2"><strong>IntersectEntityName:</strong> {relationShipMetadata.IntersectEntityName}</Typography>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity1LogicalName:</strong> <i>{'' + relationShipMetadata.Entity1LogicalName}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity1NavigationPropertyName:</strong> <i>{'' + relationShipMetadata.Entity1NavigationPropertyName}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity1IntersectAttribute:</strong> <i>{relationShipMetadata.Entity1IntersectAttribute}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity2LogicalName:</strong> <i>{relationShipMetadata.Entity2LogicalName}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity2NavigationPropertyName:</strong> <i>{relationShipMetadata.Entity2NavigationPropertyName}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Entity2IntersectAttribute:</strong> <i>{relationShipMetadata.Entity2IntersectAttribute}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>IntersectEntityName:</strong> <i>{relationShipMetadata.IntersectEntityName}</i></Typography></ListItemText></ListItem>
                 </>;
                 break;
             default:
                 details = <>
-                    <Typography variant="body2"><strong>ReferencedEntity:</strong> {relationShipMetadata.ReferencedEntity}</Typography>
-                    <Typography variant="body2"><strong>ReferencedAttribute:</strong> {relationShipMetadata.ReferencedAttribute}</Typography>
-                    <Typography variant="body2"><strong>ReferencedEntityNavigationPropertyName:</strong> {relationShipMetadata.ReferencedEntityNavigationPropertyName}</Typography>
-                    <Typography variant="body2"><strong>ReferencingEntity:</strong> {relationShipMetadata.ReferencingEntity}</Typography>
-                    <Typography variant="body2"><strong>ReferencingAttribute:</strong> {relationShipMetadata.ReferencingAttribute}</Typography>
-                    <Typography variant="body2"><strong>ReferencingEntityNavigationPropertyName:</strong> {relationShipMetadata.ReferencingEntityNavigationPropertyName}</Typography>
-                    <Divider variant='middle' />
-                    <Typography variant="body2"><strong>CascadeConfiguration:</strong></Typography>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencedEntity:</strong> <i>{relationShipMetadata.ReferencedEntity}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencedAttribute:</strong> <i>{relationShipMetadata.ReferencedAttribute}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencedEntityNavigationPropertyName:</strong> <i>{relationShipMetadata.ReferencedEntityNavigationPropertyName}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencingEntity:</strong> <i>{relationShipMetadata.ReferencingEntity}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencingAttribute:</strong> <i>{relationShipMetadata.ReferencingAttribute}</i></Typography></ListItemText></ListItem>
+                    <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>ReferencingEntityNavigationPropertyName:</strong> <i>{relationShipMetadata.ReferencingEntityNavigationPropertyName}</i></Typography></ListItemText></ListItem>
+                    <Divider variant='middle' sx={{ mt: 0.5, mb: 0.5 }} />
+                    <List subheader={<Typography variant="body2"><strong>CascadeConfiguration:</strong></Typography>}>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Archive -</strong> <i>{relationShipMetadata.CascadeConfiguration.Archive}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Assign -</strong> <i>{relationShipMetadata.CascadeConfiguration.Assign}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Delete -</strong> <i>{relationShipMetadata.CascadeConfiguration.Delete}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Merge -</strong> <i>{relationShipMetadata.CascadeConfiguration.Merge}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Reparent -</strong> <i>{relationShipMetadata.CascadeConfiguration.Reparent}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>RollupView -</strong> <i>{relationShipMetadata.CascadeConfiguration.RollupView}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Share -</strong> <i>{relationShipMetadata.CascadeConfiguration.Share}</i></Typography></ListItemText></ListItem>
+                        <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Unshare -</strong> <i>{relationShipMetadata.CascadeConfiguration.Unshare}</i></Typography></ListItemText></ListItem>
+                    </List>
+                    {/* <Typography variant="body2"><strong>CascadeConfiguration:</strong></Typography>
                     <Typography variant="body2">Archive - {relationShipMetadata.CascadeConfiguration.Archive}</Typography>
                     <Typography variant="body2">Assign - {relationShipMetadata.CascadeConfiguration.Assign}</Typography>
                     <Typography variant="body2">Delete - {relationShipMetadata.CascadeConfiguration.Delete}</Typography>
@@ -300,29 +311,28 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                     <Typography variant="body2">Reparent - {relationShipMetadata.CascadeConfiguration.Reparent}</Typography>
                     <Typography variant="body2">RollupView - {relationShipMetadata.CascadeConfiguration.RollupView}</Typography>
                     <Typography variant="body2">Share - {relationShipMetadata.CascadeConfiguration.Share}</Typography>
-                    <Typography variant="body2">Unshare - {relationShipMetadata.CascadeConfiguration.Unshare}</Typography>
+                    <Typography variant="body2">Unshare - {relationShipMetadata.CascadeConfiguration.Unshare}</Typography> */}
 
                 </>;
                 break;
         }
-        return <>
-            <Typography variant="button"><strong>{relationShipMetadata.SchemaName}</strong></Typography>
-            <Typography variant="body2"><strong>IsCustomRelationship:</strong> {relationShipMetadata.IsCustomRelationship}</Typography>
-            <Typography variant="body2"><strong>IsValidForAdvancedFind:</strong> {relationShipMetadata.IsValidForAdvancedFind}</Typography>
+        return <List sx={{ p: '0px 16px' }} subheader={<Typography variant="button"><strong>{relationShipMetadata.SchemaName}</strong></Typography>}>
+            <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>IsCustomRelationship:</strong> <i>{String(relationShipMetadata.IsCustomRelationship)}</i></Typography></ListItemText></ListItem>
+            <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>IsValidForAdvancedFind:</strong> <i>{String(relationShipMetadata.IsValidForAdvancedFind)}</i></Typography></ListItemText></ListItem>
             {details}
-        </>
+        </List>
     }, [relationShipMetadata]);
 
     const isVisible = useMemo(() => relationShipMetadata.SchemaName.toLowerCase().includes(filter.toLowerCase()), [filter]);
 
 
     return (
-        <ListItem key={"relationshipitem" + relationShipMetadata.SchemaName} sx={{ p: 0, flexDirection:'column', alignItems:'stretch' }}>
+        <ListItem key={"relationshipitem" + relationShipMetadata.SchemaName} sx={{ p: 0, flexDirection: 'column', alignItems: 'stretch' }}>
             <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
                 <ListItemButton onClick={handleClick} sx={{ display: isVisible ? 'flex' : 'none' }}>
                     <ListItemIcon>
                         <SubdirectoryArrowRightIcon />
-                        <Chip ref={numberOfRecordsChip} size="small" label={isFetching ? <CircularProgress disableShrink size={10}/>: (numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall)} sx={{ height: 'unset' }} />
+                        <Chip ref={numberOfRecordsChip} size="small" label={isFetching ? <CircularProgress disableShrink size={10} /> : (numberOfRecordsChipHovered ? numberOfRecordsBig : numberOfRecordsSmall)} sx={{ height: 'unset' }} />
                     </ListItemIcon>
                     <ListItemText
                         primary={relationShipMetadata.SchemaName}
@@ -395,7 +405,7 @@ const RelatedRecordsItem = React.memo((props: RelatedRecordsItemProps) => {
     }
 
     return (
-        <ListItem key={"relatedrecorditem" + recordId}  sx={{ p: 0 }}>
+        <ListItem key={"relatedrecorditem" + recordId} sx={{ p: 0 }}>
             <ListItemButton sx={{ pl: 4 }} onContextMenu={handleOpenContextualMenu} onClick={handleClick}>
                 <ListItemText primary={<><b>{displayName || 'No name'}</b> <i>({recordId})</i></>} />
             </ListItemButton>
