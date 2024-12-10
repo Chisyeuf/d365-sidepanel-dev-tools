@@ -303,16 +303,6 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                         <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Share -</strong> <i>{relationShipMetadata.CascadeConfiguration.Share}</i></Typography></ListItemText></ListItem>
                         <ListItem sx={sxTooltip}><ListItemText><Typography variant="body2"><strong>Unshare -</strong> <i>{relationShipMetadata.CascadeConfiguration.Unshare}</i></Typography></ListItemText></ListItem>
                     </List>
-                    {/* <Typography variant="body2"><strong>CascadeConfiguration:</strong></Typography>
-                    <Typography variant="body2">Archive - {relationShipMetadata.CascadeConfiguration.Archive}</Typography>
-                    <Typography variant="body2">Assign - {relationShipMetadata.CascadeConfiguration.Assign}</Typography>
-                    <Typography variant="body2">Delete - {relationShipMetadata.CascadeConfiguration.Delete}</Typography>
-                    <Typography variant="body2">Merge - {relationShipMetadata.CascadeConfiguration.Merge}</Typography>
-                    <Typography variant="body2">Reparent - {relationShipMetadata.CascadeConfiguration.Reparent}</Typography>
-                    <Typography variant="body2">RollupView - {relationShipMetadata.CascadeConfiguration.RollupView}</Typography>
-                    <Typography variant="body2">Share - {relationShipMetadata.CascadeConfiguration.Share}</Typography>
-                    <Typography variant="body2">Unshare - {relationShipMetadata.CascadeConfiguration.Unshare}</Typography> */}
-
                 </>;
                 break;
         }
