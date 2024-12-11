@@ -1,6 +1,7 @@
-import { Stack, styled, Tooltip, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { Stack, styled, Tooltip, TooltipProps, Typography } from '@mui/material';
+import React, { MouseEventHandler, useState } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useSnackbar } from 'notistack';
 
 const LogicalNameRoot = styled(Stack<'span'>)(({ theme }) => ({
     fontSize: '11.2px',
@@ -16,22 +17,26 @@ const LogicalNameTypoRoot = styled(Typography)(({ theme }) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-}))
+}));
 
-export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any, width?: number }) {
+export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any, width?: number, placement?: TooltipProps['placement'] }) {
 
-    const [clicked, setClicked] = useState<boolean>(false);
+    // const [clicked, setClicked] = useState<boolean>(false);
 
-    const onClick = () => {
-        setClicked(true);
+    const { enqueueSnackbar } = useSnackbar();
+
+    const onClick = (event: React.MouseEvent) => {
+        enqueueSnackbar(`Control name "${props.label}" copied.`, { variant: 'default' });
+        // setClicked(true);
         props.onClick(props.label);
-        setTimeout(() => {
-            setClicked(false);
-        }, 200);
+        // setTimeout(() => {
+        //     setClicked(false);
+        // }, 500);
+        event.stopPropagation();
     }
 
     return (
-        <Tooltip title={props.label} placement='right'>
+        <Tooltip title={props.label} placement={props.placement ?? 'left'} disableInteractive>
             <LogicalNameRoot
                 component='span'
                 spacing={0.5}
@@ -39,7 +44,8 @@ export function LogicalNameTypography(props: { label: string, onClick: (text: st
                 direction='row'
                 alignItems='center'
                 onClick={onClick}
-                color={(theme) => clicked ? theme.palette.primary.dark : theme.palette.text.secondary}>
+            // color={(theme) => clicked ? theme.palette.primary.light : theme.palette.text.secondary}
+            >
                 <ContentCopyIcon fontSize='inherit' color='inherit' />
                 <LogicalNameTypoRoot title={props.label} variant='caption' fontSize='inherit' lineHeight='inherit' color='inherit'>
                     {props.label}

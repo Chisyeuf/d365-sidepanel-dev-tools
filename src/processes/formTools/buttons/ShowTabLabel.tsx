@@ -1,5 +1,5 @@
 import { Tooltip, Button } from '@mui/material';
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SubProcessProps } from '../main';
 
 import { Portal } from '@mui/base';
@@ -42,59 +42,60 @@ function ShowTabLabel(props: SubProcessProps & LabelToolsSubProcess) {
         setLabelDisplayed((prev) => !prev);
     }
 
-    return (<>
-        <Tooltip title='Show Tabs & Sections Logical Names' placement='left'>
-            <Button
-                variant='contained'
-                onClick={toggleLabelDisplay}
-                startIcon={labelDisplayed ? <BookIcon /> : <BookOutlinedIcon />}
-            />
-        </Tooltip>
-        <>{
-            tabs?.map((c) => {
-                const tabName: string = c.getName();
-                const tabNode = document.querySelector<HTMLElement>("li[data-id$=\"tablist-" + tabName + "\"]");
+    return (
+        <>
+            <Tooltip title='Show Tabs & Sections Logical Names' placement='left'>
+                <Button
+                    variant='contained'
+                    onClick={toggleLabelDisplay}
+                    startIcon={labelDisplayed ? <BookIcon /> : <BookOutlinedIcon />}
+                />
+            </Tooltip>
+            <>{
+                tabs?.map((c) => {
+                    const tabName: string = c.getName();
+                    const tabNode = document.querySelector<HTMLElement>("li[data-id$=\"tablist-" + tabName + "\"]");
 
-                let content;
-                if (!tabNode?.firstElementChild?.hasAttribute('tablogicalname')) {
-                    content = document.createElement('div');
-                    content.setAttribute('tablogicalname', '');
-                    tabNode?.insertBefore(content, tabNode.children[0]);
-                }
-                else {
-                    content = tabNode?.firstElementChild;
-                }
+                    let content;
+                    if (!tabNode?.firstElementChild?.hasAttribute('tablogicalname')) {
+                        content = document.createElement('div');
+                        content.setAttribute('tablogicalname', '');
+                        tabNode?.insertBefore(content, tabNode.children[0]);
+                    }
+                    else {
+                        content = tabNode?.firstElementChild;
+                    }
 
-                return (
-                    <Portal container={content}>
-                        {labelDisplayed && <LogicalNameTypography label={tabName} onClick={copyToClipboard} width={tabNode?.offsetWidth} />}
-                    </Portal>
-                );
-            })
-        }</>
-        <>{
-            sections?.map((c) => {
-                const sectionName: string = c.getName();
-                const sectionNode: Element | null = document.querySelector("section[data-id$=\"" + sectionName + "\"]");
+                    return (
+                        <Portal container={content}>
+                            {labelDisplayed && <LogicalNameTypography label={tabName} onClick={copyToClipboard} width={tabNode?.offsetWidth} placement='bottom' />}
+                        </Portal>
+                    );
+                })
+            }</>
+            <>{
+                sections?.map((c) => {
+                    const sectionName: string = c.getName();
+                    const sectionNode: Element | null = document.querySelector("section[data-id$=\"" + sectionName + "\"]");
 
-                let content;
-                if (!sectionNode?.firstElementChild?.hasAttribute('sectionlogicalname')) {
-                    content = document.createElement('div');
-                    content.setAttribute('sectionlogicalname', '');
-                    sectionNode?.prepend(content);
-                }
-                else {
-                    content = sectionNode?.firstElementChild;
-                }
+                    let content;
+                    if (!sectionNode?.firstElementChild?.hasAttribute('sectionlogicalname')) {
+                        content = document.createElement('div');
+                        content.setAttribute('sectionlogicalname', '');
+                        sectionNode?.prepend(content);
+                    }
+                    else {
+                        content = sectionNode?.firstElementChild;
+                    }
 
-                return (
-                    <Portal container={content}>
-                        {labelDisplayed && <LogicalNameTypography label={sectionName} onClick={copyToClipboard} />}
-                    </Portal>
-                );
-            })
-        }</>
-    </>
+                    return (
+                        <Portal container={content}>
+                            {labelDisplayed && <LogicalNameTypography label={sectionName} onClick={copyToClipboard} />}
+                        </Portal>
+                    );
+                })
+            }</>
+        </>
     );
 }
 
