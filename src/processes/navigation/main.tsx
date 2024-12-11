@@ -7,11 +7,12 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 import MapIcon from '@mui/icons-material/Map';
 
 import NavigationToSolutionList from './containers/NavigationToSolutionList';
-import NavigationToEnvironments from './containers/NavigationToEnvironments';
+import NavigationToPowerAdmin from './containers/NavigationToPowerAdmin';
 import NavigationToSecurity from './containers/NavigationToSecurity';
 import NavigationToFormEditor from './containers/NavigationToFormEditor';
 import NavigationAzurePortal from './containers/NavigationToAzurePortal';
 import AdvancedFind from './containers/NavigationToAdvancedFind';
+import NavigationToPowerAutomate from './containers/NavigationToPowerAutomate';
 
 
 class NavigationButton extends ProcessButton {
@@ -54,7 +55,8 @@ const buttons = [
     NavigationToSolutionList,
     NavigationToFormEditor,
     AdvancedFind,
-    NavigationToEnvironments,
+    NavigationToPowerAutomate,
+    NavigationToPowerAdmin,
     NavigationAzurePortal,
     NavigationToSecurity,
 ];

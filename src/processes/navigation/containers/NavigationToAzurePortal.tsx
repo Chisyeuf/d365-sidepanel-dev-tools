@@ -1,9 +1,9 @@
 
-import { Button, Tooltip } from '@mui/material';
-import React from 'react';
+import { Box, Button, Tooltip } from '@mui/material';
 
 import { AzurePortalIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
+import { Textfit } from 'react-textfit';
 
 function AzurePortal(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -23,12 +23,16 @@ function AzurePortal(props: NavigationButton) {
                         maxWidth: 'calc(100% - 10px)',
                         gap: '0.4em',
                         padding: '5px 10px',
-                        justifyContent:'flex-start',
-                        overflow:'hidden',
-                        whiteSpace:'nowrap',
+                        justifyContent: 'flex-start',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
                     }}
                 >
-                    Azure Portal
+                    <Box width='calc(100% - 20px)'>
+                        <Textfit mode='single' forceSingleModeWidth={false}>
+                            Azure Portal
+                        </Textfit>
+                    </Box>
                 </Button>
             </Tooltip>
             {/* </Stack>

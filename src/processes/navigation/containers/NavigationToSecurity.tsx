@@ -1,11 +1,10 @@
 
-import { Button, Tooltip } from '@mui/material';
-import React from 'react';
+import { Box, Button, Tooltip } from '@mui/material';
 
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
+import { Textfit } from 'react-textfit';
 
-declare var processLink: any;
 
 function NavigationToSecurity(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -60,13 +59,17 @@ function NavigationToSecurity(props: NavigationButton) {
                         maxWidth: 'calc(100% - 10px)',
                         gap: '0.4em',
                         padding: '5px 10px',
-                        justifyContent:'flex-start',
-                        overflow:'hidden',
-                        whiteSpace:'nowrap',
+                        justifyContent: 'flex-start',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
                     }}
 
                 >
-                    Security
+                    <Box width='calc(100% - 20px)'>
+                        <Textfit mode='single' forceSingleModeWidth={false}>
+                            Security
+                        </Textfit>
+                    </Box>
                 </Button>
             </Tooltip>
             {/* </Stack> */}

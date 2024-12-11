@@ -1,8 +1,6 @@
 
 import { Box, Button, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Tooltip } from '@mui/material';
-import React, { useMemo, useRef, useState, } from 'react';
-
-// import NavigationIcon from '@mui/icons-material/Navigation';
+import { useMemo, useRef, useState, } from 'react';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
 import { PowerAppsIcon } from './../icons';

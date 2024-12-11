@@ -1,20 +1,16 @@
 
-import { Box, Button, Tooltip, Typography } from '@mui/material';
+import { Box, Tooltip, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import React, { useMemo } from 'react';
-
-// import NavigationIcon from '@mui/icons-material/Navigation';
+import { useMemo } from 'react';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon, PowerEnvironmentIcon } from '../icons';
+import { PowerAppsIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import { useCurrentFormContext } from '../../../utils/hooks/use/useCurrentFormContext';
 import { RetrieveFirstRecordInterval } from '../../../utils/hooks/XrmApi/RetrieveFirstRecordInterval';
-import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 import RedDisabledButton from '../../../utils/components/RedDisabledButton';
 import D365RibbonHomePageIcon from '../../../utils/components/D365RibbonHomePageIcon';
 import { RetrieveObjectTypeCodeByName } from '../../../utils/hooks/XrmApi/RetrieveObjectTypeCodeByName';
-import HorizontalSlider from '../../../utils/components/HorizontalSlider';
 
 function FormEditor(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
