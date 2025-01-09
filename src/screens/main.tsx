@@ -418,7 +418,7 @@ if (top && top.window === window) {
 
 function initExtension() {
 
-    waitForElm('#mainContent').then((mainNode) => {
+    waitForElm(document, '#mainContent').then((mainNode) => {
         const drawerContainer = document.createElement('div');
         drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
         mainNode?.append(drawerContainer);

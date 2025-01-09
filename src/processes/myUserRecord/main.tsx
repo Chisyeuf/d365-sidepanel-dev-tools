@@ -41,7 +41,7 @@ class MyUserRecordButton extends ProcessButton {
 
         createRecordSidePane(paneOption, "systemuser", userSettings.userId);
 
-        waitForElm('button[aria-controls=' + this.id + '] > span').then((sidePaneOpenButton) => {
+        waitForElm(document, 'button[aria-controls=' + this.id + '] > span').then((sidePaneOpenButton) => {
             if (sidePaneOpenButton) {
                 var iconContainer = document.createElement("div");
                 var rawicon = sidePaneOpenButton.querySelector("img");

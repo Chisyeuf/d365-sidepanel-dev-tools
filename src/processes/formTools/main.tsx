@@ -14,6 +14,7 @@ import DOMObserver from '../../utils/global/DOMObserver';
 import { Env } from '../../utils/global/var';
 import OtherTools from './containers/OtherTools';
 import RefreshButtons from './containers/RefreshButtons';
+import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -78,13 +79,15 @@ type XrmStatus = {
 const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
     function FormToolsProcess(props: ProcessProps, ref) {
 
-        const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
-            isRecord: false,
-        });
+        // const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
+        //     isRecord: false,
+        // });
 
-        const [currentFormContext, setCurrentFormContext] = useState<FormContext>(null);
+        // const [currentFormContext, setCurrentFormContext] = useState<FormContext>(null);
 
         const [domUpdated, setDomUpdated] = useState<boolean>(false);
+
+        const currentFormContext = useCurrentFormContext();
 
         
         const xrmObserverCallback = useCallback(() => {
@@ -106,25 +109,25 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
             domObserver.addListener(xrmObserverCallback);
         }, []);
 
-        useEffect(() => {
-            setXrmStatus({
-                isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName(),
-                pageType: Xrm.Utility.getPageContext()?.input?.pageType,
-                entityName: Xrm.Page.data?.entity?.getEntityName(),
-                recordId: Xrm.Page.data?.entity?.getId(),
-            });
+        // useEffect(() => {
+        //     setXrmStatus({
+        //         isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName(),
+        //         pageType: Xrm.Utility.getPageContext()?.input?.pageType,
+        //         entityName: Xrm.Page.data?.entity?.getEntityName(),
+        //         recordId: Xrm.Page.data?.entity?.getId(),
+        //     });
 
-            setTimeout(() => {
+        //     setTimeout(() => {
 
-                if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
-                    setCurrentFormContext(Xrm.Page);
-                }
-                else {
-                    setCurrentFormContext(null);
-                }
-            }, 1000);
+        //         if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
+        //             setCurrentFormContext(Xrm.Page);
+        //         }
+        //         else {
+        //             setCurrentFormContext(null);
+        //         }
+        //     }, 1000);
 
-        }, [(Xrm.Utility.getPageContext() as any)._pageId]);
+        // }, [(Xrm.Utility.getPageContext() as any)._pageId]);
 
         return (
             <ThemeProvider theme={theme}>

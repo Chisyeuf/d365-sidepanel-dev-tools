@@ -23,16 +23,22 @@ export function setStyle(stylesheetid: string, style: { [querySelector: string]:
     styleNode.innerText = styleText;
 }
 
-export function waitForElm<T extends HTMLElement>(selector: string) {
+export function waitForElm<T extends HTMLElement>(document: Document, selector: string) {
     return new Promise<T | null>(resolve => {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector<T>(selector));
         }
 
         const observer = new MutationObserver(mutations => {
+            let timeout = setTimeout(() => {
+                resolve(null);
+                observer.disconnect();
+            }, 5000);
+
             if (document.querySelector(selector)) {
                 resolve(document.querySelector<T>(selector));
                 observer.disconnect();
+                clearTimeout(timeout);
             }
         });
 

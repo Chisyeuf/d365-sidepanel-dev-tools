@@ -12,7 +12,7 @@ export default class XrmObserver {
 
     ObservePageChanges() {
         const selector: string = "#navigationcontextprovider";
-        waitForElm(selector).then((mainContainer) => {
+        waitForElm(document, selector).then((mainContainer) => {
             const observer = new MutationObserver(mutations => {
                 this.Xrm = Xrm;
                 document.dispatchEvent(new CustomEvent('xrmupdated', { detail: { Xrm } }));
