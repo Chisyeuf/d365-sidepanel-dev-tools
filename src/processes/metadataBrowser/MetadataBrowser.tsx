@@ -1,7 +1,7 @@
 import { forwardRef, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
- import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/EntityMetadataListGrid';
+import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/EntityMetadataListGrid';
 import MetadataContextProvider from '../../utils/components/MetadataBrowser/MetadataContextProvider';
 import TuneIcon from '@mui/icons-material/Tune';
 
@@ -19,11 +19,12 @@ class MetadataBrowserButton extends ProcessButton {
 
 const MetadataBrowserProcess = forwardRef<ProcessRef, ProcessProps>(
     function MetadataBrowserProcess(props: ProcessProps, ref) {
+        const { snackbarProvider } = props;
 
         return (
             <MetadataContextProvider>
 
-                <EntityMetadataListGrid />
+                <EntityMetadataListGrid snackbarProvider={snackbarProvider} />
 
             </MetadataContextProvider>
         );

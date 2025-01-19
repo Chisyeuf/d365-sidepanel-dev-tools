@@ -25,6 +25,7 @@ import { CustomLoadingOverlay, CustomNoResultsOverlay, CustomNoRowsOverlay } fro
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { Theme } from '@mui/material';
+import { ProcessProps } from '../../global/.processClass';
 
 // const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 //     border: 0,
@@ -164,9 +165,9 @@ const GridButtonsContext = createContext<IGridButtonsContext>({
     openGrid: () => ''
 });
 
-function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string }) {
+function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string, sptSnackbarProvider: ProcessProps['snackbarProvider'] }) {
 
-    const { dataList, parentId, id, formatedValue, type, columnName, columnNameText, ...datagridProps } = props;
+    const { dataList, parentId, id, formatedValue, type, columnName, columnNameText, sptSnackbarProvider, ...datagridProps } = props;
 
     const { openGrid, openedGridId } = useContext(GridButtonsContext);
 
@@ -233,6 +234,7 @@ function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps &
                         columnNameText={columnNameText}
                         dataList={dataList}
                         gridHeight={'60vh'}
+                        sptSnackbarProvider={sptSnackbarProvider}
                         {...datagridProps}
                     />
                 </Dialog >
@@ -271,7 +273,8 @@ export interface ObjectListGridProps {
     columnOrder?: { [key: string]: number };
     loading?: boolean;
     autoRowHeight?: boolean;
-    defaultRenderCell?: GridColDef['renderCell']
+    defaultRenderCell?: GridColDef['renderCell'];
+    sptSnackbarProvider: ProcessProps['snackbarProvider']
 }
 
 function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
@@ -298,6 +301,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         loading = false,
         defaultRenderCell,
         autoRowHeight,
+        sptSnackbarProvider,
         ...gridProps
     } = props;
 
@@ -310,8 +314,14 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
     }, [id, openGrid]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        console.log("KeyDown", e.key, e.ctrlKey);
         if (e.key === 'Escape') {
             openGrid('');
+        }
+        else if (e.ctrlKey && e.key === 'c') {
+            sptSnackbarProvider.enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
+            e.preventDefault();
+            e.stopPropagation();
         }
     };
 
@@ -364,6 +374,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                                                     {columnLabels?.[columnName] ?? columnName}
                                                 </>
                                             }
+                                            sptSnackbarProvider={sptSnackbarProvider}
                                         />;
                                     }
                                     if (isArray) {
@@ -384,6 +395,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                                                         {columnLabels?.[columnName] ?? columnName}
                                                     </>
                                                 }
+                                                sptSnackbarProvider={sptSnackbarProvider}
                                             />;
                                         }
                                         return <Box title={'Empty array'}>[ ]</Box>;

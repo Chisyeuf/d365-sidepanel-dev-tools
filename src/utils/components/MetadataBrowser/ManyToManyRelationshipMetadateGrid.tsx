@@ -7,7 +7,7 @@ import { MetadataContext } from './MetadataContextProvider';
 
 
 function ManyToManyRelationshipMetadateGrid(props: ExploreGrid) {
-    const { entityName, explortFileName, openFrom } = props;
+    const { entityName, explortFileName, openFrom, sptSnackbarProvider } = props;
 
     const { manyToManyRelationshipsMetadata, retrieveManyToManyRelationships, isFetchingComponentMetadata } = useContext(MetadataContext);
 
@@ -41,6 +41,7 @@ function ManyToManyRelationshipMetadateGrid(props: ExploreGrid) {
                 gridHeight='80vh'
                 columnNameText={explortFileName}
                 openFrom={openFrom}
+                sptSnackbarProvider={sptSnackbarProvider}
             />
         </>
     );

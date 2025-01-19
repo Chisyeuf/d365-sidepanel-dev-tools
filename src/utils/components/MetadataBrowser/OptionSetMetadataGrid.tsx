@@ -63,7 +63,7 @@ interface OptionSetMetadataGridProps {
     entityName: string
 }
 function OptionSetMetadataGrid(props: OptionSetMetadataGridProps & ExploreGrid) {
-    const { type, entityName, explortFileName, openFrom } = props;
+    const { type, entityName, explortFileName, openFrom, sptSnackbarProvider } = props;
 
     const { optionsSetsMetadata, retrieveOptionSets, isFetchingComponentMetadata: loading } = useContext(MetadataContext);
 
@@ -139,6 +139,7 @@ function OptionSetMetadataGrid(props: OptionSetMetadataGridProps & ExploreGrid) 
             autoRowHeight
             columnNameText={explortFileName}
             openFrom={openFrom}
+            sptSnackbarProvider={sptSnackbarProvider}
         />
     )
 }

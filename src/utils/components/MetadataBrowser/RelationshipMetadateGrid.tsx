@@ -4,6 +4,7 @@ import { metadataGrid_cascadeConfigToValue, metadataGrid_valueToBoolean } from '
 import { ExploreGrid } from './types';
 import { useContext, useEffect } from 'react';
 import { MetadataContext } from './MetadataContextProvider';
+import { ProcessProps } from '../../global/.processClass';
 
 
 export function OneToManyRelationshipMetadateGrid(props: ExploreGrid) {
@@ -38,9 +39,10 @@ interface RelationshipMetadateGridProps {
         [key: string]: any;
     }[]
     loading: boolean
+    sptSnackbarProvider: ProcessProps['snackbarProvider']
 }
 function RelationshipMetadateGrid(props: RelationshipMetadateGridProps & Pick<ExploreGrid, 'explortFileName' | 'openFrom'>) {
-    const { data, loading, explortFileName, openFrom } = props;
+    const { data, loading, explortFileName, openFrom, sptSnackbarProvider } = props;
 
     return (
         <>
@@ -66,6 +68,7 @@ function RelationshipMetadateGrid(props: RelationshipMetadateGridProps & Pick<Ex
                 gridHeight='80vh'
                 columnNameText={explortFileName}
                 openFrom={openFrom}
+                sptSnackbarProvider={sptSnackbarProvider}
             />
         </>
     );
