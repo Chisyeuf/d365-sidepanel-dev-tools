@@ -1,8 +1,9 @@
 import { Drawer } from "@mui/material";
 import React, { PropsWithChildren } from "react";
+import { ProcessButton } from "../../global/.processClass";
 
 interface PanelDrawerItemProps {
-    width: number;
+    width: ProcessButton['width'];
     open: boolean;
 }
 

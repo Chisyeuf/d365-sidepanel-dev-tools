@@ -1,7 +1,7 @@
-
-import { IconButton, Tooltip } from '@mui/material';
-import { Stack } from '@mui/system';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Stack from '@mui/system/Stack';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SubProcessProps } from '../main';
 import ComponentContainer from '../../../utils/components/ComponentContainer';

@@ -1,6 +1,7 @@
-import { Stack, TextField, Typography } from "@mui/material";
-import Grid from '@mui/material/Grid2';
-import React from "react";
+import Grid2 from '@mui/material/Grid2';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 interface TraceLogFieldProps {
     label: string,
@@ -10,7 +11,7 @@ function TraceLogField(props: TraceLogFieldProps) {
     const { label, value } = props;
 
     return (
-        <Grid size={{ xs: 4 }}>
+        <Grid2 size={{ xs: 4 }}>
             <Stack direction='row' gap={1} alignItems='center'>
                 <Typography width='60%'>
                     {label}:
@@ -27,7 +28,7 @@ function TraceLogField(props: TraceLogFieldProps) {
                     })}
                 />
             </Stack>
-        </Grid>
+        </Grid2>
     );
 }
 

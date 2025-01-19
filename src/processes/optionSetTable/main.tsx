@@ -1,8 +1,22 @@
-
-import { Box, Button, CircularProgress, createTheme, List, ListItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ThemeProvider, Tooltip, Typography } from '@mui/material';
-import React, { forwardRef, useEffect, useMemo, useRef, useState, } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import createTheme from '@mui/material/styles/createTheme';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
-
 
 import FilterInput from '../../utils/components/FilterInput';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
@@ -271,6 +285,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                         <TableRow>
                             <TableCell><b>Name</b></TableCell>
                             {metadata.Options.some(o => o.State !== undefined && o.State !== null) && <TableCell align='right'><b>State</b></TableCell>}
+                            {metadata.Options.some(o => o.DefaultStatus !== undefined && o.DefaultStatus !== null) && <TableCell align='right'><b>DefaultStatus</b></TableCell>}
                             {metadata.Options.some(o => o.ParentValues && o.ParentValues.length > 0) && <TableCell align='right'><b>ParentValues</b></TableCell>}
                             <TableCell align='right'><b>Value</b></TableCell>
                         </TableRow>
@@ -278,23 +293,24 @@ function OptionSetTable(props: OptionSetTableProps) {
 
                     <TableBody>
                         {
-                            metadata.Options.map(option => {
+                            metadata.Options.map(o => {
                                 return (
                                     <Tooltip
                                         title={
-                                            (option.Color || option.Description.UserLocalizedLabel?.Label || option.ExternalValue) && <>
-                                                {option.Color && <Typography display='flex' alignItems='center' gap={0.5}><b>Color:</b> <Box component='div' display='inline-block' bgcolor={option.Color} width={13} height={13} border='1px solid #EEEEEE'></Box> {option.Color}</Typography>}
-                                                {option.Description.UserLocalizedLabel?.Label && <Typography><b>Description:</b> {option.Description.UserLocalizedLabel?.Label}</Typography>}
-                                                {option.ExternalValue && <Typography><b>ExternalValue:</b> {option.ExternalValue}</Typography>}
+                                            (o.Color || o.Description.UserLocalizedLabel?.Label || o.ExternalValue) && <>
+                                                {o.Color && <Typography display='flex' alignItems='center' gap={0.5}><b>Color:</b> <Box component='div' display='inline-block' bgcolor={o.Color} width={13} height={13} border='1px solid #EEEEEE'></Box> {o.Color}</Typography>}
+                                                {o.Description.UserLocalizedLabel?.Label && <Typography><b>Description:</b> {o.Description.UserLocalizedLabel?.Label}</Typography>}
+                                                {o.ExternalValue && <Typography><b>ExternalValue:</b> {o.ExternalValue}</Typography>}
                                             </>
                                         }
                                         placement='left'
                                     >
                                         <TableRow>
-                                            <CopyTableCell copyText={option.Label.UserLocalizedLabel?.Label ?? ''}>{option.Label.UserLocalizedLabel?.Label}</CopyTableCell>
-                                            {option.State !== undefined && option.State !== null && <CopyTableCell align='right' copyText={String(option.State)}>{option.State}</CopyTableCell>}
-                                            {option.ParentValues && option.ParentValues.length > 0 && <CopyTableCell align='right' copyText={JSON.stringify(option.ParentValues)}>{JSON.stringify(option.ParentValues)}</CopyTableCell>}
-                                            <CopyTableCell align='right' copyText={String(option.Value)}>{option.Value}</CopyTableCell>
+                                            <CopyTableCell copyText={o.Label.UserLocalizedLabel?.Label ?? ''}>{o.Label.UserLocalizedLabel?.Label}</CopyTableCell>
+                                            {o.State !== undefined && o.State !== null && <CopyTableCell align='right' copyText={String(o.State)}>{o.State}</CopyTableCell>}
+                                            {o.DefaultStatus !== undefined && o.DefaultStatus !== null && <CopyTableCell align='right' copyText={String(o.DefaultStatus)}>{o.DefaultStatus}</CopyTableCell>}
+                                            {o.ParentValues && o.ParentValues.length > 0 && <CopyTableCell align='right' copyText={JSON.stringify(o.ParentValues)}>{JSON.stringify(o.ParentValues)}</CopyTableCell>}
+                                            <CopyTableCell align='right' copyText={String(o.Value)}>{o.Value}</CopyTableCell>
                                         </TableRow>
                                     </Tooltip>
                                 )

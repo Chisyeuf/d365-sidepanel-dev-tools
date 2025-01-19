@@ -1,9 +1,17 @@
-
-import { Box, Button, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Tooltip } from '@mui/material';
-import { useMemo, useRef, useState, } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import React, { useMemo, useRef, useState } from 'react';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon } from './../icons';
+import { PowerAppsIcon } from '../icons';
 import { RetrieveSolutions } from '../../../utils/hooks/XrmApi/RetrieveSolutions';
 import { useBoolean } from 'usehooks-ts';
 import FilterInput, { AttributeFilterInputRef } from '../../../utils/components/FilterInput';

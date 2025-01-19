@@ -1,16 +1,24 @@
-import { AppBar, Box, Dialog, IconButton, Slide, Stack, Toolbar, Typography, createTheme } from "@mui/material";
-import Grid from '@mui/material/Grid2';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import IconButton from '@mui/material/IconButton';
+import Slide from '@mui/material/Slide';
+import Stack from '@mui/material/Stack';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import createTheme from '@mui/material/styles/createTheme';
 import CloseIcon from '@mui/icons-material/Close';
 import { TransitionProps } from '@mui/material/transitions';
-import React, { useContext, useMemo, useRef } from "react";
-import { TraceLogControllerContext, TraceLogsAPIContext } from "./contexts";
-import { OperationType } from "../type";
+import React, { useContext, useMemo, useRef } from 'react';
+import { TraceLogControllerContext, TraceLogsAPIContext } from './contexts';
+import { OperationType } from '../type';
 
-import { ThemeProvider } from "@emotion/react";
-import PluginTraceLogsList from "./PluginTraceLogsList";
-import Section, { sectionMinHeight } from "./Section";
-import TraceLogField from "./TraceLogField";
-import TypographyButtonHoverCopy from "../../TypographyButtonHoverCopy";
+import { ThemeProvider } from '@emotion/react';
+import PluginTraceLogsList from './PluginTraceLogsList';
+import Section, { sectionMinHeight } from './Section';
+import TraceLogField from './TraceLogField';
+import TypographyButtonHoverCopy from '../../TypographyButtonHoverCopy';
+import Grid2 from '@mui/material/Grid2';
 
 const theme = createTheme({
     components: {
@@ -128,7 +136,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                         </Stack>
                         <Box height='25%'>
                             <Section title="Context" expandable={false}>
-                                <Grid container rowSpacing={1.5} columnSpacing={6} sx={{ width: '100%' }} pl={2}>
+                                <Grid2 container rowSpacing={1.5} columnSpacing={6} sx={{ width: '100%' }} pl={2}>
                                     <TraceLogField label="Operation Type" value={selectedPluginTraceLog?.["operationtype@OData.Community.Display.V1.FormattedValue"]} />
                                     <TraceLogField label="Message" value={selectedPluginTraceLog?.messagename} />
                                     <TraceLogField label="Primary Entity" value={selectedPluginTraceLog?.primaryentity} />
@@ -141,7 +149,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
                                     <TraceLogField label="Execution Start Date" value={selectedPluginTraceLog?.performanceexecutionstarttime} />
                                     <TraceLogField label="Execution Duration" value={selectedPluginTraceLog?.["performanceexecutionduration@OData.Community.Display.V1.FormattedValue"]} />
                                     {/* <TraceLogField label="Execution Duration" value={selectedPluginTraceLog?.["performanceexecutionduration@OData.Community.Display.V1.FormattedValue"]} /> */}
-                                </Grid>
+                                </Grid2>
 
                             </Section>
                         </Box>

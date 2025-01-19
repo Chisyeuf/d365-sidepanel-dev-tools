@@ -11,10 +11,11 @@
         "@material-ui/core": "^4.12.4",
         "@monaco-editor/react": "^4.5.0",
         "@mui/icons-material": "^5.11.11",
+        "@mui/lab": "^6.0.0-beta.23",
         "@mui/material": "^6.1.8",
         "@mui/styled-engine-sc": "^5.11.11",
         "@mui/styles": "^5.11.12",
-        "@mui/x-data-grid": "^6.0.0-beta.5",
+        "@mui/x-data-grid": "^7.24.0",
         "@mui/x-date-pickers": "^7.9.0",
         "@uiw/react-json-view": "^2.0.0-alpha.27",
         "autonumeric": "^4.6.2",
@@ -38,7 +39,8 @@
         "react-virtuoso": "^4.12.0",
         "react-window": "^1.8.9",
         "ts-key-enum": "^2.0.12",
-        "usehooks-ts": "^3.1.0"
+        "usehooks-ts": "^3.1.0",
+        "uuid": "^11.0.5"
     },
     "scripts": {
         "start": "craco start",

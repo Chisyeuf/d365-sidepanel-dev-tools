@@ -11,7 +11,8 @@ export abstract class ProcessButton {
     id: string;
     name: string;
     icon: JSX.Element;
-    width: number;
+    width: number | string;
+    widthNumber: number;
     openable: boolean;
 
     process?: React.ForwardRefExoticComponent<ProcessProps & React.RefAttributes<ProcessRef>>;
@@ -19,11 +20,12 @@ export abstract class ProcessButton {
 
     ref: React.RefObject<ProcessRef>;
 
-    constructor(id: string, name: string | (() => string), icon: JSX.Element, width: number, openable: boolean = true) {
+    constructor(id: string, name: string | (() => string), icon: JSX.Element, width: number | string, openable: boolean = true) {
         this.id = ProcessButton.prefixId + id;
         this.name = typeof name === 'string' ? name : name();
         this.icon = icon;
         this.width = width;
+        this.widthNumber = typeof this.width === 'string' ? (this.width.endsWith('px') ? parseInt(this.width) : -1) : this.width;
         this.openable = openable;
 
         this.ref = React.createRef<ProcessRef>();
@@ -61,15 +63,15 @@ export abstract class ProcessButton {
     }
 }
 
-const ButtonProcess_Bis = (props: { processButton:ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string }) => {
+const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string }) => {
     const { icon, name, onClick, processButton } = props;
-    
+
     const snackbarProviderContext = useSnackbar();
 
     useEffectOnce(() => {
         processButton.onExtensionLoad(snackbarProviderContext);
     });
-    
+
     return (
         <Button variant="contained" size="medium" fullWidth onClick={() => onClick(processButton)} endIcon={icon} >{name}</Button>
     );

@@ -1,5 +1,6 @@
-
-import { Box, Button, Tooltip } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { NavigationButton } from '../../../utils/types/NavigationButton';

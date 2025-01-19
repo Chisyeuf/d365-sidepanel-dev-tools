@@ -1,4 +1,3 @@
-import { StorageConfiguration } from "../../utils/types/StorageConfiguration";
 
 const setStorage = (key: string, data: any) => {
     let dataUpdate: { [key: string]: any } = {};

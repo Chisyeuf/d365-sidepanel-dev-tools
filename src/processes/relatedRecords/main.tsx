@@ -1,5 +1,15 @@
-
-import { Chip, CircularProgress, Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, SxProps, Typography, createTheme } from '@mui/material';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import createTheme from '@mui/material/styles/createTheme';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import ShareIcon from '@mui/icons-material/Share';
@@ -191,7 +201,8 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
     );
 }
 
-const sxTooltip: SxProps<Theme> = { p: '0px 16px' };
+const sxTooltip: any = { p: '0px 16px' };
+
 interface RelationShipItemProps {
     relationShipMetadata: RelationShipMetadata,
     entityName: string,

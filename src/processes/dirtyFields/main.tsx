@@ -1,12 +1,20 @@
-
-import { createTheme, Divider, FormControl, FormControlLabel, List, ListItem, ListItemButton, ListItemText, ListSubheader, Stack, Switch, ThemeProvider, Typography } from '@mui/material';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, } from 'react';
+import createTheme from '@mui/material/styles/createTheme';
+import Divider from '@mui/material/Divider';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Typography from '@mui/material/Typography';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
-
-
 import CopyMenu from '../../utils/components/CopyMenu';
 import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
-
 import DirtyLensIcon from '@mui/icons-material/DirtyLens';
 import DOMObserver from '../../utils/global/DOMObserver';
 import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttributes';

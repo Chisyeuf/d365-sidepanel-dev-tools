@@ -1,10 +1,19 @@
-
-import { Box, Button, ButtonGroup, Collapse, createTheme, Divider, List, ListItem, ListItemButton, ListItemText, Skeleton, Stack, ThemeProvider } from '@mui/material';
-import React, { forwardRef, useCallback, useEffect, useMemo, useState, } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Collapse from '@mui/material/Collapse';
+import createTheme from '@mui/material/styles/createTheme';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
-
 import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttributes';
-
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';

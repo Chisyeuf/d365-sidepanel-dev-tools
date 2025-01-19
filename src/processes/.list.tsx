@@ -14,6 +14,7 @@ import navigation from './navigation/main';
 import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
 import optionSetTable from './optionSetTable/main';
 import entitiesList from './entitiesList/main';
+import metadataBrowser from './metadataBrowser/MetadataBrowser';
 
 const Processes: ProcessButton[] = [
     formTools,
@@ -26,6 +27,7 @@ const Processes: ProcessButton[] = [
     impersonation,
     webResourceEditor,
     pluginTraceLogsExplorer,
+    metadataBrowser,
     // myUserRecord,
     navigation,
     commandDebugger,

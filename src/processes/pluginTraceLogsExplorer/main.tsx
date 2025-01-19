@@ -1,5 +1,4 @@
-
-import React, { forwardRef, } from 'react';
+import React, { forwardRef } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import EventNoteIcon from '@mui/icons-material/EventNote';

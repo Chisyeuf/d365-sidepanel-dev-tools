@@ -11,7 +11,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import { Badge, Box, Button, Divider, Drawer, IconButton, Tooltip, Typography } from '@mui/material';
+import { Badge, Box, Button, Divider, Drawer, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
 import { applicationName, projectPrefix, drawerContainerId, mainMenuId, storage_ForegroundPanes, storage_ListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
@@ -86,8 +86,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
         let dynamicsmainscreenWidth = 0;
         if (!isForegroundPanes && panelOpenedId !== null) {
-            if (panelOpenedId !== mainMenuId) {
-                dynamicsmainscreenWidth = openedProcesses[panelOpenedId].width;
+            if (panelOpenedId !== mainMenuId && openedProcesses[panelOpenedId].widthNumber > 0) {
+                dynamicsmainscreenWidth = openedProcesses[panelOpenedId].widthNumber;
             }
             else {
                 dynamicsmainscreenWidth = mainMenuWidth;
@@ -306,8 +306,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
                 <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
 
-                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' height='100%' justifyContent='space-between'>
-                    <Stack spacing={0.5} width='-webkit-fill-available' height='100%'>
+                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' height='calc(100% - 64px)' justifyContent='space-between'>
+                    <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
                         {
                             toolsButton.every(t => t) ?
 
@@ -322,27 +322,29 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                 </>
                         }
                     </Stack>
-                    <Stack direction='column'>
-                        <Divider />
-                        <Stack spacing={1} direction='row' alignItems='flex-end' ml='auto'>
-                            <Tooltip title={"Github project"}>
-                                <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools'>
-                                    <IconButton aria-label="delete" size="small">
-                                        <GitHubIcon fontSize="inherit" />
-                                    </IconButton>
-                                </a>
-                            </Tooltip>
-                            <Tooltip title={"Report an issue"}>
-                                <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new'>
-                                    <IconButton aria-label="delete" size="small">
-                                        <BugReportIcon fontSize="inherit" />
-                                    </IconButton>
-                                </a>
-                            </Tooltip>
-                            <Divider orientation='vertical' flexItem />
-                            <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                    <Paper elevation={0}>
+                        <Stack direction='column'>
+                            <Divider />
+                            <Stack spacing={1} direction='row' alignItems='flex-end' ml='auto'>
+                                <Tooltip title={"Github project"}>
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools'>
+                                        <IconButton aria-label="delete" size="small">
+                                            <GitHubIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </a>
+                                </Tooltip>
+                                <Tooltip title={"Report an issue"}>
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new'>
+                                        <IconButton aria-label="delete" size="small">
+                                            <BugReportIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </a>
+                                </Tooltip>
+                                <Divider orientation='vertical' flexItem />
+                                <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                            </Stack>
                         </Stack>
-                    </Stack>
+                    </Paper>
                 </Stack>
 
             </PanelDrawerItem>
@@ -374,7 +376,7 @@ interface DrawerToolProps {
 function DrawerTool(props: DrawerToolProps) {
     const { process, setOpenedProcessesBadge, closeProcess, panelOpenedId, snackbarProviderContext } = props;
 
-    const verticalTitle = useMemo(() => process.width < 100, [process]);
+    const verticalTitle = useMemo(() => process.widthNumber < 100 && process.widthNumber > 0, [process]);
 
     const setBadgeInner = useCallback((content: React.ReactNode | null) => {
         setOpenedProcessesBadge(prevBadge => {
@@ -384,8 +386,22 @@ function DrawerTool(props: DrawerToolProps) {
         });
     }, [setOpenedProcessesBadge, process]);
 
+    const width = useMemo(() => {
+        if (typeof process.width === 'string') {
+            if (process.width.endsWith('%')) {
+                return `calc(${process.width} - (${drawerButtonContainerWidth}px * (${parseInt(process.width)} / 100)))`;
+            }
+            else {
+                return parseInt(process.width);
+            }
+        }
+        else {
+            return process.width;
+        }
+    }, [])
+
     return (
-        <PanelDrawerItem key={`${process.id}-processPanel`} width={process.width} open={panelOpenedId === process.id}>
+        <PanelDrawerItem key={`${process.id}-processPanel`} width={width} open={panelOpenedId === process.id}>
 
             <Stack direction='column' width='100%' height='100%'>
 

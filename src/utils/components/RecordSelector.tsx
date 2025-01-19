@@ -7,7 +7,7 @@ import { RetrieveAttributesMetaData } from '../hooks/XrmApi/RetrieveAttributesMe
 import { useBoolean } from 'usehooks-ts'
 import { Stack, Button, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Pagination, Chip, Box, Paper, ListItem, Theme, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridValueGetterParams, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector, gridPaginationRowRangeSelector } from '@mui/x-data-grid';
+import { DataGrid, FooterPropsOverrides, GridCellCheckboxRenderer, GridColDef, GridColumnHeaderParams, GridColumnVisibilityModel, GridFilterModel, gridPageCountSelector, gridPageSelector, gridPageSizeSelector, gridPaginatedVisibleSortedGridRowEntriesSelector, GridPaginationModel, GridRenderCellParams, gridRowCountSelector, GridSortModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GRID_BOOLEAN_COL_DEF, selectedIdsLookupSelector, useGridApiContext, useGridSelector, gridPaginationRowRangeSelector, GridValueGetter } from '@mui/x-data-grid';
 import { DialogActions, LinearProgress } from '@material-ui/core'
 import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../hooks/XrmApi/RetrieveRecordsDisplayNames';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -18,7 +18,6 @@ import { RetrieveCount } from '../hooks/XrmApi/RetrieveCount'
 import { RetrieveAllRecordsByPage } from '../hooks/XrmApi/RetrieveAllRecordsByPage'
 import { GridToolbarFilterXMLButton } from './GridToolbarFilterXMLButton'
 import { RetrieveRecordsByFetchXML } from '../hooks/XrmApi/RetrieveRecordsByFetchXML'
-import { CustomGridHeaderCheckbox } from './CustomGridHeaderCheckbox'
 import FilterInput from './FilterInput'
 import { RetrievePrimaryIdAttribute } from '../hooks/XrmApi/RetrievePrimaryIdAttribute'
 import RecordContextualMenu from './RecordContextualMenu'
@@ -165,7 +164,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     const maxRowCount = RetrieveCount(entityname)
-    
+
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
         pageSize: 25,
         page: 0,
@@ -207,32 +206,32 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
         const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName === primaryNameLogicalName) ?? {} as AttributeMetadata
         const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype === MSType.Uniqueidentifier) ?? {} as AttributeMetadata
 
-        const checkboxes: GridColDef = {
-            ...GRID_BOOLEAN_COL_DEF,
-            field: "__check__",
-            type: "checkboxSelection",
-            width: 50,
-            resizable: false,
-            sortable: false,
-            filterable: false,
-            disableColumnMenu: true,
-            hideable: false,
-            disableReorder: true,
-            disableExport: true,
-            getApplyQuickFilterFn: undefined,
-            valueGetter: (params: GridValueGetterParams<Boolean>) => {
-                const apiRef = useGridApiContext();
-                const selectionLookup = selectedIdsLookupSelector(apiRef.current.state, apiRef.current.instanceId);
-                return selectionLookup[params.id] !== undefined;
-            },
-            renderHeader: (params: GridColumnHeaderParams) => (
-                <CustomGridHeaderCheckbox {...params} entityname={entityname} />
-            ),
-            renderCell: (params: GridRenderCellParams) => (
-                <GridCellCheckboxRenderer {...params} />
-            )
-        }
-        return [checkboxes,
+        // const checkboxes: GridColDef = {
+        //     ...GRID_BOOLEAN_COL_DEF,
+        //     field: "__check__",
+        //     type: "checkboxSelection",
+        //     width: 50,
+        //     resizable: false,
+        //     sortable: false,
+        //     filterable: false,
+        //     disableColumnMenu: true,
+        //     hideable: false,
+        //     disableReorder: true,
+        //     disableExport: true,
+        //     getApplyQuickFilterFn: undefined,
+        //     valueGetter: (params: GridValueGetterParams<Boolean>) => {
+        //         const apiRef = useGridApiContext();
+        //         const selectionLookup = selectedIdsLookupSelector(apiRef.current.state, apiRef.current.instanceId);
+        //         return selectionLookup[params.id] !== undefined;
+        //     },
+        //     renderHeader: (params: GridColumnHeaderParams) => (
+        //         <CustomGridHeaderCheckbox {...params} entityname={entityname} />
+        //     ),
+        //     renderCell: (params: GridRenderCellParams) => (
+        //         <GridCellCheckboxRenderer {...params} />
+        //     )
+        // }
+        return [//checkboxes,
             {
                 field: firstColumnsMetadata.LogicalName,
                 headerName: "GUID",// ?? firstColumnsMetadata.DisplayName,
@@ -275,30 +274,28 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
                         addRecord(params.id as string)
                         onClose()
                     }}
-                    components={{
-                        Toolbar: CustomToolBar,
-                        LoadingOverlay: LinearProgress,
-                        Footer: CustomFooter,
+                    slots={{
+                        toolbar: CustomToolBar as any,
+                        loadingOverlay: LinearProgress as any,
+                        footer: CustomFooter,
                     }}
-                    componentsProps={{
+                    slotProps={{
                         toolbar: {
                             value: filterInput,
                             setFilter: setFilterInput,
                             filterXMLsetter: setFilterXml
-                        },
+                        } as any,
                         footer: {
                             onClose: onClose,
                             selectedRecordIds: records,
                             registerRecordIds: registerRecordIds,
-                        }
+                        } as any
                     }}
                     getRowId={(row) => row[idAttribute]}
                     paginationMode={filterXml ? 'client' : 'server'}
                     pagination
                     paginationModel={paginationModel}
                     onPaginationModelChange={setPaginationModel}
-                    rowSelectionModel={recordsIds}
-                    onRowSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
                     checkboxSelection={multiple}
                     keepNonExistentRowsSelected
                     filterModel={filterModel}
@@ -309,6 +306,9 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
 
                     columnVisibilityModel={visibleColumns}
                     onColumnVisibilityModelChange={setVisibleColumns}
+
+                    rowSelectionModel={recordsIds}
+                    onRowSelectionModelChange={(newRecordsId) => registerRecordIds(newRecordsId as string[])}
                 />
             </DialogContent>
         </Dialog>
@@ -350,7 +350,7 @@ function CustomPagination() {
                 color="primary"
                 count={Math.ceil(numberRows / pageSize)}
                 page={page + 1}
-                onChange={(event, value) => apiRef.current.setPage(value - 1)}
+                onChange={(event, value) => apiRef.current?.setPage(value - 1)}
             />
         </Stack>
     );
@@ -449,7 +449,7 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     hideable: true,
                     minWidth: 100,
                     type: "string",
-                    valueGetter: (params: GridValueGetterParams) => params.row["_" + meta.LogicalName + "_value@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (value, row) => row["_" + meta.LogicalName + "_value@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.String:
@@ -578,7 +578,7 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     hideable: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (value, row) => row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.State:
@@ -590,7 +590,7 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     hideable: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (value, row) => row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.Picklist:
@@ -602,7 +602,7 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     hideable: true,
                     minWidth: 100,
                     type: "singleSelect",
-                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (value, row) => row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.MultiSelectPicklist:
@@ -614,7 +614,7 @@ function GridColDefGenerator(meta: AttributeMetadata): GridColDef {
                     hideable: true,
                     minWidth: 100,
                     type: "string",
-                    valueGetter: (params: GridValueGetterParams) => params.row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
+                    valueGetter: (value, row) => row[meta.LogicalName + "@OData.Community.Display.V1.FormattedValue"]
                 }
             );
         case MSType.Image:

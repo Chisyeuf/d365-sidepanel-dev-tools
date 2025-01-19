@@ -1,6 +1,7 @@
-
-import { Box, Tooltip, Typography } from '@mui/material';
-import { Stack } from '@mui/system';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/system/Stack';
 import { useMemo } from 'react';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
