@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
 import { useDictionnary } from "../../hooks/use/useDictionnary";
 import { MSType } from "../../types/requestsType";
+import { noOperation } from "../../global/common";
 
 
 const fetchOptions = {
@@ -14,9 +15,7 @@ const fetchOptions = {
     }
 };
 
-const noOperation = () => {
-    return '';
-};
+
 type IMetadataObject = { [propertyName: string]: any };
 interface IMetadataContext {
     isFetchingEntitiesMetadata: boolean
@@ -53,6 +52,17 @@ const defaultMetadataContext: IMetadataContext = {
     retrieveManyToManyRelationships: noOperation,
 };
 export const MetadataContext = createContext<IMetadataContext>(defaultMetadataContext);
+
+interface IMetadataGridContext {
+    zoom: number;
+    setZoom: (zoom: number) => void;
+}
+const defaultMetadataGridContext: IMetadataGridContext = {
+    zoom: 1,
+    setZoom: noOperation,
+};
+export const MetadataGridContext = createContext<IMetadataGridContext>(defaultMetadataGridContext);
+
 
 interface MetadataContextProviderProps {
 
@@ -138,6 +148,8 @@ function MetadataContextProvider(props: MetadataContextProviderProps & PropsWith
     }, [addManyToManyMetadata, manyToManyMetadata, retrieveEntityComponentMetadata]);
 
 
+    const [zoom, setZoom] = useState<number>(1);
+
 
     return (
         <MetadataContext.Provider
@@ -159,7 +171,14 @@ function MetadataContextProvider(props: MetadataContextProviderProps & PropsWith
                 retrieveManyToManyRelationships: retrieveManyToMany,
             }}
         >
-            {children}
+            <MetadataGridContext.Provider
+                value={{
+                    zoom,
+                    setZoom,
+                }}
+            >
+                {children}
+            </MetadataGridContext.Provider>
         </MetadataContext.Provider>
     );
 }

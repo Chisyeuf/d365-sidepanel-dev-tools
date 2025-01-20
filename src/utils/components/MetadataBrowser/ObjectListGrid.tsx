@@ -26,6 +26,8 @@ import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { Theme } from '@mui/material';
 import { ProcessProps } from '../../global/.processClass';
+import { MetadataGridContext } from './MetadataContextProvider';
+import { noOperation } from '../../global/common';
 
 // const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 //     border: 0,
@@ -100,8 +102,8 @@ function CustomPagination(props: any) {
     );
 }
 
-function CustomToolbar(props: any & { setZoom?: (zoom: number) => void, exportFileName: string }) {
-    const { setZoom, exportFileName, ...gridToolbarProps } = props;
+function CustomToolbar(props: any & { zoom: number, setZoom?: (zoom: number) => void, exportFileName: string }) {
+    const { zoom, setZoom, exportFileName, ...gridToolbarProps } = props;
     const apiRef = useGridApiContext();
 
     const resizeColumns = useCallback(() => {
@@ -117,7 +119,7 @@ function CustomToolbar(props: any & { setZoom?: (zoom: number) => void, exportFi
             <Box sx={{ flexGrow: 1 }} />
             <GridToolbarQuickFilter sx={{ width: "25%", minWidth: 250 }} />
             <Box sx={{ flexGrow: 1 }} />
-            <ZoomSlider defaultValue={1} onChange={setZoom} width={200} max={2} min={0.5} step={0.1} />
+            <ZoomSlider zoom={zoom} onChange={setZoom} width={200} max={2} min={0.5} step={0.1} />
             <GridToolbarExport slotProps={{ tooltip: { title: 'Export data' }, button: { variant: 'outlined' } }} csvOptions={{ fileName: exportFileName }} />
         </GridToolbarContainer>
     );
@@ -162,7 +164,7 @@ interface IGridButtonsContext {
 }
 const GridButtonsContext = createContext<IGridButtonsContext>({
     openedGridId: '',
-    openGrid: () => ''
+    openGrid: noOperation
 });
 
 function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string, sptSnackbarProvider: ProcessProps['snackbarProvider'] }) {
@@ -230,6 +232,7 @@ function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps &
                     </DialogTitle>
                     <InnerObjectListGrid
                         id={uuid}
+                        parentId={parentId}
                         openFrom={columnName}
                         columnNameText={columnNameText}
                         dataList={dataList}
@@ -253,6 +256,7 @@ const autoSizeOption = {
 
 export interface ObjectListGridProps {
     id?: string;
+    parentId?: string;
     openFrom?: ReactNode;
     columnNameText?: string;
     rowNameGetter?: (row: any) => string;
@@ -274,12 +278,13 @@ export interface ObjectListGridProps {
     loading?: boolean;
     autoRowHeight?: boolean;
     defaultRenderCell?: GridColDef['renderCell'];
-    sptSnackbarProvider: ProcessProps['snackbarProvider']
+    sptSnackbarProvider: ProcessProps['snackbarProvider'];
 }
 
 function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
     const {
         id = '',
+        parentId = '',
         openFrom = '',
         columnNameText = '',
         rowNameGetter,
@@ -305,13 +310,20 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         ...gridProps
     } = props;
 
+    const apiRef = useGridApiContext();
+
     const { openGrid } = useContext(GridButtonsContext);
-    const [zoom, setZoom] = useState(1);
+    const { setZoom, zoom } = useContext(MetadataGridContext);
+    // const [zoom, setZoom] = useState<number>(defaultZoom);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
-        openGrid(id);
         e.stopPropagation();
-    }, [id, openGrid]);
+
+        if (e.button === 3) {
+            openGrid(parentId);
+            return;
+        }
+    }, [id, parentId, openGrid]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         console.log("KeyDown", e.key, e.ctrlKey);
@@ -319,7 +331,10 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
             openGrid('');
         }
         else if (e.ctrlKey && e.key === 'c') {
-            sptSnackbarProvider.enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
+            const selectedRows = apiRef.current?.getSelectedRows();
+            if (selectedRows?.size) {
+                sptSnackbarProvider.enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
+            }
             e.preventDefault();
             e.stopPropagation();
         }
@@ -558,30 +573,13 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
     }), [dataList]);
 
 
-    // function handleDownloadExcel() {
-    //     console.log(columns.map(c => c.headerName ?? c.field));
-    //     console.log(dataList.map((row) => Object.fromEntries(Object.entries(([columnName, value]: any) => ([columnName, ((columnValueFormatter?.[columnName] as any)?.(value) ?? value)])))));
-
-    //     downloadExcel({
-    //         fileName: "react-export-table-to-excel -> downloadExcel method",
-    //         sheet: "react-export-table-to-excel",
-    //         tablePayload: {
-    //             header: columns.map(c => c.headerName ?? c.field),
-    //             // accept two different data structures
-    //             body: dataList.map((row) => Object.fromEntries(Object.entries(row).map(([columnName, value]: any) => ([columnName, ((columnValueFormatter?.[columnName] as any)?.(value) ?? value)])))),
-    //         },
-    //     });
-    // }
-
-
     return (
-        <Box maxHeight='100vh' maxWidth='100vw' onClick={handleClick} onKeyDown={handleKeyDown} onMouseDown={(e) => console.log("Click on grid", e.button)}>
-            <Paper elevation={0} sx={{ p: 1, cursor: 'auto' }}>
+        <Box maxHeight='100vh' maxWidth='100vw' height={"100%"} onClick={handleClick} onKeyDown={handleKeyDown}>
+            <Paper elevation={0} sx={{ p: 1, cursor: 'auto', height: 'calc(100% - 16px)' }}>
                 <DataGrid
                     columns={columns.length > (moreColumns?.length ?? 0) ? columns : defaultColumns}
                     rows={rows}
                     rowHeight={rowHeight ?? 32}
-                    // autosizeOnMount
                     autosizeOptions={autoSizeOption}
                     loading={loading}
                     slots={{
@@ -593,19 +591,17 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                         loadingOverlay: CustomLoadingOverlay,
                     }}
                     slotProps={{
-                        toolbar: { sx: { zoom: 1 / zoom }, setZoom: setZoom, exportFileName: columnNameText } as any,
+                        toolbar: { sx: { zoom: 1 / zoom }, zoom, setZoom, exportFileName: columnNameText } as any,
                         footer: { sx: { zoom: 1 / zoom } },
                         loadingOverlay: { variant: 'circular-progress', noRowsVariant: 'circular-progress', whatIsLoading: 'Metadatas' } as any,
                         columnsManagement: { toggleAllMode: 'filteredOnly' },
                     }}
                     initialState={{
                         pagination: { paginationModel: { pageSize: -1 } },
-                        // columns: { columnVisibilityModel: columnVisibilityModel, },
                     }}
                     sx={(theme) => (
                         {
-                            maxHeight: `calc((100vh - 16px) / ${zoom})`,
-                            height: `calc(${fullHeight ? '(100vh - 16px)' : gridHeight} / ${zoom})`,
+                            height: fullHeight ? "100%" : (typeof gridHeight === 'string' && gridHeight.endsWith('%') ? gridHeight : `calc(${gridHeight} / ${zoom})`),
                             zoom: zoom,
                             ...(autoRowHeight ? {
                                 '&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell': {

@@ -75,20 +75,20 @@ function MarkComponent(props: MarkProps & React.PropsWithChildren) {
 }
 
 interface ZoomSliderProps extends Pick<SliderProps, 'min' | 'max' | 'step'> {
-    defaultValue?: number
+    zoom: number
     onChange: (newZoom: number) => void
     width?: number
 }
 function ZoomSlider(props: ZoomSliderProps) {
-    const { defaultValue = 1, max, min, step, onChange, width } = props;
+    const { zoom, max, min, step, onChange, width } = props;
 
-    const [zoom, setZoom] = useState(defaultValue);
+    // const [innerzoom, setZoom] = useState(zoom);
 
     const zoomPaperRef = useRef(null);
     const isHover = useHover(zoomPaperRef);
 
     const handleChange = (e: Event, newValue: number | any) => {
-        setZoom(newValue);
+        // setZoom(newValue);
         onChange(newValue);
         e.stopPropagation();
     }
