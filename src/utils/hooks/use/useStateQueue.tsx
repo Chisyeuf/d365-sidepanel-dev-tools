@@ -9,12 +9,10 @@ export function useStateQueue<T>(initialState: T[]) {
         if (!items.length) {
             return null;
         }
-        console.log("shift", numberOfItem);
 
         const copyArray = [...items];
         const shiftedElement = copyArray.splice(0, numberOfItem);
         setItems(copyArray);
-        console.log("shift", shiftedElement);
 
         return shiftedElement;
     }
@@ -30,7 +28,6 @@ export function useStateQueue<T>(initialState: T[]) {
     }
 
     const push = (newItem: T) => {
-        console.log("push", newItem);
         setItems(old => [...old, newItem]);
     }
 

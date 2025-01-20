@@ -221,7 +221,6 @@ function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps &
                     maxWidth={'lg'}
                     hideBackdrop={depth > 2}
                     PaperProps={(depth > 2 ? { elevation: 0 } : undefined)}
-                    onMouseDown={(e) => console.log("Click on grid", e.button)}
                     onKeyDown={handleKeyDown}
                 >
                     <DialogTitle onClick={(e) => e.stopPropagation()} fontSize='1em' pb='0 !important' display='flex' alignItems='center' justifyContent='space-between'>
@@ -325,7 +324,6 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
     }, [id, parentId, openGrid]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        console.log("KeyDown", e.key, e.ctrlKey);
         if (e.key === 'Escape') {
             openGrid('');
         }
