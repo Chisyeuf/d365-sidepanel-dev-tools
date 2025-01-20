@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import PaginationItem from '@mui/material/PaginationItem';
-import { DataGrid, GridColDef, GridColumnMenu, GridColumnMenuItemProps, GridColumnMenuProps, gridPageCountSelector, gridPageSelector, GridRenderCellParams, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColumnMenu, GridColumnMenuItemProps, GridColumnMenuProps, gridPageCountSelector, gridPageSelector, GridRenderCellParams, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
 import { DataGridProps, GridBaseColDef } from '@mui/x-data-grid/internals';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -310,11 +310,10 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         ...gridProps
     } = props;
 
-    const apiRef = useGridApiContext();
-
     const { openGrid } = useContext(GridButtonsContext);
     const { setZoom, zoom } = useContext(MetadataGridContext);
-    // const [zoom, setZoom] = useState<number>(defaultZoom);
+    
+    const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -331,8 +330,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
             openGrid('');
         }
         else if (e.ctrlKey && e.key === 'c') {
-            const selectedRows = apiRef.current?.getSelectedRows();
-            if (selectedRows?.size) {
+            if (rowSelectionModel.length > 0) {
                 sptSnackbarProvider.enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
             }
             e.preventDefault();
@@ -514,56 +512,6 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         setColumnVisibilityModel(columnVisibilityModelCalculated);
     }, [columnVisibilityModelCalculated]);
 
-    // useEffect(() => {
-    //     console.log("columnOrder", columnOrder)
-    // }, [columnOrder]);
-    // useEffect(() => {
-    //     console.log("columnsFromData", columnsFromData)
-    // }, [columnsFromData]);
-    // useEffect(() => {
-    //     console.log("excludeColumns", excludeColumns)
-    // }, [excludeColumns]);
-    // useEffect(() => {
-    //     console.log("frontColumns", frontColumns)
-    // }, [frontColumns]);
-    // useEffect(() => {
-    //     console.log("hideRearColumns", hideRearColumns)
-    // }, [hideRearColumns]);
-    // useEffect(() => {
-    //     console.log("moreColumns", moreColumns)
-    // }, [moreColumns]);
-    // useEffect(() => {
-    //     console.log("columnLabels", columnLabels)
-    // }, [columnLabels]);
-    // useEffect(() => {
-    //     console.log("columnValueFormatter", columnValueFormatter)
-    // }, [columnValueFormatter]);
-    // useEffect(() => {
-    //     console.log("columnValueGetter", columnValueGetter)
-    // }, [columnValueGetter]);
-    // useEffect(() => {
-    //     console.log("columnsMinWidth", columnsMinWidth)
-    // }, [columnsMinWidth]);
-    // useEffect(() => {
-    //     console.log("dataList", dataList)
-    // }, [dataList]);
-    // useEffect(() => {
-    //     console.log("handleClick", handleClick)
-    // }, [handleClick]);
-    // useEffect(() => {
-    //     console.log("id", id)
-    // }, [id]);
-    // useEffect(() => {
-    //     console.log("openFrom", openFrom)
-    // }, [openFrom]);
-    // useEffect(() => {
-    //     console.log("openFrom", openFrom)
-    // }, [openFrom]);
-    // useEffect(() => {
-    //     console.log("rowNameGetter", rowNameGetter)
-    // }, [rowNameGetter]);
-
-
     const rows = useMemo(() => dataList.map((data, index) => {
         const isArray = Array.isArray(data);
         const isNull = data === null;
@@ -671,6 +619,12 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                     onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
                     getRowHeight={autoRowHeight ? (() => 'auto') : props.getRowHeight}
                     getEstimatedRowHeight={autoRowHeight ? (() => 100) : props.getEstimatedRowHeight}
+
+                    onRowSelectionModelChange={(newRowSelectionModel) => {
+                        setRowSelectionModel(newRowSelectionModel);
+                    }}
+                    rowSelectionModel={rowSelectionModel}
+
                     {...gridProps}
                 />
             </Paper>
