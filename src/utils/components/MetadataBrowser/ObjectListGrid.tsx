@@ -311,17 +311,21 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
 
     const { openGrid } = useContext(GridButtonsContext);
     const { setZoom, zoom } = useContext(MetadataGridContext);
-    
+
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-
+        openGrid(id);
+    }, [id, openGrid]);
+    
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
         if (e.button === 3) {
             openGrid(parentId);
             return;
         }
-    }, [id, parentId, openGrid]);
+    }, [parentId, openGrid]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Escape') {
@@ -520,7 +524,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
 
 
     return (
-        <Box maxHeight='100vh' maxWidth='100vw' height={"100%"} onClick={handleClick} onKeyDown={handleKeyDown}>
+        <Box maxHeight='100vh' maxWidth='100vw' height={"100%"} onClick={handleClick} onKeyDown={handleKeyDown} onMouseDown={handleMouseDown}>
             <Paper elevation={0} sx={{ p: 1, cursor: 'auto', height: 'calc(100% - 16px)' }}>
                 <DataGrid
                     columns={columns.length > (moreColumns?.length ?? 0) ? columns : defaultColumns}
