@@ -12,23 +12,20 @@ import Typography from '@mui/material/Typography';
 import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
-
-
-import SaveIcon from '@mui/icons-material/Save';
 import Processes, { defaultProcessesList } from '../.list';
 import { MessageType } from '../../utils/types/Message';
 import { GetExtensionId, debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
-import { DragDropContext, Draggable, DraggableProvided, DropResult, Droppable } from '@hello-pangea/dnd';
+import { DragDropContext, Draggable, DropResult, Droppable } from '@hello-pangea/dnd';
 import { storage_ForegroundPanes, storage_ListName } from '../../utils/global/var';
-
+import SettingsIcon from '@mui/icons-material/Settings';
 
 class SetConfigurationButton extends ProcessButton {
     constructor() {
         super(
             'createconfiguration',
             'Configuration Manager',
-            <SaveIcon />,
+            <SettingsIcon />,
             300
         );
         this.process = SetConfigurationProcess;
@@ -75,9 +72,9 @@ function ProcessItem(props: ProcessItemProps) {
                                 }}
                             >
                                 <Typography variant='button'>
-                                    {processButton?.name ?? "Name not found"}
+                                    {processButton?.menuButtonName ?? "Name not found"}
                                 </Typography>
-                                {processButton?.icon}
+                                {processButton?.menuButtonIcon}
                             </Stack>
                         </Box>
                     )
@@ -303,11 +300,11 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                             return newProcessList;
                         });
                     }}
-                    options={Processes.map(processButton => processesList.filter(process => process.startOnLoad).find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
-                    renderInput={(params) => <TextField {...params} label="Selected Process" InputProps={{ ...params.InputProps, endAdornment: <>{Processes.find(processButton => processButton.name === params.inputProps.value)?.icon} {params.InputProps.endAdornment}</> }} />}
-                    getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.name ?? "Name not found"}
+                    options={Processes.map(processButton => processButton.isPanelProcess && openedProcesses.find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
+                    renderInput={(params) => <TextField {...params} label="Selected Process" InputProps={{ ...params.InputProps, endAdornment: <>{Processes.find(processButton => processButton.menuButtonName === params.inputProps.value)?.menuButtonIcon} {params.InputProps.endAdornment}</> }} />}
+                    // getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.menuButtonName ?? "Name not found"}
                     renderOption={(props, option, state) => {
-                        const processButton = Processes.find(processButton => processButton.id === option.id)
+                        const processButton = Processes.find(processButton => processButton.id === option.id);
                         return (
                             <Stack
                                 direction='row'
@@ -321,9 +318,9 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                                 {...props}
                             >
                                 <Typography variant='button'>
-                                    {processButton?.name ?? option.id}
+                                    {processButton?.menuButtonName ?? option.id}
                                 </Typography>
-                                {processButton?.icon}
+                                {processButton?.menuButtonIcon}
                             </Stack>
                         )
                     }}

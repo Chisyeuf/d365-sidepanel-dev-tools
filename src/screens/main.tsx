@@ -51,8 +51,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     const [panelOpenedId, setPanelOpenedId] = useState<string | null>(null);
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
-    const [openedProcesses, setOpenedProcesses] = useState<{ [processIi: string]: ProcessButton }>({});
-    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processid: string]: (React.ReactNode | null) }>({});
+    const [openedProcesses, setOpenedProcesses] = useState<{ [processId: string]: ProcessButton }>({});
+    const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processId: string]: (React.ReactNode | null) }>({});
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
@@ -104,6 +104,12 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     useEffect(() => {
         setPageStyle();
     }, [panelOpenedId, isForegroundPanes]);
+
+    useEffect(() => {
+        if (panelOpenedId && openedProcesses[panelOpenedId] && !openedProcesses[panelOpenedId].isPanelProcess) {
+            openedProcesses[panelOpenedId].execute();
+        }
+    }, [panelOpenedId]);
 
 
     useEffect(() => {
@@ -255,7 +261,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                 }}
                                                             >
                                                                 <Tooltip
-                                                                    title={<Typography variant='h6'>{process.name}</Typography>}
+                                                                    title={<Typography variant='h6'>{process.panelButtonName}</Typography>}
                                                                     placement='left'
                                                                     arrow
                                                                 >
@@ -282,7 +288,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                                 }
                                                                             })}
                                                                         >
-                                                                            {process.icon}
+                                                                            {process.panelButtonIcon}
                                                                         </Badge>
                                                                     </Button>
                                                                 </Tooltip>
@@ -306,7 +312,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
                 <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
 
-                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' height='calc(100% - 64px)' justifyContent='space-between'>
+                <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' pb='5px' height='calc(100% - 63px)' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
                         {
                             toolsButton.every(t => t) ?
@@ -325,16 +331,16 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                     <Paper elevation={0}>
                         <Stack direction='column'>
                             <Divider />
-                            <Stack spacing={1} direction='row' alignItems='flex-end' ml='auto'>
+                            <Stack spacing={1} mt='5px' direction='row' alignItems='center' ml='auto'>
                                 <Tooltip title={"Github project"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools'>
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank">
                                         <IconButton aria-label="delete" size="small">
                                             <GitHubIcon fontSize="inherit" />
                                         </IconButton>
                                     </a>
                                 </Tooltip>
                                 <Tooltip title={"Report an issue"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new'>
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank">
                                         <IconButton aria-label="delete" size="small">
                                             <BugReportIcon fontSize="inherit" />
                                         </IconButton>
@@ -350,7 +356,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             </PanelDrawerItem>
 
             {
-                Object.values(openedProcesses).map((process, index, array) => {
+                Object.values(openedProcesses).filter(process => process.isPanelProcess).map((process) => {
                     return <DrawerTool
                         key={`${process.id}-drawertool`}
                         closeProcess={closeProcess}
@@ -406,7 +412,7 @@ function DrawerTool(props: DrawerToolProps) {
             <Stack direction='column' width='100%' height='100%'>
 
                 <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
-                    <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.name}</Typography>
+                    <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.menuButtonName}</Typography>
                     <IconButton onClick={() => closeProcess(process.id)}>
                         <CloseIcon />
                     </IconButton>

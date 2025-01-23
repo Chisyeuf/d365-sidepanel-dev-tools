@@ -9,24 +9,30 @@ export abstract class ProcessButton {
     static prefixId: string = projectPrefix;
 
     id: string;
-    name: string;
-    icon: JSX.Element;
+    menuButtonName: string | JSX.Element;
+    panelButtonName: string | JSX.Element;
+    menuButtonIcon: JSX.Element;
+    panelButtonIcon: JSX.Element;
     width: number | string;
     widthNumber: number;
     openable: boolean;
+    isPanelProcess: boolean;
 
     process?: React.ForwardRefExoticComponent<ProcessProps & React.RefAttributes<ProcessRef>>;
     processContainer?: React.FunctionComponent<{ children: React.ReactNode | React.ReactNode[] }>;
 
     ref: React.RefObject<ProcessRef>;
 
-    constructor(id: string, name: string | (() => string), icon: JSX.Element, width: number | string, openable: boolean = true) {
+    constructor(id: string, name: string | JSX.Element | (() => string | JSX.Element), icon: JSX.Element | (() => JSX.Element), width: number | string, isPanelProcess: boolean = true) {
         this.id = ProcessButton.prefixId + id;
-        this.name = typeof name === 'string' ? name : name();
-        this.icon = icon;
+        this.menuButtonName = typeof name === 'function' ? name() : name;
+        this.panelButtonName = this.menuButtonName;
+        this.menuButtonIcon = typeof icon === 'function' ? icon() : icon;
+        this.panelButtonIcon = this.menuButtonIcon;
         this.width = width;
         this.widthNumber = typeof this.width === 'string' ? (this.width.endsWith('px') ? parseInt(this.width) : -1) : this.width;
-        this.openable = openable;
+        this.openable = true;
+        this.isPanelProcess = isPanelProcess;
 
         this.ref = React.createRef<ProcessRef>();
     }
@@ -45,7 +51,7 @@ export abstract class ProcessButton {
     }
 
     getOpeningButton(onClick: (process: ProcessButton) => any): React.JSX.Element {
-        return <ButtonProcess_Bis icon={this.icon} name={this.name} onClick={() => onClick(this)} processButton={this} />
+        return <ButtonProcess_Bis icon={this.menuButtonIcon} name={this.menuButtonName} onClick={() => onClick(this)} processButton={this} />
     }
 
     getFunctionButton(): React.JSX.Element {
@@ -63,7 +69,7 @@ export abstract class ProcessButton {
     }
 }
 
-const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string }) => {
+const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string | JSX.Element }) => {
     const { icon, name, onClick, processButton } = props;
 
     const snackbarProviderContext = useSnackbar();
@@ -73,7 +79,7 @@ const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (proc
     });
 
     return (
-        <Button variant="contained" size="medium" fullWidth onClick={() => onClick(processButton)} endIcon={icon} >{name}</Button>
+        <Button variant="contained" size="medium" sx={{ whiteSpace: 'nowrap' }} fullWidth onClick={() => onClick(processButton)} endIcon={icon} >{name}</Button>
     );
 }
 

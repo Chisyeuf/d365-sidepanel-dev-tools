@@ -23,26 +23,30 @@ export function setStyle(stylesheetid: string, style: { [querySelector: string]:
     styleNode.innerText = styleText;
 }
 
-export function waitForElm<T extends HTMLElement>(document: Document, selector: string) {
+export function waitForElm<T extends HTMLElement>(_document: Document, selector: string) {
     return new Promise<T | null>(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector<T>(selector));
+        if (_document.querySelector(selector)) {
+            return resolve(_document.querySelector<T>(selector));
         }
 
+        let timeout: NodeJS.Timeout;
         const observer = new MutationObserver(mutations => {
-            let timeout = setTimeout(() => {
-                resolve(null);
-                observer.disconnect();
-            }, 5000);
 
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector<T>(selector));
-                observer.disconnect();
+            if (_document.querySelector(selector)) {
+                console.log("resolve(document.querySelector<T>(selector))", selector, _document)
                 clearTimeout(timeout);
+                observer.disconnect();
+                resolve(_document.querySelector<T>(selector));
             }
         });
 
-        observer.observe(document.body, {
+        timeout = setTimeout(() => {
+            console.log("resolve(null)", selector, _document)
+            observer.disconnect();
+            resolve(null);
+        }, 10000);
+
+        observer.observe(_document.body, {
             childList: true,
             subtree: true
         });

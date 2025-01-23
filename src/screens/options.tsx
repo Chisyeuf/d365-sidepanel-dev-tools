@@ -82,7 +82,7 @@ const OptionsScreen: React.FunctionComponent = () => {
                 <Button
                     variant='contained'
                     onClick={resetImpersonate}>
-                    Rest Impersonation on Active tab
+                    Reset Impersonation on Active tab
                 </Button>
 
                 <Button

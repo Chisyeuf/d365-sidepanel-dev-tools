@@ -207,7 +207,7 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
     }, [name, oldValue, value]);
 
     return (
-        <ListItem key={'dirtyField' + name}  sx={{ p: 0 }}>
+        <ListItem key={'dirtyField' + name} sx={{ p: 0 }}>
             <ListItemButton onClick={handleClick} onContextMenu={handleOpenContextualMenu}>
                 <ListItemText
                     primary={name}
