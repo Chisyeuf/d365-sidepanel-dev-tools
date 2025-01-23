@@ -27,7 +27,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
             const allcontrols: OptionalModeStateType[] = controls?.map<OptionalModeStateType>(c => {
                 return {
                     name: c.getName(),
-                    defaultState: Xrm.Page.getAttribute(c.getName())?.getRequiredLevel(),
+                    defaultState: currentFormContext.getAttribute(c.getName())?.getRequiredLevel(),
                 }
             });
             return allcontrols;
@@ -39,11 +39,14 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
     }, [currentFormContext]);
 
     const toggle = async () => {
+        if (!currentFormContext) {
+            return;
+        }
         fieldsControls.then((controls: OptionalModeStateType[] | null) => {
             controls?.forEach(c => {
-                const attr = Xrm.Page.getAttribute(c.name);
+                const attr = currentFormContext.getAttribute(c.name);
                 c.defaultState && attr?.setRequiredLevel(optionalModeEnable ? 'none' : c.defaultState);
-                const contr = Xrm.Page.getControl<Xrm.Controls.StandardControl>(c.name);
+                const contr = currentFormContext.getControl<Xrm.Controls.StandardControl>(c.name);
                 optionalModeEnable && contr?.clearNotification?.();
             })
         });

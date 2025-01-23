@@ -41,9 +41,12 @@ export function EnableMode(props: SubProcessProps & GodModeSubProcess) {
     }
 
     const toggle = async () => {
+        if (!currentFormContext) {
+            return;
+        }
         enableableControls.then((controls: EnableModeStateType[] | null) => {
             controls?.forEach(c => {
-                const controlTemp: any = Xrm.Page.getControl(c.name) as any;
+                const controlTemp: any = currentFormContext.getControl(c.name) as any;
                 controlTemp.setDisabled?.(enableModeEnable ? false : c.defaultState);
             })
         });

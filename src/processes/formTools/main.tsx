@@ -3,7 +3,7 @@ import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
@@ -17,6 +17,9 @@ import { Env } from '../../utils/global/var';
 import OtherTools from './containers/OtherTools';
 import RefreshButtons from './containers/RefreshButtons';
 import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
+import { FormContext } from '../../utils/types/FormContext';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useWindowSize } from 'usehooks-ts';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -69,29 +72,18 @@ var domObserver: DOMObserver | null = null;
 
 const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodMode, RefreshButtons, OtherTools /** Blur fields, Dirty fields */];
 
-type FormContext = Xrm.Page | null;
-
-type XrmStatus = {
-    isRecord: boolean;
-    pageType?: string;
-    entityName?: string;
-    recordId?: string;
-}
 
 const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
     function FormToolsProcess(props: ProcessProps, ref) {
 
-        // const [xrmStatus, setXrmStatus] = useState<XrmStatus>({
-        //     isRecord: false,
-        // });
-
-        // const [currentFormContext, setCurrentFormContext] = useState<FormContext>(null);
-
+        const mainStackRef = useRef<HTMLDivElement>(null);
         const [domUpdated, setDomUpdated] = useState<boolean>(false);
 
         const currentFormContext = useCurrentFormContext();
 
-        
+        const { height, width } = useWindowSize();
+
+
         const xrmObserverCallback = useCallback(() => {
             setDomUpdated(prev => !prev);
         }, []);
@@ -102,62 +94,71 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                     domObserver?.removeListener(xrmObserverCallback);
                 }
             });
-        }, []);
+        }, [xrmObserverCallback]);
 
         useEffect(() => {
             if (!domObserver) {
                 domObserver = new DOMObserver('formtools-domupdated', document.querySelector('#shell-container'), { childList: true, subtree: true });
             }
             domObserver.addListener(xrmObserverCallback);
-        }, []);
+        }, [xrmObserverCallback]);
 
-        // useEffect(() => {
-        //     setXrmStatus({
-        //         isRecord: Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName(),
-        //         pageType: Xrm.Utility.getPageContext()?.input?.pageType,
-        //         entityName: Xrm.Page.data?.entity?.getEntityName(),
-        //         recordId: Xrm.Page.data?.entity?.getId(),
-        //     });
+        const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [height, width]);
+        const isScollTop = useMemo(() => mainStackRef.current && mainStackRef.current.scrollTop <= 10, [height, width, mainStackRef.current?.scrollTop]);
+        const isScollBottom = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight - 10 <= mainStackRef.current.clientHeight + mainStackRef.current.scrollTop, [height, width, mainStackRef.current?.scrollTop]);
 
-        //     setTimeout(() => {
-
-        //         if (Xrm.Utility.getPageContext()?.input?.pageType === 'entityrecord' || !!Xrm.Page.data?.entity?.getEntityName()) {
-        //             setCurrentFormContext(Xrm.Page);
-        //         }
-        //         else {
-        //             setCurrentFormContext(null);
-        //         }
-        //     }, 1000);
-
-        // }, [(Xrm.Utility.getPageContext() as any)._pageId]);
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} height='calc(100% - 10px)' padding='10px' pr={0} alignItems='center'>
-                    {
-                        Env.DEBUG &&
-                        <Tooltip title={currentFormContext ? 'Context found' : 'Context unfound. Try to refresh'} >
-                            <Stack alignItems='center' paddingRight='25%'>
-                                {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
-                                <Typography
-                                    fontSize='0.6em'
-                                    variant='caption'
-                                >
-                                    {currentFormContext ? 'Active' : 'Inactive'}
-                                </Typography>
-                            </Stack>
-                        </Tooltip>
-                    }
-                    {
-                        toolsList?.map((SubProcess, index) => {
-                            return (
-                                <SubProcess
-                                    currentFormContext={currentFormContext}
-                                    domUpdated={domUpdated}
-                                />
-                            );
-                        })
-                    }
+                <Stack height='100%' justifyContent='space-between'>
+
+                    <Stack
+                        width='100%'
+                        alignItems='center'
+                        sx={{
+                            visibility: isScollEnable && !isScollTop ? 'visible' : 'hidden',
+                            rotate: '180deg',
+                        }}
+                    >
+                        <KeyboardArrowDownIcon />
+                    </Stack>
+
+                    <Stack ref={mainStackRef} spacing={4} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
+                        {
+                            Env.DEBUG &&
+                            <Tooltip title={currentFormContext ? 'Context found' : 'Context unfound. Try to refresh'} >
+                                <Stack alignItems='center' pr='25%'>
+                                    {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
+                                    <Typography
+                                        fontSize='0.6em'
+                                        variant='caption'
+                                    >
+                                        {currentFormContext ? 'Active' : 'Inactive'}
+                                    </Typography>
+                                </Stack>
+                            </Tooltip>
+                        }
+                        {
+                            toolsList?.map((SubProcess, index) => {
+                                return (
+                                    <SubProcess
+                                        currentFormContext={currentFormContext}
+                                        domUpdated={domUpdated}
+                                    />
+                                );
+                            })
+                        }
+                    </Stack>
+                    <Stack
+                        width='100%'
+                        alignItems='center'
+                        sx={(theme) => ({
+                            // background: `linear-gradient(0deg, ${theme.palette.background.paper} 60%, rgba(9,9,121,0) 100%)`,
+                            visibility: isScollEnable && !isScollBottom ?  'visible' : 'hidden',
+                        })}
+                    >
+                        <KeyboardArrowDownIcon />
+                    </Stack>
                 </Stack>
             </ThemeProvider>
         );

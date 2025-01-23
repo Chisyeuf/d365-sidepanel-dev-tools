@@ -78,7 +78,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
             />
         </Tooltip>
         {
-            labelDisplayed && controls?.map((c) => {
+            labelDisplayed  && controls?.map((c) => {
                 const controlName = c.getName();
                 const controlNodeLabel = document.querySelector<HTMLElement>(`[data-id="${controlName}"] label, [id="${controlName}"] label`);
                 const controlNodeParent = controlNodeLabel?.parentElement ?? null;

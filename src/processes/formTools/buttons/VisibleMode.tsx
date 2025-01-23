@@ -55,7 +55,7 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
 
     const visibilityControlsSection = useMemo(async () => {
         if (!currentFormContext) {
-            return null;
+            return;
         }
         const tabs: Xrm.Controls.Tab[] = currentFormContext.ui.tabs?.get();
         const sections: Xrm.Controls.Section[] = tabs?.flatMap(t => t.sections?.get());
@@ -72,15 +72,18 @@ function VisibleMode(props: SubProcessProps & GodModeSubProcess) {
     }, [currentFormContext]);
 
     const toggle = async () => {
+        if (!currentFormContext) {
+            return;
+        }
         visibilityControlsFields.then((controls) => {
             controls?.forEach(c => {
-                const controlTemp: any = Xrm.Page.getControl(c.name) as any;
+                const controlTemp: any = currentFormContext.getControl(c.name) as any;
                 controlTemp.setVisible?.(visibleModeEnable || c.defaultState);
             });
         })
         visibilityControlsTabs.then((tabs) => {
             tabs?.forEach(t => {
-                const tabControlTemp = Xrm.Page.ui.tabs?.get(t.name);
+                const tabControlTemp = currentFormContext.ui.tabs?.get(t.name);
                 tabControlTemp.setVisible(visibleModeEnable || t.defaultState);
                 visibilityControlsSection.then((sections) => {
                     sections?.forEach(s => {
