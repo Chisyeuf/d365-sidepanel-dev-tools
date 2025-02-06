@@ -35,7 +35,7 @@ class WebResourceEditor extends ProcessButton {
 const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
     function WebRessourceEditorProcess(props: ProcessProps, ref) {
 
-        const xrmUpdated = useXrmUpdated();
+        const { xrmUpdated } = useXrmUpdated();
 
         const [isFetching, setIsFetching] = useState(false);
         const [scriptNodeContent, setScriptNodeContent] = useState<ScriptNodeContent[] | null>(null);
@@ -192,7 +192,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             if (scriptsOverridedSrc.length === 0) return;
             openConfirmPublish();
         }, [openConfirmPublish, scriptsOverridedSrc]);
-        
+
 
         const launchLiveTest = useCallback(() => {
             const extensionId = GetExtensionId();

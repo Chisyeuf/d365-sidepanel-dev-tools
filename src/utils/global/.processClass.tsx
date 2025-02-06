@@ -9,7 +9,7 @@ export abstract class ProcessButton {
     static prefixId: string = projectPrefix;
 
     id: string;
-    menuButtonName: string | JSX.Element;
+    menuButtonName: string;
     panelButtonName: string | JSX.Element;
     menuButtonIcon: JSX.Element;
     panelButtonIcon: JSX.Element;
@@ -23,7 +23,7 @@ export abstract class ProcessButton {
 
     ref: React.RefObject<ProcessRef>;
 
-    constructor(id: string, name: string | JSX.Element | (() => string | JSX.Element), icon: JSX.Element | (() => JSX.Element), width: number | string, isPanelProcess: boolean = true) {
+    constructor(id: string, name: string | (() => string), icon: JSX.Element | (() => JSX.Element), width: number | string, isPanelProcess: boolean = true) {
         this.id = ProcessButton.prefixId + id;
         this.menuButtonName = typeof name === 'function' ? name() : name;
         this.panelButtonName = this.menuButtonName;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { debugLog, formatId } from "../../global/common";
 import { useXrmUpdated } from "./useXrmUpdated";
+import { useFormContextDocument } from "./useFormContextDocument";
 
 
 export function useCurrentRecord() {
@@ -9,7 +10,8 @@ export function useCurrentRecord() {
     const [entityName, setEntityName] = useState<string | undefined>(undefined);
     const [recordId, setRecordId] = useState<string | undefined>(undefined);
 
-    const xrmUpdated = useXrmUpdated();
+    const { xrmUpdated } = useXrmUpdated();
+    const { formContext } = useFormContextDocument();
 
     useEffect(() => {
         setIsEntityRecord(!!entityName && !!recordId);
@@ -18,8 +20,8 @@ export function useCurrentRecord() {
 
     const getCurrentRecord = useCallback((): { entityname: string | undefined, recordid: string | undefined } => {
         const entityname: string | undefined = Xrm.Utility.getPageContext()?.input?.entityName;
-        const recordid: string | undefined = formatId(Xrm.Page.data?.entity?.getId().toLowerCase());
-        return { entityname: entityname, recordid: recordid }
+        const recordid: string | undefined = formatId(formContext?.data?.entity?.getId().toLowerCase() ?? '');
+        return { entityname: entityname, recordid: recordid };
     }, []);
 
     useEffect(() => {
@@ -27,7 +29,7 @@ export function useCurrentRecord() {
         debugLog("useCurrentRecord", "PageId updated", currentEntityname, entityName, currentRecordId, recordId);
         if (currentEntityname !== entityName) setEntityName(currentEntityname);
         if (recordId !== currentRecordId) setRecordId(currentRecordId);
-    }, [xrmUpdated]);
+    }, [xrmUpdated, getCurrentRecord]);
 
     const forceRefresh = useCallback(() => {
         setEntityName(undefined);
@@ -40,9 +42,9 @@ export function useCurrentRecord() {
     }, [setEntityName, setRecordId, getCurrentRecord]);
 
     return {
-        isEntityRecord: isEntityRecord,
-        entityName: entityName,
-        recordId: recordId,
-        forceRefresh: forceRefresh
+        isEntityRecord,
+        entityName,
+        recordId,
+        forceRefresh,
     };
 }

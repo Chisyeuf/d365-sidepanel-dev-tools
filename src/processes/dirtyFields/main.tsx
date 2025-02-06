@@ -11,17 +11,16 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Typography from '@mui/material/Typography';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import CopyMenu from '../../utils/components/CopyMenu';
-import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
 import DirtyLensIcon from '@mui/icons-material/DirtyLens';
-import DOMObserver from '../../utils/global/DOMObserver';
 import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttributes';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import { isArraysEquals, setStyle } from '../../utils/global/common';
 import { useBoolean } from 'usehooks-ts';
 import { FormContext } from '../../utils/types/FormContext';
+import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 
 
 class DirtyFieldsButton extends ProcessButton {
@@ -44,33 +43,12 @@ declare module '@mui/material/Divider' {
 
 let theme = createTheme({});
 
-var domObserver: DOMObserver | null = null;
-
 const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
     function DirtyFieldsButtonProcess(props: ProcessProps, ref) {
 
-        const [domUpdated, setDomUpdated] = useState<boolean>(false);
-        useImperativeHandle(ref, () => {
-            return ({
-                onClose() {
-                    domObserver?.removeListener(xrmObserverCallback);
-                    setStyle('styleModifier-dirtyfields', {});
-                }
-            });
-        }, []);
-        const xrmObserverCallback = useCallback(() => {
-            setDomUpdated(prev => !prev);
-        }, []);
-        useEffect(() => {
-            if (!domObserver) {
-                domObserver = new DOMObserver('dirtyfield-domupdated', document.querySelector('#shell-container'), { childList: true, subtree: true });
-            }
-            domObserver.addListener(xrmObserverCallback);
-        }, []);
+        const { d365MainAndIframeUpdated: domUpdated, formContext } = useFormContextDocument();
 
-
-        const currentFormContext = useCurrentFormContext();
-        const { entityName, isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
+        const { entityName, recordId } = useCurrentRecord();
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
         const [dirtyAttributes, setDirtyAttributes] = useState<Xrm.Attributes.Attribute[]>([]);
@@ -79,7 +57,7 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            const currentDirty = currentFormContext?.getAttribute(a => a.getIsDirty());
+            const currentDirty = formContext?.getAttribute(a => a.getIsDirty());
             if (currentDirty && dirtyAttributes) {
                 const isUnchanged = isArraysEquals(currentDirty.map(a => a.getName()), dirtyAttributes.map(a => a.getName()))
                 if (!isUnchanged) {
@@ -87,19 +65,19 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
             }
 
-        }, [currentFormContext, domUpdated]);
+        }, [formContext, domUpdated]);
 
         useEffect(() => {
             if (squareFormEnabled) {
                 const selector = dirtyAttributes?.flatMap(attribute => attribute.controls.get().map(control => `[data-control-name='${control.getName()}']>div`)).join(',');
                 if (selector !== undefined) {
-                    setStyle('styleModifier-dirtyfields', {
+                    setStyle(document, 'styleModifier-dirtyfields', {
                         [selector]: ['outline: 2px dashed #ff2500', "outline-offset: -2px"]
                     });
                 }
             }
             else {
-                setStyle('styleModifier-dirtyfields', {});
+                setStyle(document, 'styleModifier-dirtyfields', {});
             }
         }, [dirtyAttributes, squareFormEnabled]);
 
@@ -137,7 +115,7 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                                 return (
                                     <DirtyAttributeItem
                                         key={attributeName + 'dirty'}
-                                        currentFormContext={currentFormContext}
+                                        currentFormContext={formContext}
                                         name={attributeName}
                                         oldValue={attributes[oldAttributeSelector]}
                                         value={attributeValue}

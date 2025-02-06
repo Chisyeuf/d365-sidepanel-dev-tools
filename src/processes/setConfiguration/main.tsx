@@ -302,7 +302,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }}
                     options={Processes.map(processButton => processButton.isPanelProcess && openedProcesses.find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
                     renderInput={(params) => <TextField {...params} label="Selected Process" InputProps={{ ...params.InputProps, endAdornment: <>{Processes.find(processButton => processButton.menuButtonName === params.inputProps.value)?.menuButtonIcon} {params.InputProps.endAdornment}</> }} />}
-                    // getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.menuButtonName ?? "Name not found"}
+                    getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.menuButtonName ?? "Name not found"}
                     renderOption={(props, option, state) => {
                         const processButton = Processes.find(processButton => processButton.id === option.id);
                         return (

@@ -19,7 +19,7 @@ function ShowFieldLabel(props: SubProcessProps & LabelToolsSubProcess) {
     useEffect(() => { }, [domUpdated]);
 
     useEffect(() => {
-        setStyle("fieldLabelSheet", {
+        setStyle(document, "fieldLabelSheet", {
             ["div[fieldlogicalname]"]: ["width:100%", "min-width:0"]
         });
     }, []);

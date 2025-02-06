@@ -1,30 +1,58 @@
+import { waitForElm } from "./common";
+
+
 
 export default class DOMObserver {
 
     eventName: string;
     mutationOptions: MutationObserverInit | undefined;
+    _document: Document;
+    observer: MutationObserver | null;
 
-    constructor(eventName: string, obj: Element | null | undefined, mutationOptions?: MutationObserverInit) {
+    isMutate: boolean;
+
+    constructor(eventName: string, selector: string, _document: Document = document, mutationOptions: MutationObserverInit = { childList: true, subtree: true, attributes: false }) {
         this.eventName = eventName;
         this.mutationOptions = mutationOptions;
-        this.ObservePageChanges(obj);
+        this._document = _document;
+        this.observer = null;
+        this.isMutate = false;
+        this.ObservePageChanges(selector);
     }
 
-    ObservePageChanges(obj: Element | null | undefined) {
-        if (obj) {
-            const observer = new MutationObserver(mutations => {
-                document.dispatchEvent(new CustomEvent(this.eventName));
+    ObservePageChanges(selector: string) {
+        waitForElm(this._document, selector).then((element) => {
+            if (!element) return;
+            this.observer = new MutationObserver(mutations => {
+                // console.log("mutation observed ?");
+                if (!this.isMutate && mutations.length > 0) {
+                    // console.log("mutation observed !!!!!!!!");
+                    this.isMutate = true;
+                }
+                // this._document.dispatchEvent(new CustomEvent(this.eventName));
             });
-            observer.observe(obj, this.mutationOptions);
-        }
+            this.observer.observe(element, this.mutationOptions);
+        });
     }
 
     addListener(callback: () => void) {
-        callback && document.addEventListener(this.eventName, callback, false);
+        callback && this._document.addEventListener(this.eventName, callback, false);
     }
 
     removeListener(callback: () => void) {
-        callback && document.removeEventListener(this.eventName, callback, false);
+        callback && this._document.removeEventListener(this.eventName, callback, false);
+    }
+
+    hasMutate() {
+        if (this.isMutate) {
+            this.isMutate = false;
+            return true;
+        }
+        return false;
+    }
+
+    disconnect() {
+        this.observer?.disconnect();
     }
 
 }

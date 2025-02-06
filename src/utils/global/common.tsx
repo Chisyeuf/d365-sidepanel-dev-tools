@@ -1,14 +1,12 @@
-import { ProcessButton } from './.processClass';
-import { MSType } from '../types/requestsType';
 import { Env } from './var';
 
 
-export function setStyle(stylesheetid: string, style: { [querySelector: string]: string[] }) {
-    var styleNode = document.querySelector<HTMLStyleElement>("#" + stylesheetid);
+export function setStyle(_document: Document, stylesheetid: string, style: { [querySelector: string]: string[] }) {
+    var styleNode = _document.querySelector<HTMLStyleElement>("#" + stylesheetid);
     if (styleNode == null) {
-        styleNode = document.createElement("style");
+        styleNode = _document.createElement("style");
         styleNode.id = stylesheetid;
-        document.head.appendChild(styleNode);
+        _document.head.appendChild(styleNode);
     }
     let styleText = '';
     for (var key in style) {
@@ -23,7 +21,7 @@ export function setStyle(stylesheetid: string, style: { [querySelector: string]:
     styleNode.innerText = styleText;
 }
 
-export function waitForElm<T extends HTMLElement>(_document: Document, selector: string) {
+export function waitForElm<T extends HTMLElement>(_document: Document, selector: string, infiniteWait: boolean = false) {
     return new Promise<T | null>(resolve => {
         if (_document.querySelector(selector)) {
             return resolve(_document.querySelector<T>(selector));
@@ -33,18 +31,19 @@ export function waitForElm<T extends HTMLElement>(_document: Document, selector:
         const observer = new MutationObserver(mutations => {
 
             if (_document.querySelector(selector)) {
-                console.log("resolve(document.querySelector<T>(selector))", selector, _document)
                 clearTimeout(timeout);
                 observer.disconnect();
                 resolve(_document.querySelector<T>(selector));
             }
         });
 
-        timeout = setTimeout(() => {
-            console.log("resolve(null)", selector, _document)
-            observer.disconnect();
-            resolve(null);
-        }, 10000);
+        if (infiniteWait) {
+            timeout = setTimeout(() => {
+                console.error("SidePanel Tools - waitForElm: the DOM element", selector, "is not found on document", _document);
+                observer.disconnect();
+                resolve(null);
+            }, 8000);
+        }
 
         observer.observe(_document.body, {
             childList: true,
@@ -209,5 +208,5 @@ export function yieldToMain() {
 }
 
 export const noOperation = () => {
-    return '';
+    return '' as any;
 };

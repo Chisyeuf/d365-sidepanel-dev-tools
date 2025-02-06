@@ -3,7 +3,7 @@ import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, useMemo, useRef } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
@@ -12,14 +12,13 @@ import LabelTools from './containers/LabelTools';
 
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
-import DOMObserver from '../../utils/global/DOMObserver';
 import { Env } from '../../utils/global/var';
 import OtherTools from './containers/OtherTools';
 import RefreshButtons from './containers/RefreshButtons';
-import { useCurrentFormContext } from '../../utils/hooks/use/useCurrentFormContext';
 import { FormContext } from '../../utils/types/FormContext';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWindowSize } from 'usehooks-ts';
+import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -68,8 +67,6 @@ const theme = createTheme({
     },
 });
 
-var domObserver: DOMObserver | null = null;
-
 const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodMode, RefreshButtons, OtherTools /** Blur fields, Dirty fields */];
 
 
@@ -77,31 +74,9 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
     function FormToolsProcess(props: ProcessProps, ref) {
 
         const mainStackRef = useRef<HTMLDivElement>(null);
-        const [domUpdated, setDomUpdated] = useState<boolean>(false);
-
-        const currentFormContext = useCurrentFormContext();
+        const { d365MainAndIframeUpdated: domUpdated , formContext} = useFormContextDocument();
 
         const { height, width } = useWindowSize();
-
-
-        const xrmObserverCallback = useCallback(() => {
-            setDomUpdated(prev => !prev);
-        }, []);
-
-        useImperativeHandle(ref, () => {
-            return ({
-                onClose() {
-                    domObserver?.removeListener(xrmObserverCallback);
-                }
-            });
-        }, [xrmObserverCallback]);
-
-        useEffect(() => {
-            if (!domObserver) {
-                domObserver = new DOMObserver('formtools-domupdated', document.querySelector('#shell-container'), { childList: true, subtree: true });
-            }
-            domObserver.addListener(xrmObserverCallback);
-        }, [xrmObserverCallback]);
 
         const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [height, width]);
         const isScollTop = useMemo(() => mainStackRef.current && mainStackRef.current.scrollTop <= 10, [height, width, mainStackRef.current?.scrollTop]);
@@ -126,14 +101,14 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                     <Stack ref={mainStackRef} spacing={4} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
                         {
                             Env.DEBUG &&
-                            <Tooltip title={currentFormContext ? 'Context found' : 'Context unfound. Try to refresh'} >
+                            <Tooltip title={formContext ? 'Context found' : 'Context unfound. Try to refresh'} >
                                 <Stack alignItems='center' pr='25%'>
-                                    {currentFormContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
+                                    {formContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
                                     <Typography
                                         fontSize='0.6em'
                                         variant='caption'
                                     >
-                                        {currentFormContext ? 'Active' : 'Inactive'}
+                                        {formContext ? 'Active' : 'Inactive'}
                                     </Typography>
                                 </Stack>
                             </Tooltip>
@@ -142,7 +117,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                             toolsList?.map((SubProcess, index) => {
                                 return (
                                     <SubProcess
-                                        currentFormContext={currentFormContext}
+                                        currentFormContext={formContext}
                                         domUpdated={domUpdated}
                                     />
                                 );
@@ -154,7 +129,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
                         alignItems='center'
                         sx={(theme) => ({
                             // background: `linear-gradient(0deg, ${theme.palette.background.paper} 60%, rgba(9,9,121,0) 100%)`,
-                            visibility: isScollEnable && !isScollBottom ?  'visible' : 'hidden',
+                            visibility: isScollEnable && !isScollBottom ? 'visible' : 'hidden',
                         })}
                     >
                         <KeyboardArrowDownIcon />

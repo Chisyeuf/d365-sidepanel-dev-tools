@@ -15,9 +15,11 @@ import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
 import optionSetTable from './optionSetTable/main';
 import entitiesList from './entitiesList/main';
 import metadataBrowser from './metadataBrowser/MetadataBrowser';
+import formToolsV2 from './formtoolv2/main';
 
 const Processes: ProcessButton[] = [
     formTools,
+    formToolsV2,
     updateRecord,
     allFields,
     optionSetTable,

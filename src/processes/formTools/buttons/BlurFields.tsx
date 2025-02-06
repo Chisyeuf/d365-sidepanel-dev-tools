@@ -16,12 +16,12 @@ function BlurFields(props: SubProcessProps) {
 
     useEffect(() => {
         if (blurEnabled) {
-            setStyle("blurFieldsSheet", {
+            setStyle(document, "blurFieldsSheet", {
                 '[data-id*="fieldControl"], [role="gridcell"], [data-id="header_title"], [id^=headerControlsList]>div>div:first-child': ['filter: blur(4px)']
             });
         }
         else {
-            setStyle("blurFieldsSheet", {});
+            setStyle(document, "blurFieldsSheet", {});
         }
     }, [blurEnabled]);
 

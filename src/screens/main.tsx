@@ -80,7 +80,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     }, [extensionId]);
 
     const setPageStyle = async () => {
-        setStyle('drawerbuttonsmain', {
+        setStyle(document, 'drawerbuttonsmain', {
             "#shell-container": [`width: calc(100% - ${drawerButtonContainerWidth}px)`],
         });
 
@@ -93,7 +93,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 dynamicsmainscreenWidth = mainMenuWidth;
             }
         }
-        setStyle('resizedynamicsmainscreen', {
+        setStyle(document, 'resizedynamicsmainscreen', {
             "#ApplicationShell > *:not(*:first-child)": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
             // "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
             "[id^=DialogContainer]": [`width: calc(100% - ${drawerButtonContainerWidth}px - ${dynamicsmainscreenWidth}px)`],
@@ -440,7 +440,7 @@ if (top && top.window === window) {
 
 function initExtension() {
 
-    waitForElm(document, '#mainContent').then((mainNode) => {
+    waitForElm(document, '#mainContent', true).then((mainNode) => {
         const drawerContainer = document.createElement('div');
         drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
         mainNode?.append(drawerContainer);

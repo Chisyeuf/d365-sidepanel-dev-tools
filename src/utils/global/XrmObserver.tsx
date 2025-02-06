@@ -1,6 +1,6 @@
 import { waitForElm } from "./common";
 
-
+export const XrmObserverSelector: string = "#navigationcontextprovider";
 export default class XrmObserver {
 
     Xrm: Xrm.XrmStatic;
@@ -11,8 +11,7 @@ export default class XrmObserver {
     }
 
     ObservePageChanges() {
-        const selector: string = "#navigationcontextprovider";
-        waitForElm(document, selector).then((mainContainer) => {
+        waitForElm(document, XrmObserverSelector, true).then((mainContainer) => {
             const observer = new MutationObserver(mutations => {
                 this.Xrm = Xrm;
                 document.dispatchEvent(new CustomEvent('xrmupdated', { detail: { Xrm } }));
@@ -35,7 +34,7 @@ export default class XrmObserver {
     }
 
     static getPageType() {
-        return Xrm.Utility.getPageContext().input.pageType;
+        return Xrm.Utility.getPageContext().input?.pageType;
     }
     static isEntityList() {
         return this.getPageType() === 'entitylist';

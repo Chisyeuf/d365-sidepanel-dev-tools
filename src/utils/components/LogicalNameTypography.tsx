@@ -21,17 +21,11 @@ const LogicalNameTypoRoot = styled(Typography)(({ theme }) => ({
 
 export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any, width?: number, placement?: TooltipProps['placement'] }) {
 
-    // const [clicked, setClicked] = useState<boolean>(false);
-
     const { enqueueSnackbar } = useSnackbar();
 
     const onClick = (event: React.MouseEvent) => {
         enqueueSnackbar(`Control name "${props.label}" copied.`, { variant: 'default' });
-        // setClicked(true);
         props.onClick(props.label);
-        // setTimeout(() => {
-        //     setClicked(false);
-        // }, 500);
         event.stopPropagation();
     }
 
@@ -44,7 +38,6 @@ export function LogicalNameTypography(props: { label: string, onClick: (text: st
                 direction='row'
                 alignItems='center'
                 onClick={onClick}
-            // color={(theme) => clicked ? theme.palette.primary.light : theme.palette.text.secondary}
             >
                 <ContentCopyIcon fontSize='inherit' color='inherit' />
                 <LogicalNameTypoRoot title={props.label} variant='caption' fontSize='inherit' lineHeight='inherit' color='inherit'>
