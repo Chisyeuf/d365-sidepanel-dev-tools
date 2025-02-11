@@ -45,11 +45,10 @@ export function ToolButtonContainer(props: IToolButtonContainer) {
             }
         >
             {
-                toolList.map((Tool, index) => {
+                toolList.map((Tool) => {
                     return (
                         <Tool
                             controlled={false}
-                            onClick={() => { }}
                         />
                     )
                 })
@@ -69,19 +68,20 @@ export function ToggableToolButtonContainer(props: Omit<IToolButtonContainer, 't
     const [modesArrayEnabled, setModesArrayEnabled, setAllModesArrayEnabled] = useStateArray<boolean>(toolList.length, false);
 
     useEffect(() => {
-        if (!allModeEnabled && modesArrayEnabled.every(modes => modes)) {
-            setAllModeEnabled(true);
-            return;
-        }
-        if (allModeEnabled && !modesArrayEnabled.every(modes => modes)) {
-            setAllModeEnabled(false);
-            return;
-        }
+        setAllModeEnabled((oldAllModeEnabled) => {
+            if (!oldAllModeEnabled && modesArrayEnabled.every(modes => modes)) {
+                return true;
+            }
+            if (oldAllModeEnabled && !modesArrayEnabled.every(modes => modes)) {
+                return false;
+            }
+            return oldAllModeEnabled;
+        });
     }, [modesArrayEnabled]);
 
     const toggleAll = useCallback(() => {
         setAllModesArrayEnabled(!allModeEnabled);
-    }, [allModeEnabled]);
+    }, [allModeEnabled, setAllModesArrayEnabled]);
 
     return (
         <ToolButtonContainerContent

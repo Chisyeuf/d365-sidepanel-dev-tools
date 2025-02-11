@@ -1,5 +1,4 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { FormToolContext } from '../main';
 
 import { Portal } from '@mui/base';
 import { ControlType } from '../../../utils/types/ControlType';
@@ -13,6 +12,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 import { useDictionnary } from '../../../utils/hooks/use/useDictionnary';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
+import { FormToolContext } from '../context';
 
 
 function ShowFieldLabel(props: IToolButtonControlled) {
@@ -26,7 +26,7 @@ function ShowFieldLabel(props: IToolButtonControlled) {
     useEffect(() => {
         if (formDocument) {
             setStyle(formDocument, "fieldLabelSheet", {
-                ["div[fieldlogicalname]"]: ["width:100%", "min-width:0"]
+                "div[fieldlogicalname]": ["width:100%", "min-width:0"]
             });
         }
     }, [formDocument]);
@@ -61,6 +61,7 @@ function ShowFieldLabel(props: IToolButtonControlled) {
         else {
             return null;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [domUpdated, formContext]);
 
 
@@ -75,9 +76,10 @@ function ShowFieldLabel(props: IToolButtonControlled) {
         else {
             return null;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [domUpdated, formContext]);
 
-    const { values: fieldLabelNode, setValue: setFieldLabelNode, setDict: setFieldLabelNodeDict } = useDictionnary<HTMLDivElement>({});
+    const { values: fieldLabelNodes, setValue: setFieldLabelNode, setDict: setFieldLabelNodeDict } = useDictionnary<HTMLDivElement>({});
     useEffect(() => {
         if (!formDocument) {
             return;
@@ -99,9 +101,9 @@ function ShowFieldLabel(props: IToolButtonControlled) {
                     setFieldLabelNode(controlName, controlNodeLabelAlreadyProcessed);
             }
         }));
-    }, [domUpdated, formFields, formDocument]);
+    }, [domUpdated, formFields, formDocument, setFieldLabelNode]);
 
-    const { values: gridLabelNode, setValue: setGridLabelNode, setDict: setGridLabelNodeDict } = useDictionnary<HTMLDivElement>({});
+    const { values: gridLabelNodes, setValue: setGridLabelNode, setDict: setGridLabelNodeDict } = useDictionnary<HTMLDivElement>({});
     useEffect(() => {
         if (!formDocument) {
             return;
@@ -122,19 +124,20 @@ function ShowFieldLabel(props: IToolButtonControlled) {
                     setGridLabelNode(gridName, gridNodeAlreadyProcessed);
             }
         }));
-    }, [domUpdated, grids, formDocument]);
+    }, [domUpdated, grids, formDocument, setGridLabelNode]);
 
     useEffect(() => {
         setFieldLabelNodeDict({});
         setGridLabelNodeDict({});
-    }, [xrmRoute.current]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [setFieldLabelNodeDict, setGridLabelNodeDict, xrmRoute.current]);
 
 
     const fieldLabelPortal = useMemo(() => {
         if (!labelDisplayed) {
             return;
         }
-        return fieldLabelNode?.map(controlNode => {
+        return fieldLabelNodes?.map(controlNode => {
             const controlName = controlNode.getAttribute('fieldlogicalname');
             if (!controlName) {
                 return null;
@@ -145,13 +148,13 @@ function ShowFieldLabel(props: IToolButtonControlled) {
                 </Portal>
             );
         });
-    }, [labelDisplayed, fieldLabelNode]);
+    }, [labelDisplayed, fieldLabelNodes, copyToClipboard]);
 
-    const tabLabelPortal = useMemo(() => {
+    const gridLabelPortal = useMemo(() => {
         if (!labelDisplayed) {
             return;
         }
-        return gridLabelNode?.map(controlNode => {
+        return gridLabelNodes?.map(controlNode => {
             const gridName = controlNode.getAttribute('gridlogicalname');
             if (!gridName) {
                 return null;
@@ -162,7 +165,7 @@ function ShowFieldLabel(props: IToolButtonControlled) {
                 </Portal>
             );
         });
-    }, [labelDisplayed, gridLabelNode]);
+    }, [labelDisplayed, gridLabelNodes, copyToClipboard]);
 
 
     const cache = createCache({
@@ -180,7 +183,7 @@ function ShowFieldLabel(props: IToolButtonControlled) {
         />
         <CacheProvider value={cache as any}>
             {fieldLabelPortal}
-            {tabLabelPortal}
+            {gridLabelPortal}
         </CacheProvider>
     </>
     );

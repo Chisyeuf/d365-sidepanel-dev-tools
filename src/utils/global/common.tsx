@@ -21,7 +21,7 @@ export function setStyle(_document: Document, stylesheetid: string, style: { [qu
     styleNode.innerText = styleText;
 }
 
-export function waitForElm<T extends HTMLElement>(_document: Document, selector: string, infiniteWait: boolean = false) {
+export function waitForElm<T extends HTMLElement>(_document: Document, selector: string, infiniteWait: boolean = false, waitingTime: number = 4000) {
     return new Promise<T | null>(resolve => {
         if (_document.querySelector(selector)) {
             return resolve(_document.querySelector<T>(selector));
@@ -42,7 +42,7 @@ export function waitForElm<T extends HTMLElement>(_document: Document, selector:
                 console.error("SidePanel Tools - waitForElm: the DOM element", selector, "is not found on document", _document);
                 observer.disconnect();
                 resolve(null);
-            }, 8000);
+            }, waitingTime);
         }
 
         observer.observe(_document.body, {

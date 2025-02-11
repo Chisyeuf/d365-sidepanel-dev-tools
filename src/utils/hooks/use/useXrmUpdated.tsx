@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import XrmObserver, { XrmObserverSelector } from "../../global/XrmObserver";
-import { debugLog } from "../../global/common";
 
 
 export function useXrmUpdated() {
@@ -9,21 +8,27 @@ export function useXrmUpdated() {
     const [currentRoute, setCurrentRoute] = useState<string>('');
     const [previousRoute, setPreviousRoute] = useState<string>('');
 
-    const xrmObserverCallback = useCallback(() => {
-        debugLog("XrmObserver route updated");
-        setXrmUpdated(prev => !prev);
-        setCurrentRoute(previousRoute => {
-            setPreviousRoute(previousRoute);
-            return document.querySelector(XrmObserverSelector)?.getAttribute('route') ?? '';
-        });
-    }, []);
+    // const xrmObserverCallback = useCallback(() => {
+    //     setXrmUpdated(prev => !prev);
+    //     setCurrentRoute(previousRoute => {
+    //         setPreviousRoute(previousRoute);
+    //         return document.querySelector(XrmObserverSelector)?.getAttribute('route') ?? '';
+    //     });
+    // }, []);
 
     useEffect(() => {
-        XrmObserver.addListener(xrmObserverCallback);
-        return () => {
-            XrmObserver.removeListener(xrmObserverCallback);
+        // XrmObserver.addListener(xrmObserverCallback);
+        const callback = () => {
+            setXrmUpdated(prev => !prev);
+            setCurrentRoute(previousRoute => {
+                setPreviousRoute(previousRoute);
+                return document.querySelector(XrmObserverSelector)?.getAttribute('route') ?? '';
+            });
         }
-    }, [xrmObserverCallback]);
+        return () => {
+            XrmObserver.removeListener(callback);
+        }
+    }, []);
 
     return { xrmUpdated, xrmRoute: { current: currentRoute, previous: previousRoute } };
 }

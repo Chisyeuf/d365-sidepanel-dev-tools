@@ -1,12 +1,15 @@
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
-import { Dispatch, SetStateAction, useCallback, useContext } from "react";
-import { FormToolContext } from "./main";
+import { Dispatch, forwardRef, SetStateAction, useCallback, useContext } from "react";
+import { FormToolContext } from "./context";
 
 type ToolButtonStandardIdentifier = { controlled: false; }
 type ToolButtonControlledIdentifier = { controlled: true; }
 
 export type IToolButtonStandard = {
+} & ToolButtonStandardIdentifier;
+
+type IToolButtonStandardWithClick = {
     onClick: () => void;
 } & ToolButtonStandardIdentifier;
 
@@ -20,57 +23,69 @@ export type IToolButton = {
     tooltip: React.ReactNode;
 
     controlled: boolean;
-} & (IToolButtonStandard | Omit<IToolButtonControlled, 'enabled'>);
+} & (IToolButtonStandardWithClick | Omit<IToolButtonControlled, 'enabled'>);
 
-export function ToolButton(props: IToolButton) {
-    const { controlled } = props;
+export const ToolButton = forwardRef<any, IToolButton>(
+    (props, ref) => {
+        const { controlled } = props;
 
-    return (
-        controlled ?
-            <ToolButtonControlled {...props} />
-            :
-            <ToolButtonStandard {...props} />
-    );
-}
+        return (
+            controlled ?
+                <ToolButtonControlled ref={ref} {...props} />
+                :
+                <ToolButtonStandard ref={ref}  {...props} />
+        );
+    }
+);
 
-function ToolButtonStandard(props: IToolButton & { controlled: false }) {
-    const { icon, tooltip, onClick } = props;
-    const { refresh } = useContext(FormToolContext);
+const ToolButtonStandard = forwardRef<any, IToolButton & { controlled: false }>(
+    (props, ref) => {
+        const { icon, tooltip, onClick } = props;
+        const { refresh } = useContext(FormToolContext);
 
-    const refreshContextThenClick = useCallback(() => {
-        refresh().then(onClick);
-    }, [onClick, refresh]);
+        const refreshContextThenClick = useCallback(() => {
+            refresh().then(onClick);
+        }, [onClick, refresh]);
 
 
-    return (
-        <Tooltip title={tooltip} placement='left' disableInteractive arrow>
-            <Button
-                variant='contained'
-                onClick={refreshContextThenClick}
-                startIcon={icon}
-            />
-        </Tooltip>
-    );
-}
+        return (
+            <Tooltip title={tooltip} placement='left' disableInteractive arrow>
+                <Button
+                    ref={ref}
+                    variant='contained'
+                    onClick={refreshContextThenClick}
+                    startIcon={icon}
+                />
+            </Tooltip>
+        );
+    }
+);
 
-function ToolButtonControlled(props: IToolButton & { controlled: true }) {
-    const { icon, tooltip, setEnabled } = props;
-    const { refresh } = useContext(FormToolContext);
+const ToolButtonControlled = forwardRef<any, IToolButton & { controlled: true }>(
+    (props, ref) => {
+        const { controlled, setEnabled, ...otherProps } = props;
 
-    const toggle = useCallback(() => {
-        refresh().then(() => setEnabled((prev) => !prev));
-    }, [refresh, setEnabled]);
+        const toggle = useCallback(() => {
+            setEnabled((prev) => !prev);
+        }, [setEnabled]);
 
-    return (
-        <Tooltip title={tooltip} placement='left' disableInteractive arrow>
-            <Button
-                variant='contained'
+        return (
+            //    <Tooltip title={tooltip} placement='left' disableInteractive arrow>
+            //         <Button
+            //             variant='contained'
+            //             onClick={toggle}
+            //             startIcon={icon}
+            //         />
+            //     </Tooltip>
+            <ToolButtonStandard
+                ref={ref}
+                controlled={false}
                 onClick={toggle}
-                startIcon={icon}
+                {...otherProps}
             />
-        </Tooltip>
-    );
-}
+        );
+    }
+);
 
 export type FormControlState<T> = {
     name: string

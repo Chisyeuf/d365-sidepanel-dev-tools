@@ -1,25 +1,16 @@
-import { Tooltip, Button } from "@mui/material";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import { FormControlState, IToolButtonControlled, ToolButton } from "../ToolButton";
-import { FormToolContext } from "../main";
-import { FormContextDocument, defaultFormContextDocument } from "../../../utils/types/FormContext";
+import { FormToolContext } from "../context";
 
 type VisibleModeStateType = FormControlState<boolean>;
 function VisibleMode(props: IToolButtonControlled) {
 
     const { enabled: visibleModeEnable, setEnabled: setVisibleMode } = props;
 
-    const { domUpdated, formContext } = useContext(FormToolContext);
-    // const [formContextDocument, setFormContextDocument] = useState<FormContextDocument>(defaultFormContextDocument);
-
-    // useEffect(() => {
-    //     visibleModeEnable && !isRetrievingFormContext && getFormContextDocument().then(formContextDocument => {
-    //         setFormContextDocument(formContextDocument);
-    //     })
-    // }, [domUpdated, xrmUpdated, visibleModeEnable]);
+    const { formContext } = useContext(FormToolContext);
 
 
     const visibilityControlsFields = useMemo(async () => {
@@ -69,9 +60,7 @@ function VisibleMode(props: IToolButtonControlled) {
         });
         return allcontrols;
 
-
     }, [formContext]);
-
 
 
     useEffect(() => {
@@ -103,7 +92,7 @@ function VisibleMode(props: IToolButtonControlled) {
         }
 
         toggle();
-    }, [visibleModeEnable, visibilityControlsFields, visibilityControlsTabs, visibilityControlsSection])
+    }, [visibleModeEnable, visibilityControlsFields, visibilityControlsTabs, visibilityControlsSection, formContext]);
 
 
     return (

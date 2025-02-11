@@ -13,7 +13,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWindowSize } from 'usehooks-ts';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { noOperation } from '../../utils/global/common';
-import { ToggableToolButtonContainer } from './ToolButtonContainer';
+import { ToggableToolButtonContainer, ToolButtonContainer } from './ToolButtonContainer';
 import ShowFieldLabel from './toolButtons/ShowFieldLabel';
 import VisibleMode from './toolButtons/VisibleMode';
 
@@ -26,6 +26,16 @@ import Typography from '@mui/material/Typography';
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { Env } from '../../utils/global/var';
+import ShowTabLabel from './toolButtons/ShowTabLabel';
+import { OptionalMode } from './toolButtons/OptionalMode';
+import { EnableMode } from './toolButtons/EnableMode';
+import RefreshRibbon from './toolButtons/RefreshRibbon';
+import RefreshForm from './toolButtons/RefreshForm';
+import FormToolContextProvider, { FormToolContext } from './context';
+import FillFields from './toolButtons/FillFields';
+import ShowOptionSetInFields from './toolButtons/ShowOptionSetInFields';
+import CloneRecord from './toolButtons/CloneRecord';
+import BlurFields from './toolButtons/BlurFields';
 
 
 class FormToolsButtonV2 extends ProcessButton {
@@ -75,47 +85,6 @@ const theme = createTheme({
     },
 });
 
-interface IFormToolContext {
-    // getFormContextDocument: () => Promise<FormContextDocument>;
-    // isRetrievingFormContext: boolean;
-    formContext: FormContext;
-    formDocument: FormDocument;
-    isRefreshing: boolean;
-    refresh: () => Promise<void>;
-    domUpdated: boolean;
-    xrmRoute: ReturnType<typeof useXrmUpdated>['xrmRoute'];
-}
-const defaultFormToolContext: IFormToolContext = {
-    // getFormContextDocument: noOperation,
-    // isRetrievingFormContext: false,
-    formContext: null,
-    formDocument: null,
-    isRefreshing: false,
-    refresh: noOperation,
-    domUpdated: false,
-    xrmRoute: { current: '', previous: '' }
-}
-export const FormToolContext = createContext<IFormToolContext>(defaultFormToolContext);
-
-function FormToolContextProvider(props: PropsWithChildren) {
-
-    const { xrmRoute } = useXrmUpdated();
-    const { formContext, formDocument, isRefreshing, d365MainAndIframeUpdated: domUpdated, refresh } = useFormContextDocument();
-
-    return (
-        <FormToolContext.Provider
-            value={{
-                formContext,
-                formDocument,
-                isRefreshing,
-                refresh,
-                domUpdated: domUpdated,
-                xrmRoute,
-            }}
-            {...props}
-        />
-    );
-}
 
 function DebugIndicator() {
     const { formContext, isRefreshing } = useContext(FormToolContext);
@@ -157,8 +126,8 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
         const mainStackRef = useRef<HTMLDivElement>(null);
         const { height, width } = useWindowSize();
         const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [height, width]);
-        const isScollTop = useMemo(() => mainStackRef.current && mainStackRef.current.scrollTop <= 10, [height, width, mainStackRef.current?.scrollTop]);
-        const isScollBottom = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight - 10 <= mainStackRef.current.clientHeight + mainStackRef.current.scrollTop, [height, width, mainStackRef.current?.scrollTop]);
+        // const isScollTop = useMemo(() => mainStackRef.current && mainStackRef.current.scrollTop <= 10, [height, width, mainStackRef.current?.scrollTop]);
+        // const isScollBottom = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight - 10 <= mainStackRef.current.clientHeight + mainStackRef.current.scrollTop, [height, width, mainStackRef.current?.scrollTop]);
 
         return (
             <ThemeProvider theme={theme}>
@@ -168,7 +137,8 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
                         width='100%'
                         alignItems='center'
                         sx={{
-                            visibility: isScollEnable && !isScollTop ? 'visible' : 'hidden',
+                            visibility: isScollEnable ? 'visible' : 'hidden',
+                            // visibility: isScollEnable && !isScollTop ? 'visible' : 'hidden',
                             rotate: '180deg',
                         }}
                     >
@@ -176,15 +146,17 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
                     </Stack>
 
                     <FormToolContextProvider>
-                        <Stack ref={mainStackRef} spacing={3} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
+                        
+                        {Env.DEBUG && <DebugIndicator />}
 
-                            {Env.DEBUG && <DebugIndicator />}
+                        <Stack ref={mainStackRef} spacing={3} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
 
                             <ToggableToolButtonContainer
                                 title='Label Tools'
                                 icons={{ enabled: <LabelIcon fontSize='large' />, disabled: <LabelOutlinedIcon fontSize='large' /> }}
                                 toolList={[
-                                    ShowFieldLabel
+                                    ShowTabLabel,
+                                    ShowFieldLabel,
                                 ]}
                             />
 
@@ -192,7 +164,26 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
                                 title='God Mode'
                                 icons={{ enabled: <TipsAndUpdatesIcon fontSize='large' />, disabled: <TipsAndUpdatesOutlinedIcon fontSize='large' /> }}
                                 toolList={[
-                                    VisibleMode
+                                    OptionalMode,
+                                    EnableMode,
+                                    VisibleMode,
+                                ]}
+                            />
+
+                            <ToolButtonContainer
+                                title='Refresh'
+                                toolList={[
+                                    RefreshRibbon,
+                                    RefreshForm,
+                                ]}
+                            />
+
+                            <ToolButtonContainer
+                                toolList={[
+                                    ShowOptionSetInFields,
+                                    FillFields,
+                                    CloneRecord,
+                                    BlurFields,
                                 ]}
                             />
 
@@ -202,9 +193,10 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
                     <Stack
                         width='100%'
                         alignItems='center'
-                        sx={(theme) => ({
-                            visibility: isScollEnable && !isScollBottom ? 'visible' : 'hidden',
-                        })}
+                        sx={{
+                            visibility: isScollEnable ? 'visible' : 'hidden',
+                            // visibility: isScollEnable && !isScollBottom ? 'visible' : 'hidden',
+                        }}
                     >
                         <KeyboardArrowDownIcon />
                     </Stack>
