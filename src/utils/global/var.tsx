@@ -1,15 +1,17 @@
 
 export class Env {
-    static readonly DEBUG = true;
+    static DEBUG = true;
 }
 
-export const projectPrefix = 'sidepanel-dev-tools-';
+export const DEBUG_MODE = false;
 
-export const storage_ListName = 'processListOrdered';
-export const storage_ForegroundPanes = 'isPanesForeground';
-export const storage_DontShowImpersonationInfo = 'dontShowImpersonationInfo';
+export const PROJECT_PREFIX = 'sidepanel-dev-tools-';
 
-export const drawerContainerId = 'drawercontainer';
+export const STORAGE_ListName = 'processListOrdered';
+export const STORAGE_ForegroundPanes = 'isPanesForeground';
+export const STORAGE_DontShowImpersonationInfo = 'dontShowImpersonationInfo';
 
-export const applicationName = 'D365 SidePanel Dev Tools';
-export const mainMenuId = 'sidepanel-mainmenu';
+export const DRAWER_CONTAINER_ID = 'drawercontainer';
+
+export const APPLICATION_NAME = 'D365 SidePanel Dev Tools';
+export const MAIN_MENU_ID = 'sidepanel-mainmenu';

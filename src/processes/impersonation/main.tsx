@@ -15,7 +15,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { GetExtensionId, debugLog } from '../../utils/global/common';
@@ -31,7 +31,7 @@ import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole, TeamsSecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
-import { Env, storage_DontShowImpersonationInfo } from '../../utils/global/var';
+import { Env, STORAGE_DontShowImpersonationInfo } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
@@ -39,6 +39,7 @@ import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
+import { useSpDevTools } from '../../utils/global/context';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -86,6 +87,8 @@ const rowHeight = 35;
 
 const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
     function ImpersonationProcess(props: ProcessProps, ref) {
+
+        const { isDebug } = useSpDevTools();
 
         const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
@@ -148,7 +151,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useEffectOnce(
             () => {
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo } },
+                chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo } },
                     function (response: boolean | null) {
                         setDontShowInfo(response ?? false);
                         setCloseInfo(response ?? false);
@@ -160,7 +163,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const dontShowInfoValue = event.target.checked;
 
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo, configurations: dontShowInfoValue } });
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo, configurations: dontShowInfoValue } });
             setDontShowInfo(dontShowInfoValue);
         };
 
@@ -196,7 +199,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         </IconButton>
                     </Tooltip>
 
-                    {Env.DEBUG &&
+                    {isDebug.value &&
                         <IconButton onClick={() => {
                             chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
                                 function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {

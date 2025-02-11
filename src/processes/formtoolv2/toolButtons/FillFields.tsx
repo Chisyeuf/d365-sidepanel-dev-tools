@@ -1,4 +1,4 @@
-import { Stack, Menu, MenuItem } from '@mui/material';
+import { Stack, Menu, MenuItem, Divider } from '@mui/material';
 
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -23,7 +23,7 @@ function FillFields(props: IToolButtonStandard) {
 
     const { value: open, setTrue: setOpen, setFalse: setClose, toggle: toggleOpen } = useBoolean(false);
 
-    const [attributeMetadata, isFetching] = RetrieveAttributesMetaData(formContext?.data.entity.getEntityName() ?? '');
+    const [attributeMetadata, isFetching] = RetrieveAttributesMetaData(formContext?.data?.entity?.getEntityName() ?? '');
 
     // ---------- Fill on click mode ----------
     const [fillOnClickEnable, setFillOnClick] = useState<boolean>(false);
@@ -108,11 +108,11 @@ function FillFields(props: IToolButtonStandard) {
         })
     }, [attributes]);
 
-    const buttons = useMemo(() => [
+    const buttons: { label: string; action: (attribute: Xrm.Attributes.Attribute) => void; divider?: boolean; }[] = useMemo(() => [
 
         {
             label: "Fill Mandatory fields",
-            function: (attribute: Xrm.Attributes.Attribute) => {
+            action: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
                 if (!metadata) return;
                 if (!metadata.IsValidForUpdate) return;
@@ -127,7 +127,7 @@ function FillFields(props: IToolButtonStandard) {
         },
         {
             label: "Fill BPF fields",
-            function: (attribute: Xrm.Attributes.Attribute) => {
+            action: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
                 if (!metadata) return;
                 if (!metadata.IsValidForUpdate) return;
@@ -142,7 +142,7 @@ function FillFields(props: IToolButtonStandard) {
         },
         {
             label: "Fill All fields",
-            function: (attribute: Xrm.Attributes.Attribute) => {
+            action: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
                 if (!metadata) return;
                 if (!metadata.IsValidForUpdate) return;
@@ -157,14 +157,16 @@ function FillFields(props: IToolButtonStandard) {
                     });
                 }
             }
-        }, 
-        {
-            label: fillOnClickEnable ? "Disable Fill on Click" : "Enable Fill on Click",
-            function: toggleMode
         },
         {
+            divider: true,
+            label: fillOnClickEnable ? "Disable Fill on Click" : "Enable Fill on Click",
+            action: toggleMode,
+        },
+        {
+            divider: true,
             label: "Clear all fields",
-            function: (attribute: Xrm.Attributes.Attribute) => {
+            action: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
                 if (!metadata) return;
                 if (!metadata.IsValidForUpdate) return;
@@ -177,7 +179,7 @@ function FillFields(props: IToolButtonStandard) {
         },
         {
             label: "Restore original values",
-            function: (attribute: Xrm.Attributes.Attribute) => {
+            action: (attribute: Xrm.Attributes.Attribute) => {
                 const metadata = attributeMetadata.find(meta => meta.LogicalName === attribute.getName());
                 if (!metadata) return;
                 if (!metadata.IsValidForUpdate) return;
@@ -243,11 +245,18 @@ function FillFields(props: IToolButtonStandard) {
                     </MenuItem> */}
                     {
                         buttons.map(button => {
-                            return (
-                                <MenuItem onClick={() => executeOnEachAttribute(button.function)}>
+                            const menuButton = (
+                                <MenuItem onClick={() => executeOnEachAttribute(button.action)}>
                                     {button.label}
                                 </MenuItem>
-                            )
+                            );
+                            if (button.divider) {
+                                return <>
+                                    <Divider sx={{ my: 0.5 }} />
+                                    {menuButton}
+                                </>
+                            }
+                            return menuButton;
                         })
                     }
                 </Stack>

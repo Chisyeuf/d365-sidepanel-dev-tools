@@ -34,11 +34,6 @@ function OptionSetMetadataGridSelector(props: ExploreGrid) {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleChange} aria-label="lab API tabs example">
                         {tabs.map(tab => <Tab value={tab} label={tab.replace("Microsoft.Dynamics.CRM.", "").replace("AttributeMetadata", "")} />)}
-
-                        {/* <Tab label="Picklist" value={MSType.Picklist} />
-                        <Tab label="MultiSelectPicklist" value={MSType.MultiSelectPicklist} />
-                        <Tab label="State" value={MSType.State} />
-                        <Tab label="Status" value={MSType.Status} /> */}
                     </TabList>
                 </Box>
                 {tabs.map(tabType => (
@@ -47,10 +42,6 @@ function OptionSetMetadataGridSelector(props: ExploreGrid) {
                     </TabPanel>
                 ))}
 
-                {/* <TabPanel value={MSType.Picklist}>Item One</TabPanel>
-                <TabPanel value={MSType.MultiSelectPicklist}>Item Two</TabPanel>
-                <TabPanel value={MSType.State}>Item Three</TabPanel>
-                <TabPanel value={MSType.Status}>Item Four</TabPanel> */}
             </TabContext>
 
         </>
@@ -63,7 +54,7 @@ interface OptionSetMetadataGridProps {
     entityName: string
 }
 function OptionSetMetadataGrid(props: OptionSetMetadataGridProps & ExploreGrid) {
-    const { type, entityName, explortFileName, openFrom, sptSnackbarProvider } = props;
+    const { type, entityName, explortFileName, openFrom } = props;
 
     const { optionsSetsMetadata, retrieveOptionSets, isFetchingComponentMetadata: loading } = useContext(MetadataContext);
 
@@ -139,7 +130,6 @@ function OptionSetMetadataGrid(props: OptionSetMetadataGridProps & ExploreGrid) 
             autoRowHeight
             columnNameText={explortFileName}
             openFrom={openFrom}
-            sptSnackbarProvider={sptSnackbarProvider}
         />
     )
 }

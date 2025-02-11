@@ -3,7 +3,7 @@ import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useContext, useMemo, useRef } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
@@ -12,13 +12,13 @@ import LabelTools from './containers/LabelTools';
 
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
-import { Env } from '../../utils/global/var';
 import OtherTools from './containers/OtherTools';
 import RefreshButtons from './containers/RefreshButtons';
 import { FormContext } from '../../utils/types/FormContext';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWindowSize } from 'usehooks-ts';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
+import { useSpDevTools } from '../../utils/global/context';
 
 class FormToolsButton extends ProcessButton {
     constructor() {
@@ -73,8 +73,10 @@ const toolsList: ((props: SubProcessProps) => JSX.Element)[] = [LabelTools, GodM
 const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
     function FormToolsProcess(props: ProcessProps, ref) {
 
+        const { isDebug } = useSpDevTools();
+
         const mainStackRef = useRef<HTMLDivElement>(null);
-        const { d365MainAndIframeUpdated: domUpdated , formContext} = useFormContextDocument();
+        const { d365MainAndIframeUpdated: domUpdated, formContext } = useFormContextDocument();
 
         const { height, width } = useWindowSize();
 
@@ -100,7 +102,7 @@ const FormToolsProcess = forwardRef<ProcessRef, ProcessProps>(
 
                     <Stack ref={mainStackRef} spacing={4} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
                         {
-                            Env.DEBUG &&
+                            isDebug.value &&
                             <Tooltip title={formContext ? 'Context found' : 'Context unfound. Try to refresh'} >
                                 <Stack alignItems='center' pr='25%'>
                                     {formContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}

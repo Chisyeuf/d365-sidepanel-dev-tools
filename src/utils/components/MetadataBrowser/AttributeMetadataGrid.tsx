@@ -7,7 +7,7 @@ import { MetadataContext } from './MetadataContextProvider';
 
 
 function AttributeMetadataGrid(props: ExploreGrid) {
-    const { entityName, explortFileName, openFrom, sptSnackbarProvider } = props;
+    const { entityName, explortFileName, openFrom } = props;
 
     const { attributesMetadata, retrieveAttributes, isFetchingComponentMetadata } = useContext(MetadataContext);
 
@@ -43,7 +43,6 @@ function AttributeMetadataGrid(props: ExploreGrid) {
                 gridHeight='80vh'
                 columnNameText={explortFileName}
                 openFrom={openFrom}
-                sptSnackbarProvider={sptSnackbarProvider}
             />
         </>
     );

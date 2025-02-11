@@ -2,11 +2,11 @@
 import React from "react";
 import { Button } from '@mui/material';
 import { ProviderContext as SnackbarProviderContext, useSnackbar } from "notistack";
-import { projectPrefix } from "./var";
+import { PROJECT_PREFIX } from "./var";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
 
 export abstract class ProcessButton {
-    static prefixId: string = projectPrefix;
+    static prefixId: string = PROJECT_PREFIX;
 
     id: string;
     menuButtonName: string;
@@ -43,11 +43,11 @@ export abstract class ProcessButton {
 
 
 
-    getProcess(setBadge: (content: React.ReactNode | null,) => void, snackbarProvider: SnackbarProviderContext): React.JSX.Element {
+    getProcess(setBadge: (content: React.ReactNode | null,) => void): React.JSX.Element {
         if (this.processContainer)
-            return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} snackbarProvider={snackbarProvider} /> : <ErrorProcess />}</this.processContainer>;
+            return <this.processContainer>{this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />}</this.processContainer>;
         else
-            return this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} snackbarProvider={snackbarProvider} /> : <ErrorProcess />;
+            return this.process ? <this.process id={this.id} ref={this.ref} setBadge={setBadge} /> : <ErrorProcess />;
     }
 
     getOpeningButton(onClick: (process: ProcessButton) => any): React.JSX.Element {
@@ -90,7 +90,6 @@ function ErrorProcess() {
 export interface ProcessProps {
     id: string;
     setBadge: (number: React.ReactNode | null) => void;
-    snackbarProvider: SnackbarProviderContext
 }
 export type ProcessRef = {
     onClose?: () => void,

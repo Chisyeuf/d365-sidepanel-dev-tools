@@ -14,7 +14,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import React from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { projectPrefix } from "../global/var";
+import { PROJECT_PREFIX } from "../global/var";
 import { AlertTitle } from "@mui/material";
 
 
@@ -104,7 +104,7 @@ const DetailsSnackbar = forwardRef<HTMLDivElement, DetailsSnackbarProps>(
 
         return (
             <SnackbarContent ref={ref} className={classes.root}>
-                <Alert variant='filled' severity={props.detailsVariant} iconMapping={{ error: <CancelIcon /> }} sx={{ [`&.${projectPrefix}Alert-message`]: { pt: 1, pb: 1 } }}>
+                <Alert variant='filled' severity={props.detailsVariant} iconMapping={{ error: <CancelIcon /> }} sx={{ [`&.${PROJECT_PREFIX}Alert-message`]: { pt: 1, pb: 1 } }}>
                     <AlertTitle>
                         <Stack width='100%' direction="row" alignItems="center" spacing={1}>
                             <Typography variant="body2">{splitedMessage?.map((partOfMessage, index) => index % 2 === 0 ? partOfMessage : <b>{partOfMessage}</b>)}</Typography>

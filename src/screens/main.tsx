@@ -1,6 +1,6 @@
 import '../utils/components/DetailsSnackbar';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
@@ -13,7 +13,7 @@ import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
 import { Badge, Box, Button, Divider, Drawer, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
-import { applicationName, projectPrefix, drawerContainerId, mainMenuId, storage_ForegroundPanes, storage_ListName } from '../utils/global/var';
+import { APPLICATION_NAME, PROJECT_PREFIX, DRAWER_CONTAINER_ID, MAIN_MENU_ID, STORAGE_ForegroundPanes, STORAGE_ListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
 import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
@@ -24,6 +24,7 @@ import DetailsSnackbar from '../utils/components/DetailsSnackbar';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import OpenOptionsButton from '../utils/components/OpenOptionsButton';
+import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/context';
 
 
 const MainScreen: React.FunctionComponent = () => {
@@ -35,18 +36,29 @@ const MainScreen: React.FunctionComponent = () => {
                 detailsFile: DetailsSnackbar
             }}
         >
-            <MainScreenCustomPanel />
+            <SpDevToolsContextProvider>
+                <MainScreenCustomPanel />
+            </SpDevToolsContextProvider>
         </SnackbarProvider>
     )
 }
 
-const drawerButtonContainerWidth = 47;
-const mainMenuWidth = 300;
+const DRAWER_BUTTON_CONTAINER_WIDTH = 47;
+const MAIN_MENU_WIDTH = 300;
+
+
+let clickCount = 0;
+let timer: NodeJS.Timeout;
+const clickThreshold = 15;
+const timeThreshold = 8000;
+
 const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const extensionId = GetExtensionId();
 
-    const snackbarProviderContext = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
+
+    const { isDebug } = useSpDevTools();
 
     const [panelOpenedId, setPanelOpenedId] = useState<string | null>(null);
 
@@ -57,22 +69,41 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
 
+    const handleHiddenAction = useCallback(() => {
+        clickCount++;
+
+        if (clickCount === 1) {
+            timer = setTimeout(() => {
+                clickCount = 0;
+            }, timeThreshold);
+        } else if (clickCount >= clickThreshold) {
+            enqueueSnackbar(
+                `Debug Mode ${!isDebug.value ? "activated" : "deactivated"}.`,
+                { variant: 'info' }
+            )
+            isDebug.toggle();
+            clearTimeout(timer);
+            clickCount = 0;
+        }
+    }, [isDebug, enqueueSnackbar]);
+
+
     useEffect(() => {
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ListName } },
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ListName } },
             function (response: StorageConfiguration[]) {
                 if (response && isArraysEquals(response.map(t => t.id), defaultProcessesList.map(t => t.id))) {
                     setProcessesList(response);
                     return;
                 }
                 else {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: storage_ListName, configurations: defaultProcessesList } });
+                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_ListName, configurations: defaultProcessesList } });
                     setProcessesList(defaultProcessesList);
                 }
 
             }
         );
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: storage_ForegroundPanes } },
+        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ForegroundPanes } },
             function (response: boolean | null) {
                 setIsForegroundPanes(response ?? false);
             }
@@ -81,22 +112,22 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const setPageStyle = async () => {
         setStyle(document, 'drawerbuttonsmain', {
-            "#shell-container": [`width: calc(100% - ${drawerButtonContainerWidth}px)`],
+            "#shell-container": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px)`],
         });
 
         let dynamicsmainscreenWidth = 0;
         if (!isForegroundPanes && panelOpenedId !== null) {
-            if (panelOpenedId !== mainMenuId && openedProcesses[panelOpenedId].widthNumber > 0) {
+            if (panelOpenedId !== MAIN_MENU_ID && openedProcesses[panelOpenedId].widthNumber > 0) {
                 dynamicsmainscreenWidth = openedProcesses[panelOpenedId].widthNumber;
             }
             else {
-                dynamicsmainscreenWidth = mainMenuWidth;
+                dynamicsmainscreenWidth = MAIN_MENU_WIDTH;
             }
         }
         setStyle(document, 'resizedynamicsmainscreen', {
             "#ApplicationShell > *:not(*:first-child)": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
             // "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
-            "[id^=DialogContainer]": [`width: calc(100% - ${drawerButtonContainerWidth}px - ${dynamicsmainscreenWidth}px)`],
+            "[id^=DialogContainer]": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px - ${dynamicsmainscreenWidth}px)`],
             "[id*=__flyoutRootNode] > div > div": ["z-index: 1200"],
         });
     };
@@ -206,12 +237,12 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 anchor={"right"}
                 hideBackdrop
                 sx={{
-                    width: drawerButtonContainerWidth,
+                    width: DRAWER_BUTTON_CONTAINER_WIDTH,
                     flexShrink: 0,
                 }}
                 PaperProps={{
                     sx: {
-                        width: drawerButtonContainerWidth,
+                        width: DRAWER_BUTTON_CONTAINER_WIDTH,
                         backgroundColor: "rgb(246,247,248)",
                     },
                 }}
@@ -219,10 +250,10 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             >
                 <Stack direction='column'>
 
-                    <Tooltip title={<Typography variant='h6'>{applicationName}</Typography>} placement='left' arrow disableInteractive describeChild={false}>
+                    <Tooltip title={<Typography variant='h6'>{APPLICATION_NAME}</Typography>} placement='left' arrow disableInteractive describeChild={false}>
                         <Button
-                            key={`${mainMenuId}-processButton`}
-                            onClick={() => togglePanelDrawer(mainMenuId)}
+                            key={`${MAIN_MENU_ID}-processButton`}
+                            onClick={() => togglePanelDrawer(MAIN_MENU_ID)}
                             sx={{
                                 minWidth: 'unset',
                                 aspectRatio: '1 / 1',
@@ -237,7 +268,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                     <Divider />
 
                     <DragDropContext onDragEnd={onDragEnd} >
-                        <Droppable droppableId={mainMenuId + "droppable"} key={mainMenuId + 'droppable'}>
+                        <Droppable droppableId={MAIN_MENU_ID + "droppable"} key={MAIN_MENU_ID + 'droppable'}>
                             {
                                 providerDroppable => (
                                     <Stack
@@ -282,7 +313,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                                                             badgeContent={openedProcessesBadge[process.id]}
                                                                             color="info"
                                                                             sx={(theme) => ({
-                                                                                [`& .${projectPrefix}Badge-badge`]: {
+                                                                                [`& .${PROJECT_PREFIX}Badge-badge`]: {
                                                                                     aspectRatio: '1 / 1',
                                                                                     border: `2px solid ${theme.palette.background.paper}`
                                                                                 }
@@ -308,9 +339,9 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 </Stack>
             </Drawer >
 
-            <PanelDrawerItem width={mainMenuWidth} open={panelOpenedId === mainMenuId}>
+            <PanelDrawerItem width={MAIN_MENU_WIDTH} open={panelOpenedId === MAIN_MENU_ID}>
 
-                <Typography variant='h5' padding={'15px 15px 5px 15px'}>{applicationName}</Typography>
+                <Typography variant='h5' padding={'15px 15px 5px 15px'} sx={{ userSelect: 'none' }} onClick={handleHiddenAction}>{APPLICATION_NAME}</Typography>
 
                 <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' pb='5px' height='calc(100% - 63px)' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
@@ -363,7 +394,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                         panelOpenedId={panelOpenedId}
                         process={process}
                         setOpenedProcessesBadge={setOpenedProcessesBadge}
-                        snackbarProviderContext={snackbarProviderContext}
                     />
                 })
             }
@@ -377,10 +407,9 @@ interface DrawerToolProps {
     setOpenedProcessesBadge: (value: React.SetStateAction<{ [processid: string]: React.ReactNode | null }>) => void
     closeProcess: (processId: string) => void
     panelOpenedId: string | null
-    snackbarProviderContext: SnackbarProviderContext
 }
 function DrawerTool(props: DrawerToolProps) {
-    const { process, setOpenedProcessesBadge, closeProcess, panelOpenedId, snackbarProviderContext } = props;
+    const { process, setOpenedProcessesBadge, closeProcess, panelOpenedId } = props;
 
     const verticalTitle = useMemo(() => process.widthNumber < 100 && process.widthNumber > 0, [process]);
 
@@ -395,7 +424,7 @@ function DrawerTool(props: DrawerToolProps) {
     const width = useMemo(() => {
         if (typeof process.width === 'string') {
             if (process.width.endsWith('%')) {
-                return `calc(${process.width} - (${drawerButtonContainerWidth}px * (${parseInt(process.width)} / 100)))`;
+                return `calc(${process.width} - (${DRAWER_BUTTON_CONTAINER_WIDTH}px * (${parseInt(process.width)} / 100)))`;
             }
             else {
                 return parseInt(process.width);
@@ -411,7 +440,7 @@ function DrawerTool(props: DrawerToolProps) {
 
             <Stack direction='column' width='100%' height='100%'>
 
-                <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between'>
+                <Stack direction={verticalTitle ? 'column-reverse' : 'row'} padding={'15px 15px 5px 15px'} justifyContent='space-between' sx={{ userSelect: 'none' }}>
                     <Typography variant='h5' sx={{ writingMode: verticalTitle ? 'vertical-lr' : 'unset' }}>{process.menuButtonName}</Typography>
                     <IconButton onClick={() => closeProcess(process.id)}>
                         <CloseIcon />
@@ -419,7 +448,7 @@ function DrawerTool(props: DrawerToolProps) {
                 </Stack>
 
                 <Stack flex='1 1 auto' minHeight={0}>
-                    {process.getProcess(setBadgeInner, snackbarProviderContext)}
+                    {process.getProcess(setBadgeInner)}
                 </Stack>
             </Stack>
         </PanelDrawerItem>
@@ -442,7 +471,7 @@ function initExtension() {
 
     waitForElm(document, '#mainContent', true).then((mainNode) => {
         const drawerContainer = document.createElement('div');
-        drawerContainer.setAttribute('id', ProcessButton.prefixId + drawerContainerId);
+        drawerContainer.setAttribute('id', ProcessButton.prefixId + DRAWER_CONTAINER_ID);
         mainNode?.append(drawerContainer);
 
         ReactDOM.render(

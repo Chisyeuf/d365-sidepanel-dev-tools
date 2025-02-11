@@ -39,10 +39,9 @@ interface RelationshipMetadateGridProps {
         [key: string]: any;
     }[]
     loading: boolean
-    sptSnackbarProvider: ProcessProps['snackbarProvider']
 }
 function RelationshipMetadateGrid(props: RelationshipMetadateGridProps & Pick<ExploreGrid, 'explortFileName' | 'openFrom'>) {
-    const { data, loading, explortFileName, openFrom, sptSnackbarProvider } = props;
+    const { data, loading, explortFileName, openFrom } = props;
 
     return (
         <>
@@ -68,7 +67,6 @@ function RelationshipMetadateGrid(props: RelationshipMetadateGridProps & Pick<Ex
                 gridHeight='80vh'
                 columnNameText={explortFileName}
                 openFrom={openFrom}
-                sptSnackbarProvider={sptSnackbarProvider}
             />
         </>
     );

@@ -47,6 +47,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
 import usePrevious from '../../utils/hooks/use/usePrevious';
 import { useUpdateEffect } from '@custom-react-hooks/all';
+import { useSnackbar } from 'notistack';
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -147,6 +148,8 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             },
         }));
 
+        const {enqueueSnackbar} = useSnackbar();
+
         const [entityName, _setEntityname] = useState<string>(Xrm.Utility.getPageContext()?.input?.entityName);
         const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
 
@@ -203,14 +206,14 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                 Xrm.WebApi.online.updateRecord(entityName, recordid, attributesValues).then(
                     function success(result) {
                         Xrm.Utility.closeProgressIndicator();
-                        props.snackbarProvider.enqueueSnackbar(
+                        enqueueSnackbar(
                             entityName + " " + recordid + " updated.",
                             { variant: 'success' }
                         );
                     },
                     function (error) {
                         Xrm.Utility.closeProgressIndicator();
-                        props.snackbarProvider.enqueueSnackbar(
+                        enqueueSnackbar(
                             "Updating " + entityName + " " + recordid + " has encountered an error.",
                             {
                                 variant: 'detailsFile',
@@ -246,14 +249,14 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                 function success(result) {
                     Xrm.Utility.closeProgressIndicator();
                     setRecordsIds([result.id]);
-                    props.snackbarProvider.enqueueSnackbar(
+                    enqueueSnackbar(
                         entityName + " " + result.id + " created.",
                         { variant: 'success' }
                     );
                 },
                 function (error) {
                     Xrm.Utility.closeProgressIndicator();
-                    props.snackbarProvider.enqueueSnackbar(
+                    enqueueSnackbar(
                         "Creating " + entityName + " has encountered an error.",
                         {
                             variant: 'detailsFile',

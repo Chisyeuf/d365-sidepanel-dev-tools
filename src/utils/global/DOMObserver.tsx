@@ -24,12 +24,9 @@ export default class DOMObserver {
         waitForElm(this._document, selector).then((element) => {
             if (!element) return;
             this.observer = new MutationObserver(mutations => {
-                // console.log("mutation observed ?");
                 if (!this.isMutate && mutations.length > 0) {
-                    // console.log("mutation observed !!!!!!!!");
                     this.isMutate = true;
                 }
-                // this._document.dispatchEvent(new CustomEvent(this.eventName));
             });
             this.observer.observe(element, this.mutationOptions);
         });

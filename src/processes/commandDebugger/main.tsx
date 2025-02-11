@@ -18,7 +18,7 @@ class CommandDebugger extends ProcessButton {
             1,
             false
         );
-        this.panelButtonName = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <><Typography>Command Checker is <i><b>Active</b></i></Typography><Typography><b>Click here to turn OFF</b></Typography></> : <><Typography>Command Checker is <i><b>Inactive</b></i></Typography><Typography><b>Click here to turn ON</b></Typography></>,
+        this.panelButtonName = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <><Typography>Command Checker is <i><b>Active</b></i></Typography><Typography><b>Click here to turn OFF</b></Typography></> : <><Typography>Command Checker is <i><b>Inactive</b></i></Typography><Typography><b>Click here to turn ON</b></Typography></>;
         this.panelButtonIcon = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <TroubleshootIcon /> : <SearchIcon />
         // this.process = CommandDebuggerPanel;
     }

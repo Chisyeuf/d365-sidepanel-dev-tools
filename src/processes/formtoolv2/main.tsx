@@ -1,31 +1,26 @@
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Stack from '@mui/material/Stack';
-import { createContext, forwardRef, PropsWithChildren, useContext, useMemo, useRef } from 'react';
+import { forwardRef, useContext, useMemo, useRef } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
 import LabelIcon from '@mui/icons-material/Label';
 import LabelOutlinedIcon from '@mui/icons-material/LabelOutlined';
 
-import { FormContext, FormDocument } from '../../utils/types/FormContext';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWindowSize } from 'usehooks-ts';
-import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
-import { noOperation } from '../../utils/global/common';
 import { ToggableToolButtonContainer, ToolButtonContainer } from './ToolButtonContainer';
 import ShowFieldLabel from './toolButtons/ShowFieldLabel';
 import VisibleMode from './toolButtons/VisibleMode';
 
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
-import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
-import { Env } from '../../utils/global/var';
 import ShowTabLabel from './toolButtons/ShowTabLabel';
 import { OptionalMode } from './toolButtons/OptionalMode';
 import { EnableMode } from './toolButtons/EnableMode';
@@ -36,6 +31,7 @@ import FillFields from './toolButtons/FillFields';
 import ShowOptionSetInFields from './toolButtons/ShowOptionSetInFields';
 import CloneRecord from './toolButtons/CloneRecord';
 import BlurFields from './toolButtons/BlurFields';
+import { useSpDevTools } from '../../utils/global/context';
 
 
 class FormToolsButtonV2 extends ProcessButton {
@@ -123,6 +119,8 @@ function DebugIndicator() {
 const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
     function FormToolsProcessV2(props: ProcessProps, ref) {
 
+        const { isDebug } = useSpDevTools();
+
         const mainStackRef = useRef<HTMLDivElement>(null);
         const { height, width } = useWindowSize();
         const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [height, width]);
@@ -146,10 +144,10 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
                     </Stack>
 
                     <FormToolContextProvider>
-                        
-                        {Env.DEBUG && <DebugIndicator />}
 
                         <Stack ref={mainStackRef} spacing={3} height='calc(100% - 10px)' p='10px' pr={0} alignItems='center' sx={{ overflowY: 'auto', scrollbarWidth: 'none' }}>
+
+                            {isDebug.value && <DebugIndicator />}
 
                             <ToggableToolButtonContainer
                                 title='Label Tools'

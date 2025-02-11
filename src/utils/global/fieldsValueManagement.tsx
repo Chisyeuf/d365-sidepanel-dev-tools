@@ -2,7 +2,7 @@ import { FormContext } from "../types/FormContext";
 import { LookupValue } from "../types/LookupValue";
 import { AttributeMetadata, MSType, StringAttributeFormat } from "../types/requestsType";
 
-export const getRandomValue = async (currentFormContext: FormContext , attribute: Xrm.Attributes.Attribute, metadata: AttributeMetadata) => {
+export const getRandomValue = async (formContext: FormContext , attribute: Xrm.Attributes.Attribute, metadata: AttributeMetadata) => {
     switch (metadata.MStype) {
         case MSType.Lookup:
             return getRandomLookup(metadata.Parameters.Target);
@@ -22,10 +22,10 @@ export const getRandomValue = async (currentFormContext: FormContext , attribute
         case MSType.State:
         case MSType.Picklist:
         case MSType.MultiSelectPicklist:
-            if (!currentFormContext?.data?.entity) return null;
+            if (!formContext?.data?.entity) return null;
             const options = Object.values(
                 (await Xrm.Utility.getEntityMetadata(
-                    currentFormContext.data.entity.getEntityName(),
+                    formContext.data.entity.getEntityName(),
                     [attribute.getName()])).Attributes.get(0)?.OptionSet
             ).map((o: any) => o.value);
             return getRandomPickList(options);

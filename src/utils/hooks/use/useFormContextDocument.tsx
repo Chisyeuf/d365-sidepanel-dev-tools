@@ -6,7 +6,7 @@ import { debugLog, waitForElm } from "../../global/common";
 import { useDOMUpdated } from "./useDOMUpdated";
 import usePrevious from "./usePrevious";
 
-// const MAX_DEPTH = 4;
+
 const OBSERVER_SELECTOR = "body";
 
 export function useFormContextDocument() {
@@ -24,22 +24,12 @@ export function useFormContextDocument() {
     const previousPageId = usePrevious<string>((Xrm as any)?._pageId);
 
 
-    useEffect(() => {
-        console.log("previous pageId", previousPageId)
-    }, [previousPageId]);
-
-
     const setStates = useCallback((_document: FormDocument, _formContext: FormContext) => {
-        // const formContextAny: any = _formContext;
-        // const currentPageId: string = formContextAny?.pageId ?? formContextAny?._pageId ?? '-1';
-
-        // if (previousPageId !== currentPageId) {
+        
         debugLog("Update FormContextDocument on", _formContext?.data?.entity.getEntityName(), ", document:", _document, ", formContext:", _formContext);
         setFormDocument(_document);
         setFormContext(_formContext);
         setIsRefreshing(false);
-        // setPreviousPageId(currentPageId);
-        // }
     }, []);
 
 
@@ -92,7 +82,6 @@ export function useFormContextDocument() {
 
     useEffect(() => {
         if (XrmObserver.isEntityRecord()) {
-            console.log("Refresh formContext on enittyRECORD");
             launchRefresh();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,10 +89,7 @@ export function useFormContextDocument() {
 
     const isToRefreshIframe = XrmObserver.isEntityList() && d365MainAndIframeUpdated;
     useEffect(() => {
-        // if (XrmObserver.isEntityList()) {
-        console.log("Refresh formContext on entityList");
         launchRefresh();
-        // }
     }, [isToRefreshIframe, launchRefresh]);
 
 

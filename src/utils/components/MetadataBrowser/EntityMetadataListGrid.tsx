@@ -27,18 +27,17 @@ interface ExploreMenuDialogButtonItemProps {
     entityName: string
     entityDisplayName: string
     dialogComponent: (props: ExploreGrid) => JSX.Element
-    sptSnackbarProvider: ProcessProps['snackbarProvider']
 }
 function ExploreMenuDialogItem(props: ExploreMenuDialogButtonItemProps & GridActionsCellItemProps) {
 
-    const { entityName, dialogComponent, entityDisplayName, sptSnackbarProvider, ...cellItemProps } = props;
+    const { entityName, dialogComponent, entityDisplayName, ...cellItemProps } = props;
 
     const { value: open, setTrue: setOpen, setFalse: setClose } = useBoolean(false);
 
     return (
         <>
             <GridActionsCellItem {...cellItemProps} onClick={setOpen} />
-            <ExploreBaseDialog {...{ entityName, dialogName: cellItemProps.label, open, setClose, entityDisplayName, dialogComponent, sptSnackbarProvider }} />
+            <ExploreBaseDialog {...{ entityName, dialogName: cellItemProps.label, open, setClose, entityDisplayName, dialogComponent }} />
         </>
     )
 }
@@ -51,12 +50,10 @@ interface ExploreMenuDialogItemProps {
     dialogName: string
     open: boolean
     setClose: () => void
-
-    sptSnackbarProvider: ProcessProps['snackbarProvider']
 }
 function ExploreBaseDialog(props: ExploreMenuDialogItemProps) {
 
-    const { entityName, entityDisplayName, dialogName, open, setClose, dialogComponent, sptSnackbarProvider } = props;
+    const { entityName, entityDisplayName, dialogName, open, setClose, dialogComponent } = props;
 
     const dialogTitleContent = useMemo(() => (
         <Stack direction='row'>
@@ -81,7 +78,7 @@ function ExploreBaseDialog(props: ExploreMenuDialogItemProps) {
                 <IconButton onClick={setClose}><CloseIcon /></IconButton>
             </DialogTitle>
             <Box overflow='auto'>
-                {open && dialogComponent({ entityName, explortFileName: `${entityDisplayName} - ${dialogName}`, openFrom: dialogTitleContent, sptSnackbarProvider })}
+                {open && dialogComponent({ entityName, explortFileName: `${entityDisplayName} - ${dialogName}`, openFrom: dialogTitleContent })}
             </Box>
         </Dialog>
     );
@@ -131,10 +128,8 @@ function ExploreManyToManyRelationshipsGrid(props: ExploreGrid) {
 
 
 interface EntityMetadateGridProps {
-    snackbarProvider: ProcessProps['snackbarProvider']
 }
 function EntityMetadataListGrid(props: EntityMetadateGridProps) {
-    const { snackbarProvider } = props;
 
     const { entitiesMetadata, isFetchingEntitiesMetadata } = useContext(MetadataContext);
 
@@ -196,7 +191,6 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         dialogComponent={ExploreAttributesGrid}
                         showInMenu
                         closeMenuOnClick={false}
-                        sptSnackbarProvider={snackbarProvider}
                     />,
                     <ExploreMenuDialogItem
                         icon={<StyleIcon />}
@@ -206,7 +200,6 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         dialogComponent={ExploreOptionSetsGrid}
                         showInMenu
                         closeMenuOnClick={false}
-                        sptSnackbarProvider={snackbarProvider}
                     />,
                     <GridActionsCellItem
                         label="Relationships"
@@ -232,7 +225,6 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         dialogComponent={ExploreOneToManyRelationshipsGrid}
                         showInMenu
                         closeMenuOnClick={false}
-                        sptSnackbarProvider={snackbarProvider}
                     />,
                     <ExploreMenuDialogItem
                         icon={<ShareIcon sx={{ transform: 'scaleX(-1)' }} />}
@@ -242,7 +234,6 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         dialogComponent={ExploreManyToOneRelationshipsGrid}
                         showInMenu
                         closeMenuOnClick={false}
-                        sptSnackbarProvider={snackbarProvider}
                     />,
                     <ExploreMenuDialogItem
                         // icon={<><HubIcon /></>}
@@ -253,14 +244,12 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         dialogComponent={ExploreManyToManyRelationshipsGrid}
                         showInMenu
                         closeMenuOnClick={false}
-                        sptSnackbarProvider={snackbarProvider}
                     />
                 ]
             }]}
             hideRearColumns
             fullHeight
             gridHeight='90vh'
-            sptSnackbarProvider={snackbarProvider}
         />
     );
 }

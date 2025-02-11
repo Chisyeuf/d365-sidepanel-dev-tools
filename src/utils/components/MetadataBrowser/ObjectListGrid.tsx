@@ -24,62 +24,10 @@ import { useCopyToClipboard } from 'usehooks-ts';
 import { CustomLoadingOverlay, CustomNoResultsOverlay, CustomNoRowsOverlay } from './StyledDataGrid';
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { Theme } from '@mui/material';
-import { ProcessProps } from '../../global/.processClass';
 import { MetadataGridContext } from './MetadataContextProvider';
 import { noOperation } from '../../global/common';
+import { useSnackbar } from 'notistack';
 
-// const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-//     border: 0,
-//     color: 'rgba(255,255,255,0.85)',
-//     fontFamily: [
-//         '-apple-system',
-//         'BlinkMacSystemFont',
-//         '"Segoe UI"',
-//         'Roboto',
-//         '"Helvetica Neue"',
-//         'Arial',
-//         'sans-serif',
-//         '"Apple Color Emoji"',
-//         '"Segoe UI Emoji"',
-//         '"Segoe UI Symbol"',
-//     ].join(','),
-//     WebkitFontSmoothing: 'auto',
-//     letterSpacing: 'normal',
-//     '& .MuiDataGrid-columnsContainer': {
-//         backgroundColor: '#1d1d1d',
-//         ...theme.applyStyles('light', {
-//             backgroundColor: '#fafafa',
-//         }),
-//     },
-//     '& .MuiDataGrid-iconSeparator': {
-//         transform: 'scaleY(2)'
-//     },
-//     '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
-//         borderRight: '1px solid #303030',
-//         ...theme.applyStyles('light', {
-//             borderRightColor: '#f0f0f0',
-//         }),
-//     },
-//     '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
-//         borderBottom: '1px solid #303030',
-//         ...theme.applyStyles('light', {
-//             borderBottomColor: '#f0f0f0',
-//         }),
-//     },
-//     '& .MuiDataGrid-cell': {
-//         color: 'rgba(255,255,255,0.65)',
-//         ...theme.applyStyles('light', {
-//             color: 'rgba(0,0,0,.85)',
-//         }),
-//     },
-//     '& .MuiPaginationItem-root': {
-//         borderRadius: 0,
-//     },
-//     ...theme.applyStyles('light', {
-//         color: 'rgba(0,0,0,.85)',
-//     }),
-// }));
 
 function CustomPagination(props: any) {
     const apiRef = useGridApiContext();
@@ -167,9 +115,9 @@ const GridButtonsContext = createContext<IGridButtonsContext>({
     openGrid: noOperation
 });
 
-function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string, sptSnackbarProvider: ProcessProps['snackbarProvider'] }) {
+function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string }) {
 
-    const { dataList, parentId, id, formatedValue, type, columnName, columnNameText, sptSnackbarProvider, ...datagridProps } = props;
+    const { dataList, parentId, id, formatedValue, type, columnName, columnNameText, ...datagridProps } = props;
 
     const { openGrid, openedGridId } = useContext(GridButtonsContext);
 
@@ -236,7 +184,6 @@ function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps &
                         columnNameText={columnNameText}
                         dataList={dataList}
                         gridHeight={'60vh'}
-                        sptSnackbarProvider={sptSnackbarProvider}
                         {...datagridProps}
                     />
                 </Dialog >
@@ -277,7 +224,6 @@ export interface ObjectListGridProps {
     loading?: boolean;
     autoRowHeight?: boolean;
     defaultRenderCell?: GridColDef['renderCell'];
-    sptSnackbarProvider: ProcessProps['snackbarProvider'];
 }
 
 function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
@@ -305,12 +251,13 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         loading = false,
         defaultRenderCell,
         autoRowHeight,
-        sptSnackbarProvider,
         ...gridProps
     } = props;
 
     const { openGrid } = useContext(GridButtonsContext);
     const { setZoom, zoom } = useContext(MetadataGridContext);
+
+    const {enqueueSnackbar} = useSnackbar();
 
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
 
@@ -333,7 +280,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         }
         else if (e.ctrlKey && e.key === 'c') {
             if (rowSelectionModel.length > 0) {
-                sptSnackbarProvider.enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
+                enqueueSnackbar(`Selected row copied.`, { variant: 'default' });
             }
             e.preventDefault();
             e.stopPropagation();
@@ -389,7 +336,6 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                                                     {columnLabels?.[columnName] ?? columnName}
                                                 </>
                                             }
-                                            sptSnackbarProvider={sptSnackbarProvider}
                                         />;
                                     }
                                     if (isArray) {
@@ -410,7 +356,6 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                                                         {columnLabels?.[columnName] ?? columnName}
                                                     </>
                                                 }
-                                                sptSnackbarProvider={sptSnackbarProvider}
                                             />;
                                         }
                                         return <Box title={'Empty array'}>[ ]</Box>;

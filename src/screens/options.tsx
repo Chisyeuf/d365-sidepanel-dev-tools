@@ -12,11 +12,11 @@ import { debugLog, waitForElm } from '../utils/global/common';
 import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import { storage_DontShowImpersonationInfo, storage_ListName } from '../utils/global/var';
+import { STORAGE_DontShowImpersonationInfo, STORAGE_ListName } from '../utils/global/var';
 
 const OptionsScreen: React.FunctionComponent = () => {
 
-    const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(storage_ListName, defaultProcessesList);
+    const [processesList, setProcessList] = useChromeStorage<StorageConfiguration[]>(STORAGE_ListName, defaultProcessesList);
 
 
     const resetImpersonate = useCallback(() => {
@@ -43,7 +43,7 @@ const OptionsScreen: React.FunctionComponent = () => {
 
 
     const resetDontShowImpersonationInfo = useCallback(() => {
-        chrome.runtime.sendMessage({ type: MessageType.SETCONFIGURATION, data: { key: storage_DontShowImpersonationInfo, configurations: false } },
+        chrome.runtime.sendMessage({ type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo, configurations: false } },
             function (response) {
                 if (response.success) { }
             }

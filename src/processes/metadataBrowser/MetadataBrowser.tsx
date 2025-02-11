@@ -4,6 +4,7 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/EntityMetadataListGrid';
 import MetadataContextProvider from '../../utils/components/MetadataBrowser/MetadataContextProvider';
 import TuneIcon from '@mui/icons-material/Tune';
+import { useSnackbar } from 'notistack';
 
 class MetadataBrowserButton extends ProcessButton {
     constructor() {
@@ -19,12 +20,11 @@ class MetadataBrowserButton extends ProcessButton {
 
 const MetadataBrowserProcess = forwardRef<ProcessRef, ProcessProps>(
     function MetadataBrowserProcess(props: ProcessProps, ref) {
-        const { snackbarProvider } = props;
 
         return (
             <MetadataContextProvider>
 
-                <EntityMetadataListGrid snackbarProvider={snackbarProvider} />
+                <EntityMetadataListGrid />
 
             </MetadataContextProvider>
         );
