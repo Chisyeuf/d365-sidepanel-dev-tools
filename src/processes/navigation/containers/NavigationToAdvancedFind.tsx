@@ -20,6 +20,7 @@ function AdvancedFind(props: NavigationButton) {
             window.open(`${clientUrl}/main.aspx?pagetype=AdvancedFind`, '_blank');
         }
     }
+    
     return (
         <>
             <Tooltip placement='left' title='Advanced Find Origins'>

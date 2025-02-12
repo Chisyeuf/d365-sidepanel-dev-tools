@@ -35,14 +35,14 @@ function NavigationToSecurity(props: NavigationButton) {
                     });
                 });
             }
-            (() => {
+            window.onload = () => {
                 waitForElm("#TabSettings").then((TabSettings) => {
                     TabSettings.click();
                     waitForElm("#nav_security").then((nav_security) => {
                         nav_security.click();
                     });
                 });
-            })();`;
+            }`;
             new_Window!.document.head.appendChild(script);
         }, 1000);
 
