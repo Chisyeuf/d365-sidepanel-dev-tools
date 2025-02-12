@@ -25,7 +25,7 @@ export function useFormContextDocument() {
 
 
     const setStates = useCallback((_document: FormDocument, _formContext: FormContext) => {
-        
+
         debugLog("Update FormContextDocument on", _formContext?.data?.entity.getEntityName(), ", document:", _document, ", formContext:", _formContext);
         setFormDocument(_document);
         setFormContext(_formContext);
@@ -81,9 +81,7 @@ export function useFormContextDocument() {
     }, [formContext, launchRefresh]);
 
     useEffect(() => {
-        if (XrmObserver.isEntityRecord()) {
-            launchRefresh();
-        }
+        launchRefresh();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [xrmRoute.current, previousPageId, launchRefresh]);
 

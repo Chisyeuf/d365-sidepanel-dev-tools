@@ -15,7 +15,7 @@ import TableRow from '@mui/material/TableRow';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import FilterInput from '../../utils/components/FilterInput';
@@ -93,6 +93,9 @@ theme = createTheme(theme, {
     }
 });
 
+
+const TABLE_CLASS = "spdt_optionsettable";
+
 type OptionSetMetadata = {
     Options: PickListOption[],
     Fields: string[],
@@ -108,8 +111,10 @@ type OptionSetTables = {
 const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
     function OptionSetTableProcess(props: ProcessProps, ref) {
 
-        const { entityName: currentEntityName = '', forceRefresh } = useCurrentRecord();
-        const [entityName, setEntityName] = useState(currentEntityName);
+        const listRef = useRef<HTMLUListElement | null>(null);
+
+        const { entityName: currentEntityName, forceRefresh } = useCurrentRecord();
+        const [entityName, setEntityName] = useState<string>(currentEntityName ?? '');
 
         useEffect(() => {
             if (currentEntityName)
@@ -129,7 +134,7 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useEffect(() => {
             const allFieldOptions = { ...stateList, ...statusList, ...pickList, ...multiPickList, };
-            const optionSetTable = Object.entries(allFieldOptions).reduce<OptionSetTables>((previousValue: OptionSetTables, [currentLogicalName, currentOptions], currentIndex, array) => {
+            const optionSetTable = Object.entries(allFieldOptions).reduce<OptionSetTables>((previousValue: OptionSetTables, [currentLogicalName, currentOptions]) => {
                 return {
                     ...previousValue,
                     [currentOptions.Name]: {
@@ -145,21 +150,46 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
             setOptionSetTable(optionSetTable);
         }, [pickList, multiPickList, stateList, statusList]);
 
+        const [tablesCopied, setTablesCopied] = useState(false);
+
+        const copyAll = useCallback(() => {
+            const tableElements = Array.from(listRef.current?.querySelectorAll<HTMLTableElement>(`.${TABLE_CLASS}`) ?? []);
+
+            navigator.clipboard.write([
+                new ClipboardItem({
+                    'text/html': new Blob(tableElements.flatMap((tableElement) => [tableElement.outerHTML, "<p></p>"]), {
+                        type: 'text/html',
+                    }),
+                    'text/plain': new Blob(tableElements.flatMap((tableElement) => [tableElement.innerText, '\r\n']), {
+                        type: 'text/plain',
+                    }),
+                }),
+            ]);
+
+            setTablesCopied(true);
+            setTimeout(() => {
+                setTablesCopied(false);
+            }, 1200);
+        }, []);
+
 
         return (
             <ThemeProvider theme={theme}>
                 <Stack spacing={1} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
 
-                    <Stack direction='column' spacing={0.5}>
-                        {/* <Typography variant="h5" overflow='hidden' textOverflow='ellipsis' noWrap>{entityMetadata?.name} ({entityName})</Typography> */}
-                        <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
-                        <Stack direction='row' spacing={1} mt={1} mb={1} >
+                    <Stack direction='column' width='calc(100% - 10px)' spacing={0.5}>
+                        <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>
+                            <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
+                            <Button variant='contained' onClick={forceRefresh} sx={{ whiteSpace: 'nowrap', width: '25%' }}>Refresh</Button>
+                        </Stack>
+                        <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>
                             <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
-                            <Button variant='contained' onClick={forceRefresh}>Refresh</Button>
+                            <Button variant='contained' onClick={copyAll} sx={{ whiteSpace: 'nowrap', width: '25%' }}>{tablesCopied ? "Copied!" : "Copy All"}</Button>
                         </Stack>
                     </Stack>
 
                     <List
+                        ref={listRef}
                         sx={{ height: '100%', width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
                     >
                         {
@@ -168,29 +198,30 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
                                     <CircularProgress sx={{ zoom: '2' }} />
                                 </Stack>
                                 :
-                                <MuiVirtuoso
-                                    data={Object.entries(optionSetTable)}
-                                    itemContent={(index, [pickListLogicalName, metadata]) => {
-                                        const lowerFilter = filter.toLowerCase();
-                                        if (
-                                            pickListLogicalName.toLowerCase().includes(lowerFilter) ||
-                                            metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
-                                            metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
-                                        ) {
-                                            return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
-                                        }
-                                    }}
-                                />
-                            // Object.entries(optionSetTable).map(([pickListLogicalName, metadata]) => {
-                            //     const lowerFilter = filter.toLowerCase();
-                            //     if (
-                            //         pickListLogicalName.toLowerCase().includes(lowerFilter) ||
-                            //         metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
-                            //         metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
-                            //     ) {
-                            //         return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
-                            //     }
-                            // })
+                                Object.entries(optionSetTable).map(([pickListLogicalName, metadata]) => {
+                                    const lowerFilter = filter.toLowerCase();
+                                    if (
+                                        pickListLogicalName.toLowerCase().includes(lowerFilter) ||
+                                        metadata.DisplayName?.toLowerCase().includes(lowerFilter) ||
+                                        metadata.Fields?.join('||').toLowerCase().includes(lowerFilter)
+                                    ) {
+                                        return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
+                                    }
+                                    return null;
+                                })
+                            // <MuiVirtuoso
+                            //     data={Object.entries(optionSetTable)}
+                            //     itemContent={(index, [pickListLogicalName, metadata]) => {
+                            //         const lowerFilter = filter.toLowerCase();
+                            //         if (
+                            //             pickListLogicalName.toLowerCase().includes(lowerFilter) ||
+                            //             metadata.DisplayName.toLowerCase().includes(lowerFilter) ||
+                            //             metadata.Fields.join('||').toLowerCase().includes(lowerFilter)
+                            //         ) {
+                            //             return (<OptionSetTable logicalName={pickListLogicalName} metadata={metadata} />);
+                            //         }
+                            //     }}
+                            // />
                         }
                     </List>
 
@@ -209,13 +240,13 @@ function OptionSetTable(props: OptionSetTableProps) {
 
     const tableRef = useRef<HTMLTableElement | null>(null);
 
-    const [tablecopied, setTablecopied] = useState(false);
-
     const tooltip = useMemo(() => <>
         <Typography><b>DisplayName:</b> {metadata.DisplayName}</Typography>
         <Typography><b>OptionSetType:</b> {metadata.OptionSetType}</Typography>
         <Typography><b>IsCustomOptionSet:</b> {String(metadata.IsCustomOptionSet)}</Typography>
     </>, [metadata]);
+
+    const [tableCopied, setTableCopied] = useState(false);
 
     const copyFn = () => {
         if (!tableRef.current) return;
@@ -234,59 +265,74 @@ function OptionSetTable(props: OptionSetTableProps) {
             }),
         ]);
 
-        setTablecopied(true);
+        setTableCopied(true);
         setTimeout(() => {
-            setTablecopied(false);
-        }, 1500);
+            setTableCopied(false);
+        }, 1200);
     }
+
+    const isExistingStateColumn = useMemo(() => metadata.Options.some(o => o.State !== undefined && o.State !== null), [metadata.Options]);
+    const isExistingDefaultStatusColumn = useMemo(() => metadata.Options.some(o => o.DefaultStatus !== undefined && o.DefaultStatus !== null), [metadata.Options]);
+    const isExistingParentValuesColumn = useMemo(() => metadata.Options.some(o => o.ParentValues && o.ParentValues.length > 0), [metadata.Options]);
+
 
     return (
         <ListItem>
-            <TableContainer key={`tableContainer${logicalName}`} component={Paper}>
-                <Stack direction='row' justifyContent='space-between' alignContent='space-between' ml={1} mr={1} mt={0.5}>
-                    <Stack direction='row' spacing={1} maxWidth='75%'>
-                        <Tooltip title={tooltip} placement='left'>
-                            <Typography variant="h6" overflow='hidden' textOverflow='ellipsis' noWrap>
-                                {metadata.DisplayName}
-                            </Typography>
-                        </Tooltip>
-                        {
-                            metadata.IsGlobal &&
-                            <Typography variant="caption" color='grey.600'>
-                                (Global)
-                            </Typography>
-                        }
+            <TableContainer key={`tableContainer${logicalName}`} component={Paper} elevation={3}>
+                <Stack direction='column' alignItems='center'>
+
+                    <Stack direction='row' justifyContent='space-between' alignContent='space-between' mt={0.5} width='calc(100% - 10px)'>
+                        <Stack direction='row' spacing={1} maxWidth='75%'>
+                            <Tooltip title={tooltip} placement='left'>
+                                <Typography variant="h6" overflow='hidden' textOverflow='ellipsis' noWrap>
+                                    {metadata.DisplayName}
+                                </Typography>
+                            </Tooltip>
+                            {
+                                metadata.IsGlobal &&
+                                <Typography variant="caption" color='grey.600'>
+                                    (Global)
+                                </Typography>
+                            }
+                        </Stack>
+                        <Button variant='outlined' size='small' onClick={copyFn}>
+                            {tableCopied ? "Copied!" : "Copy"}
+                        </Button>
                     </Stack>
-                    <Button variant='outlined' size='small' onClick={copyFn}>
-                        {tablecopied ? "Copied!" : "Copy"}
-                    </Button>
+
+                    <Typography variant="caption" width='calc(100% - 10px)'>
+                        Columns involved: <b>{metadata.Fields.join(', ')}</b>
+                    </Typography>
+
                 </Stack>
-                <Table key={`table_${logicalName}`} ref={tableRef} size='small'>
+                <Table key={`table_${logicalName}`} className={TABLE_CLASS} ref={tableRef} size='small'>
 
                     <TableHead>
                         <TableRow sx={{ display: 'none' }}>
-                            <TableCell colSpan={100}>
-                                <Typography variant="h6" overflow='hidden' textOverflow='ellipsis' noWrap>
+                            <TableCell>
+                                <Typography>
                                     <b>{metadata.DisplayName}</b>
                                 </Typography>
-                                {
-                                    metadata.IsGlobal &&
-                                    <Typography variant="caption" color='grey.600'>
+                            </TableCell>
+                            {
+                                metadata.IsGlobal &&
+                                <TableCell>
+                                    <Typography>
                                         (Global)
                                     </Typography>
-                                }
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell colSpan={100}>
-                                Columns involved: <b>{metadata.Fields.join(', ')}</b>
+                                </TableCell>
+                            }
+                            <TableCell>
+                                <Typography>
+                                    Columns involved: {metadata.Fields.join(', ')}
+                                </Typography>
                             </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell><b>Name</b></TableCell>
-                            {metadata.Options.some(o => o.State !== undefined && o.State !== null) && <TableCell align='right'><b>State</b></TableCell>}
-                            {metadata.Options.some(o => o.DefaultStatus !== undefined && o.DefaultStatus !== null) && <TableCell align='right'><b>DefaultStatus</b></TableCell>}
-                            {metadata.Options.some(o => o.ParentValues && o.ParentValues.length > 0) && <TableCell align='right'><b>ParentValues</b></TableCell>}
+                            {isExistingStateColumn && <TableCell align='right'><b>State</b></TableCell>}
+                            {isExistingDefaultStatusColumn && <TableCell align='right'><b>DefaultStatus</b></TableCell>}
+                            {isExistingParentValuesColumn && <TableCell align='right'><b>ParentValues</b></TableCell>}
                             <TableCell align='right'><b>Value</b></TableCell>
                         </TableRow>
                     </TableHead>
@@ -307,9 +353,9 @@ function OptionSetTable(props: OptionSetTableProps) {
                                     >
                                         <TableRow>
                                             <CopyTableCell copyText={o.Label.UserLocalizedLabel?.Label ?? ''}>{o.Label.UserLocalizedLabel?.Label}</CopyTableCell>
-                                            {o.State !== undefined && o.State !== null && <CopyTableCell align='right' copyText={String(o.State)}>{o.State}</CopyTableCell>}
-                                            {o.DefaultStatus !== undefined && o.DefaultStatus !== null && <CopyTableCell align='right' copyText={String(o.DefaultStatus)}>{o.DefaultStatus}</CopyTableCell>}
-                                            {o.ParentValues && o.ParentValues.length > 0 && <CopyTableCell align='right' copyText={JSON.stringify(o.ParentValues)}>{JSON.stringify(o.ParentValues)}</CopyTableCell>}
+                                            {isExistingStateColumn && <CopyTableCell align='right' copyText={String(o.State)}>{o.State}</CopyTableCell>}
+                                            {isExistingDefaultStatusColumn && <CopyTableCell align='right' copyText={String(o.DefaultStatus)}>{o.DefaultStatus}</CopyTableCell>}
+                                            {isExistingParentValuesColumn && <CopyTableCell align='right' copyText={JSON.stringify(o.ParentValues)}>{JSON.stringify(o.ParentValues)}</CopyTableCell>}
                                             <CopyTableCell align='right' copyText={String(o.Value)}>{o.Value}</CopyTableCell>
                                         </TableRow>
                                     </Tooltip>

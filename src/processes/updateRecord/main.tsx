@@ -161,7 +161,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         }
 
         const setCurrentRecord = useCallback(() => {
-            const entityName = Xrm.Utility.getPageContext()?.input?.entityName;
+            const entityName = formContext ? formContext.data?.entity?.getEntityName() : Xrm.Utility.getPageContext()?.input?.entityName;
             const recordid = formatId(formContext?.data?.entity?.getId()?.toLowerCase() ?? '');
             if (!entityName) return;
             setEntityname(entityName);
@@ -831,17 +831,6 @@ function SelectAttribute(props: SelectAttributeProps) {
                     );
                 }
             }}
-            // ListboxComponent={(props) => {
-            //     return (
-            //         <div onMouseDown={props.onMouseDown}>
-            //             <ButtonGroup fullWidth size='small'>
-            //                 <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
-            //                 <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
-            //             </ButtonGroup>
-            //             <ul {...props} />
-            //         </div>
-            //     );
-            // }}
             sx={{
                 mt: 0.5,
                 mb: 0.5,
