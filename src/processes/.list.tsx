@@ -14,7 +14,7 @@ import pluginTraceLogsExplorer from './pluginTraceLogsExplorer/main';
 import optionSetTable from './optionSetTable/main';
 import entitiesList from './entitiesList/main';
 import metadataBrowser from './metadataBrowser/MetadataBrowser';
-import formToolsV2 from './formtoolv2/main';
+import formToolsV2 from './formToolsv2/main';
 
 const Processes: ProcessButton[] = [
     // formTools,
@@ -52,4 +52,3 @@ export default Processes;
 // Workflow Activities Explorer
 // OptionSet: Ajouter un bouton CopyAll
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
-// impersonate: email address peut etre null
