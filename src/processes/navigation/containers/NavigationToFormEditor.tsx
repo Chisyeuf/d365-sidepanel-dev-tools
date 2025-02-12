@@ -12,11 +12,12 @@ import { RetrieveFirstRecordInterval } from '../../../utils/hooks/XrmApi/Retriev
 import RedDisabledButton from '../../../utils/components/RedDisabledButton';
 import D365RibbonHomePageIcon from '../../../utils/components/D365RibbonHomePageIcon';
 import { RetrieveObjectTypeCodeByName } from '../../../utils/hooks/XrmApi/RetrieveObjectTypeCodeByName';
+import { useFormContextDocument } from '../../../utils/hooks/use/useFormContextDocument';
 
 function FormEditor(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
-    const formContext = useCurrentFormContext();
+    const { formContext } = useFormContextDocument();
 
     const [defaultSolution, isFetchingDefaultSolution] = RetrieveFirstRecordInterval('solution', ['solutionid'], 'isvisible eq true', 'installedon asc');
 
@@ -27,8 +28,8 @@ function FormEditor(props: NavigationButton) {
     const [currentEntityTypeCode, isFetchingTypeCode] = RetrieveObjectTypeCodeByName(currentEntityName ?? '');
 
 
-    const powerAppsEnabled = useMemo(() => !!defaultSolutionId && !!currentFormId && !!currentEntityName, [defaultSolutionId, currentFormId, currentEntityName]);
-    const oldInterfaceEnabled = useMemo(() => !!currentFormId && !!currentEntityTypeCode, [currentFormId, currentEntityTypeCode]);
+    const powerAppsDisabled = useMemo(() => !environmentId || !defaultSolutionId || !currentFormId || !currentEntityName, [defaultSolutionId, currentFormId, currentEntityName]);
+    const oldInterfaceDisabled = useMemo(() => !currentFormId || !currentEntityTypeCode, [currentFormId, currentEntityTypeCode]);
 
 
     function handleClickPowerApps() {
@@ -64,7 +65,7 @@ function FormEditor(props: NavigationButton) {
 
                     <Tooltip placement='top' title={`Edit ${currentFormName} form in old interface`}>
                         <RedDisabledButton
-                            disabled={!powerAppsEnabled}
+                            disabled={oldInterfaceDisabled}
                             variant='outlined'
                             onClick={handleClickOldSolution}
                             startIcon={<D365RibbonHomePageIcon iconX={-477} iconY={-521} width={20} />}
@@ -85,7 +86,7 @@ function FormEditor(props: NavigationButton) {
 
                     <Tooltip placement='top' title={`Edit ${currentFormName} form in PowerApps`}>
                         <RedDisabledButton
-                            disabled={!oldInterfaceEnabled}
+                            disabled={powerAppsDisabled}
                             variant='outlined'
                             onClick={handleClickPowerApps}
                             startIcon={<PowerAppsIcon />}

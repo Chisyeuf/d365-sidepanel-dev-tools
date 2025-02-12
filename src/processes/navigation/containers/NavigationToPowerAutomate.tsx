@@ -19,7 +19,7 @@ function ToPowerAutomate(props: NavigationButton) {
                 <Button
                     variant='outlined'
                     onClick={handleClick}
-                    startIcon={<img height='20px' src="https://make.powerautomate.com/favicon.ico" />}
+                    startIcon={<img height='20px' src="https://make.powerautomate.com/favicon.ico" alt='powerautomate' />}
                     sx={{
                         width: '100%',
                         maxWidth: 'calc(100% - 10px)',

@@ -103,7 +103,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const extensionId = GetExtensionId();
 
-        const sendNewUserToBackground = (newUser: ActiveUser | null) => {
+
+        const sendNewUserToBackground = useCallback((newUser: ActiveUser | null) => {
             const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl(), isOnPrem: isOnPrem };
             chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
                 function (response) {
@@ -111,14 +112,14 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-        }
+        }, [extensionId, isOnPrem]);
 
         const handleSelect = useCallback((user: typeof activeUsers[0]) => () => {
             setUserSelected(
                 (oldUser) => oldUser?.systemuserid !== user.systemuserid ? user : null,
                 sendNewUserToBackground
             );
-        }, [setUserSelected, sendNewUserToBackground]);
+        }, [sendNewUserToBackground, setUserSelected]);
 
 
         useEffect(() => {
@@ -146,7 +147,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-        }, [activeUsers]);
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [activeUsers, setUserSelected]);
 
 
         useEffectOnce(
@@ -242,7 +244,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                                                 return null;
                                             }
 
-                                            if (!user.fullname.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
+                                            if (!user.fullname?.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress?.toLowerCase().includes(filter.toLowerCase())) {
                                                 return null;
                                             }
 

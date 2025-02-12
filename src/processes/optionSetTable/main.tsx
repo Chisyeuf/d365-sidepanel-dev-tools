@@ -108,7 +108,7 @@ type OptionSetTables = {
 const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
     function OptionSetTableProcess(props: ProcessProps, ref) {
 
-        const { entityName: currentEntityName = '', isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
+        const { entityName: currentEntityName = '', forceRefresh } = useCurrentRecord();
         const [entityName, setEntityName] = useState(currentEntityName);
 
         useEffect(() => {

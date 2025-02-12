@@ -38,7 +38,7 @@ class FormToolsButtonV2 extends ProcessButton {
     constructor() {
         super(
             'formtoolsv2',
-            'Form Tools V2',
+            'Form Tools',
             <HandymanIcon />,
             56
         );
@@ -122,11 +122,10 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
         const { isDebug } = useSpDevTools();
 
         const mainStackRef = useRef<HTMLDivElement>(null);
-        const { height, width } = useWindowSize();
-        const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [height, width]);
-        // const isScollTop = useMemo(() => mainStackRef.current && mainStackRef.current.scrollTop <= 10, [height, width, mainStackRef.current?.scrollTop]);
-        // const isScollBottom = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight - 10 <= mainStackRef.current.clientHeight + mainStackRef.current.scrollTop, [height, width, mainStackRef.current?.scrollTop]);
-
+        // const { height, width } = useWindowSize();
+        const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [mainStackRef]);
+        
+        
         return (
             <ThemeProvider theme={theme}>
                 <Stack height='100%' justifyContent='space-between'>

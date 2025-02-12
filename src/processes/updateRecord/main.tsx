@@ -2,7 +2,7 @@
 
 // Import statements
 import React, {
-    Dispatch, forwardRef, SetStateAction, useCallback, useEffect, useImperativeHandle,
+    Dispatch, forwardRef, SetStateAction, useCallback, useEffect,
     useMemo, useState
 } from 'react';
 import { useBoolean } from 'usehooks-ts';
@@ -12,7 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 // Material UI imports
-import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider, Tooltip } from '@mui/material';
+import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -30,11 +30,10 @@ import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.pro
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
 // Common functions and types
-import { capitalizeFirstLetter, debugLog, formatId } from '../../utils/global/common';
+import { debugLog, formatId } from '../../utils/global/common';
 import { AttributeMetadata, getReadableMSType, MSDateFormat, MSType } from '../../utils/types/requestsType';
 
 // Xrm API hooks
-import XrmObserver from '../../utils/global/XrmObserver';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import { RetrieveAttributesMetaData } from '../../utils/hooks/XrmApi/RetrieveAttributesMetaData';
@@ -43,11 +42,11 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import SplitButton from '../../utils/components/SplitButton';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
-import usePrevious from '../../utils/hooks/use/usePrevious';
 import { useUpdateEffect } from '@custom-react-hooks/all';
 import { useSnackbar } from 'notistack';
+import { useSpDevTools } from '../../utils/global/context';
+import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
+import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 
 
 class UpdateRecordButton extends ProcessButton {
@@ -72,9 +71,9 @@ class UpdateRecordButton extends ProcessButton {
     }
 }
 
-const rowHeight = 42.625
+const ROW_HEIGHT = 42.625;
 
-const defaultTheme = createTheme()
+const defaultTheme = createTheme();
 const theme = createTheme({
     components: {
         MuiStack: {
@@ -136,22 +135,19 @@ const theme = createTheme({
             ]
         }
     }
-})
+});
 
 
 const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     function UpdateRecordProcess(props: ProcessProps, ref) {
 
-        useImperativeHandle(ref, () => ({
-            onClose() {
-                XrmObserver.removeListener(xrmObserverCallback);
-            },
-        }));
-
-        const {enqueueSnackbar} = useSnackbar();
+        const { isDebug } = useSpDevTools();
+        const { enqueueSnackbar } = useSnackbar();
+        const { formContext } = useFormContextDocument();
+        const { xrmUpdated } = useXrmUpdated();
 
         const [entityName, _setEntityname] = useState<string>(Xrm.Utility.getPageContext()?.input?.entityName);
-        const [recordsIds, setRecordsIds] = useState<string[]>(Xrm.Page.data?.entity ? [formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase())] : []);
+        const [recordsIds, setRecordsIds] = useState<string[]>(formContext?.data?.entity ? [formatId(formContext.data.entity.getId()?.toLowerCase())] : []);
 
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
@@ -166,14 +162,14 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const setCurrentRecord = useCallback(() => {
             const entityName = Xrm.Utility.getPageContext()?.input?.entityName;
-            const recordid = formatId(Xrm.Page.data?.entity?.getId()?.toLowerCase());
+            const recordid = formatId(formContext?.data?.entity?.getId()?.toLowerCase() ?? '');
             if (!entityName) return;
             setEntityname(entityName);
             setTimeout(() => {
                 setRecordsIds(recordid ? [recordid] : []);
             }, 100);
 
-        }, []);
+        }, [formContext]);
 
         useUpdateEffect(() => {
             toggleResetAttributes();
@@ -184,18 +180,24 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
             toggleResetEntity();
         }, [entityName]);
 
-
-        const xrmObserverCallback = () => {
+        useUpdateEffect(() => {
             if (entityName) return;
             setCurrentRecord();
-            XrmObserver.removeListener(xrmObserverCallback);
-        }
+        }, [xrmUpdated]);
 
         useEffect(() => {
-            XrmObserver.addListener(xrmObserverCallback);
-        }, []);
+            const currentEntityName = Xrm.Utility.getPageContext()?.input?.entityName;
+            if (!entityName) {
+                _setEntityname(currentEntityName);
+            }
+            if (formContext && entityName === currentEntityName && recordsIds.length === 0) {
+                setRecordsIds([formContext.data.entity.getId()?.toLowerCase()]);
+            }
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [formContext]);
 
-        const launchUpdate = () => {
+
+        const launchUpdate = useCallback(() => {
             debugLog("Launch Update for", entityName, recordsIds, "with", attributesValues);
 
             if (recordsIds.length === 0 || attributesValueKeys.length === 0) return;
@@ -237,9 +239,9 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 );
             });
-        }
+        }, [attributesValueKeys.length, attributesValues, enqueueSnackbar, entityName, recordsIds]);
 
-        const launchCreate = () => {
+        const launchCreate = useCallback(() => {
             debugLog("Launch Create for", entityName, "with", attributesValues);
 
             if (attributesValueKeys.length === 0) return;
@@ -279,7 +281,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     console.error(error.message);
                 }
             );
-        }
+        }, [attributesValueKeys.length, attributesValues, enqueueSnackbar, entityName]);
 
 
         return (
@@ -302,8 +304,13 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     resetAttributes={resetAttributes}
                     attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
                 />
-                <Divider />
-                <Typography maxHeight='19px'>{entityName + " / " + recordsIds}</Typography>
+                {
+                    isDebug && <>
+                        <Divider />
+                        <Typography maxHeight='19px'>{entityName + " / " + recordsIds}</Typography>
+                    </>
+                }
+
             </Stack>
         );
     }
@@ -363,8 +370,7 @@ function AttributesList(props: AttributesListProps) {
         setSelectedAttribute([]);
     }, [props.resetEntity]);
 
-
-    const nodeContent = useMemo(() =>
+    return (
         !fetchingMetadata
             ?
             <>
@@ -390,7 +396,7 @@ function AttributesList(props: AttributesListProps) {
                                 )
                             })
                             :
-                            [...Array(16)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)
+                            [...Array(16)].map(() => <Skeleton variant='rounded' height={ROW_HEIGHT + 'px'} />)
                     }
                 </Stack>
             </>
@@ -398,10 +404,7 @@ function AttributesList(props: AttributesListProps) {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress size={100} thickness={4.5} />
             </div>
-        , [fetchingMetadata, fetchingValues, filter, selectedAttribute, selectableAttribute]
     );
-
-    return (nodeContent);
 }
 
 type AttributeNodeProps = {
@@ -460,6 +463,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
             resetToRemove();
             props.unselectAttribute([props.attribute]);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.unselectAttribute, toRemove, resetToRemove]);
 
     useUpdateEffect(() => {
@@ -467,7 +471,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
     }, [props.resetAttributes]);
 
 
-    const NodeContent: JSX.Element = useMemo(() =>
+    return (
         <Stack
             borderRadius={theme.shape.borderRadius + "px"}
             direction="row"
@@ -524,10 +528,7 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
                 )
             }
         </Stack >
-        , [className, isVisibleStyle, backgroundColorStyle, tooltipText, props.attribute, props.entityname, props.value, props.disabled, props.attributeToUpdateManager, manageDirty.setTrue, manageDirty.setFalse, toReset, toRemove, setToReset, setToRemove]
     );
-
-    return NodeContent;
 });
 
 
@@ -816,17 +817,31 @@ function SelectAttribute(props: SelectAttributeProps) {
                 );
             })}
             groupBy={(option) => groupbyEnabled ? option.MStype : ''}
-            ListboxComponent={(props) => {
-                return (
-                    <div onMouseDown={props.onMouseDown}>
-                        <ButtonGroup fullWidth size='small'>
-                            <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
-                            <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
-                        </ButtonGroup>
-                        <ul {...props} />
-                    </div>
-                );
+            slots={{
+                listbox: (props) => {
+                    return (
+                        // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+                        <div onMouseDown={props.onMouseDown}>
+                            <ButtonGroup fullWidth size='small'>
+                                <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
+                                <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
+                            </ButtonGroup>
+                            <ul {...props} />
+                        </div>
+                    );
+                }
             }}
+            // ListboxComponent={(props) => {
+            //     return (
+            //         <div onMouseDown={props.onMouseDown}>
+            //             <ButtonGroup fullWidth size='small'>
+            //                 <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
+            //                 <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
+            //             </ButtonGroup>
+            //             <ul {...props} />
+            //         </div>
+            //     );
+            // }}
             sx={{
                 mt: 0.5,
                 mb: 0.5,

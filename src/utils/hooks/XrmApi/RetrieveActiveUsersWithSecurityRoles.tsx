@@ -42,7 +42,7 @@ export async function ConvertToActiveUserObject(user:any) {
             azureObjectId: user["azureactivedirectoryobjectid"],
             emailAddress: user["internalemailaddress"],
             entityimage_url: user["entityimage_url"],
-            securityRoles: (user.systemuserroles_association as any[]).map<SecurityRole>((role: any) => {
+            securityRoles: (user.systemuserroles_association as any[])?.map<SecurityRole>((role: any) => {
                 return {
                     name: role["name"],
                     roleid: role["roleid"],

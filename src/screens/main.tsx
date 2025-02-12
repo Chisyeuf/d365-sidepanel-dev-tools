@@ -110,36 +110,39 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         );
     }, [extensionId]);
 
-    const setPageStyle = async () => {
-        setStyle(document, 'drawerbuttonsmain', {
-            "#shell-container": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px)`],
-        });
-
-        let dynamicsmainscreenWidth = 0;
-        if (!isForegroundPanes && panelOpenedId !== null) {
-            if (panelOpenedId !== MAIN_MENU_ID && openedProcesses[panelOpenedId].widthNumber > 0) {
-                dynamicsmainscreenWidth = openedProcesses[panelOpenedId].widthNumber;
-            }
-            else {
-                dynamicsmainscreenWidth = MAIN_MENU_WIDTH;
-            }
-        }
-        setStyle(document, 'resizedynamicsmainscreen', {
-            "#ApplicationShell > *:not(*:first-child)": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
-            // "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
-            "[id^=DialogContainer]": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px - ${dynamicsmainscreenWidth}px)`],
-            "[id*=__flyoutRootNode] > div > div": ["z-index: 1200"],
-        });
-    };
 
     useEffect(() => {
+        const setPageStyle = async () => {
+            setStyle(document, 'drawerbuttonsmain', {
+                "#shell-container": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px)`],
+            });
+
+            let dynamicsmainscreenWidth = 0;
+            if (!isForegroundPanes && panelOpenedId !== null) {
+                if (panelOpenedId !== MAIN_MENU_ID && openedProcesses[panelOpenedId].widthNumber > 0) {
+                    dynamicsmainscreenWidth = openedProcesses[panelOpenedId].widthNumber;
+                }
+                else {
+                    dynamicsmainscreenWidth = MAIN_MENU_WIDTH;
+                }
+            }
+            setStyle(document, 'resizedynamicsmainscreen', {
+                "#ApplicationShell > *:not(*:first-child)": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+                // "#mainContent > *:first-child": [`width: calc(100% - ${dynamicsmainscreenWidth}px)`],
+                "[id^=DialogContainer]": [`width: calc(100% - ${DRAWER_BUTTON_CONTAINER_WIDTH}px - ${dynamicsmainscreenWidth}px)`],
+                "[id*=__flyoutRootNode] > div > div": ["z-index: 1200"],
+            });
+        };
+
         setPageStyle();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [panelOpenedId, isForegroundPanes]);
 
     useEffect(() => {
         if (panelOpenedId && openedProcesses[panelOpenedId] && !openedProcesses[panelOpenedId].isPanelProcess) {
             openedProcesses[panelOpenedId].execute();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [panelOpenedId]);
 
 
@@ -162,7 +165,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         setPanelOpenedId(prev => prev !== processid ? processid : null);
     }
 
-    const openProcess = (process: ProcessButton) => {
+    const openProcess = useCallback((process: ProcessButton) => {
         setOpenedProcesses(prev => {
             const alreadyOpenedProcess: ProcessButton | undefined = prev[process.id];
             if (!alreadyOpenedProcess) {
@@ -173,9 +176,9 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             togglePanelDrawer(alreadyOpenedProcess.id);
             return prev;
         })
-    }
+    }, []);
 
-    const closeProcess = (processId: string) => {
+    const closeProcess = useCallback((processId: string) => {
         setOpenedProcesses(prev => {
             const processToCloseIndex: ProcessButton | undefined = prev[processId];
             if (!processToCloseIndex) {
@@ -190,7 +193,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
             const { [processId]: _, ...copy } = prev;
             return copy;
         })
-    }
+    }, []);
 
 
     const toolsButton = useMemo(() => processesList?.filter((process) => !process.hidden).map((value, index) => {
@@ -201,7 +204,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
         } else {
             return toolButton.getFunctionButton();
         }
-    }), [Processes, processesList, openProcess]);
+    }), [processesList, openProcess]);
 
 
     const onDragEnd = (result: DropResult) => {
@@ -261,7 +264,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                 boxShadow: 'unset'
                             }}
                         >
-                            <img src={GetUrl("icons/muiwandflip.png")} width={24} style={{ fontSize: 'medium' }} />
+                            <img src={GetUrl("icons/muiwandflip.png")} alt='SPDT.icon' width={24} style={{ fontSize: 'medium' }} />
                         </Button>
                     </Tooltip>
 
@@ -364,14 +367,14 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                             <Divider />
                             <Stack spacing={1} mt='5px' direction='row' alignItems='center' ml='auto'>
                                 <Tooltip title={"Github project"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank">
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
                                         <IconButton aria-label="delete" size="small">
                                             <GitHubIcon fontSize="inherit" />
                                         </IconButton>
                                     </a>
                                 </Tooltip>
                                 <Tooltip title={"Report an issue"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank">
+                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank" rel="noreferrer">
                                         <IconButton aria-label="delete" size="small">
                                             <BugReportIcon fontSize="inherit" />
                                         </IconButton>
@@ -433,7 +436,7 @@ function DrawerTool(props: DrawerToolProps) {
         else {
             return process.width;
         }
-    }, [])
+    }, [process.width]);
 
     return (
         <PanelDrawerItem key={`${process.id}-processPanel`} width={width} open={panelOpenedId === process.id}>
@@ -457,7 +460,7 @@ function DrawerTool(props: DrawerToolProps) {
 
 
 
-if (top && top.window === window) {
+if (window.top && window.top.window === window) {
     var loading = setInterval(() => {
         if (!!Xrm) {
             clearInterval(loading);

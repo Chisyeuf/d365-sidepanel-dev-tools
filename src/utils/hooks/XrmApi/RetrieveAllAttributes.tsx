@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
 
 export function RetrieveAllAttributes(entityname: string, recordid: string | undefined): [{ [key: string]: any }, boolean] {
 
-    const [data, setData] = useState<{ [key: string]: any }>({})
-    const [isFetching, setIsFetching] = useState<boolean>(false)
+    const [data, setData] = useState<{ [key: string]: any }>({});
+    const [isFetching, setIsFetching] = useState<boolean>(false);
     const _recordid = recordid;
     const _entityname = entityname;
 

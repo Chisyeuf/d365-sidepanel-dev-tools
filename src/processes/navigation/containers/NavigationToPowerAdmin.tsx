@@ -22,7 +22,7 @@ function PowerAdmin(props: NavigationButton) {
                 <Button
                     variant='outlined'
                     onClick={handleClick}
-                    startIcon={<img height='20px' src='https://admin.powerplatform.microsoft.com/favicon.ico' />}
+                    startIcon={<img height='20px' src='https://admin.powerplatform.microsoft.com/favicon.ico' alt='powerplatform' />}
                     sx={{
                         width: '100%',
                         maxWidth: 'calc(100% - 10px)',

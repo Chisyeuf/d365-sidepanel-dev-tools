@@ -112,7 +112,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [, copy] = useCopyToClipboard();
 
-        const { entityName, isEntityRecord, recordId, forceRefresh } = useCurrentRecord();
+        const { entityName, recordId, forceRefresh } = useCurrentRecord();
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
 
@@ -242,7 +242,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             setTimeout(() => {
                 setCopying(false);
             }, 1500);
-        }, [attributesRawFiltered, copy]);
+        }, [attributesRawFilteredString, copy]);
 
 
         return (

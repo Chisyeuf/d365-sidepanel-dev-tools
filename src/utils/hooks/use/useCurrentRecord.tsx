@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { debugLog, formatId } from "../../global/common";
-import { useXrmUpdated } from "./useXrmUpdated";
 import { useFormContextDocument } from "./useFormContextDocument";
 
 
@@ -10,26 +9,25 @@ export function useCurrentRecord() {
     const [entityName, setEntityName] = useState<string | undefined>(undefined);
     const [recordId, setRecordId] = useState<string | undefined>(undefined);
 
-    const { xrmUpdated } = useXrmUpdated();
-    const { formContext } = useFormContextDocument();
+    const { formContext, d365MainAndIframeUpdated } = useFormContextDocument();
 
     useEffect(() => {
         setIsEntityRecord(!!entityName && !!recordId);
-        debugLog("isEntityRecord", !!entityName && !!recordId);
     }, [entityName, recordId]);
 
     const getCurrentRecord = useCallback((): { entityname: string | undefined, recordid: string | undefined } => {
         const entityname: string | undefined = Xrm.Utility.getPageContext()?.input?.entityName;
         const recordid: string | undefined = formatId(formContext?.data?.entity?.getId().toLowerCase() ?? '');
-        return { entityname: entityname, recordid: recordid };
-    }, []);
+        return { entityname, recordid };
+    }, [formContext]);
 
     useEffect(() => {
         const { entityname: currentEntityname, recordid: currentRecordId } = getCurrentRecord();
         debugLog("useCurrentRecord", "PageId updated", currentEntityname, entityName, currentRecordId, recordId);
         if (currentEntityname !== entityName) setEntityName(currentEntityname);
         if (recordId !== currentRecordId) setRecordId(currentRecordId);
-    }, [xrmUpdated, getCurrentRecord]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [d365MainAndIframeUpdated, getCurrentRecord]);
 
     const forceRefresh = useCallback(() => {
         setEntityName(undefined);

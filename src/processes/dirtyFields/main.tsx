@@ -17,10 +17,12 @@ import CopyMenu from '../../utils/components/CopyMenu';
 import DirtyLensIcon from '@mui/icons-material/DirtyLens';
 import { RetrieveAllAttributes } from '../../utils/hooks/XrmApi/RetrieveAllAttributes';
 import { useCurrentRecord } from '../../utils/hooks/use/useCurrentRecord';
-import { isArraysEquals, setStyle } from '../../utils/global/common';
+import { debugLog, isArraysEquals, setStyle } from '../../utils/global/common';
 import { useBoolean } from 'usehooks-ts';
 import { FormContext } from '../../utils/types/FormContext';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
+import { useSpDevTools } from '../../utils/global/context';
+import Button from '@mui/material/Button';
 
 
 class DirtyFieldsButton extends ProcessButton {
@@ -46,8 +48,9 @@ let theme = createTheme({});
 const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
     function DirtyFieldsButtonProcess(props: ProcessProps, ref) {
 
-        const { d365MainAndIframeUpdated: domUpdated, formContext } = useFormContextDocument();
+        const { d365MainAndIframeUpdated: domUpdated, formContext, formDocument } = useFormContextDocument();
 
+        const { isDebug } = useSpDevTools();
         const { entityName, recordId } = useCurrentRecord();
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
@@ -71,13 +74,13 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
             if (squareFormEnabled) {
                 const selector = dirtyAttributes?.flatMap(attribute => attribute.controls.get().map(control => `[data-control-name='${control.getName()}']>div`)).join(',');
                 if (selector !== undefined) {
-                    setStyle(document, 'styleModifier-dirtyfields', {
+                    setStyle(formDocument ?? document, 'styleModifier-dirtyfields', {
                         [selector]: ['outline: 2px dashed #ff2500', "outline-offset: -2px"]
                     });
                 }
             }
             else {
-                setStyle(document, 'styleModifier-dirtyfields', {});
+                setStyle(formDocument ?? document, 'styleModifier-dirtyfields', {});
             }
         }, [dirtyAttributes, squareFormEnabled]);
 
@@ -88,43 +91,57 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
-                <Stack spacing={4} height='calc(100% - 10px)' padding='10px' alignItems='center'>
-                    <List
-                        sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
-                        component="nav"
-                        subheader={
-                            <ListSubheader component="div" sx={{ lineHeight: 'unset' }}>
-                                <Divider />
-                                <FormControl component="fieldset" variant="standard">
-                                    <FormControlLabel
-                                        control={
-                                            <Switch checked={squareFormEnabled} onClick={toggleSquareFormEnabled} />
+                <Stack height='calc(100% - 10px)' padding='10px'>
+                    <Stack spacing={4} alignItems='center' height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }}>
+                        <List
+                            sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
+                            component="nav"
+                            subheader={
+                                <ListSubheader component="div" sx={{ lineHeight: 'unset' }}>
+                                    <Divider />
+                                    <FormControl component="fieldset" variant="standard">
+                                        <FormControlLabel
+                                            control={
+                                                <Switch checked={squareFormEnabled} onClick={toggleSquareFormEnabled} />
+                                            }
+                                            label="Display in form"
+                                        />
+                                        {
+                                            isDebug.value &&
+                                            <Button onClick={() => debugLog("DirtyFields retrieved attributes:", attributes)}>
+                                                Display Retrieved Attributes
+                                            </Button>
                                         }
-                                        label="Display in form"
-                                    />
-                                </FormControl>
-                                <Divider />
-                            </ListSubheader>
-                        }
-                    >
-                        {
-                            dirtyAttributes.map((attribute, index) => {
-                                const attributeName = attribute.getName();
-                                const attributeValue = getAttributeValueString(attribute);
-                                const oldAttributeSelector = attribute.getAttributeType() === 'lookup' ? `_${attributeName}_value` : attributeName;
-                                return (
-                                    <DirtyAttributeItem
-                                        key={attributeName + 'dirty'}
-                                        currentFormContext={formContext}
-                                        name={attributeName}
-                                        oldValue={attributes[oldAttributeSelector]}
-                                        value={attributeValue}
-                                    />
-                                );
-                            })
-                        }
-                    </List>
+                                    </FormControl>
+                                    <Divider />
+                                </ListSubheader>
+                            }
+                        >
+                            {
+                                dirtyAttributes.map((attribute, index) => {
+                                    const attributeName = attribute.getName();
+                                    const attributeValue = getAttributeValueString(attribute);
+                                    const oldAttributeSelector = attribute.getAttributeType() === 'lookup' ? `_${attributeName}_value` : attributeName;
+                                    return (
+                                        <DirtyAttributeItem
+                                            key={attributeName + 'dirty'}
+                                            currentFormContext={formContext}
+                                            name={attributeName}
+                                            oldValue={attributes[oldAttributeSelector]}
+                                            value={attributeValue}
+                                        />
+                                    );
+                                })
+                            }
+                        </List>
 
+                    </Stack>
+                    {
+                        isDebug.value && <>
+                            <Divider />
+                            <Typography maxHeight='19px' variant='caption'>{entityName + " / " + recordId}</Typography>
+                        </>
+                    }
                 </Stack>
             </ThemeProvider>
         );
@@ -222,7 +239,7 @@ function ValueDisplay(props: ValueDisplayProps) {
                 variant="body2"
                 color="text.primary"
             >
-                {props.value}
+                {props.value !== null ? props.value : <i>null</i>}
             </Typography>
         </Typography>
     )

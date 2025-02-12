@@ -118,6 +118,7 @@ function SolutionList(props: NavigationButton) {
                     <Tooltip placement='top' title={`Open ${solutionName} in PowerApps`}>
                         <RedDisabledButton
                             variant='outlined'
+                            disabled={!environmentId}
                             onClick={handleClickPowerApps}
                             startIcon={<PowerAppsIcon />}
                             sx={{

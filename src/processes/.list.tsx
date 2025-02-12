@@ -1,7 +1,6 @@
 
 import { ProcessButton } from '../utils/global/.processClass';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
-import formTools from './formTools/main';
 import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
@@ -18,7 +17,7 @@ import metadataBrowser from './metadataBrowser/MetadataBrowser';
 import formToolsV2 from './formtoolv2/main';
 
 const Processes: ProcessButton[] = [
-    formTools,
+    // formTools,
     formToolsV2,
     updateRecord,
     allFields,
@@ -30,7 +29,6 @@ const Processes: ProcessButton[] = [
     webResourceEditor,
     pluginTraceLogsExplorer,
     metadataBrowser,
-    // myUserRecord,
     navigation,
     commandDebugger,
     createConfiguration,
@@ -54,5 +52,4 @@ export default Processes;
 // Workflow Activities Explorer
 // OptionSet: Ajouter un bouton CopyAll
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
-// Mettre en place un context global
 // impersonate: email address peut etre null
