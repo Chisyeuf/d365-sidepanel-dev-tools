@@ -54,6 +54,11 @@ class RelatedRecordsButton extends ProcessButton {
             450
         );
         this.process = RelatedRecordsProcess;
+        this.description = <>
+            <Typography><i>Explore entity relationships and related records.</i></Typography>
+            <Typography>This tool displays <b>all relationships associated</b> with the selected entity. It also lists <b>related records</b> for the selected record.</Typography>
+            <Typography><u>To view a record in detail, click on it to open a dialog</u>. Alternatively, you can access a contextual menu <i>(right-click)</i> for other opening options.</Typography>
+        </>
     }
 }
 
@@ -86,7 +91,7 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
                     setLoading(false);
                 }
             }
-        }, [currentEntityName, currentRecordId, resetRecord]);
+        }, [currentEntityName, currentRecordId, loading, resetRecord]);
 
         const setEntityName = useCallback((newValue: string) => {
             _setEntityName(newValue);
@@ -145,14 +150,15 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
     const numberOfRelationshipChipHovered = useHover(numberOfRelationshipChip);
 
     const numberOfRelationshipBig = useMemo(() => {
-        if (!relatedRecords) return '?';
+        if (!relationShipMetadataList) return '?';
         return relationShipMetadataList.length;
-    }, [relatedRecords]);
+    }, [relationShipMetadataList]);
+    
     const numberOfRelationshipSmall = useMemo(() => {
-        if (!relatedRecords) return '?';
+        if (!relationShipMetadataList) return '?';
         const max = 999;
         return relationShipMetadataList.length > max ? max + '+' : relationShipMetadataList.length;
-    }, [relatedRecords]);
+    }, [relationShipMetadataList]);
 
     useEffect(() => {
         setSortArray((new Array(relationShipMetadataList.length)).fill(-1));
@@ -248,13 +254,13 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
                     navigationPropertyName: relationShipMetadata.ReferencingEntityNavigationPropertyName
                 }];
         }
-    }, [relationShipMetadata]);
+    }, [entityName, relationShipMetadata]);
 
     const [relatedRecordsDict, isFetching] = RetrieveRelatedRecords(entityName, recordId, relationShipFetchInfo);
 
     const relatedRecords = useMemo(() => {
         return relatedRecordsDict[relationShipMetadata.SchemaName];
-    }, [relatedRecordsDict]);
+    }, [relatedRecordsDict, relationShipMetadata.SchemaName]);
 
 
     const numberOfRecordsChip = useRef(null);
@@ -324,7 +330,7 @@ const RelationShipItem = React.memo((props: RelationShipItemProps) => {
         </List>
     }, [relationShipMetadata]);
 
-    const isVisible = useMemo(() => relationShipMetadata.SchemaName.toLowerCase().includes(filter.toLowerCase()), [filter]);
+    const isVisible = useMemo(() => relationShipMetadata.SchemaName.toLowerCase().includes(filter.toLowerCase()), [filter, relationShipMetadata.SchemaName]);
 
 
     return (

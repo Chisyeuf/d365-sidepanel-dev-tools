@@ -1,9 +1,12 @@
 
-import React from "react";
-import { Button } from '@mui/material';
-import { ProviderContext as SnackbarProviderContext, useSnackbar } from "notistack";
+import React, { forwardRef, useMemo } from "react";
+import { Box, Button, Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { useSnackbar } from "notistack";
 import { PROJECT_PREFIX } from "./var";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
+import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone';
+import Zoom from '@mui/material/Zoom';
+
 
 export abstract class ProcessButton {
     static prefixId: string = PROJECT_PREFIX;
@@ -20,6 +23,8 @@ export abstract class ProcessButton {
 
     process?: React.ForwardRefExoticComponent<ProcessProps & React.RefAttributes<ProcessRef>>;
     processContainer?: React.FunctionComponent<{ children: React.ReactNode | React.ReactNode[] }>;
+
+    description: React.ReactNode = "No description.";
 
     ref: React.RefObject<ProcessRef>;
 
@@ -51,7 +56,7 @@ export abstract class ProcessButton {
     }
 
     getOpeningButton(onClick: (process: ProcessButton) => any): React.JSX.Element {
-        return <ButtonProcess_Bis icon={this.menuButtonIcon} name={this.menuButtonName} onClick={() => onClick(this)} processButton={this} />
+        return <ButtonProcess onClick={() => onClick(this)} processButton={this} />
     }
 
     getFunctionButton(): React.JSX.Element {
@@ -65,12 +70,12 @@ export abstract class ProcessButton {
         this.ref.current?.onClose?.();
     }
 
-    onExtensionLoad(snackbarProviderContext: SnackbarProviderContext): void {
+    onExtensionLoad(snackbarProviderContext: ReturnType<typeof useSnackbar>): void {
     }
 }
 
-const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (process: ProcessButton) => any, icon: React.ReactNode, name: string | JSX.Element }) => {
-    const { icon, name, onClick, processButton } = props;
+const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any }) => {
+    const { onClick, processButton } = props;
 
     const snackbarProviderContext = useSnackbar();
 
@@ -78,10 +83,83 @@ const ButtonProcess_Bis = (props: { processButton: ProcessButton, onClick: (proc
         processButton.onExtensionLoad(snackbarProviderContext);
     });
 
+    const tooltipTitle = useMemo(() => (
+        <Paper variant='outlined' sx={{ py: 1, px: 2 }}>
+            <Stack direction='column' spacing={0.5}>
+                <Stack direction='row' spacing={2} alignItems='flex-end' pl={1}>
+                    <Box>{processButton.panelButtonIcon}</Box>
+                    <Typography variant='h6'>{processButton.menuButtonName}</Typography>
+                </Stack>
+                <Divider />
+                <Box p={1}>
+                    {processButton.description}
+                </Box>
+            </Stack>
+        </Paper>
+    ), []);
+
+
     return (
-        <Button variant="contained" size="medium" sx={{ whiteSpace: 'nowrap' }} fullWidth onClick={() => onClick(processButton)} endIcon={icon} >{name}</Button>
+        <Button
+            variant="contained"
+            size="medium"
+            sx={{
+                whiteSpace: 'nowrap',
+                pl: 0.75,
+                '&:hover .helpInfo': { visibility: 'visible' }
+            }}
+            fullWidth
+            onClick={onClick}
+        >
+            <Stack direction='row' width='100%' spacing='2px' minWidth={0} justifyContent='space-between' >
+                <Tooltip
+                    title={tooltipTitle}
+                    placement='left'
+                    disableInteractive
+                    arrow
+                    enterDelay={800}
+                    slots={{
+                        transition: Zoom,
+                    }}
+                    slotProps={{
+                        // popper: {
+                        //     sx: {
+                        //         maxWidth: '540px'
+                        //     }
+                        // },
+                        tooltip: {
+                            sx: {
+                                fontSize: '1.2rem',
+                                p: 0,
+                                maxWidth: '540px'
+                            }
+                        },
+                        arrow: {
+                            sx: {
+                                "::before": {
+                                    bgcolor: 'background.paper'
+                                }
+                            }
+                        },
+                    }}
+                >
+                    <HelpTwoToneIcon className='helpInfo' visibility='hidden' />
+                </Tooltip>
+                <Stack direction='row' spacing={1} width='100%' minWidth={0} justifyContent='center'>
+                    <Box>{processButton.menuButtonName}</Box>
+                    {processButton.menuButtonIcon}
+                </Stack>
+
+            </Stack>
+        </Button>
     );
 }
+// const ButtonProcessTooltip = forwardRef((props: any, ref: any) => {
+//     const { sx, ...otherProps } = props;
+//     return (
+//         <Paper variant='outlined' ref={ref} sx={{ m: 2, ...sx }} {...otherProps} />
+//     );
+// });
 
 function ErrorProcess() {
     return <div>Process not implemented.</div>

@@ -21,6 +21,9 @@ class EntityListButton extends ProcessButton {
             300
         );
         this.process = EntityListProcess;
+        this.description = <>
+            Description to provide.
+        </>
     }
 }
 
@@ -57,7 +60,7 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
                         data={entitiesFiltered}
                         itemContent={(index, entity) => {
                             return (
-                                <ListItem key={`EntityListItem-${entity.logicalname}`}  sx={{ p: 0 }}>
+                                <ListItem key={`EntityListItem-${entity.logicalname}`} sx={{ p: 0 }}>
                                     <ListItemButton
                                         key={`EntityListButton-${entity.logicalname}`}
                                         sx={{ pt: 0, pb: 0 }}

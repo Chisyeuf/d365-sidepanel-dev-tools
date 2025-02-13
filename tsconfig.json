@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "es6",
-      "dom",
-      "ES2022"
-      // "dom.iterable",
-      // "esnext",
-      // "ESNext.Array"
-    ],
+    "target": "es2022",
+    // "lib": [
+    //   "es6",
+    //   "dom",
+    //   "ESNext"
+    //   // "dom.iterable",
+    //   // "esnext",
+    //   // "ESNext.Array"
+    // ],
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -33,10 +33,11 @@
     "importHelpers": true,
   },
   "include": [
-    "src"
+    "src", 
   ],
   "exclude": [
     "node_modules", 
+    "archives",
     "**/.*/"
   ]
 }

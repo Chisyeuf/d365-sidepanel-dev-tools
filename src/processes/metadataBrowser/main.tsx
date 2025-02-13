@@ -15,6 +15,9 @@ class MetadataBrowserButton extends ProcessButton {
             '100%'
         );
         this.process = MetadataBrowserProcess;
+        this.description = <>
+            Description to provide.
+        </>
     }
 }
 

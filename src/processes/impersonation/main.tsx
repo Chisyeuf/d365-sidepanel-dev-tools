@@ -40,6 +40,7 @@ import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 import { useSpDevTools } from '../../utils/global/spContext';
+import Grid2 from '@mui/material/Grid2';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -50,6 +51,16 @@ class ImpersonationButton extends ProcessButton {
             350
         );
         this.process = ImpersonationProcess;
+        this.description = <>
+            <Typography><i>Empower yourself with the ability to impersonate any user on your environment.</i></Typography>
+            <Typography>The list of users you can impersonate depends on the environment type:</Typography>
+            <List sx={{ listStyleType: 'disc', ml: 3, pt: 0 }}>
+                <Typography component='li'><b>Online</b>: Enabled users with valid licenses associated with a security role.</Typography>
+                <Typography component='li'><b>On-Premise</b>: Enabled users associated with a security role.</Typography>
+            </List>
+            <Typography>You can <b>filter</b> the list by <b>name</b>, <b>email address</b> and even with <b>security roles</b>.</Typography>
+            <Typography>You can also check each user's security by hovering over their entry in the list.</Typography>
+        </>
     }
 
     onExtensionLoad(snackbarProviderContext: ProviderContext): void {

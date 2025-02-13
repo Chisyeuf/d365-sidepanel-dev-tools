@@ -28,6 +28,16 @@ class WebResourceEditor extends ProcessButton {
             300
         );
         this.process = WebResourceEditorProcess;
+        this.description = <>
+            <Typography><i>Edit, test, and publish - all within your browser!</i></Typography>
+            <Typography>This tool adds an <b>editor directly to your browser</b>, allowing you to modify web resources with ease. No more tedious updates and publishing. <u>You can test your changes live locally</u>, seeing the results instantly.</Typography>
+            <Typography>Here are the key features:</Typography>
+            <List sx={{ listStyleType: 'disc', ml: 3, pt: 0 }}>
+                <Typography component='li'><b>Edit</b>: <u>Modify any loaded file</u> on the current page using the <i>Monaco Editor</i>, the same robust code editor that powers <i>VS Code</i>.</Typography>
+                <Typography component='li'><b>Live Test</b>: After saving your changes, enable live testing. This reloads your page in debug mode, <u>allowing your edited scripts to override the originals</u>.</Typography>
+                <Typography component='li'><b>Publish</b>: Once you're satisfied with your modifications, <u>publish the files</u> to make them permanent.</Typography>
+            </List>
+        </>
     }
 
 }

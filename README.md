@@ -47,7 +47,7 @@ The main menu can be opened or closed by clicking on the magic wand. The display
 
 Randomize, visualize, and master your data.
 
-This tool provide functionnalities used on records form. Each button are reversible : it can be activated or deactivated without refreshing the page.
+This tool provide functionnalities used on records form. Each button are reversible: it can be activated or deactivated without refreshing the page.
 
 1. Label Tools: `Display or hide logical names next to field names. Logical names can be clicked to be copied.`
    * Show/Hide Tab and Section logical names
@@ -77,7 +77,7 @@ This tool provide functionnalities used on records form. Each button are reversi
 ## 2\. Update Records
 <img align="right" src="screenshots/jpg/2.UpdateRecords.jpg">
 
-Save time and effort with updates.
+Save time and effort with creates and updates.
 
 With this tool, you can update any field of any record on your environment. You can even update multiple records at once for bulk updates.
 
@@ -156,9 +156,9 @@ To view a record in detail, click on it to open a dialog. Alternatively, you can
 
 Edit, test, and publish - all within your browser!
 
-This tool adds an editor directly to your browser, allowing you to modify web resources with ease. No more tedious updates or deployments! You can test your changes live in local, seeing the results instantly.
+This tool adds an editor directly to your browser, allowing you to modify web resources with ease. No more tedious updates and publishing. You can test your changes live locally, seeing the results instantly.
 
-Here's how it works:
+Here are the key features:
 
 1. **Edit**: `Modify any loaded file on the current page using the Monaco Editor, the same robust code editor that powers VS Code.`
 2. **Live Test**: `After saving your changes, enable live testing. This reloads your page in debug mode, allowing your edited scripts to override the originals.`
@@ -173,7 +173,7 @@ Here's how it works:
 
 Empower yourself with the ability to impersonate any user on your environment.
 
-The user list is :
+The list of users you can impersonate depends on the environment type:
 * Online: `Enabled users with valid licenses associated with a security role`
 * OnPremise: `Enabled users associated with a security role`
 
@@ -190,9 +190,9 @@ You can also check each user's security by hovering over their entry in the list
 
 Tired of sifting through cluttered and unoptimized log lists?
 
-The Plugin Trace Logs Explorer provides a streamlined way to view and analyze logs for plugins and custom workflows. Enjoy:
+The Plugin Trace Logs Explorer provides a streamlined way to view and analyze logs for plugins and custom workflows:
 * **Enhanced Information**: `Access detailed log information with a clear and easy-to-read layout.`
-* **Efficient Filtering**: `Quickly find the logs you need by filtering by involved entity, message name, and date range.`
+* **Efficient Filtering**: `Quickly find the logs by filtering by involved entity, message name, and date range.`
 * **Log Correlation**: `After selecting a log, explore the correlation — a view of all related processes, both before and after the selected log.`
 
 <img height="430px" width="0px">
@@ -208,6 +208,8 @@ This tool provides quick access to various essential resources:
 * **Solutions**: `Opens the solution list or the selected solution in an other tab. Choose between the classic interface or PowerApps.`
 * **Form Editor**: `Opens the form editor of the currently opened form in an other tab. Choose between the classic interface or PowerApps.`
 * **Advanced Find**: `Opens the good old Advanced Find in a new tab, automatically focusing on the currently viewed entity.`
+* **Power Automate**
+* **Admin Power Platform**
 * **Environments**: `Opens the environment list of the tenant on admin center.`
 * **Azure Portal**: `Opens the tenant's Azure portal.`
 * **Security**: `Opens the classic interface security page of the advanced settings.`
@@ -228,7 +230,7 @@ This button enable or disable the debugger for model-app ribbons.
 ## 12. Configuration Manager
 <img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
 
-Configure your Dynamics 365 SidePanel experience.
+Configure your SidePanel Tools experience.
 
 This tool lets you select which tools automatically open when a page loads. You can also specify a tool to be expanded by default.
 

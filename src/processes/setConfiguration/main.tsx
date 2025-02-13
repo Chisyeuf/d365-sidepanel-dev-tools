@@ -29,6 +29,11 @@ class SetConfigurationButton extends ProcessButton {
             300
         );
         this.process = SetConfigurationProcess;
+        this.description = <>
+            <Typography><i>Configure your SidePanel Tools experience.</i></Typography>
+            <Typography>This tool lets you select which tools <b>automatically open</b> when a page loads. You can also specify a tool to be <b>expanded by default</b>.</Typography>
+            <Typography>A <i>"foreground"</i> option is available to <u>disable automatic width adjustments</u> of the main Dynamics screen.</Typography>
+        </>
     }
 }
 
@@ -164,7 +169,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     setIsForegroundPanes(response ?? false);
                 }
             );
-        }, []);
+        }, [extensionId]);
 
 
         function CreateConfiguration() {
@@ -214,7 +219,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             return opened;
         }, [processesList]);
 
-        const closedProcesses = useMemo(() => Processes.map(processButton => processesList.find(process => !process.startOnLoad && process.id === processButton.id)).filter((p): p is StorageConfiguration => !!p), [Processes, processesList]);
+        const closedProcesses = useMemo(() => Processes.map(processButton => processesList.find(process => !process.startOnLoad && process.id === processButton.id)).filter((p): p is StorageConfiguration => !!p), [processesList]);
 
         function onDragEnd(result: DropResult) {
             if (!result.destination) {
@@ -280,7 +285,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
                 <Divider />
 
-                <FormControl fullWidth  sx={{ pl: 2 }}>
+                <FormControl fullWidth sx={{ pl: 2 }}>
                     <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
                     {/* {!isOnPrem && <FormControlLabel control={<Switch checked={useStandardPanels} onChange={() => setUseStandardPanels(prev => !prev)} />} label="Use Standard Panels" />} */}
                 </FormControl>

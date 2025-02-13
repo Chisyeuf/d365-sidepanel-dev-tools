@@ -43,6 +43,12 @@ class FormToolsButtonV2 extends ProcessButton {
             56
         );
         this.process = FormToolsProcessV2;
+        this.description = <>
+            <Typography><i>Randomize, visualize, and master your data.</i></Typography>
+            <Typography>This tool provide functionnalities used on records form.</Typography>
+            <Typography>You will be able to <b>display logical names</b>, <b>manage field controls</b>, refresh data, <b>fill fields</b> with random data, <b>clone your records</b> and <b>blur sensitive informations</b>.</Typography>
+            <Typography><u>Some buttons are reversible</u>: it can be activated or deactivated without refreshing the page.</Typography>
+        </>
     }
 
     reStyleSidePane(sidePane: HTMLElement | null, sidePaneContent?: HTMLElement | null, header?: HTMLElement | null, title?: HTMLElement | null, closeButton?: HTMLElement | null): void {
@@ -124,8 +130,8 @@ const FormToolsProcessV2 = forwardRef<ProcessRef, ProcessProps>(
         const mainStackRef = useRef<HTMLDivElement>(null);
         // const { height, width } = useWindowSize();
         const isScollEnable = useMemo(() => mainStackRef.current && mainStackRef.current.scrollHeight > mainStackRef.current.clientHeight, [mainStackRef]);
-        
-        
+
+
         return (
             <ThemeProvider theme={theme}>
                 <Stack height='100%' justifyContent='space-between'>

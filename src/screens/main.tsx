@@ -1,6 +1,6 @@
 import '../utils/components/DetailsSnackbar';
 
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
@@ -44,7 +44,7 @@ const MainScreen: React.FunctionComponent = () => {
 }
 
 const DRAWER_BUTTON_CONTAINER_WIDTH = 47;
-const MAIN_MENU_WIDTH = 300;
+const MAIN_MENU_WIDTH = 322;
 
 
 let clickCount = 0;
@@ -67,6 +67,9 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processId: string]: (React.ReactNode | null) }>({});
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
+
+    const [hoveredButtonId, setHoveredButtonId] = useState<string | null>(null);
+    const descriptionContainerRef = useRef<HTMLElement>();
 
 
     const handleHiddenAction = useCallback(() => {
@@ -352,8 +355,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                             toolsButton.every(t => t) ?
 
                                 toolsButton
-                                :
 
+                                :
                                 <>
                                     <Typography>
                                         It seems there was a problem retrieving the tools list. Try resetting the tools list in the options screen.
@@ -362,29 +365,8 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                                 </>
                         }
                     </Stack>
-                    <Paper elevation={0}>
-                        <Stack direction='column'>
-                            <Divider />
-                            <Stack spacing={1} mt='5px' direction='row' alignItems='center' ml='auto'>
-                                <Tooltip title={"Github project"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
-                                        <IconButton aria-label="delete" size="small">
-                                            <GitHubIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </a>
-                                </Tooltip>
-                                <Tooltip title={"Report an issue"}>
-                                    <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank" rel="noreferrer">
-                                        <IconButton aria-label="delete" size="small">
-                                            <BugReportIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </a>
-                                </Tooltip>
-                                <Divider orientation='vertical' flexItem />
-                                <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
-                            </Stack>
-                        </Stack>
-                    </Paper>
+
+                    <MainScreenFooter />
                 </Stack>
 
             </PanelDrawerItem>
@@ -401,6 +383,35 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 })
             }
         </>
+    );
+}
+
+
+function MainScreenFooter() {
+    return (
+        <Paper elevation={0}>
+            <Stack direction='column'>
+                <Divider />
+                <Stack spacing={1} mt='5px' direction='row' alignItems='center' ml='auto'>
+                    <Tooltip title={"Github project"}>
+                        <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
+                            <IconButton aria-label="delete" size="small">
+                                <GitHubIcon fontSize="inherit" />
+                            </IconButton>
+                        </a>
+                    </Tooltip>
+                    <Tooltip title={"Report an issue"}>
+                        <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank" rel="noreferrer">
+                            <IconButton aria-label="delete" size="small">
+                                <BugReportIcon fontSize="inherit" />
+                            </IconButton>
+                        </a>
+                    </Tooltip>
+                    <Divider orientation='vertical' flexItem />
+                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                </Stack>
+            </Stack>
+        </Paper>
     );
 }
 
