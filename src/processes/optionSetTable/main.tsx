@@ -177,14 +177,14 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
             <ThemeProvider theme={theme}>
                 <Stack spacing={1} height='calc(100% - 10px)' padding='10px' pr={0} pt={0} alignItems='center'>
 
-                    <Stack direction='column' width='calc(100% - 10px)' spacing={0.5}>
+                    <Stack direction='column' width='95%' spacing={0.5}>
                         <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>
-                            <EntitySelector entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
+                            <EntitySelector fullWidth entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
                             <Button variant='contained' onClick={forceRefresh} sx={{ whiteSpace: 'nowrap', width: '25%' }}>Refresh</Button>
                         </Stack>
                         <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>
                             <FilterInput fullWidth placeholder='Search by name or columns' defaultValue={filter} returnFilterInput={setFilter} />
-                            <Button variant='contained' onClick={copyAll} sx={{ whiteSpace: 'nowrap', width: '25%' }}>{tablesCopied ? "Copied!" : "Copy All"}</Button>
+                            <Button variant='outlined' onClick={copyAll} sx={{ whiteSpace: 'nowrap', width: '25%' }}>{tablesCopied ? "Copied!" : "Copy All"}</Button>
                         </Stack>
                     </Stack>
 
@@ -281,9 +281,9 @@ function OptionSetTable(props: OptionSetTableProps) {
             <TableContainer key={`tableContainer${logicalName}`} component={Paper} elevation={3}>
                 <Stack direction='column' alignItems='center'>
 
-                    <Stack direction='row' justifyContent='space-between' alignContent='space-between' mt={0.5} width='calc(100% - 10px)'>
+                    <Stack direction='row' justifyContent='space-between' alignContent='space-between' mt={0.5} width='95%'>
                         <Stack direction='row' spacing={1} maxWidth='75%'>
-                            <Tooltip title={tooltip} placement='left'>
+                            <Tooltip title={tooltip} placement='left' arrow>
                                 <Typography variant="h6" overflow='hidden' textOverflow='ellipsis' noWrap>
                                     {metadata.DisplayName}
                                 </Typography>
@@ -300,7 +300,7 @@ function OptionSetTable(props: OptionSetTableProps) {
                         </Button>
                     </Stack>
 
-                    <Typography variant="caption" width='calc(100% - 10px)'>
+                    <Typography variant="caption" width='95%'>
                         Columns involved: <b>{metadata.Fields.join(', ')}</b>
                     </Typography>
 

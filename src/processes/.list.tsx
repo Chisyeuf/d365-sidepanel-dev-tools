@@ -48,7 +48,5 @@ export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
 export default Processes;
 
 
-// Changer Command Debug en un process ouvrable (et un bouton visible à droite). Lorsque le panel s'ouvre => executer le code.
 // Workflow Activities Explorer
-// OptionSet: Ajouter un bouton CopyAll
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool

@@ -133,36 +133,6 @@ export const TraceLogsAPI = (props: TraceLogsAPIProps & React.PropsWithChildren)
 
     }, [isFetchingSteps, fetchLogQueueItems, getNextPluginTraceLogToFetch, maxFetchingRecord, addMessageProcessingSteps, addMessageProcessingStepImages]);
 
-
-    // useEffect(() => {
-
-    //     async function fetch(pluginTraceLogs: PluginTraceLog[]) {
-
-    //         debugLog("RetrievePluginSteps & RetrievePluginImages", pluginTraceLogs.length);
-    //         // const resultProcessingStep0 = await Xrm.WebApi.online.retrieveRecord('sdkmessageprocessingstep', pluginTraceLog.pluginstepid, "?$select=" + ['stage', 'name', 'filteringattributes'].join(','));
-    //         const resultProcessingSteps = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstep', `?$select=stage,name,filteringattributes&$filter=${pluginTraceLogs.map(pluginTraceLog => `sdkmessageprocessingstepid eq ${pluginTraceLog.pluginstepid}`).join(' or ')}`);
-
-    //         pluginTraceLogs.forEach(pluginTraceLog => {
-    //             addMessageProcessingSteps(pluginTraceLog.plugintracelogid, resultProcessingSteps.entities.find(step => step.sdkmessageprocessingstepid === pluginTraceLog.pluginstepid));
-    //         });
-
-
-    //         const resultPluginImages = await Xrm.WebApi.online.retrieveMultipleRecords('sdkmessageprocessingstepimage', `?$select=entityalias,imagetype,attributes,_sdkmessageprocessingstepid_value&$filter=${pluginTraceLogs.map(pluginTraceLog => `_sdkmessageprocessingstepid_value eq ${pluginTraceLog.pluginstepid}`).join(' or ')}`);
-
-    //         pluginTraceLogs.forEach(pluginTraceLog => {
-    //             addMessageProcessingStepImages(pluginTraceLog.plugintracelogid, resultPluginImages.entities.filter(images => images._sdkmessageprocessingstepid_value === pluginTraceLog.pluginstepid));
-    //         });
-
-    //         setIsFetchingSteps(false);
-
-    //     }
-
-    //     if (fetchingTraceLogs.length) {
-    //         setIsFetchingSteps(true);
-    //         fetch(fetchingTraceLogs);
-    //     }
-    // }, [fetchingTraceLogs, addMessageProcessingSteps, addMessageProcessingStepImages]);
-
     const addStepToFetchingQueue = useCallback((pluginTraceLog: PluginTraceLog) => {
         if (fetchLogQueueItems.find(item => item.plugintracelogid === pluginTraceLog.plugintracelogid)) {
             return;
@@ -186,8 +156,6 @@ export const TraceLogsAPI = (props: TraceLogsAPIProps & React.PropsWithChildren)
             sdkMessageProcessingStepImages: sdkMessageProcessingStepImages,
             isFetchingSteps: isFetchingSteps,
             addStepToFetchingQueue: addStepToFetchingQueue,
-            // addMessageProcessingSteps: addMessageProcessingSteps,
-            // addMessageProcessingStepImages: addMessageProcessingStepImages,
         }} >
             {children}
         </TraceLogsAPIContext.Provider>

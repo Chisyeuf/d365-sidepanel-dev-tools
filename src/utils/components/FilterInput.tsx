@@ -20,8 +20,10 @@ export type AttributeFilterInputRef = {
 
 const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInputProps>(
     (props: AttributeFilterInputProps, ref) => {
-        const [value, setValue] = useState(props.defaultValue ?? '');
-        const [debounceValue, setDebounceValue] = useDebounceValue(value, props.debounceDelay ?? 250);
+        const { returnFilterInput, debounceDelay, defaultValue, fullWidth, placeholder } = props;
+
+        const [value, setValue] = useState(defaultValue ?? '');
+        const [debounceValue, setDebounceValue] = useDebounceValue(value, debounceDelay ?? 250);
 
         const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,21 +42,21 @@ const FilterInput = React.forwardRef<AttributeFilterInputRef, AttributeFilterInp
         }, [setValue, setDebounceValue]);
 
         useEffect(() => {
-            props.returnFilterInput(debounceValue);
-        }, [debounceValue]);
+            returnFilterInput(debounceValue);
+        }, [debounceValue, returnFilterInput]);
 
         return (
-            <FormControl size='small' fullWidth={props.fullWidth}>
+            <FormControl size='small' fullWidth={fullWidth}>
                 <TextField
                     inputRef={inputRef}
                     size='small'
                     inputMode='search'
                     value={value}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        handleChange(e?.target.value ?? "")
+                        handleChange(e.target.value ?? "")
                     }}
-                    placeholder={props.placeholder}
-                    fullWidth={props.fullWidth}
+                    placeholder={placeholder}
+                    fullWidth={fullWidth}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">

@@ -37,39 +37,47 @@ type EntitySelectorProps = {
     setEntityname: (str: string) => void,
     entityname: string,
     moreOptions?: EntityOption[],
+    fullWidth?: boolean,
     sx?: SxProps<Theme>
 }
 type EntityOption = {
     id: string,
     label: string
 }
-const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo((props) => {
-    const [value, setValue] = useState<EntityOption>({ id: props.entityname, label: "" });
+const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => {
+    const { entityname, moreOptions, setEntityname, fullWidth, sx } = props;
 
-    const { entityname, moreOptions } = props;
+    const [value, setValue] = useState<EntityOption>({ id: entityname, label: "" });
 
     const entities = RetrieveEntities();
 
     const options = useMemo(() => {
-        return (entities?.map((value, index, array) => {
-            return { id: value.logicalname, label: value.name }
-        }) ?? []).concat(moreOptions ?? []);
-    }, [entities, JSON.stringify(moreOptions)]);
+        const entityOptions = entities?.map(
+            (value) => {
+                return { id: value.logicalname, label: value.name }
+            }) ?? [];
+
+        if (moreOptions) {
+            return entityOptions.concat(moreOptions);
+        }
+        return entityOptions;
+    }, [entities, moreOptions]);
 
     useEffect(() => {
-        setValue(options.find((o) => { return o.id === entityname }) ?? { id: entityname, label: "" })
+        setValue(options.find((o) => { return o.id === entityname }) ?? { id: entityname, label: "" });
     }, [entityname, options]);
+
 
     return (
         <Tooltip title={<Typography variant='body2'>{value.label ? value.label : <i>No entity selected</i>}</Typography>} arrow disableInteractive enterDelay={600} placement='left'>
             <Autocomplete
-                filterOptions={filterOptions}
-                size='small'
                 options={options}
+                filterOptions={filterOptions}
                 getOptionLabel={(option: EntityOption) => option.label}
+                size='small'
                 placeholder='Search entity'
                 key='entityselector'
-                onChange={(event, option, index) => { props.setEntityname(option?.id.toString() ?? "") }}
+                onChange={(event, option, index) => { setEntityname(option?.id.toString() ?? "") }}
                 renderInput={(params) => <TextField {...params} label="Entity Name" />}
                 renderOption={(props, item) => {
                     return (
@@ -81,17 +89,17 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = React.memo(
                         </li>
                     )
                 }}
-                // <Tooltip placement='left' title={<Typography variant='body2'>{item.id}</Typography>} arrow disableInteractive ><li {...props} key={item.id}> {item.label} </li></Tooltip>}
                 value={value}
-                fullWidth
+                fullWidth={fullWidth}
                 slotProps={{
                     listbox: {
                         component: ListboxComponent
-                    }
+                    },
                 }}
             />
         </Tooltip>
     );
-});
+
+};
 
 export default EntitySelector;
