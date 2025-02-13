@@ -24,7 +24,7 @@ import DetailsSnackbar from '../utils/components/DetailsSnackbar';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import OpenOptionsButton from '../utils/components/OpenOptionsButton';
-import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/context';
+import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/spContext';
 
 
 const MainScreen: React.FunctionComponent = () => {

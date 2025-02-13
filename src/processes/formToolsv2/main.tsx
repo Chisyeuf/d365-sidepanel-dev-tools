@@ -31,7 +31,7 @@ import FillFields from './toolButtons/FillFields';
 import ShowOptionSetInFields from './toolButtons/ShowOptionSetInFields';
 import CloneRecord from './toolButtons/CloneRecord';
 import BlurFields from './toolButtons/BlurFields';
-import { useSpDevTools } from '../../utils/global/context';
+import { useSpDevTools } from '../../utils/global/spContext';
 
 
 class FormToolsButtonV2 extends ProcessButton {

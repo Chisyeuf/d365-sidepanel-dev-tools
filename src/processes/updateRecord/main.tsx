@@ -44,7 +44,7 @@ import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import SplitButton from '../../utils/components/SplitButton';
 import { useUpdateEffect } from '@custom-react-hooks/all';
 import { useSnackbar } from 'notistack';
-import { useSpDevTools } from '../../utils/global/context';
+import { useSpDevTools } from '../../utils/global/spContext';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 

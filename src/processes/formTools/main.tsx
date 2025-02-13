@@ -18,7 +18,7 @@ import { FormContext } from '../../utils/types/FormContext';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useWindowSize } from 'usehooks-ts';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
-import { useSpDevTools } from '../../utils/global/context';
+import { useSpDevTools } from '../../utils/global/spContext';
 
 class FormToolsButton extends ProcessButton {
     constructor() {

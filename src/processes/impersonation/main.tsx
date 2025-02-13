@@ -39,7 +39,7 @@ import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
 import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
-import { useSpDevTools } from '../../utils/global/context';
+import { useSpDevTools } from '../../utils/global/spContext';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
