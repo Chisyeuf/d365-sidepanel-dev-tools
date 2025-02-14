@@ -68,9 +68,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
 
-    const [hoveredButtonId, setHoveredButtonId] = useState<string | null>(null);
-    const descriptionContainerRef = useRef<HTMLElement>();
-
 
     const handleHiddenAction = useCallback(() => {
         clickCount++;

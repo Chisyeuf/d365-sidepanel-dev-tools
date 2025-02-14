@@ -50,4 +50,5 @@ export default Processes;
 
 // Workflow Activities Explorer
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
-// Changer les noms de configuration manager pour plus de conprehension
+// Changer les champs deactivated lors d'un Create
+// Ajouter bouton pour reviews dans footer

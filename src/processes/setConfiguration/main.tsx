@@ -9,7 +9,7 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import Processes, { defaultProcessesList } from '../.list';
@@ -19,6 +19,10 @@ import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 import { DragDropContext, Draggable, DropResult, Droppable } from '@hello-pangea/dnd';
 import { STORAGE_ForegroundPanes, STORAGE_ListName } from '../../utils/global/var';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
+import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 class SetConfigurationButton extends ProcessButton {
     constructor() {
@@ -26,7 +30,7 @@ class SetConfigurationButton extends ProcessButton {
             'createconfiguration',
             'Configuration Manager',
             <SettingsIcon />,
-            300
+            320
         );
         this.process = SetConfigurationProcess;
         this.description = <>
@@ -37,8 +41,8 @@ class SetConfigurationButton extends ProcessButton {
     }
 }
 
-const listOpenId = "Opened_Processes";
-const listAvalaibleId = "Avalaible_Processes";
+const listOpenId = "Opened_Tools";
+const listAvalaibleId = "Avalaible_Tools";
 
 
 interface ProcessItemProps {
@@ -92,53 +96,91 @@ function ProcessItem(props: ProcessItemProps) {
 interface ProcessListProps {
     title: string
     titleButton?: { label: string, onClick: () => void }
+    tooltip?: React.ReactNode
     processList: StorageConfiguration[]
-    forceHeight?: string
+    isDragging: boolean
 }
 function ProcessList(props: ProcessListProps) {
-    const { processList, title, forceHeight, titleButton } = props;
+    const { processList, title, titleButton, isDragging, tooltip } = props;
 
     return (
         <>
-            <Stack direction='row' justifyContent='space-between'>
+            <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Typography variant='h6'>{title.replaceAll('_', ' ')}</Typography>
-                {
-                    titleButton && (
-                        <Button onClick={titleButton.onClick}>
-                            {titleButton.label}
-                        </Button>
-                    )
-                }
-            </Stack>
-            <Stack direction='row' height={forceHeight ?? '100%'} width='100%' sx={{ overflowY: 'auto' }}>
-                <Droppable droppableId={title} key={title + 'draggable'}>
+                <Stack direction='row' spacing={1} alignItems='center'>
+
                     {
-                        providerDroppable => (
-                            <Box
-                                ref={providerDroppable.innerRef}
-                                {...providerDroppable.droppableProps}
-                                height='100%'
-                                width='100%'
-                            >
-                                <Stack
-                                    direction='column'
-                                    spacing={0.5}
-                                    height='100%'
-                                    width='100%'
-                                    sx={{ whiteSpace: 'nowrap' }}
-                                >
-                                    {
-                                        processList.map((process, index) => {
-                                            return <ProcessItem index={index} process={process} key={process.id + 'item'} />
-                                        })
-                                    }
-                                    {providerDroppable.placeholder}
-                                </Stack>
-                            </Box>
+                        titleButton && (
+                            <Button variant='outlined' size='small' onClick={titleButton.onClick}>
+                                {titleButton.label}
+                            </Button>
                         )
                     }
-                </Droppable>
+                    {
+                        tooltip && (
+                            <Tooltip
+                                placement='left'
+                                arrow
+                                disableInteractive
+                                title={tooltip}
+                                slotProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontSize: '1.2rem',
+                                            p: 0,
+                                            maxWidth: '540px'
+                                        }
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            "::before": {
+                                                bgcolor: 'rgb(229, 246, 253)'
+                                            }
+                                        }
+                                    },
+                                }}
+                            >
+                                <HelpOutlineIcon sx={{ opacity: 0.7 }} />
+                            </Tooltip>
+                        )
+                    }
+                </Stack>
             </Stack>
+            <Droppable droppableId={title} key={title + 'draggable'}>
+                {
+                    providerDroppable => (
+                        <Paper
+                            ref={providerDroppable.innerRef}
+                            {...providerDroppable.droppableProps}
+                            elevation={0}
+                            sx={{
+                                ...(isDragging && { bgcolor: 'grey.400' }),
+                                transition: 'background-color 200ms ease-in-out',
+                                py: 0.5,
+                                px: 1,
+                            }}
+                        >
+                            <Stack
+                                direction='column'
+                                spacing={0.5}
+                                height='100%'
+                                width='100%'
+                                sx={{
+                                    whiteSpace: 'nowrap',
+                                    minHeight: 2,
+                                }}
+                            >
+                                {
+                                    processList.map((process, index) => {
+                                        return <ProcessItem index={index} process={process} key={process.id + 'item'} />
+                                    })
+                                }
+                                {providerDroppable.placeholder}
+                            </Stack>
+                        </Paper>
+                    )
+                }
+            </Droppable>
         </>
     );
 }
@@ -150,12 +192,13 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
     function SetConfigurationProcess(props: ProcessProps, ref) {
 
         const extensionId = GetExtensionId();
-        const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
         const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
         const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
+        const [isDragging, setIsDragging] = useState(false);
+
 
 
         useEffect(() => {
@@ -172,7 +215,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [extensionId]);
 
 
-        function CreateConfiguration() {
+        const createConfiguration = useCallback(() => {
 
             const processConfigurations: StorageConfiguration[] = Processes.map(process => {
                 const opened = processesList.find(c => c.id === process.id);
@@ -199,18 +242,18 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     if (response.success) { }
                 }
             );
-        }
+        }, [extensionId, isForegroundPanes, processesList]);
 
-        const saveConfiguration = () => {
+        const saveConfiguration = useCallback(() => {
             debugLog("saveConfiguration", processesList);
 
-            CreateConfiguration();
+            createConfiguration();
 
             setConfigurationSaved(true);
             setTimeout(() => {
                 setConfigurationSaved(false);
             }, 2000);
-        }
+        }, [createConfiguration, processesList]);
 
         const openedProcesses = useMemo(() => {
             const opened = processesList.filter(process => process.startOnLoad)
@@ -221,7 +264,13 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const closedProcesses = useMemo(() => Processes.map(processButton => processesList.find(process => !process.startOnLoad && process.id === processButton.id)).filter((p): p is StorageConfiguration => !!p), [processesList]);
 
-        function onDragEnd(result: DropResult) {
+        const onDragStart = useCallback(() => {
+            setIsDragging(true);
+        }, []);
+
+        const onDragEnd = useCallback((result: DropResult) => {
+            setIsDragging(false);
+
             if (!result.destination) {
                 return;
             }
@@ -259,9 +308,9 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
                 return [...openedProcess, ...closedProcess];
             });
-        }
+        }, []);
 
-        function reset() {
+        const reset = useCallback(() => {
             setProcessesList(previousProcessList => {
                 const updatedProcesses = [...previousProcessList];
                 for (let i = 0; i < updatedProcesses.length; i++) {
@@ -271,90 +320,179 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                 }
                 return updatedProcesses;
             });
-        }
+        }, []);
+
 
         return (
             <Stack direction='column' spacing={1} width='-webkit-fill-available' height='calc(100% - 20px)' padding='10px'>
+
+                <Alert severity='info' sx={{ py: 0 }}>
+                    <Typography variant='caption'>
+                        The saved configuration will be applied after refreshing the page.
+                    </Typography>
+                </Alert>
+
                 <Button variant='contained' onClick={saveConfiguration}>
                     {configurationSaved ? "Saved" : "Save Configuration"}
                 </Button>
 
-                <Typography variant='caption'>
-                    The saved configuration will be applied after refreshing.
-                </Typography>
 
                 <Divider />
 
-                <FormControl fullWidth sx={{ pl: 2 }}>
-                    <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
-                    {/* {!isOnPrem && <FormControlLabel control={<Switch checked={useStandardPanels} onChange={() => setUseStandardPanels(prev => !prev)} />} label="Use Standard Panels" />} */}
-                </FormControl>
+                <HelpInfo
+                    placement='left'
+                    arrow
+                    disableInteractive
+                    title={
+                        <Typography>
+                            Enable/Disable automatic width adjustments of the main Dynamics screen.
+                        </Typography>
+                    }
+                >
+                    <FormControl fullWidth sx={{ pl: 2 }}>
+                        <FormControlLabel control={<Switch checked={isForegroundPanes} onChange={() => setIsForegroundPanes(prev => !prev)} />} label="Foreground Panes" />
+                    </FormControl>
+                </HelpInfo>
 
                 <Divider />
 
-                <Autocomplete
-                    size='small'
-                    disabled={processesList.filter(process => process.startOnLoad).length === 0}
-                    value={processesList.find(process => process.expand) ?? null}
-                    onChange={(event: any, newValue: StorageConfiguration | null) => {
-                        setProcessesList(previousProcessList => {
-                            const newProcessList = [...previousProcessList];
-                            for (let i = 0; i < newProcessList.length; i++) {
-                                newProcessList[i].expand = newValue?.id === newProcessList[i].id;
-                            }
-                            return newProcessList;
-                        });
-                    }}
-                    options={Processes.map(processButton => processButton.isPanelProcess && openedProcesses.find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
-                    renderInput={(params) => <TextField {...params} label="Selected Process" InputProps={{ ...params.InputProps, endAdornment: <>{Processes.find(processButton => processButton.menuButtonName === params.inputProps.value)?.menuButtonIcon} {params.InputProps.endAdornment}</> }} />}
-                    getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.menuButtonName ?? "Name not found"}
-                    renderOption={(props, option, state) => {
-                        const processButton = Processes.find(processButton => processButton.id === option.id);
-                        return (
-                            <Stack
-                                direction='row'
-                                spacing={1}
-                                justifyContent='center'
-                                sx={{
-                                    borderRadius: '8px',
-                                    margin: '5px',
-                                }}
-                                component="li"
-                                {...props}
-                            >
-                                <Typography variant='button'>
-                                    {processButton?.menuButtonName ?? option.id}
-                                </Typography>
-                                {processButton?.menuButtonIcon}
-                            </Stack>
-                        )
-                    }}
-                    sx={{
-                        mt: 1
-                    }}
-                />
+                <HelpInfo
+                    placement='left'
+                    arrow
+                    disableInteractive
+                    title={
+                        <Typography>
+                            The selected tool will be expanded by default when the page loads.
+                        </Typography>
+                    }
+                >
+                    <Autocomplete
+                        size='small'
+                        fullWidth
+                        disabled={processesList.filter(process => process.startOnLoad).length === 0}
+                        value={processesList.find(process => process.expand) ?? null}
+                        onChange={(event: any, newValue: StorageConfiguration | null) => {
+                            setProcessesList(previousProcessList => {
+                                const newProcessList = [...previousProcessList];
+                                for (let i = 0; i < newProcessList.length; i++) {
+                                    newProcessList[i].expand = newValue?.id === newProcessList[i].id;
+                                }
+                                return newProcessList;
+                            });
+                        }}
+                        options={Processes.map(processButton => processButton.isPanelProcess && openedProcesses.find(p => p.id === processButton.id)).filter((p): p is StorageConfiguration => !!p)}
+                        renderInput={(params) => <TextField
+                            {...params}
+                            label="Expanded Tool"
+                            slotProps={{
+                                input: {
+                                    ...params.InputProps,
+                                    endAdornment: <>
+                                        {Processes.find(processButton => processButton.menuButtonName === params.inputProps.value)?.menuButtonIcon}
+                                        {params.InputProps.endAdornment}
+                                    </>
+                                }
+                            }}
+                        />}
+                        getOptionLabel={(option) => Processes.find(processButton => processButton.id === option.id)?.menuButtonName ?? "Name not found"}
+                        renderOption={(props, option, state) => {
+                            const processButton = Processes.find(processButton => processButton.id === option.id);
+                            return (
+                                <Stack
+                                    direction='row'
+                                    spacing={1}
+                                    justifyContent='center'
+                                    sx={{
+                                        borderRadius: '8px',
+                                        margin: '5px',
+                                    }}
+                                    component="li"
+                                    {...props}
+                                >
+                                    <Typography variant='button'>
+                                        {processButton?.menuButtonName ?? option.id}
+                                    </Typography>
+                                    {processButton?.menuButtonIcon}
+                                </Stack>
+                            )
+                        }}
+                        sx={{
+                            mt: 1
+                        }}
+                    />
+                </HelpInfo>
 
                 < Divider />
 
-                <Stack direction='row' height='100%'>
+                <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd} >
+                    <Stack direction='column' spacing={1} height='100%' width='100%' overflow='auto'>
 
-                    <DragDropContext onDragEnd={onDragEnd} >
-                        <Stack direction='column' spacing={1} height='100%' width='100%'>
+                        <ProcessList
+                            title={listOpenId}
+                            processList={openedProcesses}
+                            isDragging={isDragging}
+                            tooltip={
+                                <Alert severity='info'>
+                                    <Typography>
+                                        Drag and drop tools you want to open when the page loads.
+                                    </Typography>
+                                </Alert>
+                            }
+                            titleButton={{ label: 'Reset', onClick: reset }}
 
-                            <ProcessList title={listOpenId} processList={openedProcesses} titleButton={{ label: 'Reset', onClick: reset }} />
+                        />
 
-                            <Divider />
+                        <Divider />
 
-                            <ProcessList title={listAvalaibleId} processList={closedProcesses} />
+                        <ProcessList
+                            title={listAvalaibleId}
+                            processList={closedProcesses}
+                            isDragging={isDragging}
+                        />
 
-                        </Stack>
-                    </DragDropContext>
+                    </Stack>
+                </DragDropContext>
 
-                </Stack>
             </Stack >
         );
     }
 );
+
+function HelpInfo(props: Omit<TooltipProps, 'slotProps'>) {
+    const { children, title, ...otherProps } = props;
+
+    return (
+        <Stack direction='row' spacing={2} width='100%' justifyContent='space-between' alignItems='center'>
+            {children}
+            <Tooltip
+                {...otherProps}
+                title={
+                    <Alert severity='info'>
+                        {title}
+                    </Alert>
+                }
+                slotProps={{
+                    tooltip: {
+                        sx: {
+                            fontSize: '1.2rem',
+                            p: 0,
+                            maxWidth: '540px'
+                        }
+                    },
+                    arrow: {
+                        sx: {
+                            "::before": {
+                                bgcolor: 'rgb(229, 246, 253)'
+                            }
+                        }
+                    },
+                }}
+            >
+                <HelpOutlineIcon sx={{ opacity: 0.7 }} />
+            </Tooltip>
+        </Stack>
+    )
+}
 
 const createConfiguration = new SetConfigurationButton();
 export default createConfiguration;

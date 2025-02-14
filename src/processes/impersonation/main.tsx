@@ -48,7 +48,7 @@ class ImpersonationButton extends ProcessButton {
             'impersonate',
             'Impersonation',
             <PersonSearchIcon />,
-            350
+            320
         );
         this.process = ImpersonationProcess;
         this.description = <>

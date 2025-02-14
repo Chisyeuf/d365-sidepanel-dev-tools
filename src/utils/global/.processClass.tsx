@@ -1,6 +1,6 @@
 
 import React, { forwardRef, useMemo } from "react";
-import { Box, Button, Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Button, Divider, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { useSnackbar } from "notistack";
 import { PROJECT_PREFIX } from "./var";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
@@ -84,7 +84,8 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
     });
 
     const tooltipTitle = useMemo(() => (
-        <Paper variant='outlined' sx={{ py: 1, px: 2 }}>
+        // <Paper variant='outlined' sx={{ py: 1, px: 2 }}>
+        <Alert variant="outlined" icon={false} severity='info'>
             <Stack direction='column' spacing={0.5}>
                 <Stack direction='row' spacing={2} alignItems='flex-end' pl={1}>
                     <Box>{processButton.panelButtonIcon}</Box>
@@ -95,7 +96,8 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                     {processButton.description}
                 </Box>
             </Stack>
-        </Paper>
+        </Alert>
+        // </Paper>
     ), []);
 
 
@@ -117,27 +119,23 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                     placement='left'
                     disableInteractive
                     arrow
-                    enterDelay={800}
+                    enterDelay={500}
                     slots={{
                         transition: Zoom,
                     }}
                     slotProps={{
-                        // popper: {
-                        //     sx: {
-                        //         maxWidth: '540px'
-                        //     }
-                        // },
                         tooltip: {
                             sx: {
                                 fontSize: '1.2rem',
                                 p: 0,
-                                maxWidth: '540px'
-                            }
+                                maxWidth: '540px',
+                                bgcolor:'background.paper'
+                            },
                         },
                         arrow: {
                             sx: {
                                 "::before": {
-                                    bgcolor: 'background.paper'
+                                    bgcolor: 'rgb(3, 169, 244)'//'rgb(229, 246, 253)'
                                 }
                             }
                         },
@@ -145,6 +143,7 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                 >
                     <HelpTwoToneIcon className='helpInfo' visibility='hidden' />
                 </Tooltip>
+
                 <Stack direction='row' spacing={1} width='100%' minWidth={0} justifyContent='center'>
                     <Box>{processButton.menuButtonName}</Box>
                     {processButton.menuButtonIcon}
