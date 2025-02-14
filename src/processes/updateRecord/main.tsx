@@ -145,6 +145,7 @@ const theme = createTheme({
     }
 });
 
+type available_modes = 'update' | 'create';
 
 const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     function UpdateRecordProcess(props: ProcessProps, ref) {
@@ -161,6 +162,8 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
         const { value: resetAttributes, toggle: toggleResetAttributes } = useBoolean(false);
         const { value: resetEntity, toggle: toggleResetEntity } = useBoolean(false);
+
+        const [selectedMode, setSelectedMode] = useState<available_modes>('create');
 
 
         const setEntityname = (entityname: string) => {
@@ -302,7 +305,9 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     launchCreate={launchCreate}
                     setFilterAttribute={setFilterAttribute}
                     entityname={entityName}
-                    recordsIds={recordsIds} />
+                    recordsIds={recordsIds}
+                    setMode={(mode: available_modes) => setSelectedMode(mode)}
+                />
                 <Divider />
                 <AttributesList
                     entityname={entityName}
@@ -311,6 +316,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     resetEntity={resetEntity}
                     resetAttributes={resetAttributes}
                     attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
+                    mode={selectedMode}
                 />
                 {
                     isDebug && <>
@@ -347,6 +353,7 @@ type AttributesListProps = {
     resetEntity: boolean,
     resetAttributes: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
+    mode: available_modes
 }
 function AttributesList(props: AttributesListProps) {
     const entityname = props.entityname;
@@ -382,7 +389,7 @@ function AttributesList(props: AttributesListProps) {
         !fetchingMetadata
             ?
             <>
-                <SelectAttribute attributesMetadata={selectableAttribute} selectAttribute={handleSelectAttribute} />
+                <SelectAttribute attributesMetadata={selectableAttribute} selectAttribute={handleSelectAttribute} mode={props.mode} />
                 <Stack spacing={"2px"} height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} >
                     {
                         !fetchingValues
@@ -392,7 +399,7 @@ function AttributesList(props: AttributesListProps) {
                                 return (
                                     <AttributeNode
                                         key={attributeName}
-                                        disabled={!metadata.IsValidForUpdate}
+                                        disabled={props.mode !== 'create' ? !metadata.IsValidForUpdate : !metadata.IsValidForCreate}
                                         attribute={metadata}
                                         entityname={props.entityname}
                                         value={attributesRetrieved[attributeName]}
@@ -717,6 +724,7 @@ type NavBarProps = {
     setFilterAttribute: (str: string) => void,
     entityname: string,
     recordsIds: string[],
+    setMode: (mode : available_modes) => void
 }
 function NavTopBar(props: NavBarProps) {
 
@@ -760,11 +768,13 @@ function NavTopBar(props: NavBarProps) {
                     options={[
                         {
                             title: <Stack direction='row' spacing={2}><RocketLaunchIcon /> <div>Launch Create</div></Stack>,
-                            action: props.launchCreate
+                            action: props.launchCreate,
+                            onSelect: () => props.setMode('create'),
                         },
                         {
                             title: <Stack direction='row' spacing={2}><RocketLaunchIcon /> <div>Launch Update</div></Stack>,
-                            action: props.launchUpdate
+                            action: props.launchUpdate,
+                            onSelect: () => props.setMode('update'),
                         },
                     ]}
                     actionIndex={props.recordsIds.length === 0 ? 0 : 1}
@@ -784,6 +794,7 @@ const filterOptions = createFilterOptions<AttributeMetadata>({
 interface SelectAttributeProps {
     attributesMetadata: AttributeMetadata[],
     selectAttribute: (selectedAttribute: AttributeMetadata[]) => void,
+    mode: available_modes
 }
 function SelectAttribute(props: SelectAttributeProps) {
 
@@ -815,12 +826,18 @@ function SelectAttribute(props: SelectAttributeProps) {
             clearOnBlur
             onChange={(event, option, reason) => { reason === 'selectOption' && option && selectAttribute([option]); }}
             renderInput={(params) => <TextField {...params} label="Search attribute to update" />}
-            renderOption={((props: React.HTMLAttributes<HTMLLIElement>, option: AttributeMetadata) => {
+            renderOption={((renderProps: React.HTMLAttributes<HTMLLIElement>, option: AttributeMetadata) => {
                 const tooltipText = attributeMetadataTooltipGenerator(option);
+
+                const disabled = (props.mode === 'update' && !option.IsValidForUpdate) || (props.mode === 'create' && !option.IsValidForCreate);
 
                 return (
                     <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
-                        <li {...props} style={{ color: !option.IsValidForUpdate ? 'rgba(0, 0, 0, 0.45)' : undefined }}>{option.DisplayName}</li>
+                        <li {...renderProps} style={{
+                            color: disabled ? 'rgba(0, 0, 0, 0.45)' : undefined
+                        }}>
+                            {option.DisplayName}
+                        </li>
                     </NoMaxWidthTooltip>
                 );
             })}

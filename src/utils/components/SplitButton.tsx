@@ -8,6 +8,7 @@ interface SplitButtonAction {
     title: React.ReactNode
     action: () => void
     disabled?: boolean
+    onSelect?: () => void
 }
 
 interface SplitButtonProps {
@@ -35,9 +36,12 @@ function SplitButton(props: SplitButtonProps) {
         else {
             setSelectedIndex(actionIndex);
         }
-    }, [actionIndex]);
-    
+    }, [actionIndex, options.length]);
 
+    useEffect(() => {
+        options[selectedIndex]?.onSelect?.();
+    }, [options, selectedIndex]);
+    
 
     const handleMenuItemClick = (
         index: number,
@@ -72,7 +76,7 @@ function SplitButton(props: SplitButtonProps) {
                 <Button
                     size="small"
                     onClick={handleToggle}
-                    sx={{width:40}}
+                    sx={{ width: 40 }}
                 >
                     <ArrowDropDownIcon />
                 </Button>
