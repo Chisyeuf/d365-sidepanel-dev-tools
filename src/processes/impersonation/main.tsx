@@ -15,7 +15,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import { GetExtensionId, debugLog } from '../../utils/global/common';
@@ -31,7 +31,7 @@ import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole, TeamsSecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
-import { Env, STORAGE_DontShowImpersonationInfo } from '../../utils/global/var';
+import { STORAGE_DontShowImpersonationInfo } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
@@ -40,7 +40,7 @@ import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 import { useSpDevTools } from '../../utils/global/spContext';
-import Grid2 from '@mui/material/Grid2';
+import { LinearProgress } from '@mui/material';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -103,14 +103,14 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const isOnPrem: boolean = (Xrm.Utility.getGlobalContext() as any).isOnPremises();
 
-        const [userSelected, setUserSelected] = useStateCallback<ActiveUser | null>(null);
+        const [selectedUser, setUserSelected] = useStateCallback<ActiveUser | null>(null);
         const [securityRoleSelected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
         const [dontShowInfo, setDontShowInfo] = useState<boolean>(false);
         const [closeInfo, setCloseInfo] = useState<boolean>(false);
 
         const [filter, setFilter] = useState('');
 
-        const [activeUsers, isFetching] = RetrieveActiveUsersWithSecurityRoles(!isOnPrem);
+        const { activeUsers, isFetching } = RetrieveActiveUsersWithSecurityRoles(!isOnPrem);
 
         const extensionId = GetExtensionId();
 
@@ -180,6 +180,30 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
             setDontShowInfo(dontShowInfoValue);
         };
 
+        const filteredActiveUsers = useMemo(() => {
+            return activeUsers.filter(user => {
+
+                if (securityRoleSelected.filter(userRole =>
+                    user.securityRoles.filter(
+                        securityRole => securityRole.roleid === userRole.roleid
+                    ).length +
+                    (user.teamsRoles?.filter(
+                        teamRole => teamRole.roleid === userRole.roleid
+                    ).length ?? 0)
+                ).length !== securityRoleSelected.length) {
+                    return false;
+                }
+
+                if (!user.fullname?.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress?.toLowerCase().includes(filter.toLowerCase())) {
+                    return false;
+                }
+                return true;
+            })
+        }, [activeUsers, filter, securityRoleSelected]);
+
+        const loadedActiveUsers = useMemo(() => activeUsers.filter(user => user.teamsRoles).length, [activeUsers]);
+        const totalActiveUsers = useMemo(() => activeUsers.length, [activeUsers.length]);
+        const completion = useMemo(() => Math.round((loadedActiveUsers / totalActiveUsers) * 100), [loadedActiveUsers, totalActiveUsers]);
 
         return (
             <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 20px)'>
@@ -225,12 +249,25 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 </Stack>
                 <Divider />
+
+                <Box sx={{ display: 'flex', alignItems: 'center', visibility: completion < 100 ? 'visible' : 'hidden' }}>
+                    <Box sx={{ width: '100%', mr: 1 }}>
+                        <LinearProgress variant="determinate" value={completion} />
+                    </Box>
+                    <Box sx={{ minWidth: 35 }}>
+                        <Typography
+                            variant="body2"
+                            sx={{ color: 'text.secondary' }}
+                        >{`${completion || 0}%`}</Typography>
+                    </Box>
+                </Box>
+
                 {
-                    userSelected && activeUsers.length > 0 &&
+                    selectedUser && activeUsers.length > 0 &&
                     <>
                         <UserItem
-                            user={activeUsers.find(user => user.systemuserid === userSelected.systemuserid)!}
-                            userSelected={userSelected}
+                            user={activeUsers.find(user => user.systemuserid === selectedUser.systemuserid)!}
+                            userSelected={selectedUser}
                             handleSelect={handleSelect}
                         />
                         <Divider />
@@ -245,53 +282,17 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                             activeUsers.length > 0 ?
                                 <List sx={{ width: '100%', height: '100%' }}>
                                     <MuiVirtuoso
-                                        data={activeUsers}
+                                        data={filteredActiveUsers}
                                         itemContent={(index, user) => {
-                                            if (securityRoleSelected.filter(role =>
-                                                user.securityRoles.filter(r =>
-                                                    r.roleid === role.roleid).length +
-                                                user.teamsRoles.filter(r =>
-                                                    r.roleid === role.roleid).length).length !== securityRoleSelected.length) {
-                                                return null;
-                                            }
-
-                                            if (!user.fullname?.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress?.toLowerCase().includes(filter.toLowerCase())) {
-                                                return null;
-                                            }
-
                                             return (
                                                 <UserItem
                                                     user={user}
-                                                    userSelected={userSelected}
+                                                    userSelected={selectedUser}
                                                     handleSelect={handleSelect}
                                                 />
                                             );
                                         }}
                                     />
-                                    {/* {
-                                        activeUsers.map((user) => {
-
-                                            if (securityRoleSelected.filter(role =>
-                                                user.securityRoles.filter(r =>
-                                                    r.roleid === role.roleid).length +
-                                                user.teamsRoles.filter(r =>
-                                                    r.roleid === role.roleid).length).length !== securityRoleSelected.length) {
-                                                return null;
-                                            }
-
-                                            if (!user.fullname.toLowerCase().includes(filter.toLowerCase()) && !user.emailAddress.toLowerCase().includes(filter.toLowerCase())) {
-                                                return null;
-                                            }
-
-                                            return (
-                                                <UserItem
-                                                    user={user}
-                                                    userSelected={userSelected}
-                                                    handleSelect={handleSelect}
-                                                />
-                                            );
-                                        })
-                                    } */}
                                 </List>
                                 :
                                 <Typography variant='caption' textAlign='center' color='grey' fontSize='small'>No enabled {!isOnPrem && "and licensed "}user found</Typography>
@@ -341,7 +342,13 @@ const UserItem = React.memo((props: UserItemProps) => {
                             }}
                         />
 
-                        <AvatarColor src={user.entityimage_url} fullname={user.fullname} size={24} />
+                        <AvatarColor
+                            src={user.entityimage_url}
+                            fullname={user.fullname}
+                            size={24}
+                            loading={!user.teamsRoles}
+                            circularProgressRatio={1.33}
+                        />
 
                     </ListItemIcon>
                     <ListItemText
@@ -490,8 +497,9 @@ const RolesDisplayList = React.memo((props: RolesDisplayListProps) => {
     return (
         <List dense subheader={<><b>User roles</b>:</>} sx={{ fontSize: "1.15em" }}>
             {user.securityRoles.map(s => <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}><ListItemText primary={s.name} /></ListItem>)}
+            {!user.teamsRoles && <ListItem sx={{ display: 'list-item', pt: 0, pb: 0 }}><ListItemText primary={<i>Fetching teams security roles...</i>} /></ListItem>}
             {
-                Object.values(user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
+                user.teamsRoles && Object.values(user.teamsRoles.reduce((result: { [key: string]: TeamsSecurityRole[] }, currentItem) => {
                     // Retrieve attribute value to group by
                     const groupKey = currentItem["teamid"];
                     // Initialize the group if not existing

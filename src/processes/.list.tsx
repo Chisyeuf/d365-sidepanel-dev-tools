@@ -51,3 +51,5 @@ export default Processes;
 // Workflow Activities Explorer
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
 // Ajouter un bouton pour les reviews dans footer
+// Update: field droplist n'a pas de barre vertical + tooltip clignote
+// Impersonate: 

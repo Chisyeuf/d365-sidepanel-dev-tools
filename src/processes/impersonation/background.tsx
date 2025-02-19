@@ -2,7 +2,7 @@ import { ActiveUser } from "../../utils/types/ActiveUser";
 
 const prefixId: number = 56850000;
 
-const createImpersonationRule = async (azureObjectId: string, headerItem:string, url: string) => {
+const createImpersonationRule = async (azureObjectId: string, headerItem: string, url: string) => {
     const exitingRules = await getSessionRules();
 
     const rule: chrome.declarativeNetRequest.Rule = {
@@ -25,7 +25,7 @@ const createImpersonationRule = async (azureObjectId: string, headerItem:string,
     return rule;
 }
 
-const updateImpersonationRules = async (azureObjectId: string, headerItem:string, url: string) => {
+const updateImpersonationRules = async (azureObjectId: string, headerItem: string, url: string) => {
     const exitingRules = await getSessionRules();
 
     const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
@@ -68,8 +68,10 @@ export async function manageImpersonation(data: { userSelected: ActiveUser, sele
     else {
         if (data.isOnPrem) {
             ruleList = await updateImpersonationRules(data.userSelected.systemuserid, "MSCRMCallerId", data.url);
-        }else {
+        } else if (data.userSelected.azureObjectId) {
             ruleList = await updateImpersonationRules(data.userSelected.azureObjectId, "CallerObjectId", data.url);
+        } else {
+            return;
         }
     }
 

@@ -1,6 +1,7 @@
-import { Avatar, SxProps, Theme } from "@mui/material";
-import React from 'react';
-
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import { SxProps, Theme } from "@mui/material";
 
 
 function stringToColor(string: string) {
@@ -28,27 +29,41 @@ function stringToColor(string: string) {
 interface AvatarColorProps {
     fullname?: string
     src?: string
-    size?: number
-    sx?:SxProps<Theme> 
+    size: number
+    loading?: boolean
+    circularProgressRatio?: number
+    circularProgressThickness?: number
+    sx?: SxProps<Theme>
 }
 
 function AvatarColor(props: AvatarColorProps) {
-    const { src, fullname, size, sx } = props;
+    const { src, fullname, size, circularProgressRatio = 1, circularProgressThickness, loading = false, sx } = props;
 
     return (
-        <Avatar src={src} sx={(theme) => ({
-            ...(fullname && { bgcolor: stringToColor(fullname) }),
-            ...(
-                size && {
-                    width: size,
-                    height: size,
-                    fontSize: size / 2
-                }
-            ),
-            ...(typeof sx === "function" ? sx?.(theme) : {sx}),
-        })} >
-            {fullname && `${fullname.split(' ')[0][0]}${fullname.split(' ')[1][0]}`}
-        </Avatar>
+        <Box sx={{ position: 'relative' }}>
+            <Avatar src={src} sx={(theme) => ({
+                ...(fullname && { bgcolor: stringToColor(fullname) }),
+                width: size,
+                height: size,
+                fontSize: size / 2
+                ,
+                ...(typeof sx === "function" ? sx?.(theme) : { sx }),
+            })} >
+                {fullname && fullname.match(/(^\S?|\s\S)?/g)?.map(v => v.trim()).join("").match(/(^\S|\S$)?/g)?.join("").toLocaleUpperCase()}
+            </Avatar>
+            {loading && (
+                <CircularProgress
+                    size={size + size * (circularProgressRatio - 1)}
+                    disableShrink
+                    thickness={circularProgressThickness}
+                    sx={{
+                        position: 'absolute',
+                        top: -(size * (circularProgressRatio - 1) * 0.5),
+                        left: -(size * (circularProgressRatio - 1) * 0.5),
+                    }}
+                />
+            )}
+        </Box>
     );
 }
 
