@@ -26,5 +26,3 @@ yarn-error.log*
 .vscode
 
 tsconfig.tsbuildinfo
-src/processes/formTools/buttons/FillFields.tsx
-package.json
