@@ -52,4 +52,4 @@ export default Processes;
 // Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
 // Ajouter un bouton pour les reviews dans footer
 // Update: field droplist n'a pas de barre vertical + tooltip clignote
-// Impersonate: 
+// Impersonate: Check security role filtering when user have a role twice

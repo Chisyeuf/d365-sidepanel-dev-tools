@@ -183,12 +183,12 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const filteredActiveUsers = useMemo(() => {
             return activeUsers.filter(user => {
 
-                if (securityRoleSelected.filter(userRole =>
+                if (securityRoleSelected.filter(selectedRole =>
                     user.securityRoles.filter(
-                        securityRole => securityRole.roleid === userRole.roleid
+                        securityRole => securityRole.roleid === selectedRole.roleid
                     ).length +
                     (user.teamsRoles?.filter(
-                        teamRole => teamRole.roleid === userRole.roleid
+                        teamRole => teamRole.roleid === selectedRole.roleid
                     ).length ?? 0)
                 ).length !== securityRoleSelected.length) {
                     return false;
@@ -203,7 +203,18 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const loadedActiveUsers = useMemo(() => activeUsers.filter(user => user.teamsRoles).length, [activeUsers]);
         const totalActiveUsers = useMemo(() => activeUsers.length, [activeUsers.length]);
-        const completion = useMemo(() => Math.round((loadedActiveUsers / totalActiveUsers) * 100), [loadedActiveUsers, totalActiveUsers]);
+        const completion = useMemo(() => totalActiveUsers > 0 ? Math.round((loadedActiveUsers / totalActiveUsers) * 100) : 0, [loadedActiveUsers, totalActiveUsers]);
+
+        const debugFn = useCallback(() => {
+            debugLog("DEBUG: Impersonation - activeUsers object:", activeUsers);
+
+            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
+                function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
+                    debugLog('DEBUG: Impersonation - session rule currently applied:', existingRules);
+                }
+            );
+        }, [activeUsers, extensionId]);
+
 
         return (
             <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 20px)'>
@@ -237,30 +248,35 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     </Tooltip>
 
                     {isDebug.value &&
-                        <IconButton onClick={() => {
-                            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
-                                function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
-                                    debugLog('DEBUG: ', existingRules)
-                                }
-                            );
-                        }}>
+                        <IconButton onClick={debugFn}>
                             <PestControlIcon />
                         </IconButton>
                     }
                 </Stack>
                 <Divider />
 
-                <Box sx={{ display: 'flex', alignItems: 'center', visibility: completion < 100 ? 'visible' : 'hidden' }}>
-                    <Box sx={{ width: '100%', mr: 1 }}>
-                        <LinearProgress variant="determinate" value={completion} />
-                    </Box>
-                    <Box sx={{ minWidth: 35 }}>
+                {
+                    completion < 100 &&
+                    <Box>
                         <Typography
                             variant="body2"
                             sx={{ color: 'text.secondary' }}
-                        >{`${completion || 0}%`}</Typography>
+                        >
+                            <i>Fetching teams security roles...</i>
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box sx={{ width: '100%', mr: 1 }}>
+                                <LinearProgress variant="determinate" value={completion} />
+                            </Box>
+                            <Box sx={{ minWidth: 35 }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{ color: 'text.secondary' }}
+                                >{`${completion || 0}%`}</Typography>
+                            </Box>
+                        </Box>
                     </Box>
-                </Box>
+                }
 
                 {
                     selectedUser && activeUsers.length > 0 &&
@@ -272,8 +288,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                         />
                         <Divider />
                     </>
-
                 }
+
                 {
                     isFetching ?
                         [...Array(22)].map(() => <Skeleton variant='rounded' height={rowHeight + 'px'} />)

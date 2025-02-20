@@ -108,27 +108,27 @@ export async function ConvertToActiveUserObject(user: any) {
                 }
             }),
             teamsRoles: await (async () => {
-                const teamroles: TeamsSecurityRole[] = [];
+                let teamroles: TeamsSecurityRole[] = [];
                 const filter = (user.teammembership_association as any[]).map((t: any) => `teamid eq ${t.teamid}`);
 
                 while (filter.length > 0) {
                     const nextFilter = filter.splice(0, FILTER_THRESHOLD);
                     const teams = await Xrm.WebApi.online.retrieveMultipleRecords("team", `?$select=teamid,name&$expand=teamroles_association($select=roleid,name,roleidunique)&$filter=(${nextFilter.join(' or ')})`);
 
-                    teamroles.concat(
-                        teams.entities.flatMap<TeamsSecurityRole>(team => {
-                            return team.teamroles_association.map((role: any) => {
-                                return {
-                                    name: role["name"],
-                                    roleid: role["roleid"],
-                                    uniqueid: role["roleidunique"],
-                                    teamid: team["teamid"],
-                                    teamname: team["name"],
-                                }
+                    const teamRoles = teams.entities.flatMap<TeamsSecurityRole>(team => {
+                        return team.teamroles_association.map((role: any) => {
+                            return {
+                                name: role["name"],
+                                roleid: role["roleid"],
+                                uniqueid: role["roleidunique"],
+                                teamid: team["teamid"],
+                                teamname: team["name"],
                             }
-                            )
-                        })
-                    );
+                        }
+                        )
+                    });
+
+                    teamroles = teamroles.concat(teamRoles);
                 }
 
                 return teamroles;
