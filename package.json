@@ -1,6 +1,6 @@
 {
     "name": "chisyeuf-d365-sidepanel-dev-tools",
-    "version": "0.9.7.2",
+    "version": "0.9.8",
     "private": true,
     "dependencies": {
         "@custom-react-hooks/all": "^1.5.1",
