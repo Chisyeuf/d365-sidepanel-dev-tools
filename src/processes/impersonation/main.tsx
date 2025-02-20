@@ -115,6 +115,11 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const extensionId = GetExtensionId();
 
 
+        const loadedActiveUsers = useMemo(() => activeUsers.filter(user => user.teamsRoles).length, [activeUsers]);
+        const totalActiveUsers = useMemo(() => activeUsers.length, [activeUsers.length]);
+        const completion = useMemo(() => totalActiveUsers > 0 ? Math.round((loadedActiveUsers / totalActiveUsers) * 100) : 0, [loadedActiveUsers, totalActiveUsers]);
+
+
         const sendNewUserToBackground = useCallback((newUser: ActiveUser | null) => {
             const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl(), isOnPrem: isOnPrem };
             chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
@@ -158,7 +163,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [activeUsers, setUserSelected]);
 
 
@@ -200,10 +205,6 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                 return true;
             })
         }, [activeUsers, filter, securityRoleSelected]);
-
-        const loadedActiveUsers = useMemo(() => activeUsers.filter(user => user.teamsRoles).length, [activeUsers]);
-        const totalActiveUsers = useMemo(() => activeUsers.length, [activeUsers.length]);
-        const completion = useMemo(() => totalActiveUsers > 0 ? Math.round((loadedActiveUsers / totalActiveUsers) * 100) : 0, [loadedActiveUsers, totalActiveUsers]);
 
         const debugFn = useCallback(() => {
             debugLog("DEBUG: Impersonation - activeUsers object:", activeUsers);
