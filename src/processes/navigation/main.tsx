@@ -13,6 +13,7 @@ import NavigationAzurePortal from './containers/NavigationToAzurePortal';
 import AdvancedFind from './containers/NavigationToAdvancedFind';
 import NavigationToPowerAutomate from './containers/NavigationToPowerAutomate';
 import { List, Typography } from '@mui/material';
+import NavigationToPowerApps from './containers/NavigationToPowerApps';
 
 
 class NavigationButton extends ProcessButton {
@@ -31,7 +32,8 @@ class NavigationButton extends ProcessButton {
                 <Typography component='li'><u>Solutions</u>: Opens the <b>solution list</b> or the <b>selected solution</b> in an other tab. Choose between the classic interface or PowerApps.</Typography>
                 <Typography component='li'><u>Form Editor</u>: Opens the <b>form editor</b> of the currently opened form in an other tab. Choose between the classic interface or PowerApps.</Typography>
                 <Typography component='li'><u>Advanced Find</u>: Opens the good old <b>Advanced Find</b> in a new tab, automatically focusing on the currently viewed entity.</Typography>
-                <Typography component='li'><u>Power Automate</u></Typography>
+                <Typography component='li'><u>Power Apps Home</u></Typography>
+                <Typography component='li'><u>Power Automate Home</u></Typography>
                 <Typography component='li'><u>Admin Power Platform</u></Typography>
                 <Typography component='li'><u>Environments</u>: Opens the environment list of the tenant on admin center.</Typography>
                 <Typography component='li'><u>Azure Portal</u>: Opens the tenant's Azure portal.</Typography>
@@ -69,6 +71,7 @@ const buttons = [
     NavigationToSolutionList,
     NavigationToFormEditor,
     AdvancedFind,
+    NavigationToPowerApps,
     NavigationToPowerAutomate,
     NavigationToPowerAdmin,
     NavigationAzurePortal,

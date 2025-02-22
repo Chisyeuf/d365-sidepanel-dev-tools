@@ -49,33 +49,29 @@ function NavigationToSecurity(props: NavigationButton) {
     }
 
     return (
-        <>
-            <Tooltip placement='left' title='Security Panel'>
-                <Button
-                    variant='outlined'
-                    onClick={handleClick}
-                    startIcon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
-                    sx={{
-                        width: '100%',
-                        maxWidth: 'calc(100% - 10px)',
-                        gap: '0.4em',
-                        padding: '5px 10px',
-                        justifyContent: 'flex-start',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                    }}
+        <Tooltip placement='left' title='Legacy Interface - Security Panel'>
+            <Button
+                variant='outlined'
+                onClick={handleClick}
+                startIcon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
+                sx={{
+                    width: '100%',
+                    maxWidth: 'calc(100% - 10px)',
+                    gap: '0.4em',
+                    padding: '5px 10px',
+                    justifyContent: 'flex-start',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                }}
 
-                >
-                    <Box width='calc(100% - 20px)'>
-                        <Textfit mode='single' forceSingleModeWidth={false}>
-                            Security
-                        </Textfit>
-                    </Box>
-                </Button>
-            </Tooltip>
-            {/* </Stack> */}
-            {/* </ComponentContainer> */}
-        </>
+            >
+                <Box width='calc(100% - 20px)'>
+                    <Textfit mode='single' forceSingleModeWidth={false}>
+                        Security
+                    </Textfit>
+                </Box>
+            </Button>
+        </Tooltip>
     )
 }
 

@@ -18,7 +18,7 @@ function PowerAdmin(props: NavigationButton) {
 
     return (
         <>
-            <Tooltip placement='left' title='Admin Power Platform'>
+            <Tooltip placement='left' title='Admin Power Platform - Home'>
                 <Button
                     variant='outlined'
                     onClick={handleClick}
@@ -42,7 +42,7 @@ function PowerAdmin(props: NavigationButton) {
             </Tooltip>
 
 
-            <Tooltip placement='left' title='Environments List from Admin Power Platform'>
+            <Tooltip placement='left' title='Admin Power Platform - Environments List'>
                 <Button
                     variant='outlined'
                     onClick={handleClickEnvironment}

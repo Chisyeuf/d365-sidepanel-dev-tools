@@ -11,10 +11,10 @@ interface D365NavBarIconProps {
 function D365NavBarIcon(props: D365NavBarIconProps) {
     const { iconX, iconY, width } = props;
 
-    const ratio = useMemo(() => width / baseWidth, [width, baseWidth]);
+    const ratio = useMemo(() => width / baseWidth, [width]);
     const trueIconX = useMemo(() => iconX * ratio, [ratio, iconX]);
     const trueIconY = useMemo(() => iconY * ratio, [ratio, iconY]);
-    const backgroundSize = useMemo(() => navbarImagesWidth * ratio, [navbarImagesWidth, ratio]);
+    const backgroundSize = useMemo(() => navbarImagesWidth * ratio, [ratio]);
     
 
     return (

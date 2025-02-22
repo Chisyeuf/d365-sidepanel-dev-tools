@@ -8,10 +8,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import ComponentContainer from '../../../utils/components/ComponentContainer';
-import { PowerAppsIcon } from '../icons';
+import { PowerAppsIcon, PowerAutomateIcon } from '../icons';
 import { RetrieveSolutions } from '../../../utils/hooks/XrmApi/RetrieveSolutions';
 import { useBoolean } from 'usehooks-ts';
 import FilterInput, { AttributeFilterInputRef } from '../../../utils/components/FilterInput';
@@ -35,6 +35,14 @@ function SolutionList(props: NavigationButton) {
             window.open(`https://make.powerapps.com/environments/${environmentId}/solutions/`, '_blank');
         } else {
             window.open(`https://make.powerapps.com/environments/${environmentId}/solutions/${selectedSolution.solutionid}`, '_blank');
+        }
+    }
+
+    function handleClickPowerAutomate() {
+        if (!selectedSolution) {
+            window.open(`https://make.powerautomate.com/environments/${environmentId}/solutions/`, '_blank');
+        } else {
+            window.open(`https://make.powerautomate.com/environments/${environmentId}/solutions/${selectedSolution.solutionid}`, '_blank');
         }
     }
 
@@ -85,7 +93,7 @@ function SolutionList(props: NavigationButton) {
                 Select Solution
             </Button>
         </Tooltip>
-    ), [setDialogOpenedTrue, inputRef, inputRef.current]);
+    ), [openSolutionTooltip, setDialogOpenedTrue]);
 
     return (
         <>
@@ -96,44 +104,59 @@ function SolutionList(props: NavigationButton) {
                 <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
                     <Tooltip placement='top' title={`Open ${solutionName} in old interface`}>
-                        <RedDisabledButton
-                            variant='outlined'
-                            onClick={handleClickOldSolution}
-                            startIcon={<D365NavBarIcon iconX={-239} iconY={-1} width={20} />}
-                            sx={{
-                                width: '35%'
-                            }}
-                            buttonSx={{
-                                width: '100%',
-                                gap: '0.4em',
-                                padding: '5px 10px',
-                                fontSize: '0.8em',
-                                justifyContent: 'flex-start',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                            }}
-                        />
+                        <Box>
+                            <RedDisabledButton
+                                variant='outlined'
+                                onClick={handleClickOldSolution}
+                                startIcon={<D365NavBarIcon iconX={-239} iconY={-1} width={20} />}
+                                buttonSx={{
+                                    gap: '0.4em',
+                                    p: 0.5,
+                                    fontSize: '0.8em',
+                                    justifyContent: 'flex-start',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            />
+                        </Box>
                     </Tooltip>
 
                     <Tooltip placement='top' title={`Open ${solutionName} in PowerApps`}>
-                        <RedDisabledButton
-                            variant='outlined'
-                            disabled={!environmentId}
-                            onClick={handleClickPowerApps}
-                            startIcon={<PowerAppsIcon />}
-                            sx={{
-                                width: '35%'
-                            }}
-                            buttonSx={{
-                                width: '100%',
-                                gap: '0.4em',
-                                padding: '5px 10px',
-                                fontSize: '0.8em',
-                                justifyContent: 'flex-start',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                            }}
-                        />
+                        <Box>
+                            <RedDisabledButton
+                                variant='outlined'
+                                disabled={!environmentId}
+                                onClick={handleClickPowerApps}
+                                startIcon={<PowerAppsIcon />}
+                                buttonSx={{
+                                    gap: '0.4em',
+                                    p: 0.5,
+                                    fontSize: '0.8em',
+                                    justifyContent: 'flex-start',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            />
+                        </Box>
+                    </Tooltip>
+
+                    <Tooltip placement='top' title={`Open ${solutionName} in PowerAutomate`}>
+                        <Box>
+                            <RedDisabledButton
+                                variant='outlined'
+                                disabled={!environmentId}
+                                onClick={handleClickPowerAutomate}
+                                startIcon={<PowerAutomateIcon />}
+                                buttonSx={{
+                                    gap: '0.4em',
+                                    p: 0.5,
+                                    fontSize: '0.8em',
+                                    justifyContent: 'flex-start',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            />
+                        </Box>
                     </Tooltip>
 
                 </Stack>
@@ -143,9 +166,6 @@ function SolutionList(props: NavigationButton) {
                 anchor={'right'}
                 open={dialogOpened}
                 onClose={setDialogOpenedFalse}
-                sx={{
-                    width: '25%'
-                }}
             >
                 <Box
                     padding={1}
@@ -153,8 +173,8 @@ function SolutionList(props: NavigationButton) {
                     <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} defaultValue={filter} />
                 </Box>
                 <Divider />
-                <List sx={{ width: '25vw', overflowY: 'scroll' }}>
-                    <ListItem key={'nosolution'}  sx={{ p: 0 }}>
+                <List sx={{ width: '45vw', overflowY: 'scroll' }}>
+                    <ListItem key={'nosolution'} sx={{ p: 0 }}>
                         <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
                             <ListItemText
                                 primary={<i>Unselect Solution</i>}
@@ -168,7 +188,7 @@ function SolutionList(props: NavigationButton) {
                             }
 
                             return (
-                                <ListItem key={'solution' + solutionItem.uniqueName}  sx={{ p: 0 }}>
+                                <ListItem key={'solution' + solutionItem.uniqueName} sx={{ p: 0 }}>
                                     <ListItemButton
                                         sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
                                         onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}

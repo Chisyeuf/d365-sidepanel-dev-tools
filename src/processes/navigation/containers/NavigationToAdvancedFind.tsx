@@ -20,34 +20,30 @@ function AdvancedFind(props: NavigationButton) {
             window.open(`${clientUrl}/main.aspx?pagetype=AdvancedFind`, '_blank');
         }
     }
-    
+
     return (
-        <>
-            <Tooltip placement='left' title='Advanced Find Origins'>
-                <Button
-                    variant='outlined'
-                    onClick={handleClick}
-                    startIcon={<FilterAltIcon />}
-                    sx={{
-                        width: '100%',
-                        maxWidth: 'calc(100% - 10px)',
-                        gap: '0.4em',
-                        padding: '5px 10px',
-                        justifyContent: 'flex-start',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    <Box width='calc(100% - 20px)'>
-                        <Textfit mode='single' forceSingleModeWidth={false}>
-                            Advanced Find
-                        </Textfit>
-                    </Box>
-                </Button>
-            </Tooltip>
-            {/* </Stack>
-            </ComponentContainer> */}
-        </>
+        <Tooltip placement='left' title='Original Advanced Find'>
+            <Button
+                variant='outlined'
+                onClick={handleClick}
+                startIcon={<FilterAltIcon />}
+                sx={{
+                    width: '100%',
+                    maxWidth: 'calc(100% - 10px)',
+                    gap: '0.4em',
+                    padding: '5px 10px',
+                    justifyContent: 'flex-start',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                }}
+            >
+                <Box width='calc(100% - 20px)'>
+                    <Textfit mode='single' forceSingleModeWidth={false}>
+                        Advanced Find
+                    </Textfit>
+                </Box>
+            </Button>
+        </Tooltip>
     )
 }
 

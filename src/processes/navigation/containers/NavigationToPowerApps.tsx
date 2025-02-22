@@ -2,22 +2,23 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 
-import { AzurePortalIcon } from '../icons';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import { Textfit } from 'react-textfit';
+import { PowerAppsIcon } from '../icons';
 
-function AzurePortal(props: NavigationButton) {
+function ToPowerApps(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
     function handleClick() {
-        window.open(`https://portal.azure.com/`, '_blank');
+        window.open(`https://make.powerapps.com/environments/${environmentId}/home`, '_blank');
     }
+
     return (
-        <Tooltip placement='left' title='Azure Portal'>
+        <Tooltip placement='left' title='Power Apps - Home'>
             <Button
                 variant='outlined'
                 onClick={handleClick}
-                startIcon={<AzurePortalIcon />}
+                startIcon={<PowerAppsIcon />}
                 sx={{
                     width: '100%',
                     maxWidth: 'calc(100% - 10px)',
@@ -30,7 +31,7 @@ function AzurePortal(props: NavigationButton) {
             >
                 <Box width='calc(100% - 20px)'>
                     <Textfit mode='single' forceSingleModeWidth={false}>
-                        Azure Portal
+                        Power Apps
                     </Textfit>
                 </Box>
             </Button>
@@ -38,4 +39,4 @@ function AzurePortal(props: NavigationButton) {
     )
 }
 
-export default AzurePortal;
+export default ToPowerApps;
