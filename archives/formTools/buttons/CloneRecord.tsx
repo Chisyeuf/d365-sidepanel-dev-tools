@@ -13,7 +13,7 @@ function CloneRecord(props: SubProcessProps) {
 
         var pageInput: Xrm.Navigation.PageInputEntityRecord = {
             pageType: "entityrecord",
-            entityName: currentFormContext.data.entity.getEntityName(),
+            entityName: currentFormContext.data?.entity?.getEntityName(),
             data: currentFormContext.getAttribute().reduce((a, v) => ({ ...a, [v.getName()]: v.getValue() }), {})
         };
         var navigationOptions: Xrm.Navigation.NavigationOptions = {

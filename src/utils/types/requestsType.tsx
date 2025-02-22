@@ -134,6 +134,7 @@ export type AttributeMetadata = {
     IsValidForRead: boolean,
     IsValidForUpdate: boolean,
     IsValidODataAttribute: boolean,
+    RequiredLevel: 'SystemRequired' | 'ApplicationRequired' | 'Recommended' | 'None',
     Parameters: {
         MinValue: number,
         MaxValue: number,

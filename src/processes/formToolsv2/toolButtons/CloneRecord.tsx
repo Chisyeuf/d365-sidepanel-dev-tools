@@ -15,7 +15,7 @@ function CloneRecord(props: IToolButtonStandard) {
 
         var pageInput: Xrm.Navigation.PageInputEntityRecord = {
             pageType: "entityrecord",
-            entityName: formContext.data.entity.getEntityName(),
+            entityName: formContext.data?.entity?.getEntityName(),
             data: formContext.getAttribute().reduce((data, attribute) => ({ ...data, [attribute.getName()]: attribute.getValue() }), {})
         };
         var navigationOptions: Xrm.Navigation.NavigationOptions = {

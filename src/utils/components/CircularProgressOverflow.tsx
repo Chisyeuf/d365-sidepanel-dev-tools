@@ -44,7 +44,7 @@ function CircularProgressOverflow(props: CircularProgressOverflowProps) {
 
     useEffect(() => {
         onHover && onHover(isHover)
-    }, [isHover])
+    }, [isHover, onHover])
 
 
     return (

@@ -11,7 +11,7 @@ import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import { Badge, Box, Button, Divider, Drawer, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import { Badge, Box, Button, Divider, Drawer, IconButton, Paper, StyledEngineProvider, Tooltip, Typography } from '@mui/material';
 import { ProcessButton } from '../utils/global/.processClass';
 import { APPLICATION_NAME, PROJECT_PREFIX, DRAWER_CONTAINER_ID, MAIN_MENU_ID, STORAGE_ForegroundPanes, STORAGE_ListName } from '../utils/global/var';
 import PanelDrawerItem from '../utils/components/PanelDrawer/PanelDrawerItem';
@@ -29,17 +29,20 @@ import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/spCont
 
 const MainScreen: React.FunctionComponent = () => {
     return (
-
-        <SnackbarProvider
-            maxSnack={5}
-            Components={{
-                detailsFile: DetailsSnackbar
-            }}
-        >
-            <SpDevToolsContextProvider>
-                <MainScreenCustomPanel />
-            </SpDevToolsContextProvider>
-        </SnackbarProvider>
+        // <React.StrictMode>
+            <StyledEngineProvider injectFirst>
+                <SnackbarProvider
+                    maxSnack={5}
+                    Components={{
+                        detailsFile: DetailsSnackbar
+                    }}
+                >
+                    <SpDevToolsContextProvider>
+                        <MainScreenCustomPanel />
+                    </SpDevToolsContextProvider>
+                </SnackbarProvider>
+            </StyledEngineProvider>
+        // </React.StrictMode>
     )
 }
 

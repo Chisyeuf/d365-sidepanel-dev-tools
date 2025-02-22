@@ -11,19 +11,17 @@ interface SplitButtonAction {
     onSelect?: () => void
 }
 
-interface SplitButtonProps {
-    options: SplitButtonAction[]
-    defaultActionIndex?: number
-    actionIndex?: number
+interface SplittedDropDownButtonProps {
+    options: SplitButtonAction[];
+    defaultActionIndex?: number;
+    actionIndex?: number;
 }
-function SplitButton(props: SplitButtonProps) {
+function SplittedDropDownButton(props: SplittedDropDownButtonProps) {
     const { options, defaultActionIndex, actionIndex } = props;
-
 
     const [open, setOpen] = useState(false);
     const anchorRef = useRef<HTMLDivElement>(null);
     const [selectedIndex, setSelectedIndex] = useState(defaultActionIndex ?? 0);
-
 
 
     useEffect(() => {
@@ -85,7 +83,6 @@ function SplitButton(props: SplitButtonProps) {
                 sx={{ zIndex: 10 }}
                 open={open}
                 anchorEl={anchorRef.current}
-                role={undefined}
                 transition
                 disablePortal
             >
@@ -120,4 +117,4 @@ function SplitButton(props: SplitButtonProps) {
     );
 }
 
-export default SplitButton;
+export default SplittedDropDownButton;

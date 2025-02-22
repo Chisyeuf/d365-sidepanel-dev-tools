@@ -29,7 +29,7 @@ function ShowOptionSetInFields(props: SubProcessProps) {
     useEffect(() => {
         if (!controls || !currentFormContext?.data?.entity || !optionsDisplayed) return;
 
-        Xrm.Utility.getEntityMetadata(currentFormContext.data.entity.getEntityName(), controls.map(c => (c as any).controlDescriptor.DataFieldName)).then(entityMetadata => {
+        Xrm.Utility.getEntityMetadata(currentFormContext.data?.entity?.getEntityName(), controls.map(c => (c as any).controlDescriptor.DataFieldName)).then(entityMetadata => {
             const attributes = entityMetadata.Attributes;
             controls?.forEach((control) => {
                 const fieldMetadata = attributes.get((control as any).controlDescriptor.DataFieldName as string);

@@ -9,7 +9,7 @@ function ToPowerAutomate(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
     function handleClick() {
-        window.open(`https://make.powerautomate.com//environments/${environmentId}`, '_blank');
+        window.open(`https://make.powerautomate.com//environments/${environmentId}/home`, '_blank');
     }
 
     return (

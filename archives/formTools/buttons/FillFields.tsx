@@ -22,7 +22,7 @@ function FillFields(props: SubProcessProps) {
 
     const { value: open, setTrue: setOpen, setFalse: setClose, toggle: toggleOpen } = useBoolean(false);
 
-    const [attributeMetadata, isFetching] = RetrieveAttributesMetaData(currentFormContext?.data.entity.getEntityName() ?? '');
+    const [attributeMetadata, isFetching] = RetrieveAttributesMetaData(currentFormContext?.data?.entity?.getEntityName() ?? '');
 
     // ---------- Fill on click mode ----------
     const [fillOnClickEnable, setFillOnClick] = useState<boolean>(false);

@@ -12,7 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 // Material UI imports
-import { Autocomplete, ButtonGroup, createFilterOptions, createTheme, TextField, ThemeProvider } from '@mui/material';
+import { Autocomplete, Box, ButtonGroup, createFilterOptions, createTheme, lighten, List, ListItem, ListItemText, TextField, ThemeProvider, Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -30,7 +30,7 @@ import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.pro
 import { AttributeProps, BigIntNode, BooleanNode, DateTimeNode, DecimalNode, DoubleNode, GroupedPicklistNode, ImageNode, IntegerNode, LookupNode, MemoNode, MoneyNode, MultiplePicklistNode, PicklistNode, StringNode } from './nodes';
 
 // Common functions and types
-import { debugLog, formatId } from '../../utils/global/common';
+import { debugLog, formatId, StringKeys } from '../../utils/global/common';
 import { AttributeMetadata, getReadableMSType, MSDateFormat, MSType } from '../../utils/types/requestsType';
 
 // Xrm API hooks
@@ -41,13 +41,14 @@ import RecordSearchBar from '../../utils/components/RecordSearchBar';
 import RestoreIcon from '@mui/icons-material/Restore';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
-import SplitButton from '../../utils/components/SplitButton';
+import SplittedDropDownButton from '../../utils/components/SplittedDropDownButton';
 import { useUpdateEffect } from '@custom-react-hooks/all';
 import { useSnackbar } from 'notistack';
 import { useSpDevTools } from '../../utils/global/spContext';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
-
+import DropDownButton from '../../utils/components/DropDownButton';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 class UpdateRecordButton extends ProcessButton {
     constructor() {
@@ -145,7 +146,7 @@ const theme = createTheme({
     }
 });
 
-type available_modes = 'update' | 'create';
+type AvailableModes = 'update' | 'create';
 
 const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
     function UpdateRecordProcess(props: ProcessProps, ref) {
@@ -156,14 +157,15 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
         const { xrmUpdated } = useXrmUpdated();
 
         const [entityName, _setEntityname] = useState<string>(Xrm.Utility.getPageContext()?.input?.entityName);
-        const [recordsIds, setRecordsIds] = useState<string[]>(formContext?.data?.entity ? [formatId(formContext.data.entity.getId()?.toLowerCase())] : []);
+        const [recordsIds, setRecordsIds] = useState<string[]>(formContext?.data?.entity ? [formatId(formContext.data?.entity?.getId()?.toLowerCase())] : []);
 
         const [filterAttribute, setFilterAttribute] = useState<string>("");
         const { dict: attributesValues, keys: attributesValueKeys, setValue: setAttributesValue, removeValue: removeAttributesValue, setDict: setAttributes } = useDictionnary({});
+        const attributeToUpdateManager = useMemo(() => ({ setAttributesValue, removeAttributesValue }), [removeAttributesValue, setAttributesValue]);
         const { value: resetAttributes, toggle: toggleResetAttributes } = useBoolean(false);
         const { value: resetEntity, toggle: toggleResetEntity } = useBoolean(false);
 
-        const [selectedMode, setSelectedMode] = useState<available_modes>('create');
+        const [selectedMode, setSelectedMode] = useState<AvailableModes>('create');
 
 
         const setEntityname = (entityname: string) => {
@@ -202,7 +204,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                 _setEntityname(currentEntityName);
             }
             if (formContext && entityName === currentEntityName && recordsIds.length === 0) {
-                setRecordsIds([formContext.data.entity.getId()?.toLowerCase()]);
+                setRecordsIds([formContext.data?.entity?.getId()?.toLowerCase()]);
             }
             // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [formContext]);
@@ -306,7 +308,7 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     setFilterAttribute={setFilterAttribute}
                     entityname={entityName}
                     recordsIds={recordsIds}
-                    setMode={(mode: available_modes) => setSelectedMode(mode)}
+                    setMode={(mode: AvailableModes) => setSelectedMode(mode)}
                 />
                 <Divider />
                 <AttributesList
@@ -315,11 +317,11 @@ const UpdateRecordProcess = forwardRef<ProcessRef, ProcessProps>(
                     filter={filterAttribute}
                     resetEntity={resetEntity}
                     resetAttributes={resetAttributes}
-                    attributeToUpdateManager={{ setAttributesValue, removeAttributesValue }}
+                    attributeToUpdateManager={attributeToUpdateManager}
                     mode={selectedMode}
                 />
                 {
-                    isDebug && <>
+                    isDebug.value && <>
                         <Divider />
                         <Typography maxHeight='19px'>{entityName + " / " + recordsIds}</Typography>
                     </>
@@ -353,7 +355,7 @@ type AttributesListProps = {
     resetEntity: boolean,
     resetAttributes: boolean,
     attributeToUpdateManager: { setAttributesValue: (key: string, value: any) => void, removeAttributesValue: (key: string) => void }
-    mode: available_modes
+    mode: AvailableModes
 }
 function AttributesList(props: AttributesListProps) {
     const entityname = props.entityname;
@@ -372,14 +374,18 @@ function AttributesList(props: AttributesListProps) {
         return attributesMetadataRetrieved.filter(attribute => !selectedAttributesName.includes(attribute.LogicalName));
     }, [selectedAttribute, attributesMetadataRetrieved]);
 
-    const handleSelectAttribute = (selectedAttribute: AttributeMetadata[]) => {
+    const handleSelectAttribute = useCallback((selectedAttribute: AttributeMetadata[]) => {
         setSelectedAttribute(array => [...array, ...selectedAttribute]);
-    }
+    }, []);
 
-    const handleUnselectAttribute = (selectedAttribute: AttributeMetadata[]) => {
+    const resetAttributes = useCallback(() => {
+        setSelectedAttribute([]);
+    }, []);
+
+    const handleUnselectAttribute = useCallback((selectedAttribute: AttributeMetadata[]) => {
         const attributeNameToRemove = selectedAttribute.map(attribute => attribute.LogicalName);
         setSelectedAttribute(array => array.filter(attribute => !attributeNameToRemove.includes(attribute.LogicalName)));
-    }
+    }, []);
 
     useEffect(() => {
         setSelectedAttribute([]);
@@ -389,7 +395,7 @@ function AttributesList(props: AttributesListProps) {
         !fetchingMetadata
             ?
             <>
-                <SelectAttribute attributesMetadata={selectableAttribute} selectAttribute={handleSelectAttribute} mode={props.mode} />
+                <SelectAttribute attributesMetadata={selectableAttribute} selectAttribute={handleSelectAttribute} resetAttributes={resetAttributes} mode={props.mode} />
                 <Stack spacing={"2px"} height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} >
                     {
                         !fetchingValues
@@ -533,11 +539,11 @@ const AttributeNode = React.memo((props: AttributeNodeProps) => {
             {
                 (
                     isDirty ?
-                        <IconButton title="Restore to initial value" onClick={setToReset} sx={{ padding: '6px' }}>
+                        <IconButton title="Restore to initial value" onClick={setToReset} sx={{ padding: '6px' }} tabIndex={-1}>
                             <RestoreIcon fontSize='large' />
                         </IconButton>
                         :
-                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }}>
+                        <IconButton title="Remove to update list" onClick={setToRemove} sx={{ padding: '6px' }} tabIndex={-1}>
                             <DeleteIcon fontSize='large' />
                         </IconButton>
                 )
@@ -724,7 +730,7 @@ type NavBarProps = {
     setFilterAttribute: (str: string) => void,
     entityname: string,
     recordsIds: string[],
-    setMode: (mode : available_modes) => void
+    setMode: (mode: AvailableModes) => void
 }
 function NavTopBar(props: NavBarProps) {
 
@@ -764,7 +770,7 @@ function NavTopBar(props: NavBarProps) {
                         </Button>
                     </ButtonGroup>
                 </Stack>
-                <SplitButton
+                <SplittedDropDownButton
                     options={[
                         {
                             title: <Stack direction='row' spacing={2}><RocketLaunchIcon /> <div>Launch Create</div></Stack>,
@@ -794,73 +800,149 @@ const filterOptions = createFilterOptions<AttributeMetadata>({
 interface SelectAttributeProps {
     attributesMetadata: AttributeMetadata[],
     selectAttribute: (selectedAttribute: AttributeMetadata[]) => void,
-    mode: available_modes
+    resetAttributes: () => void,
+    mode: AvailableModes
 }
 function SelectAttribute(props: SelectAttributeProps) {
 
-    const { attributesMetadata, selectAttribute } = props;
+    const { attributesMetadata, selectAttribute, mode, resetAttributes } = props;
 
-    const [selectedAttributed, setSelectedAttributed] = useState<AttributeMetadata | null>(null);
-    const [groupbyEnabled, setGroupbyEnabled] = useState<boolean>(false);
+    const [groupby, setGroupby] = useState<StringKeys<AttributeMetadata> | null>(null);
 
     const attributesMetadataInner = useMemo(() => {
-        if (groupbyEnabled) {
-            return attributesMetadata.sort((a, b) => a.MStype.localeCompare(b.MStype));
+        const nameSort = attributesMetadata.sort((a, b) => a.DisplayName.localeCompare(b.DisplayName));
+        if (groupby === 'RequiredLevel') {
+            const order: AttributeMetadata['RequiredLevel'][] = ['ApplicationRequired', 'Recommended', 'SystemRequired', 'None'];
+            return order.flatMap(requiredLevel => nameSort.filter(att => att.RequiredLevel === requiredLevel));
         }
-        return attributesMetadata.sort((a, b) => a.DisplayName.localeCompare(b.DisplayName));
-    },
-        [attributesMetadata, groupbyEnabled]);
+        if (groupby) {
+            return nameSort.sort((a, b) => a[groupby].localeCompare(b[groupby]));
+        }
+        return nameSort;
+    }, [attributesMetadata, groupby]);
+
+    const selectGroup = useCallback((groupByText: string) => {
+        if (groupby) {
+            const selectedAttributes = attributesMetadata.filter((a) => a[groupby] === groupByText);
+            selectAttribute(selectedAttributes);
+        }
+    }, [attributesMetadata, groupby, selectAttribute]);
 
     return (
-        <Autocomplete
-            fullWidth
-            value={selectedAttributed}
-            filterOptions={filterOptions}
-            size='small'
-            options={attributesMetadataInner}
-            getOptionLabel={(option: AttributeMetadata) => option.DisplayName}
-            key='attributeselector'
-            autoSelect
-            autoComplete
-            blurOnSelect
-            clearOnBlur
-            onChange={(event, option, reason) => { reason === 'selectOption' && option && selectAttribute([option]); }}
-            renderInput={(params) => <TextField {...params} label="Search attribute to update" />}
-            renderOption={((renderProps: React.HTMLAttributes<HTMLLIElement>, option: AttributeMetadata) => {
-                const tooltipText = attributeMetadataTooltipGenerator(option);
+        <Stack direction='row' spacing={0}>
+            <Autocomplete
+                fullWidth
+                value={null}
+                filterOptions={filterOptions}
+                size='small'
+                options={attributesMetadataInner}
+                getOptionLabel={(option: AttributeMetadata) => option.DisplayName}
+                key='attributeselector'
+                autoSelect
+                autoComplete
+                blurOnSelect
+                clearOnBlur
+                // onChange={(event, option, reason) => { reason === 'selectOption' && option && selectAttribute([option]); }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Search attribute to update"
+                        slotProps={{
+                            input: {
+                                ...params.InputProps,
+                                sx: {
+                                    borderTopRightRadius: 0,
+                                    borderBottomRightRadius: 0,
+                                }
+                            }
+                        }}
+                    />
+                )}
+                renderOption={((renderProps: React.HTMLAttributes<HTMLLIElement>, option: AttributeMetadata) => {
+                    const tooltipText = attributeMetadataTooltipGenerator(option);
 
-                const disabled = (props.mode === 'update' && !option.IsValidForUpdate) || (props.mode === 'create' && !option.IsValidForCreate);
+                    const disabled = (mode === 'update' && !option.IsValidForUpdate) || (mode === 'create' && !option.IsValidForCreate);
 
-                return (
-                    <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
-                        <li {...renderProps} style={{
-                            color: disabled ? 'rgba(0, 0, 0, 0.45)' : undefined
-                        }}>
-                            {option.DisplayName}
-                        </li>
-                    </NoMaxWidthTooltip>
-                );
-            })}
-            groupBy={(option) => groupbyEnabled ? option.MStype : ''}
-            slots={{
-                listbox: (props) => {
                     return (
-                        // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-                        <div onMouseDown={props.onMouseDown}>
-                            <ButtonGroup fullWidth size='small'>
-                                <Button onClick={(e) => { setGroupbyEnabled(old => !old) }}>{groupbyEnabled ? "Ungroup" : "Group by Type"}</Button>
-                                <Button onClick={(e) => { selectAttribute(attributesMetadata); }}>Select All</Button>
-                            </ButtonGroup>
-                            <ul {...props} />
-                        </div>
+                        <NoMaxWidthTooltip enterDelay={500} title={tooltipText} arrow placement='left' disableFocusListener>
+                            <ListItem key={`selectAttribute-option-${option.LogicalName}`} {...renderProps} sx={{ ...(disabled && { color: 'text.disabled' }), py: '0 !important' }} onClick={() => selectAttribute([option])}>
+                                <ListItemText>
+                                    {option.DisplayName}
+                                </ListItemText>
+                            </ListItem>
+                        </NoMaxWidthTooltip>
                     );
-                }
-            }}
-            sx={{
-                mt: 0.5,
-                mb: 0.5,
-            }}
-        />
+                })}
+                groupBy={(option) => groupby ? option[groupby] : ''}
+                renderGroup={(params) => (
+                    <>
+                        {params.group &&
+                            <ListItem key={params.key} sx={(theme) => ({ bgcolor: lighten(theme.palette.primary.main, 0.9) })}>
+                                <ListItemText sx={{ color: 'text.secondary' }}>
+                                    {params.group.replace("Microsoft.Dynamics.CRM.", "").replace("AttributeMetadata", "")}
+                                </ListItemText>
+                                <Button onClick={() => selectGroup(params.group)}>Select Group</Button>
+                            </ListItem>
+                        }
+                        <List key={`selectAttribute-group-${params.key}-options`} sx={{ ...(params.group && { ml: 1, pt: 0.5 }) }}>
+                            {params.children}
+                        </List>
+                    </>
+                )}
+                sx={{
+                    my: 0.5,
+                }}
+            />
+            <DropDownButton
+                title={<SettingsIcon />}
+                variant='outlined'
+                options={[
+                    {
+                        id: 'ungroup',
+                        title: "Ungroup",
+                        disabled: !groupby,
+                        onClick: () => setGroupby(null)
+                    },
+                    {
+                        id: 'groupByRequirement',
+                        title: "Group by Requirement Level",
+                        disabled: groupby === 'RequiredLevel',
+                        onClick: () => setGroupby('RequiredLevel')
+                    },
+                    {
+                        id: 'groupByType',
+                        title: "Group by Type",
+                        disabled: groupby === 'MStype',
+                        onClick: () => setGroupby('MStype')
+                    },
+                    {
+                        id: 'selectAll',
+                        title: 'Select All Attributes',
+                        onClick: () => selectAttribute(attributesMetadata)
+                    },
+                ]}
+                sx={{
+                    my: 0.5,
+                    // borderRadius: 0,
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                }}
+            />
+            <Tooltip title={<Typography variant='h6'>Clear Selection</Typography>} arrow disableInteractive placement='top'>
+                <Button
+                    onClick={resetAttributes}
+                    size="small"
+                    sx={{
+                        my: 0.5,
+                        ml: 0.5,
+                        // borderTopLeftRadius: 0,
+                        // borderBottomLeftRadius: 0,
+                    }}
+                >
+                    Clear
+                </Button>
+            </Tooltip>
+        </Stack>
     );
 }
 

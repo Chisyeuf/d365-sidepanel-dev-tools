@@ -8,16 +8,8 @@ export function useXrmUpdated() {
     const [currentRoute, setCurrentRoute] = useState<string>('');
     const [previousRoute, setPreviousRoute] = useState<string>('');
 
-    // const xrmObserverCallback = useCallback(() => {
-    //     setXrmUpdated(prev => !prev);
-    //     setCurrentRoute(previousRoute => {
-    //         setPreviousRoute(previousRoute);
-    //         return document.querySelector(XrmObserverSelector)?.getAttribute('route') ?? '';
-    //     });
-    // }, []);
-
+    
     useEffect(() => {
-        // XrmObserver.addListener(xrmObserverCallback);
         const callback = () => {
             setXrmUpdated(prev => !prev);
             setCurrentRoute(previousRoute => {

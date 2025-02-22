@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
-import { AttributeMetadata,  getMSTypeKeyByValue } from '../../types/requestsType';
+import { AttributeMetadata, getMSTypeKeyByValue } from '../../types/requestsType';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
 
-export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetadata[], boolean] {
+export function RetrieveAttributesMetaData(entityname: string): [AttributeMetadata[], boolean] {
 
     const [data, setData] = useState<AttributeMetadata[]>([]);
     const [isFetching, setIsFetching] = useState<boolean>(false);
     const _entityname = entityname;
-    const idAttribute = RetrievePrimaryIdAttribute(entityname);
+    // const idAttribute = RetrievePrimaryIdAttribute(entityname);
 
     useEffect(() => {
         debugLog("RetrieveAttributesMetaData");
-        if (!entityname || !idAttribute) return;
+        if (!_entityname) return;
+        // if (!_entityname || !idAttribute) return;
         async function fetchData() {
             const response = await fetch(
                 Xrm.Utility.getGlobalContext().getClientUrl() +
                 "/api/data/v9.0/EntityDefinitions(LogicalName='" +
-                _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "') and (IsFilterable eq true or IsValidODataAttribute eq true)", {
+                _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and AttributeType ne 'Uniqueidentifier' and (IsFilterable eq true or IsValidODataAttribute eq true)", {
+                // _entityname + "')/Attributes?$filter=DisplayName ne null and AttributeOf eq null and IsValidForRead eq true and IsLogical eq false and (AttributeType ne 'Uniqueidentifier' or LogicalName eq '" + idAttribute + "') and (IsFilterable eq true or IsValidODataAttribute eq true)", {
                 method: "GET",
                 headers: {
                     "OData-MaxVersion": "4.0",
@@ -49,6 +51,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
                     IsValidForRead: attribute.IsValidForRead,
                     IsValidForUpdate: attribute.IsValidForUpdate,
                     IsValidODataAttribute: attribute.IsValidODataAttribute,
+                    RequiredLevel: attribute.RequiredLevel?.Value,
                     Parameters: {
                         MinValue: attribute.MinValue,
                         MaxValue: attribute.MaxValue,
@@ -67,7 +70,7 @@ export function RetrieveAttributesMetaData(entityname: string) :[AttributeMetada
         setData([])
         fetchData()
 
-    }, [idAttribute]);
+    }, [_entityname]);
 
     return [data, isFetching];
 }

@@ -42,14 +42,12 @@ export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
         expand: false,
         options: null,
     }
-})
+});
 
 
 export default Processes;
 
 
 // Workflow Activities Explorer
-// Mettre en place un systeme qui selection automatiquement les champs obligatoires dans création/update tool
 // Ajouter un bouton pour les reviews dans footer
-// Update: field droplist n'a pas de barre vertical + tooltip clignote
-// Impersonate: Check security role filtering when user have a role twice
+// navigation: add power automate solution list

@@ -25,7 +25,7 @@ export const getRandomValue = async (formContext: FormContext , attribute: Xrm.A
             if (!formContext?.data?.entity) return null;
             const options = Object.values(
                 (await Xrm.Utility.getEntityMetadata(
-                    formContext.data.entity.getEntityName(),
+                    formContext.data?.entity?.getEntityName(),
                     [attribute.getName()])).Attributes.get(0)?.OptionSet
             ).map((o: any) => o.value);
             return getRandomPickList(options);

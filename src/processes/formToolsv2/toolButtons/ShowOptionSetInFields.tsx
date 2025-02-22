@@ -28,7 +28,7 @@ function ShowOptionSetInFields(props: IToolButtonStandard) {
     useEffect(() => {
         if (!controls || !formContext?.data?.entity) return;
 
-        Xrm.Utility.getEntityMetadata(formContext.data.entity.getEntityName(), controls.map(c => (c as any).controlDescriptor.DataFieldName)).then(entityMetadata => {
+        Xrm.Utility.getEntityMetadata(formContext.data?.entity?.getEntityName(), controls.map(c => (c as any).controlDescriptor.DataFieldName)).then(entityMetadata => {
             const attributes = entityMetadata.Attributes;
             controls?.forEach((control) => {
                 const fieldMetadata = attributes.get((control as any).controlDescriptor.DataFieldName as string);
@@ -44,7 +44,7 @@ function ShowOptionSetInFields(props: IToolButtonStandard) {
                 }
             })
         })
-    }, [controls, optionsDisplayed]);
+    }, [controls, formContext, optionsDisplayed]);
 
 
     const toggleOptionsDisplay = () => {

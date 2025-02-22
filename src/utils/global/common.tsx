@@ -119,8 +119,8 @@ export function isObjectEquals(object1: any, object2: any) {
         const val2 = object2[key];
         const areObjects = isObject(val1) && isObject(val2);
         if (
-            areObjects && !isObjectEquals(val1, val2) ||
-            !areObjects && val1 !== val2
+            (areObjects && !isObjectEquals(val1, val2)) ||
+            (!areObjects && val1 !== val2)
         ) {
             return false;
         }
@@ -210,3 +210,7 @@ export function yieldToMain() {
 export const noOperation = () => {
     return '' as any;
 };
+
+export type StringKeys<T> = {
+    [K in keyof T]: T[K] extends string ? K : never;
+}[keyof T];
