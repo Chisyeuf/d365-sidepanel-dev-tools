@@ -5,6 +5,7 @@ import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/Entit
 import MetadataContextProvider from '../../utils/components/MetadataBrowser/MetadataContextProvider';
 import TuneIcon from '@mui/icons-material/Tune';
 import { useSnackbar } from 'notistack';
+import Typography from '@mui/material/Typography';
 
 class MetadataBrowserButton extends ProcessButton {
     constructor() {
@@ -16,7 +17,9 @@ class MetadataBrowserButton extends ProcessButton {
         );
         this.process = MetadataBrowserProcess;
         this.description = <>
-            Description to provide.
+            <Typography><i>Explore hidden data.</i></Typography>
+            <Typography>This tool lets you see all metadata in this environnment.</Typography>
+            <Typography><i>Not all columns are displayed by default but are available.</i></Typography>
         </>
     }
 }

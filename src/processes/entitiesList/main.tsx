@@ -10,6 +10,7 @@ import { RetrieveEntities } from '../../utils/hooks/XrmApi/RetrieveEntities';
 import FilterInput from '../../utils/components/FilterInput';
 import TableViewIcon from '@mui/icons-material/TableView';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
+import Typography from '@mui/material/Typography';
 
 
 class EntityListButton extends ProcessButton {
@@ -22,7 +23,9 @@ class EntityListButton extends ProcessButton {
         );
         this.process = EntityListProcess;
         this.description = <>
-            Description to provide.
+            <Typography><i>Navigate with no worries.</i></Typography>
+            <Typography>This tool displays all entities in the environment.</Typography>
+            <Typography>Clicking on an entity will open an entity list with the existing views.</Typography>
         </>
     }
 }

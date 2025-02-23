@@ -13,12 +13,14 @@ Dynamics 365 SidePanel Tools
     - [Option Set Tables](#4-option-set-tables)
     - [Dirty Fields](#5-dirty-fields)
     - [Related Records](#6-related-records)
-    - [WebResources Editor](#7-webresources-editor)
-    - [Impersonation](#8-impersonation)
-    - [Plugin Trace Logs Exporer](#9-plugin-trace-logs-explorer)
-    - [Navigation](#10-navigation)
-    - [Command Checker](#11-command-checker)
-    - [Configuration Manager](#12-configuration-manager)
+    - [Entities List](#7-related-records)
+    - [WebResources Editor](#8-webresources-editor)
+    - [Impersonation](#9-impersonation)
+    - [Plugin Trace Logs Exporer](#10-plugin-trace-logs-explorer)
+    - [Metadata Browser](#11-plugin-trace-logs-explorer)
+    - [Navigation](#12-navigation)
+    - [Command Checker](#13-command-checker)
+    - [Configuration Manager](#14-configuration-manager)
 - [Contribution](#contribution)
 - [Licence](#licence)
 
@@ -151,7 +153,20 @@ To view a record in detail, click on it to open a dialog. Alternatively, you can
 
 
 
-## 7\. WebResources Editor
+## 7\. Entities List
+<img align="right" src="screenshots/jpg/6.RelatedRecords.jpg">
+
+Explore hidden datas.
+
+This tool let you see all metadata on this environnment.
+
+All columns is not display by default but are available.
+
+<img height="530px" width="0px">
+
+
+
+## 9\. WebResources Editor
 <img align="right" src="screenshots/jpg/7.WebResourcesEditor.jpg">
 
 Edit, test, and publish - all within your browser!
@@ -168,7 +183,7 @@ Here are the key features:
 
 
 
-## 8\. Impersonation
+## 10\. Impersonation
 <img align="right" src="screenshots/jpg/8.Impersonation.jpg">
 
 Empower yourself with the ability to impersonate any user on your environment.
@@ -185,7 +200,7 @@ You can also check each user's security by hovering over their entry in the list
 
 
 
-## 9\. Plugin Trace Logs Explorer
+## 11\. Plugin Trace Logs Explorer
 <img align="right" src="screenshots/jpg/9.PluginTraceLogsExplorer.jpg">
 
 Tired of sifting through cluttered and unoptimized log lists?
@@ -199,7 +214,20 @@ The Plugin Trace Logs Explorer provides a streamlined way to view and analyze lo
 
 
 
-## 10\. Navigation
+## 12\. Metadata Browser
+<img align="right" src="screenshots/jpg/9.PluginTraceLogsExplorer.jpg">
+
+Explore hidden datas.
+
+This tool let you see all metadata on this environnment.
+
+All columns is not display by default but are available.
+
+<img height="430px" width="0px">
+
+
+
+## 13\. Navigation
 <img align="right" src="screenshots/jpg/10.Navigation.jpg">
 
 Access everything you need in one place.
@@ -218,7 +246,7 @@ This tool provides quick access to various essential resources:
 
 
 
-## 11\. Command Checker
+## 14\. Command Checker
 <img align="right" width="70%" src="screenshots/jpg/11.ribbondebug.jpg">
 
 This button enable or disable the debugger for model-app ribbons.
@@ -227,7 +255,7 @@ This button enable or disable the debugger for model-app ribbons.
 
 
 
-## 12. Configuration Manager
+## 15\. Configuration Manager
 <img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
 
 Configure your SidePanel Tools experience.
