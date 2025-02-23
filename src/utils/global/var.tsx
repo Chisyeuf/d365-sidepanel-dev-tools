@@ -9,7 +9,9 @@ export const PROJECT_PREFIX = 'sidepanel-dev-tools-';
 
 export const STORAGE_ListName = 'processListOrdered';
 export const STORAGE_ForegroundPanes = 'isPanesForeground';
-export const STORAGE_DontShowImpersonationInfo = 'dontShowImpersonationInfo';
+
+export const STORAGE_DontShowInfo = 'dontShowInfo';
+export type Type_DontShowInfo = { [infoName: string]: boolean };
 
 export const DRAWER_CONTAINER_ID = 'drawercontainer';
 

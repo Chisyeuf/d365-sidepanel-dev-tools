@@ -31,7 +31,6 @@ import { MessageType } from '../../utils/types/Message';
 import { ActiveUser } from '../../utils/types/ActiveUser';
 import { SecurityRole, TeamsSecurityRole } from '../../utils/types/SecurityRole';
 import PestControlIcon from '@mui/icons-material/PestControl';
-import { STORAGE_DontShowImpersonationInfo } from '../../utils/global/var';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
@@ -41,6 +40,7 @@ import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 import { useSpDevTools } from '../../utils/global/spContext';
 import { LinearProgress } from '@mui/material';
+import DontShowInfo from '../../utils/components/DontShowInfo';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -48,7 +48,7 @@ class ImpersonationButton extends ProcessButton {
             'impersonate',
             'Impersonation',
             <PersonSearchIcon />,
-            320
+            350
         );
         this.process = ImpersonationProcess;
         this.description = <>
@@ -105,8 +105,6 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [selectedUser, setUserSelected] = useStateCallback<ActiveUser | null>(null);
         const [securityRoleSelected, setSecurityRoleSeclected] = useState<SecurityRole[]>([]);
-        const [dontShowInfo, setDontShowInfo] = useState<boolean>(false);
-        const [closeInfo, setCloseInfo] = useState<boolean>(false);
 
         const [filter, setFilter] = useState('');
 
@@ -163,27 +161,9 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [activeUsers, setUserSelected]);
 
-
-        useEffectOnce(
-            () => {
-                chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo } },
-                    function (response: boolean | null) {
-                        setDontShowInfo(response ?? false);
-                        setCloseInfo(response ?? false);
-                    }
-                );
-            }
-        );
-
-        const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const dontShowInfoValue = event.target.checked;
-
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo, configurations: dontShowInfoValue } });
-            setDontShowInfo(dontShowInfoValue);
-        };
 
         const filteredActiveUsers = useMemo(() => {
             return activeUsers.filter(user => {
@@ -220,20 +200,9 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         return (
             <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 20px)'>
 
-                {
-                    !closeInfo &&
-
-                    <Alert severity='info'>
-                        <Stack direction='column'>
-                            If you made a mistake and you can no longer access this tool, you can reset the impersonation by going to the options screen.
-                            <FormControlLabel control={<Checkbox checked={dontShowInfo} onChange={handleChange} size='small' />} label="Don't show again" />
-                            <Stack direction='row' spacing={1}>
-                                <OpenOptionsButton variant='outlined' />
-                                <Button onClick={() => setCloseInfo(true)}>Close info</Button>
-                            </Stack>
-                        </Stack>
-                    </Alert>
-                }
+                <DontShowInfo storageName={`${props.id}-maininfo`} displayOpenOptionButton>
+                    <Typography variant='body2'>If you made a mistake and you can no longer access this tool, you can reset the impersonation by going to the options screen.</Typography>
+                </DontShowInfo>
 
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
                     <FilterInput fullWidth placeholder='Name or Email address' returnFilterInput={setFilter} />

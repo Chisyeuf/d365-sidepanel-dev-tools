@@ -23,6 +23,7 @@ import { FormContext } from '../../utils/types/FormContext';
 import { useFormContextDocument } from '../../utils/hooks/use/useFormContextDocument';
 import { useSpDevTools } from '../../utils/global/spContext';
 import Button from '@mui/material/Button';
+import DontShowInfo from '../../utils/components/DontShowInfo';
 
 
 class DirtyFieldsButton extends ProcessButton {
@@ -100,6 +101,11 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         return (
             <ThemeProvider theme={theme}>
                 <Stack height='calc(100% - 10px)' padding='10px'>
+
+                    <DontShowInfo storageName={`${props.id}-maininfo`} >
+                        <Typography variant='body2'>You can click on an item to focus on the form's field.</Typography>
+                    </DontShowInfo>
+
                     <Stack spacing={4} alignItems='center' height="100%" sx={{ overflowY: 'scroll', overflowX: 'hidden' }}>
                         <List
                             sx={{ width: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}

@@ -31,6 +31,7 @@ import RecordContextualMenu from '../../utils/components/RecordContextualMenu';
 import { RetrieveAttributes } from '../../utils/hooks/XrmApi/RetrieveAttributes';
 import FilterInput from '../../utils/components/FilterInput';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
+import DontShowInfo from '../../utils/components/DontShowInfo';
 
 const theme = createTheme({
     components: {
@@ -105,6 +106,12 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
         return (
             <ThemeProvider theme={theme}>
                 <Stack spacing={0.5} height='calc(100% - 10px)' padding='10px' pr={0} alignItems='center' overflow='scroll'>
+
+                    <DontShowInfo storageName={`${props.id}-maininfo`}>
+                        <Typography variant='body2' fontSize='unset' lineHeight='unset'>Click on a record row to open the main form in a dialog.</Typography>
+                        <Typography variant='body2' fontSize='unset' lineHeight='unset'>By right-clicking, you can access a context menu that allows you to open the record in a new tab.</Typography>
+                    </DontShowInfo>
+
                     <RecordSearchBar entityName={entityName} recordIds={recordId} setEntityName={setEntityName} setRecordIds={setRecordId} reset={resetRecord} theme={theme} />
                     <FilterInput fullWidth placeholder='Search by name' returnFilterInput={setFilter} />
 
@@ -153,7 +160,7 @@ function RelationShipList<T extends RelationShipMetadata>(props: RelationShipLis
         if (!relationShipMetadataList) return '?';
         return relationShipMetadataList.length;
     }, [relationShipMetadataList]);
-    
+
     const numberOfRelationshipSmall = useMemo(() => {
         if (!relationShipMetadataList) return '?';
         const max = 999;

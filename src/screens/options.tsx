@@ -12,7 +12,7 @@ import { debugLog, waitForElm } from '../utils/global/common';
 import { useChromeStorage } from '../utils/hooks/use/useChromeStorage';
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import { MessageType } from '../utils/types/Message';
-import { STORAGE_DontShowImpersonationInfo, STORAGE_ListName } from '../utils/global/var';
+import { STORAGE_DontShowInfo, STORAGE_ListName } from '../utils/global/var';
 
 const OptionsScreen: React.FunctionComponent = () => {
 
@@ -39,11 +39,11 @@ const OptionsScreen: React.FunctionComponent = () => {
 
     const resetProcessList = useCallback(() => {
         setProcessList(defaultProcessesList);
-    }, [setProcessList, defaultProcessesList]);
+    }, [setProcessList]);
 
 
-    const resetDontShowImpersonationInfo = useCallback(() => {
-        chrome.runtime.sendMessage({ type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowImpersonationInfo, configurations: false } },
+    const resetDontShowInfo = useCallback(() => {
+        chrome.runtime.sendMessage({ type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowInfo, configurations: null } },
             function (response) {
                 if (response.success) { }
             }
@@ -87,8 +87,8 @@ const OptionsScreen: React.FunctionComponent = () => {
 
                 <Button
                     variant='contained'
-                    onClick={resetDontShowImpersonationInfo}>
-                    Reset "Don't Show" Impersonation Info
+                    onClick={resetDontShowInfo}>
+                    Reset "Don't Show" Infos
                 </Button>
 
             </Stack>

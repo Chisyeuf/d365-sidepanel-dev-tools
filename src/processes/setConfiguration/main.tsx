@@ -327,7 +327,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             <Stack direction='column' spacing={1} width='-webkit-fill-available' height='calc(100% - 20px)' padding='10px'>
 
                 <Alert severity='info' sx={{ py: 0 }}>
-                    <Typography variant='caption'>
+                    <Typography variant='body2'>
                         The saved configuration will be applied after refreshing the page.
                     </Typography>
                 </Alert>
@@ -344,7 +344,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     arrow
                     disableInteractive
                     title={
-                        <Typography>
+                        <Typography variant='body2'>
                             Enable/Disable automatic width adjustments of the main Dynamics screen.
                         </Typography>
                     }
@@ -361,7 +361,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                     arrow
                     disableInteractive
                     title={
-                        <Typography>
+                        <Typography variant='body2'>
                             The selected tool will be expanded by default when the page loads.
                         </Typography>
                     }
@@ -433,7 +433,7 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
                             isDragging={isDragging}
                             tooltip={
                                 <Alert severity='info'>
-                                    <Typography>
+                                    <Typography variant='body2'>
                                         Drag and drop tools you want to open when the page loads.
                                     </Typography>
                                 </Alert>
