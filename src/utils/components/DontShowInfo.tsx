@@ -2,7 +2,7 @@ import { Alert, Stack, FormControlLabel, Checkbox, Button } from "@mui/material"
 import OpenOptionsButton from "./OpenOptionsButton";
 import { PropsWithChildren, useState } from "react";
 import { MessageType } from "../types/Message";
-import { STORAGE_DontShowInfo, Type_DontShowInfo as TYPE_DontShowInfo } from "../global/var";
+import { STORAGE_DontShowInfo, TYPE_DontShowInfo } from "../global/var";
 import { GetExtensionId } from "../global/common";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
 import { useDictionnary } from "../hooks/use/useDictionnary";
