@@ -1,6 +1,6 @@
 import '../utils/components/DetailsSnackbar';
 
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import Stack from '@mui/material/Stack';
@@ -19,29 +19,32 @@ import CloseIcon from '@mui/icons-material/Close';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 
 import packageJson from "../../package.json";
-import { ProviderContext as SnackbarProviderContext, SnackbarProvider, useSnackbar } from 'notistack';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 import DetailsSnackbar from '../utils/components/DetailsSnackbar';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import OpenOptionsButton from '../utils/components/OpenOptionsButton';
 import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/spContext';
+import { BuyMeACoffeeIcon } from '../icons/BuyMeACoffee';
+import StarIcon from '@mui/icons-material/Star';
+import BlackWhiteIconButton from '../utils/components/BlackWhiteIconButton';
 
 
 const MainScreen: React.FunctionComponent = () => {
     return (
         // <React.StrictMode>
-            <StyledEngineProvider injectFirst>
-                <SnackbarProvider
-                    maxSnack={5}
-                    Components={{
-                        detailsFile: DetailsSnackbar
-                    }}
-                >
-                    <SpDevToolsContextProvider>
-                        <MainScreenCustomPanel />
-                    </SpDevToolsContextProvider>
-                </SnackbarProvider>
-            </StyledEngineProvider>
+        <StyledEngineProvider injectFirst>
+            <SnackbarProvider
+                maxSnack={5}
+                Components={{
+                    detailsFile: DetailsSnackbar
+                }}
+            >
+                <SpDevToolsContextProvider>
+                    <MainScreenCustomPanel />
+                </SpDevToolsContextProvider>
+            </SnackbarProvider>
+        </StyledEngineProvider>
         // </React.StrictMode>
     )
 }
@@ -389,23 +392,61 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
 
 function MainScreenFooter() {
+
+    const navigatorType = useMemo(() => {
+        if (navigator.userAgent.includes('Firefox')) {
+            return 'Firefox';
+        }
+        else if (navigator.userAgent.includes('Edg')) {
+            return 'Edge';
+        }
+        else {
+            return 'Chrome';
+        }
+    }, []);
+
+    const reviewUrl = useMemo(() => {
+        switch (navigatorType) {
+            case 'Edge':
+                return "https://microsoftedge.microsoft.com/addons/detail/d365-sidepanel-dev-tools/peineehbfebfgjbimbiomckmkkdbcpcg";
+            case 'Chrome':
+                return "https://chromewebstore.google.com/detail/d365-sidepanel-dev-tools/cbcpebonnklbnemkgkmofpkebonjifff/reviews";
+            default:
+                return '';
+        }
+    }, [navigatorType]);
+
     return (
         <Paper elevation={0}>
             <Stack direction='column'>
                 <Divider />
                 <Stack spacing={1} mt='5px' direction='row' alignItems='center' ml='auto'>
-                    <Tooltip title={"Github project"}>
-                        <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
-                            <IconButton aria-label="delete" size="small">
-                                <GitHubIcon fontSize="inherit" />
-                            </IconButton>
+                    <Tooltip title={<Typography>Send a review</Typography>} arrow disableInteractive>
+                        <a href={reviewUrl} target="_blank" rel="noreferrer">
+                            <BlackWhiteIconButton size="small" color='#FDCC0D'>
+                                <StarIcon fontSize="inherit" sx={{ stroke: 'black' }} />
+                            </BlackWhiteIconButton>
                         </a>
                     </Tooltip>
-                    <Tooltip title={"Report an issue"}>
+                    <Tooltip title={<Typography fontFamily="'Cookie',cursive">Buy me a coffee</Typography>} arrow disableInteractive>
+                        <a href='https://buymeacoffee.com/sofiane.guezzar' target="_blank" rel="noreferrer">
+                            <BlackWhiteIconButton size="small" color='#0388a6'>
+                                <BuyMeACoffeeIcon fontSize="inherit" sx={{ height: '15px' }} />
+                            </BlackWhiteIconButton>
+                        </a>
+                    </Tooltip>
+                    <Tooltip title={<Typography>Github project</Typography>} arrow disableInteractive>
+                        <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
+                            <BlackWhiteIconButton size="small" color='#2dba4e' >
+                                <GitHubIcon fontSize="inherit" />
+                            </BlackWhiteIconButton>
+                        </a>
+                    </Tooltip>
+                    <Tooltip title={<Typography>Report an issue</Typography>} arrow disableInteractive>
                         <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools/issues/new' target="_blank" rel="noreferrer">
-                            <IconButton aria-label="delete" size="small">
+                            <BlackWhiteIconButton size="small" color='#df5050'>
                                 <BugReportIcon fontSize="inherit" />
-                            </IconButton>
+                            </BlackWhiteIconButton>
                         </a>
                     </Tooltip>
                     <Divider orientation='vertical' flexItem />

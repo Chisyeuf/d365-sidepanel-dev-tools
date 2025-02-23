@@ -49,5 +49,3 @@ export default Processes;
 
 
 // Workflow Activities Explorer
-// Ajouter un bouton pour les reviews dans footer
-// navigation: add power automate solution list
