@@ -166,7 +166,7 @@ All columns is not display by default but are available.
 
 
 
-## 9\. WebResources Editor
+## 8\. WebResources Editor
 <img align="right" src="screenshots/jpg/7.WebResourcesEditor.jpg">
 
 Edit, test, and publish - all within your browser!
@@ -183,7 +183,7 @@ Here are the key features:
 
 
 
-## 10\. Impersonation
+## 9\. Impersonation
 <img align="right" src="screenshots/jpg/8.Impersonation.jpg">
 
 Empower yourself with the ability to impersonate any user on your environment.
@@ -200,7 +200,7 @@ You can also check each user's security by hovering over their entry in the list
 
 
 
-## 11\. Plugin Trace Logs Explorer
+## 10\. Plugin Trace Logs Explorer
 <img align="right" src="screenshots/jpg/9.PluginTraceLogsExplorer.jpg">
 
 Tired of sifting through cluttered and unoptimized log lists?
@@ -214,7 +214,7 @@ The Plugin Trace Logs Explorer provides a streamlined way to view and analyze lo
 
 
 
-## 12\. Metadata Browser
+## 11\. Metadata Browser
 <img align="right" src="screenshots/jpg/9.PluginTraceLogsExplorer.jpg">
 
 Explore hidden datas.
@@ -227,7 +227,7 @@ All columns is not display by default but are available.
 
 
 
-## 13\. Navigation
+## 12\. Navigation
 <img align="right" src="screenshots/jpg/10.Navigation.jpg">
 
 Access everything you need in one place.
@@ -246,7 +246,7 @@ This tool provides quick access to various essential resources:
 
 
 
-## 14\. Command Checker
+## 13\. Command Checker
 <img align="right" width="70%" src="screenshots/jpg/11.ribbondebug.jpg">
 
 This button enable or disable the debugger for model-app ribbons.
@@ -255,7 +255,7 @@ This button enable or disable the debugger for model-app ribbons.
 
 
 
-## 15\. Configuration Manager
+## 14\. Configuration Manager
 <img align="right" src="screenshots/jpg/12.ConfigurationManager.jpg">
 
 Configure your SidePanel Tools experience.
