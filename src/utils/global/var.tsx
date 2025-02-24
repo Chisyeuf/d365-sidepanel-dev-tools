@@ -5,7 +5,7 @@ export class Env {
 
 export const DEBUG_MODE = false;
 
-export const PROJECT_PREFIX = 'sidepanel-dev-tools-';
+export const PROJECT_PREFIX = 'spdevtools-';
 
 export const STORAGE_ListName = 'processListOrdered';
 export const STORAGE_ForegroundPanes = 'isPanesForeground';

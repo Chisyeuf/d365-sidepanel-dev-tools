@@ -125,20 +125,25 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                     }}
                     slotProps={{
                         tooltip: {
-                            sx: {
-                                fontSize: '1.2rem',
-                                p: 0,
+                            sx: (theme) => ({
                                 maxWidth: '540px',
-                                bgcolor:'background.paper'
-                            },
+                                p: 0,
+                                [`& > .${PROJECT_PREFIX}Paper-root`]: {
+                                    fontSize: '1.2rem',
+                                    p: 0.5,
+                                    bgcolor: 'background.paper',
+                                    borderColor: theme.palette.primary.main
+                                }
+                            }),
                         },
                         arrow: {
-                            sx: {
+                            sx: (theme) => ({
                                 "::before": {
-                                    bgcolor: 'rgb(3, 169, 244)'//'rgb(229, 246, 253)'
+                                    bgcolor: theme.palette.primary.main//'rgb(3, 169, 244)'//'rgb(229, 246, 253)'
                                 }
-                            }
+                            })
                         },
+
                     }}
                 >
                     <HelpTwoToneIcon className='helpInfo' visibility='hidden' />
