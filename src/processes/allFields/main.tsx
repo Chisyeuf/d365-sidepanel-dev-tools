@@ -26,6 +26,8 @@ import ReactDOM from 'react-dom';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import FilterInput from '../../utils/components/FilterInput';
 import { Typography } from '@mui/material';
+import DontShowInfo from '../../utils/components/DontShowInfo';
+import { useSnackbar } from 'notistack';
 
 
 class AllFieldsButton extends ProcessButton {
@@ -254,6 +256,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         return (
             <ThemeProvider theme={theme}>
+
                 {
                     showRaw ?
                         <AttributeListRaw
@@ -269,6 +272,7 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                         />
                         :
                         <AttributeList
+                            processId={props.id}
                             toggleForceOpen={toggleForceOpen}
                             toggleForceClose={toggleForceClose}
                             forceOpenAll={forceOpenAll}
@@ -295,6 +299,7 @@ interface AttributeListCommonProps {
     setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 interface AttributeListProps {
+    processId: string
     toggleForceOpen: () => void
     toggleForceClose: () => void
     forceOpenAll: boolean
@@ -354,7 +359,7 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
 });
 
 const AttributeList = React.memo((props: AttributeListProps & AttributeListCommonProps) => {
-    const { attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll, filter, setFilter } = props;
+    const { processId, attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll, filter, setFilter } = props;
 
     return (
         <ThemeProvider theme={theme}>
@@ -367,6 +372,10 @@ const AttributeList = React.memo((props: AttributeListProps & AttributeListCommo
                     <Button onClick={toggleShowRaw}>Show Raw</Button>
                 </ButtonGroup>
                 <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
+
+                <DontShowInfo storageName={`${processId}-maininfo`}>
+                    <Typography variant='body2'>A context menu is available when right-clicking on any item in the list, offering copy options.</Typography>
+                </DontShowInfo>
 
                 <List
                     sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto' }}
@@ -392,17 +401,6 @@ const AttributeList = React.memo((props: AttributeListProps & AttributeListCommo
                                         );
                                     }}
                                 />
-                                //             Object.entries(attributesSetFiltered).map(([key, value], index) => {
-                                //                 return (
-                                // <AttributeListItem
-                                //     forceOpen={forceOpenAll}
-                                //     forceClose={forceCloseAll}
-                                //     key={'attributelistitem' + index}
-                                //     attributeName={key}
-                                //     values={value}
-                                // />
-                                // );
-                                // })
                             )
                     }
                 </List>
@@ -480,11 +478,11 @@ const AttributeListItem = React.memo((props: AttributeListItemProps) => {
                 <Divider variant="middle" />
 
                 <List component="div" sx={{ pt: 0 }}>
-                    <AttributeListItemValue key='value' title='Value' value={value} />
+                    <AttributeListItemValue key={`${attributeName}value`} title='Value' value={value} />
                     {
                         Object.entries(otherValues).map(([key, value]) => {
                             return (
-                                <AttributeListItemValue key={key} title={key} value={value} />
+                                <AttributeListItemValue key={attributeName + key} title={key} value={value} />
                             )
                         })
                     }
@@ -505,8 +503,15 @@ interface AttributeListItemValueProps {
 const AttributeListItemValue = React.memo((props: AttributeListItemValueProps) => {
     const { title, value: { value, selector } } = props;
 
-
+    const { enqueueSnackbar } = useSnackbar();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const [, copy] = useCopyToClipboard();
+
+    const handleOnClick = useCallback(() => {
+        copy(value);
+        enqueueSnackbar(`Value "${value}" copied.`, { variant: 'default' });
+    }, [copy, enqueueSnackbar, value]);
 
     const handleOpenContextualMenu = (e: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(e.currentTarget);
@@ -527,13 +532,10 @@ const AttributeListItemValue = React.memo((props: AttributeListItemValueProps) =
 
     return (
         <ListItem key={'attributevalue' + selector} sx={{ p: 0 }}>
-            <ListItemButton sx={{ p: 0, pl: 1 }} onContextMenu={handleOpenContextualMenu}>
+            <ListItemButton sx={{ p: 0, pl: 1 }} onContextMenu={handleOpenContextualMenu} onClick={handleOnClick}>
                 <ListItemText
                     title={value ?? "--empty--"}
                     primary={valueDisplay}
-                    // primaryTypographyProps={{
-                    //     textAlign: "right"
-                    // }}
                     secondary={title}
                     sx={{
                         display: "flex",
