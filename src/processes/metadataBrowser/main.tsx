@@ -4,7 +4,6 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/EntityMetadataListGrid';
 import MetadataContextProvider from '../../utils/components/MetadataBrowser/MetadataContextProvider';
 import TuneIcon from '@mui/icons-material/Tune';
-import { useSnackbar } from 'notistack';
 import Typography from '@mui/material/Typography';
 
 class MetadataBrowserButton extends ProcessButton {

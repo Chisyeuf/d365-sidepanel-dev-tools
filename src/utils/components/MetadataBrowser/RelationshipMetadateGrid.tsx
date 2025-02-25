@@ -4,7 +4,6 @@ import { metadataGrid_cascadeConfigToValue, metadataGrid_valueToBoolean } from '
 import { ExploreGrid } from './types';
 import { useContext, useEffect } from 'react';
 import { MetadataContext } from './MetadataContextProvider';
-import { ProcessProps } from '../../global/.processClass';
 
 
 export function OneToManyRelationshipMetadateGrid(props: ExploreGrid) {

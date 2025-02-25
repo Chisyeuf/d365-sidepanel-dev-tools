@@ -50,6 +50,4 @@ export default Processes;
 
 // Workflow Activities Explorer
 // related records: error during retreiving (Account - OneToMany)
-// all attribute: add snackbar on copy
-// all attribute: add copy on click on Value or FormatedValue
-// metadata: filter issue
+// metadata: filter issue (maybe: create a dialog array instead of grids in grid)

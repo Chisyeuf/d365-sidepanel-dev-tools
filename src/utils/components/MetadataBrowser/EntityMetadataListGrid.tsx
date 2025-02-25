@@ -12,7 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import ShareIcon from '@mui/icons-material/Share';
 import StyleIcon from '@mui/icons-material/Style';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { MetadataContext } from './MetadataContextProvider';
 import { ManyToOneRelationshipMetadateGrid, OneToManyRelationshipMetadateGrid } from './RelationshipMetadateGrid';
 import ManyToManyRelationshipMetadateGrid from './ManyToManyRelationshipMetadateGrid';
@@ -20,7 +20,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Transition } from './StyledDataGrid';
 import OptionSetMetadataGridSelector from './OptionSetMetadataGrid';
 import { ExploreGrid } from './types';
-import { ProcessProps } from '../../global/.processClass';
 
 
 interface ExploreMenuDialogButtonItemProps {

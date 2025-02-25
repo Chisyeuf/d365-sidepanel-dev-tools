@@ -1,5 +1,5 @@
 import { Box, Paper, Slider, SliderProps, Stack, Typography } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import { useHover } from "usehooks-ts";
 
