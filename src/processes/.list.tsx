@@ -51,3 +51,4 @@ export default Processes;
 // Workflow Activities Explorer
 // related records: error during retreiving (Account - OneToMany)
 // metadata: filter issue (maybe: create a dialog array instead of grids in grid)
+// navigation: add loading on solution list

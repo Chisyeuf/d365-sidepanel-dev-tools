@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { GetPrimaryIdAttribute, GetPrimaryNameAttribute, debugLog } from '../../global/common';
+import { GetPrimaryIdAttribute } from '../../global/common';
 import { RetrievePrimaryIdAttribute } from './RetrievePrimaryIdAttribute';
-import { RetrievePrimaryNameAttribute } from './RetrievePrimaryNameAttribute';
 import { LookupValue } from '../../types/LookupValue';
 import { RelatedRecordRequest } from '../../types/requestsType';
-import { Dictionary } from 'lodash';
 import { useDictionnary } from '../use/useDictionnary';
 
 export function RetrieveRelatedRecords(entityName: string, recordId: string | undefined, relatedRecords: RelatedRecordRequest[]): [{ [relationshipName: string]: LookupValue[] | null }, boolean] {

@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "es2017",
+    "lib": [
+      "dom",
+      "es2022",
+      "esnext",
+      "dom.iterable",
+      "esnext.array"
+    ],
     // "lib": [
     //   "es6",
     //   "dom",
@@ -9,7 +16,7 @@
     //   // "esnext",
     //   // "ESNext.Array"
     // ],
-    "allowJs": true,
+    "allowJs": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -17,7 +24,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "noEmit": true,
     "incremental": true,
     "jsx": "react-jsx",

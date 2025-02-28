@@ -1,5 +1,4 @@
-import { result } from 'lodash-es';
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
 
 export function RetrieveSingleAttribute(entityname: string, recordid: string | undefined, attributeName: string) {
