@@ -13,7 +13,7 @@ function AzurePortal(props: NavigationButton) {
         window.open(`https://portal.azure.com/`, '_blank');
     }
     return (
-        <Tooltip placement='left' title='Azure Portal'>
+        <Tooltip placement='left' title='Azure Portal' disableInteractive arrow>
             <Button
                 variant='outlined'
                 onClick={handleClick}
@@ -29,7 +29,7 @@ function AzurePortal(props: NavigationButton) {
                 }}
             >
                 <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single' forceSingleModeWidth={false}>
+                    <Textfit mode='single'>
                         Azure Portal
                     </Textfit>
                 </Box>

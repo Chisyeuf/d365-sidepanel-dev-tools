@@ -49,7 +49,7 @@ function NavigationToSecurity(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Legacy Interface - Security Panel'>
+        <Tooltip placement='left' title='Legacy Interface - Security Panel' disableInteractive arrow>
             <Button
                 variant='outlined'
                 onClick={handleClick}
@@ -66,8 +66,8 @@ function NavigationToSecurity(props: NavigationButton) {
 
             >
                 <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single' forceSingleModeWidth={false}>
-                        Security
+                    <Textfit mode='single'>
+                        Legacy Security
                     </Textfit>
                 </Box>
             </Button>

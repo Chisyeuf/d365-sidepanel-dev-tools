@@ -14,7 +14,7 @@ function ToPowerAutomate(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Power Automate - Home'>
+        <Tooltip placement='left' title='Power Automate - Home' disableInteractive arrow>
             <Button
                 variant='outlined'
                 onClick={handleClick}
@@ -30,7 +30,7 @@ function ToPowerAutomate(props: NavigationButton) {
                 }}
             >
                 <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single' forceSingleModeWidth={false}>
+                    <Textfit mode='single'>
                         Power Automate
                     </Textfit>
                 </Box>

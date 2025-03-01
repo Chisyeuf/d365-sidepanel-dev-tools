@@ -61,7 +61,7 @@ function FormEditor(props: NavigationButton) {
         }}>
             <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
-                <Tooltip placement='top' title={`Edit ${currentFormName} form in old interface`}>
+                <Tooltip placement='top' title={`Edit ${currentFormName} form in old interface`} disableInteractive arrow>
                     <Box>
                         <RedDisabledButton
                             disabled={oldInterfaceDisabled}
@@ -80,7 +80,7 @@ function FormEditor(props: NavigationButton) {
                     </Box>
                 </Tooltip>
 
-                <Tooltip placement='top' title={`Edit ${currentFormName} form in PowerApps`}>
+                <Tooltip placement='top' title={`Edit ${currentFormName} form in PowerApps`} disableInteractive arrow>
                     <Box>
                         <RedDisabledButton
                             disabled={powerAppsDisabled}

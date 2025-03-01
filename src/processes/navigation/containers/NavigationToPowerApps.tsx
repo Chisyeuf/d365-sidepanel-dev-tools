@@ -14,7 +14,7 @@ function ToPowerApps(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Power Apps - Home'>
+        <Tooltip placement='left' title='Power Apps - Home' disableInteractive arrow>
             <Button
                 variant='outlined'
                 onClick={handleClick}
@@ -30,7 +30,7 @@ function ToPowerApps(props: NavigationButton) {
                 }}
             >
                 <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single' forceSingleModeWidth={false}>
+                    <Textfit mode='single'>
                         Power Apps
                     </Textfit>
                 </Box>

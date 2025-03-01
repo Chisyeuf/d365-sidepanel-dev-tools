@@ -19,11 +19,13 @@ import { SolutionItem } from '../../../utils/types/SolutionItem';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
 import RedDisabledButton from '../../../utils/components/RedDisabledButton';
+import MuiVirtuoso from '../../../utils/components/MuiVirtuoso';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function SolutionList(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
-    const [solutions, isFetching] = RetrieveSolutions();
+    const [solutions, isFetchingSolutions] = RetrieveSolutions();
     const [selectedSolution, setSelectedSolution] = useState<SolutionItem | null>(null);
     const { value: dialogOpened, setTrue: setDialogOpenedTrue, setFalse: setDialogOpenedFalse } = useBoolean(false);
     const [filter, setFilter] = useState<string>('');
@@ -73,7 +75,7 @@ function SolutionList(props: NavigationButton) {
     }, [selectedSolution]);
 
     const selectSolutionButton = useMemo(() => (
-        <Tooltip title={openSolutionTooltip} >
+        <Tooltip title={openSolutionTooltip} placement='left' disableInteractive arrow>
             <Button
                 sx={{
                     width: '100%',
@@ -95,6 +97,12 @@ function SolutionList(props: NavigationButton) {
         </Tooltip>
     ), [openSolutionTooltip, setDialogOpenedTrue]);
 
+    const solutionsFiltered = useMemo(() => {
+        return solutions.filter((solutionItem) => {
+            return solutionItem.displayName.toLowerCase().includes(filter.toLowerCase());
+        });
+    }, [filter, solutions]);
+
     return (
         <>
             <ComponentContainer width='100%' Legends={{
@@ -103,7 +111,7 @@ function SolutionList(props: NavigationButton) {
             }}>
                 <Stack spacing={2} padding='5px' direction='row' justifyContent='center'>
 
-                    <Tooltip placement='top' title={`Open ${solutionName} in old interface`}>
+                    <Tooltip placement='top' title={<>Open <b><i>{solutionName}</i></b> in old interface</>} disableInteractive arrow>
                         <Box>
                             <RedDisabledButton
                                 variant='outlined'
@@ -121,7 +129,7 @@ function SolutionList(props: NavigationButton) {
                         </Box>
                     </Tooltip>
 
-                    <Tooltip placement='top' title={`Open ${solutionName} in PowerApps`}>
+                    <Tooltip placement='top' title={<>Open <b><i>{solutionName}</i></b> in PowerApps</>} disableInteractive arrow>
                         <Box>
                             <RedDisabledButton
                                 variant='outlined'
@@ -140,7 +148,7 @@ function SolutionList(props: NavigationButton) {
                         </Box>
                     </Tooltip>
 
-                    <Tooltip placement='top' title={`Open ${solutionName} in PowerAutomate`}>
+                    <Tooltip placement='top' title={<>Open <b><i>{solutionName}</i></b> in PowerAutomate</>} disableInteractive arrow>
                         <Box>
                             <RedDisabledButton
                                 variant='outlined'
@@ -167,43 +175,53 @@ function SolutionList(props: NavigationButton) {
                 open={dialogOpened}
                 onClose={setDialogOpenedFalse}
             >
-                <Box
-                    padding={1}
-                >
-                    <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} defaultValue={filter} />
-                </Box>
-                <Divider />
-                <List sx={{ width: '45vw', overflowY: 'scroll' }}>
-                    <ListItem key={'nosolution'} sx={{ p: 0 }}>
-                        <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
-                            <ListItemText
-                                primary={<i>Unselect Solution</i>}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                    {
-                        solutions.map((solutionItem) => {
-                            if (!solutionItem.displayName.toLowerCase().includes(filter.toLowerCase())) {
-                                return null;
-                            }
 
-                            return (
-                                <ListItem key={'solution' + solutionItem.uniqueName} sx={{ p: 0 }}>
-                                    <ListItemButton
-                                        sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
-                                        onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}
-                                        dense
-                                    >
-                                        <ListItemText
-                                            primary={solutionItem.displayName}
-                                            secondary={solutionItem.uniqueName}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            );
-                        })
+                <Stack direction='column' spacing={1} p={1} height='100%'>
+                    <FilterInput ref={inputRef} fullWidth placeholder='Filter by name' returnFilterInput={setFilter} defaultValue={filter} />
+                    <Divider />
+                    {
+                        !isFetchingSolutions ?
+                            <List sx={{ width: '45vw', height: '100%' }}>
+                                <MuiVirtuoso
+                                    data={[null, ...solutionsFiltered]}
+                                    itemContent={(index, solutionItem) => {
+                                        if (!solutionItem) {
+                                            return (
+                                                <ListItem key={'nosolution'} sx={{ p: 0 }}>
+                                                    <ListItemButton onClick={() => { setSelectedSolution(null); setDialogOpenedFalse(); }} dense>
+                                                        <ListItemText
+                                                            primary={<i>Unselect Solution</i>}
+                                                        />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            );
+                                        }
+                                        else {
+                                            return (
+                                                <ListItem key={'solution' + solutionItem.uniqueName} sx={{ p: 0 }}>
+                                                    <ListItemButton
+                                                        sx={selectedSolution?.solutionid === solutionItem.solutionid ? { backgroundColor: '#b0b0b0' } : {}}
+                                                        onClick={() => { setSelectedSolution(solutionItem); setDialogOpenedFalse(); }}
+                                                        dense
+                                                    >
+                                                        <ListItemText
+                                                            primary={solutionItem.displayName}
+                                                            secondary={solutionItem.uniqueName}
+                                                        />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            );
+                                        }
+                                    }}
+                                />
+                            </List>
+                            :
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '45vw', height: '100%' }}>
+                                <CircularProgress size={100} thickness={4.5} />
+                            </div>
                     }
-                </List>
+
+                </Stack>
             </Drawer>
         </>
     )
