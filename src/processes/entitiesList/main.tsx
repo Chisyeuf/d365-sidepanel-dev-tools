@@ -11,6 +11,7 @@ import FilterInput from '../../utils/components/FilterInput';
 import TableViewIcon from '@mui/icons-material/TableView';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 class EntityListButton extends ProcessButton {
@@ -34,7 +35,7 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
     function EntityListProcess(props: ProcessProps, ref) {
 
         const [filter, setFilter] = useState("");
-        const entities = RetrieveEntities();
+        const [entities, isFetchingEntities] = RetrieveEntities();
 
         const entitiesFiltered = useMemo(() => {
             const filterLower = filter.toLowerCase();
@@ -56,49 +57,40 @@ const EntityListProcess = forwardRef<ProcessRef, ProcessProps>(
             <Stack spacing={1} height='calc(100% - 20px)' padding='10px' alignItems='center'>
                 <FilterInput fullWidth placeholder='Search Name or LogicalName' defaultValue={filter} returnFilterInput={setFilter} />
 
-                <List
-                    sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'hidden' }}
-                >
-                    <MuiVirtuoso
-                        data={entitiesFiltered}
-                        itemContent={(index, entity) => {
-                            return (
-                                <ListItem key={`EntityListItem-${entity.logicalname}`} sx={{ p: 0 }}>
-                                    <ListItemButton
-                                        key={`EntityListButton-${entity.logicalname}`}
-                                        sx={{ pt: 0, pb: 0 }}
-                                        onClick={() => openEntityList(entity.logicalname)}
-                                    >
-                                        <ListItemText
-                                            key={`EntityListText-${entity.logicalname}`}
-                                            title={entity.name}
-                                            primary={entity.name}
-                                            secondary={entity.logicalname}
-                                            sx={{ mt: 0.5, mb: 0.5 }}
-                                        />
-                                    </ListItemButton>
-                                    <Divider />
-                                </ListItem>
-                            );
-                        }}
-                    />
-                    {/* {
-                        entitiesFiltered?.map((entity, index) => {
-                            return (
-                                <>
-                                    <ListItemButton
-                                        sx={{ pt: 0, pb: 0 }}
-                                        onClick={() => openEntityList(entity.logicalname)}
-                                    >
-                                        <ListItemText title={entity.name} primary={entity.name} secondary={entity.logicalname} sx={{ mt: 0.5, mb: 0.5 }} />
-                                    </ListItemButton>
-                                    <Divider />
-                                </>
-                            );
-                        })
-                    } */}
-                </List>
-
+                {
+                    !isFetchingEntities ?
+                        <List
+                            sx={{ width: '100%', height: '100%', bgcolor: 'background.paper', overflowY: 'auto', overflowX: 'hidden' }}
+                        >
+                            <MuiVirtuoso
+                                data={entitiesFiltered}
+                                itemContent={(index, entity) => {
+                                    return (
+                                        <ListItem key={`EntityListItem-${entity.logicalname}`} sx={{ p: 0 }}>
+                                            <ListItemButton
+                                                key={`EntityListButton-${entity.logicalname}`}
+                                                sx={{ pt: 0, pb: 0 }}
+                                                onClick={() => openEntityList(entity.logicalname)}
+                                            >
+                                                <ListItemText
+                                                    key={`EntityListText-${entity.logicalname}`}
+                                                    title={entity.name}
+                                                    primary={entity.name}
+                                                    secondary={entity.logicalname}
+                                                    sx={{ mt: 0.5, mb: 0.5 }}
+                                                />
+                                            </ListItemButton>
+                                            <Divider />
+                                        </ListItem>
+                                    );
+                                }}
+                            />
+                        </List>
+                        :
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                            <CircularProgress size={100} thickness={4.5} />
+                        </div>
+                }
             </Stack>
         );
     }

@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { debugLog } from '../../global/common';
 import { Entity } from '../../types/requestsType';
 
-export function RetrieveEntities() {
+export function RetrieveEntities() : [Entity[], boolean] {
 
-    const [data, setData] = useState<Entity[]>();
+    const [data, setData] = useState<Entity[]>([]);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
+    
 
     useEffect(() => {
         debugLog("RetrieveEntities");
@@ -27,12 +29,14 @@ export function RetrieveEntities() {
                 return { logicalname: entity["LogicalName"], name: entity["DisplayName"]?.["UserLocalizedLabel"]?.Label || entity["SchemaName"], entityid: entity["MetadataId"] };
             });
 
+            setIsFetching(false);
             setData(entities);
         }
         setData([])
+        setIsFetching(true);
         fetchData();
 
     }, []);
 
-    return data;
+    return [data, isFetching];
 }

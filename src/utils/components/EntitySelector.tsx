@@ -49,7 +49,7 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
 
     const [value, setValue] = useState<EntityOption>({ id: entityname, label: "" });
 
-    const entities = RetrieveEntities();
+    const [entities, isFetchingEntities] = RetrieveEntities();
 
     const options = useMemo(() => {
         const entityOptions = entities?.map(
