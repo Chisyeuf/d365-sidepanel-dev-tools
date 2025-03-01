@@ -12,7 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import ShareIcon from '@mui/icons-material/Share';
 import StyleIcon from '@mui/icons-material/Style';
-import { useContext, useMemo } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { MetadataContext } from './MetadataContextProvider';
 import { ManyToOneRelationshipMetadateGrid, OneToManyRelationshipMetadateGrid } from './RelationshipMetadateGrid';
 import ManyToManyRelationshipMetadateGrid from './ManyToManyRelationshipMetadateGrid';
@@ -26,18 +26,18 @@ interface ExploreMenuDialogButtonItemProps {
     entityName: string
     entityDisplayName: string
     dialogComponent: (props: ExploreGrid) => JSX.Element
+    setSubGridProps: (value: ExploreMenuDialogItemProps | null) => void
 }
 function ExploreMenuDialogItem(props: ExploreMenuDialogButtonItemProps & GridActionsCellItemProps) {
 
-    const { entityName, dialogComponent, entityDisplayName, ...cellItemProps } = props;
+    const { entityName, dialogComponent, entityDisplayName, setSubGridProps, ...cellItemProps } = props;
 
-    const { value: open, setTrue: setOpen, setFalse: setClose } = useBoolean(false);
+    const handleClick = () => {
+        setSubGridProps({ entityName, dialogName: cellItemProps.label, entityDisplayName, dialogComponent });
+    }
 
     return (
-        <>
-            <GridActionsCellItem {...cellItemProps} onClick={setOpen} />
-            <ExploreBaseDialog {...{ entityName, dialogName: cellItemProps.label, open, setClose, entityDisplayName, dialogComponent }} />
-        </>
+        <GridActionsCellItem {...cellItemProps} onClick={handleClick} />
     )
 }
 
@@ -47,10 +47,12 @@ interface ExploreMenuDialogItemProps {
     dialogComponent: (props: ExploreGrid) => JSX.Element
 
     dialogName: string
+}
+interface ExploreMenuDialogItemInteractiveProps {
     open: boolean
     setClose: () => void
 }
-function ExploreBaseDialog(props: ExploreMenuDialogItemProps) {
+function ExploreBaseDialog(props: ExploreMenuDialogItemProps & ExploreMenuDialogItemInteractiveProps) {
 
     const { entityName, entityDisplayName, dialogName, open, setClose, dialogComponent } = props;
 
@@ -77,7 +79,7 @@ function ExploreBaseDialog(props: ExploreMenuDialogItemProps) {
                 <IconButton onClick={setClose}><CloseIcon /></IconButton>
             </DialogTitle>
             <Box overflow='auto'>
-                {open && dialogComponent({ entityName, explortFileName: `${entityDisplayName} - ${dialogName}`, openFrom: dialogTitleContent })}
+                {dialogComponent({ entityName, explortFileName: `${entityDisplayName} - ${dialogName}`, openFrom: dialogTitleContent })}
             </Box>
         </Dialog>
     );
@@ -132,7 +134,10 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
 
     const { entitiesMetadata, isFetchingEntitiesMetadata } = useContext(MetadataContext);
 
-    return (
+    const [subGridProps, setSubGridProps] = useState<ExploreMenuDialogItemProps | null>(null);
+
+
+    return (<>
         <ObjectListGrid
             loading={isFetchingEntitiesMetadata}
             dataList={entitiesMetadata}
@@ -189,7 +194,7 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         entityDisplayName={params.row.DisplayName.UserLocalizedLabel?.Label ?? params.row.SchemaName}
                         dialogComponent={ExploreAttributesGrid}
                         showInMenu
-                        closeMenuOnClick={false}
+                        setSubGridProps={setSubGridProps}
                     />,
                     <ExploreMenuDialogItem
                         icon={<StyleIcon />}
@@ -198,7 +203,7 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         entityDisplayName={params.row.DisplayName.UserLocalizedLabel?.Label ?? params.row.SchemaName}
                         dialogComponent={ExploreOptionSetsGrid}
                         showInMenu
-                        closeMenuOnClick={false}
+                        setSubGridProps={setSubGridProps}
                     />,
                     <GridActionsCellItem
                         label="Relationships"
@@ -223,7 +228,7 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         entityDisplayName={params.row.DisplayName.UserLocalizedLabel?.Label ?? params.row.SchemaName}
                         dialogComponent={ExploreOneToManyRelationshipsGrid}
                         showInMenu
-                        closeMenuOnClick={false}
+                        setSubGridProps={setSubGridProps}
                     />,
                     <ExploreMenuDialogItem
                         icon={<ShareIcon sx={{ transform: 'scaleX(-1)' }} />}
@@ -232,7 +237,7 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         entityDisplayName={params.row.DisplayName.UserLocalizedLabel?.Label ?? params.row.SchemaName}
                         dialogComponent={ExploreManyToOneRelationshipsGrid}
                         showInMenu
-                        closeMenuOnClick={false}
+                        setSubGridProps={setSubGridProps}
                     />,
                     <ExploreMenuDialogItem
                         // icon={<><HubIcon /></>}
@@ -242,7 +247,7 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
                         entityDisplayName={params.row.DisplayName.UserLocalizedLabel?.Label ?? params.row.SchemaName}
                         dialogComponent={ExploreManyToManyRelationshipsGrid}
                         showInMenu
-                        closeMenuOnClick={false}
+                        setSubGridProps={setSubGridProps}
                     />
                 ]
             }]}
@@ -250,7 +255,15 @@ function EntityMetadataListGrid(props: EntityMetadateGridProps) {
             fullHeight
             gridHeight='90vh'
         />
-    );
+
+        {subGridProps &&
+            <ExploreBaseDialog
+                {...subGridProps}
+                open={!!subGridProps}
+                setClose={() => setSubGridProps(null)}
+            />
+        }
+    </>);
 }
 
 export default EntityMetadataListGrid;

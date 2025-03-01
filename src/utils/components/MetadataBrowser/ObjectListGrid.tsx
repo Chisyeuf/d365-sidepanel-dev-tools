@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import PaginationItem from '@mui/material/PaginationItem';
-import { DataGrid, GridColDef, GridColumnMenu, GridColumnMenuItemProps, GridColumnMenuProps, gridPageCountSelector, gridPageSelector, GridRenderCellParams, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColumnMenu, GridColumnMenuItemProps, GridColumnMenuProps, gridPageCountSelector, gridPageSelector, GridRenderCellParams, GridRowSelectionModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarProps, GridToolbarQuickFilter, ToolbarPropsOverrides, useGridApiContext, useGridSelector } from '@mui/x-data-grid';
 import { DataGridProps, GridBaseColDef } from '@mui/x-data-grid/internals';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,6 +27,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import { MetadataGridContext } from './MetadataContextProvider';
 import { noOperation } from '../../global/common';
 import { useSnackbar } from 'notistack';
+
+
+declare module '@mui/x-data-grid' {
+    interface ToolbarPropsOverrides {
+        zoom: number,
+        setZoom?: (zoom: number) => void,
+        exportFileName: string
+    }
+}
 
 
 function CustomPagination(props: any) {
@@ -50,8 +59,8 @@ function CustomPagination(props: any) {
     );
 }
 
-function CustomToolbar(props: any & { zoom: number, setZoom?: (zoom: number) => void, exportFileName: string }) {
-    const { zoom, setZoom, exportFileName, ...gridToolbarProps } = props;
+function CustomToolbar(props: GridToolbarProps & ToolbarPropsOverrides) {
+    const { zoom, setZoom, exportFileName, showQuickFilter, ...gridToolbarProps } = props;
     const apiRef = useGridApiContext();
 
     const resizeColumns = useCallback(() => {
@@ -65,8 +74,10 @@ function CustomToolbar(props: any & { zoom: number, setZoom?: (zoom: number) => 
             <GridToolbarDensitySelector slotProps={{ tooltip: { title: 'Change density' } }} />
             <Button onClick={resizeColumns} startIcon={<HeightIcon sx={{ rotate: '90deg' }} />} size='small'>Auto Size Columns</Button>
             <Box sx={{ flexGrow: 1 }} />
-            <GridToolbarQuickFilter sx={{ width: "25%", minWidth: 250 }} />
-            <Box sx={{ flexGrow: 1 }} />
+            {showQuickFilter && <>
+                <GridToolbarQuickFilter sx={{ width: "25%", minWidth: 250 }} />
+                <Box sx={{ flexGrow: 1 }} />
+            </>}
             <ZoomSlider zoom={zoom} onChange={setZoom} width={200} max={2} min={0.5} step={0.1} />
             <GridToolbarExport slotProps={{ tooltip: { title: 'Export data' }, button: { variant: 'outlined' } }} csvOptions={{ fileName: exportFileName }} />
         </GridToolbarContainer>
@@ -103,17 +114,17 @@ function CustomColumnMenu(props: GridColumnMenuProps) {
 }
 
 
-
-type ObjectListDataGridProps = Omit<DataGridProps, 'columns' | 'rows'>;
-
 interface IGridButtonsContext {
     openedGridId: string
     openGrid: React.Dispatch<React.SetStateAction<string>>
 }
-const GridButtonsContext = createContext<IGridButtonsContext>({
+export const GridButtonsContext = createContext<IGridButtonsContext>({
     openedGridId: '',
     openGrid: noOperation
 });
+
+
+type ObjectListDataGridProps = Omit<DataGridProps, 'columns' | 'rows'>;
 
 function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps & { dataList: { [key: string]: any }[], parentId: string, formatedValue?: any, type: string, columnName: ReactNode, columnNameText: string }) {
 
@@ -177,13 +188,14 @@ function GridSubGridCell(props: GridRenderCellParams & ObjectListDataGridProps &
                         </Stack>
                         <IconButton onClick={handleClick}><CloseIcon /></IconButton>
                     </DialogTitle>
-                    <InnerObjectListGrid
+                    <ObjectListGrid
                         id={uuid}
                         parentId={parentId}
                         openFrom={columnName}
                         columnNameText={columnNameText}
                         dataList={dataList}
                         gridHeight={'60vh'}
+                        showQuickFilter={false}
                         {...datagridProps}
                     />
                 </Dialog >
@@ -224,9 +236,10 @@ export interface ObjectListGridProps {
     loading?: boolean;
     autoRowHeight?: boolean;
     defaultRenderCell?: GridColDef['renderCell'];
+    showQuickFilter?: boolean
 }
 
-function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
+function ObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
     const {
         id = '',
         parentId = '',
@@ -251,13 +264,14 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         loading = false,
         defaultRenderCell,
         autoRowHeight,
+        showQuickFilter = true,
         ...gridProps
     } = props;
 
     const { openGrid } = useContext(GridButtonsContext);
     const { setZoom, zoom } = useContext(MetadataGridContext);
 
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
 
@@ -265,7 +279,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
         e.stopPropagation();
         openGrid(id);
     }, [id, openGrid]);
-    
+
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         if (e.button === 3) {
@@ -486,7 +500,7 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                         loadingOverlay: CustomLoadingOverlay,
                     }}
                     slotProps={{
-                        toolbar: { sx: { zoom: 1 / zoom }, zoom, setZoom, exportFileName: columnNameText } as any,
+                        toolbar: { sx: { zoom: 1 / zoom }, showQuickFilter: showQuickFilter, zoom, setZoom, exportFileName: columnNameText },
                         footer: { sx: { zoom: 1 / zoom } },
                         loadingOverlay: { variant: 'circular-progress', noRowsVariant: 'circular-progress', whatIsLoading: 'Metadatas' } as any,
                         columnsManagement: { toggleAllMode: 'filteredOnly' },
@@ -576,16 +590,6 @@ function InnerObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProp
                 />
             </Paper>
         </Box>
-    );
-}
-
-function ObjectListGrid(props: ObjectListGridProps & ObjectListDataGridProps) {
-    const [openedGridId, setOpenedGridId] = useState('');
-
-    return (
-        <GridButtonsContext.Provider value={{ openedGridId, openGrid: setOpenedGridId }}>
-            <InnerObjectListGrid {...props} />
-        </GridButtonsContext.Provider>
     );
 }
 

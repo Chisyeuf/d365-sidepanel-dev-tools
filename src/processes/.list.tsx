@@ -50,4 +50,4 @@ export default Processes;
 
 // Workflow Activities Explorer
 // related records: errors during retreiving (Account - OneToMany)
-// metadata: filter issue (maybe: create a dialog array instead of grids in grid)
+// metadata: actions menu don't close on clickaway

@@ -1,10 +1,11 @@
-import { forwardRef, } from 'react';
+import { forwardRef, useState, } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
 import EntityMetadataListGrid from '../../utils/components/MetadataBrowser/EntityMetadataListGrid';
 import MetadataContextProvider from '../../utils/components/MetadataBrowser/MetadataContextProvider';
 import TuneIcon from '@mui/icons-material/Tune';
 import Typography from '@mui/material/Typography';
+import { GridButtonsContext } from '../../utils/components/MetadataBrowser/ObjectListGrid';
 
 class MetadataBrowserButton extends ProcessButton {
     constructor() {
@@ -25,11 +26,14 @@ class MetadataBrowserButton extends ProcessButton {
 
 const MetadataBrowserProcess = forwardRef<ProcessRef, ProcessProps>(
     function MetadataBrowserProcess(props: ProcessProps, ref) {
+        const [openedGridId, setOpenedGridId] = useState('');
 
         return (
             <MetadataContextProvider>
 
-                <EntityMetadataListGrid />
+                <GridButtonsContext.Provider value={{ openedGridId, openGrid: setOpenedGridId }}>
+                    <EntityMetadataListGrid />
+                </GridButtonsContext.Provider>
 
             </MetadataContextProvider>
         );

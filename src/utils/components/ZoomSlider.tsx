@@ -76,7 +76,7 @@ function MarkComponent(props: MarkProps & React.PropsWithChildren) {
 
 interface ZoomSliderProps extends Pick<SliderProps, 'min' | 'max' | 'step'> {
     zoom: number
-    onChange: (newZoom: number) => void
+    onChange?: (newZoom: number) => void
     width?: number
 }
 function ZoomSlider(props: ZoomSliderProps) {
@@ -89,7 +89,7 @@ function ZoomSlider(props: ZoomSliderProps) {
 
     const handleChange = (e: Event, newValue: number | any) => {
         // setZoom(newValue);
-        onChange(newValue);
+        onChange?.(newValue);
         e.stopPropagation();
     }
 
