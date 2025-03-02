@@ -6,6 +6,7 @@ import { PROJECT_PREFIX } from "./var";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
 import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone';
 import Zoom from '@mui/material/Zoom';
+import TooltipInfo from "../components/TooltipInfo";
 
 
 export abstract class ProcessButton {
@@ -85,7 +86,7 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
 
     const tooltipTitle = useMemo(() => (
         // <Paper variant='outlined' sx={{ py: 1, px: 2 }}>
-        <Alert variant="outlined" icon={false} severity='info'>
+        // <Alert variant="outlined" icon={false} severity='info'>
             <Stack direction='column' spacing={0.5}>
                 <Stack direction='row' spacing={2} alignItems='flex-end' pl={1}>
                     <Box>{processButton.panelButtonIcon}</Box>
@@ -96,7 +97,7 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                     {processButton.description}
                 </Box>
             </Stack>
-        </Alert>
+        // </Alert>
         // </Paper>
     ), []);
 
@@ -114,7 +115,7 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
             onClick={onClick}
         >
             <Stack direction='row' width='100%' spacing='2px' minWidth={0} justifyContent='space-between' >
-                <Tooltip
+                <TooltipInfo
                     title={tooltipTitle}
                     placement='left'
                     disableInteractive
@@ -123,31 +124,10 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
                     slots={{
                         transition: Zoom,
                     }}
-                    slotProps={{
-                        tooltip: {
-                            sx: (theme) => ({
-                                maxWidth: '540px',
-                                p: 0,
-                                [`& > .${PROJECT_PREFIX}Paper-root`]: {
-                                    fontSize: '1.2rem',
-                                    p: 0.5,
-                                    bgcolor: 'background.paper',
-                                    borderColor: theme.palette.primary.main
-                                }
-                            }),
-                        },
-                        arrow: {
-                            sx: (theme) => ({
-                                "::before": {
-                                    bgcolor: theme.palette.primary.main//'rgb(3, 169, 244)'//'rgb(229, 246, 253)'
-                                }
-                            })
-                        },
-
-                    }}
+                    maxWidth={540}
                 >
                     <HelpTwoToneIcon className='helpInfo' visibility='hidden' />
-                </Tooltip>
+                </TooltipInfo>
 
                 <Stack direction='row' spacing={1} width='100%' minWidth={0} justifyContent='center'>
                     <Box>{processButton.menuButtonName}</Box>
@@ -158,12 +138,6 @@ const ButtonProcess = (props: { processButton: ProcessButton, onClick: () => any
         </Button>
     );
 }
-// const ButtonProcessTooltip = forwardRef((props: any, ref: any) => {
-//     const { sx, ...otherProps } = props;
-//     return (
-//         <Paper variant='outlined' ref={ref} sx={{ m: 2, ...sx }} {...otherProps} />
-//     );
-// });
 
 function ErrorProcess() {
     return <div>Process not implemented.</div>
