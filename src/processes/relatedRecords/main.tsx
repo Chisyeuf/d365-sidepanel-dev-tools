@@ -113,7 +113,7 @@ const RelatedRecordsProcess = forwardRef<ProcessRef, ProcessProps>(
                         <Typography variant='body2' fontSize='unset' lineHeight='unset'>By right-clicking, you can access a context menu that allows you to open the record in a new tab.</Typography>
                     </DontShowInfo>
 
-                    <Stack direction='column' spacing={1} py={0.5}>
+                    <Stack direction='column' spacing={1} pt={1} pb={0.5}>
                         <RecordSearchBar entityName={entityName} recordIds={recordId} setEntityName={setEntityName} setRecordIds={setRecordId} reset={resetRecord} theme={theme} />
                         <FilterInput fullWidth placeholder='Search by name' returnFilterInput={setFilter} />
                     </Stack>

@@ -48,6 +48,6 @@ export const defaultProcessesList: StorageConfiguration[] = Processes.map(p => {
 export default Processes;
 
 
-// Workflow Activities Explorer
-// related records: errors during retreiving (Account - OneToMany)
-// metadata: actions menu don't close on clickaway
+//* Workflow Activities Explorer
+//! related records: errors during retreiving (Account - OneToMany)
+//! metadata: actions menu don't close on clickaway
