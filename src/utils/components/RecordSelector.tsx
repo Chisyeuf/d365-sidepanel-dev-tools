@@ -40,16 +40,6 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
     const [isGridLoading, setGridIsLoading] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false)
 
-    const handleOpenContextualMenu = (e: MouseEvent<HTMLSpanElement, globalThis.MouseEvent>) => {
-        openContextualMenuOpen();
-        setAnchorEl(e.currentTarget);
-        e.preventDefault();
-    }
-    const handleCloseContextualMenu = () => {
-        closeContextualMenuOpen();
-        setAnchorEl(null);
-    }
-
     const ClearButton: JSX.Element = useMemo(() =>
         <IconButton
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
@@ -61,6 +51,16 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
         , [setRecordsIds]);
 
     const renderElement = useMemo(() => {
+        const handleOpenContextualMenu = (e: MouseEvent<HTMLSpanElement, globalThis.MouseEvent>) => {
+            openContextualMenuOpen();
+            setAnchorEl(e.currentTarget);
+            e.preventDefault();
+        }
+        const handleCloseContextualMenu = () => {
+            closeContextualMenuOpen();
+            setAnchorEl(null);
+        }
+
         return (
             <>
                 <CircularProgressOverflow
@@ -135,7 +135,7 @@ const RecordSelector: React.FunctionComponent<RecordSelectorProps> = (props) => 
                 }
             </>
         );
-    }, [ClearButton, anchorEl, closeDialog, disabled, entityname, fetchingDisplayName, handleCloseContextualMenu, handleOpenContextualMenu, isContextualMenuOpen, isDialogOpen, isGridLoading, isHover, multiple, openDialog, props.disabled, props.theme, recordsDisplayNames, recordsIds, setRecordsIds]);
+    }, [ClearButton, anchorEl, closeContextualMenuOpen, closeDialog, disabled, entityname, fetchingDisplayName, isContextualMenuOpen, isDialogOpen, isGridLoading, isHover, multiple, openContextualMenuOpen, openDialog, props.disabled, props.theme, recordsDisplayNames, recordsIds, setRecordsIds]);
 
     return renderElement;
 }
@@ -151,7 +151,7 @@ type RecordSelectorDialogProps = {
     setIsLoading: Dispatch<SetStateAction<boolean>>
 }
 const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> = (props) => {
-    const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple } = props;
+    const { closeDialog, open, entityname, records, recordsIds, setRecordsIds: registerRecordIds, multiple, setIsLoading } = props;
 
     const [entityMetadata, fetchingMetadata] = RetrieveAttributesMetaData(entityname)
     const [filterInput, setFilterInput] = useState<string>("")
@@ -184,8 +184,8 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
     const [fetchXmlRecords, isFetchingFetchXML] = RetrieveRecordsByFetchXML(entityname, filterXml ?? '')
 
     useEffect(() => {
-        props.setIsLoading(fetchingMetadata || isFetchingAllRecords || isFetchingFetchXML)
-    }, [fetchingMetadata, isFetchingAllRecords, isFetchingFetchXML])
+        setIsLoading(fetchingMetadata || isFetchingAllRecords || isFetchingFetchXML)
+    }, [fetchingMetadata, isFetchingAllRecords, isFetchingFetchXML, setIsLoading])
 
 
     const onClose = () => {
@@ -206,32 +206,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
         const firstColumnsMetadata = entityMetadata.find(meta => meta.LogicalName === primaryNameLogicalName) ?? {} as AttributeMetadata
         const primaryIdColumnsMetadata = entityMetadata.find(meta => meta.MStype === MSType.Uniqueidentifier) ?? {} as AttributeMetadata
 
-        // const checkboxes: GridColDef = {
-        //     ...GRID_BOOLEAN_COL_DEF,
-        //     field: "__check__",
-        //     type: "checkboxSelection",
-        //     width: 50,
-        //     resizable: false,
-        //     sortable: false,
-        //     filterable: false,
-        //     disableColumnMenu: true,
-        //     hideable: false,
-        //     disableReorder: true,
-        //     disableExport: true,
-        //     getApplyQuickFilterFn: undefined,
-        //     valueGetter: (params: GridValueGetterParams<Boolean>) => {
-        //         const apiRef = useGridApiContext();
-        //         const selectionLookup = selectedIdsLookupSelector(apiRef.current.state, apiRef.current.instanceId);
-        //         return selectionLookup[params.id] !== undefined;
-        //     },
-        //     renderHeader: (params: GridColumnHeaderParams) => (
-        //         <CustomGridHeaderCheckbox {...params} entityname={entityname} />
-        //     ),
-        //     renderCell: (params: GridRenderCellParams) => (
-        //         <GridCellCheckboxRenderer {...params} />
-        //     )
-        // }
-        return [//checkboxes,
+        return [
             {
                 field: firstColumnsMetadata.LogicalName,
                 headerName: "GUID",// ?? firstColumnsMetadata.DisplayName,
@@ -253,7 +228,7 @@ const RecordSelectorDialog: React.FunctionComponent<RecordSelectorDialogProps> =
             ...entityMetadata.filter(meta => meta.LogicalName !== primaryNameLogicalName && meta.MStype !== MSType.Uniqueidentifier).map<GridColDef>(meta => {
                 return GridColDefGenerator(meta)
             })]
-    }, [entityMetadata, entityname, primaryNameLogicalName])
+    }, [entityMetadata, primaryNameLogicalName])
 
     return (
         <Dialog onClose={onClose} open={open} maxWidth={false} PaperProps={{ sx: { overflowY: 'inherit' } }}>

@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
-import { Menu, MenuItem } from "@mui/material";
+import { Divider, Menu, MenuItem } from "@mui/material";
 import React from 'react';
+import { useCopyToClipboard } from 'usehooks-ts';
 
 interface RecordContextualMenuProps {
     open: boolean,
@@ -20,16 +21,20 @@ function RecordContextualMenu(props: RecordContextualMenuProps) {
                 open={open}
                 onClose={onClose}
             >
-                <MenuNewTab entityName={entityName} recordId={recordId} onClose={onClose} />
-                <MenuThisTab entityName={entityName} recordId={recordId} onClose={onClose} />
-                <MenuDialog entityName={entityName} recordId={recordId} onClose={onClose} />
-                {/* <MenuSidePanel entityName={entityName} recordId={recordId} onClose={onClose} /> */}
+                {recordId && <CopyGuid entityName={entityName} recordId={recordId} onClose={onClose} />}
+                {entityName && <CopyEntityname entityName={entityName} recordId={recordId} onClose={onClose} />}
+
+                {(recordId || entityName) && <Divider />}
+
+                <OpenNewTab entityName={entityName} recordId={recordId} onClose={onClose} />
+                <OpenThisTab entityName={entityName} recordId={recordId} onClose={onClose} />
+                <OpenDialog entityName={entityName} recordId={recordId} onClose={onClose} />
             </Menu>
         </>
     );
 }
 
-function MenuNewTab(props: RecordContextualMenuItemProps) {
+function OpenNewTab(props: RecordContextualMenuItemProps) {
     const { onClose, entityName, recordId } = props;
     const onClick = useCallback(
         () => {
@@ -42,7 +47,7 @@ function MenuNewTab(props: RecordContextualMenuItemProps) {
         <RecordContextualMenuItem text='Open in a New Tab' onClose={onClose} onClick={onClick} />
     );
 }
-function MenuThisTab(props: RecordContextualMenuItemProps) {
+function OpenThisTab(props: RecordContextualMenuItemProps) {
     const { onClose, entityName, recordId } = props;
 
     const onClick = useCallback(
@@ -62,7 +67,7 @@ function MenuThisTab(props: RecordContextualMenuItemProps) {
         <RecordContextualMenuItem text='Open in this Tab' onClose={onClose} onClick={onClick} />
     );
 }
-function MenuDialog(props: RecordContextualMenuItemProps) {
+function OpenDialog(props: RecordContextualMenuItemProps) {
     const { onClose, entityName, recordId } = props;
     const onClick = useCallback(
         () => {
@@ -84,15 +89,24 @@ function MenuDialog(props: RecordContextualMenuItemProps) {
         <RecordContextualMenuItem text='Open in a Dialog' onClose={onClose} onClick={onClick} />
     );
 }
-function MenuSidePanel(props: RecordContextualMenuItemProps) {
-    const { onClose, entityName, recordId } = props;
-    const onClick = useCallback(
-        () => {
-
-        },
-        []);
+function CopyGuid(props: RecordContextualMenuItemProps) {
+    const { onClose, recordId } = props;
+    const [, copy] = useCopyToClipboard();
+    const onClick = useCallback(() => {
+        recordId && copy(recordId);
+    }, [copy, recordId]);
     return (
-        <RecordContextualMenuItem text='Open in a Side Panel' onClose={onClose} onClick={onClick} />
+        <RecordContextualMenuItem text='Copy GUID' onClose={onClose} onClick={onClick} />
+    );
+}
+function CopyEntityname(props: RecordContextualMenuItemProps) {
+    const { onClose, entityName } = props;
+    const [, copy] = useCopyToClipboard();
+    const onClick = useCallback(() => {
+        entityName && copy(entityName);
+    }, [copy, entityName]);
+    return (
+        <RecordContextualMenuItem text='Copy Entityname' onClose={onClose} onClick={onClick} />
     );
 }
 
