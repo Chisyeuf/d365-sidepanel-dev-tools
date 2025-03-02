@@ -1,8 +1,6 @@
 import { useCallback } from 'react'
 import { Menu, MenuItem } from "@mui/material";
-import React from 'react';
-import { useCopyToClipboard } from 'usehooks-ts';
-import { useSnackbar } from 'notistack';
+import useCopyWithSnack from '../hooks/use/useCopyWithSnack';
 
 interface CopyMenuProps {
     onClose?: () => void,
@@ -14,15 +12,12 @@ interface CopyMenuProps {
 }
 function CopyMenu(props: CopyMenuProps) {
     const { onClose, anchorElement, items } = props;
-    
-    const { enqueueSnackbar } = useSnackbar();
-    const [, copy] = useCopyToClipboard();
+
+    const copy = useCopyWithSnack({ callback: onClose });
 
     const handleOnClick = useCallback((value: string) => {
         copy(value);
-        enqueueSnackbar(`Value "${value}" copied.`, { variant: 'default' });
-        onClose?.();
-    }, [copy, enqueueSnackbar, onClose]);
+    }, [copy]);
 
     return (
         <>

@@ -2,7 +2,6 @@ import { Box, Button, Typography, TypographyProps } from "@mui/material";
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import { useCopyToClipboard } from "usehooks-ts";
 import { useCallback } from "react";
-import React from "react";
 
 function TypographyButtonHoverCopy(props: TypographyProps & { copyValue?: string }) {
     const [, copyFn] = useCopyToClipboard();

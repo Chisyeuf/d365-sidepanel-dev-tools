@@ -1,7 +1,7 @@
 import { Stack, styled, Tooltip, TooltipProps, Typography } from '@mui/material';
-import React, { MouseEventHandler, useState } from 'react';
+import React, {  } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { useSnackbar } from 'notistack';
+import useCopyWithSnack from '../hooks/use/useCopyWithSnack';
 
 const LogicalNameRoot = styled(Stack<'span'>)(({ theme }) => ({
     fontSize: '11.2px',
@@ -19,13 +19,12 @@ const LogicalNameTypoRoot = styled(Typography)(({ theme }) => ({
     overflow: 'hidden',
 }));
 
-export function LogicalNameTypography(props: { label: string, onClick: (text: string) => any, width?: number, placement?: TooltipProps['placement'] }) {
+export function LogicalNameTypography(props: { label: string, width?: number, placement?: TooltipProps['placement'] }) {
 
-    const { enqueueSnackbar } = useSnackbar();
+    const copyFn = useCopyWithSnack({textPrefix: 'Control name'});
 
     const onClick = (event: React.MouseEvent) => {
-        enqueueSnackbar(`Control name "${props.label}" copied.`, { variant: 'default' });
-        props.onClick(props.label);
+        copyFn(props.label);
         event.stopPropagation();
     }
 

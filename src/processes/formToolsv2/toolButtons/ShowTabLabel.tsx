@@ -6,7 +6,6 @@ import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import { LogicalNameTypography } from '../../../utils/components/LogicalNameTypography';
 import { IToolButtonControlled, ToolButton } from '../ToolButton';
 import { useDictionnary } from '../../../utils/hooks/use/useDictionnary';
-import { useCopyToClipboard } from 'usehooks-ts';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { FormToolContext } from '../context';
@@ -16,8 +15,6 @@ function ShowTabLabel(props: IToolButtonControlled) {
     const { enabled: labelDisplayed, setEnabled: setLabelDisplayed, } = props;
 
     const { formContext, formDocument, domUpdated, xrmRoute } = useContext(FormToolContext);
-
-    const [, copyToClipboard] = useCopyToClipboard();
 
     const tabControls = useMemo(async () => {
         if (formContext) {
@@ -111,11 +108,11 @@ function ShowTabLabel(props: IToolButtonControlled) {
             }
             return (
                 <Portal container={controlNode}>
-                    <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
+                    <LogicalNameTypography label={controlName} />
                 </Portal>
             );
         });
-    }, [copyToClipboard, labelDisplayed, tabLabelNodes]);
+    }, [labelDisplayed, tabLabelNodes]);
 
     const sectionLabelPortal = useMemo(() => {
         if (!labelDisplayed) {
@@ -128,11 +125,11 @@ function ShowTabLabel(props: IToolButtonControlled) {
             }
             return (
                 <Portal container={controlNode}>
-                    <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
+                    <LogicalNameTypography label={controlName} />
                 </Portal>
             );
         });
-    }, [copyToClipboard, labelDisplayed, sectionLabelNodes]);
+    }, [labelDisplayed, sectionLabelNodes]);
 
 
     const cache = createCache({

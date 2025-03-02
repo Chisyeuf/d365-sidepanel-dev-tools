@@ -51,3 +51,4 @@ export default Processes;
 //* Workflow Activities Explorer
 //! related records: errors during retreiving (Account - OneToMany)
 //! metadata: actions menu don't close on clickaway
+//? Change notistack to Mui Snackbar (multiple snack to code)

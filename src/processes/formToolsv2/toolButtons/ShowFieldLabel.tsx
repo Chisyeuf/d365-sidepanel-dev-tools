@@ -8,7 +8,6 @@ import TurnedInNotIcon from '@mui/icons-material/TurnedInNot';
 import { LogicalNameTypography } from '../../../utils/components/LogicalNameTypography';
 import { setStyle } from '../../../utils/global/common';
 import { IToolButtonControlled, ToolButton } from '../ToolButton';
-import { useCopyToClipboard } from 'usehooks-ts';
 import { useDictionnary } from '../../../utils/hooks/use/useDictionnary';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
@@ -20,8 +19,6 @@ function ShowFieldLabel(props: IToolButtonControlled) {
     const { enabled: labelDisplayed, setEnabled: setLabelDisplayed, } = props;
 
     const { formContext, formDocument, domUpdated, xrmRoute } = useContext(FormToolContext);
-
-    const [, copyToClipboard] = useCopyToClipboard();
 
     useEffect(() => {
         if (formDocument) {
@@ -144,11 +141,11 @@ function ShowFieldLabel(props: IToolButtonControlled) {
             }
             return (
                 <Portal container={controlNode}>
-                    <LogicalNameTypography label={controlName} onClick={copyToClipboard} />
+                    <LogicalNameTypography label={controlName} />
                 </Portal>
             );
         });
-    }, [labelDisplayed, fieldLabelNodes, copyToClipboard]);
+    }, [labelDisplayed, fieldLabelNodes]);
 
     const gridLabelPortal = useMemo(() => {
         if (!labelDisplayed) {
@@ -161,11 +158,11 @@ function ShowFieldLabel(props: IToolButtonControlled) {
             }
             return (
                 <Portal container={controlNode}>
-                    <LogicalNameTypography label={gridName} onClick={copyToClipboard} />
+                    <LogicalNameTypography label={gridName} />
                 </Portal>
             );
         });
-    }, [labelDisplayed, gridLabelNodes, copyToClipboard]);
+    }, [labelDisplayed, gridLabelNodes]);
 
 
     const cache = createCache({

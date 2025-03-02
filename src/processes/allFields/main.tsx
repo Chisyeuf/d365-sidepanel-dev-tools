@@ -27,7 +27,7 @@ import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import FilterInput from '../../utils/components/FilterInput';
 import { Typography } from '@mui/material';
 import DontShowInfo from '../../utils/components/DontShowInfo';
-import { useSnackbar } from 'notistack';
+import useCopyWithSnack from '../../utils/hooks/use/useCopyWithSnack';
 
 
 class AllFieldsButton extends ProcessButton {
@@ -503,15 +503,13 @@ interface AttributeListItemValueProps {
 const AttributeListItemValue = React.memo((props: AttributeListItemValueProps) => {
     const { title, value: { value, selector } } = props;
 
-    const { enqueueSnackbar } = useSnackbar();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const [, copy] = useCopyToClipboard();
+    const copy = useCopyWithSnack();
 
     const handleOnClick = useCallback(() => {
         copy(value);
-        enqueueSnackbar(`Value "${value}" copied.`, { variant: 'default' });
-    }, [copy, enqueueSnackbar, value]);
+    }, [copy, value]);
 
     const handleOpenContextualMenu = (e: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(e.currentTarget);

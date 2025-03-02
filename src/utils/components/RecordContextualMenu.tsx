@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { Divider, Menu, MenuItem } from "@mui/material";
-import React from 'react';
-import { useCopyToClipboard } from 'usehooks-ts';
+import useCopyWithSnack from '../hooks/use/useCopyWithSnack';
 
 interface RecordContextualMenuProps {
     open: boolean,
@@ -91,7 +90,7 @@ function OpenDialog(props: RecordContextualMenuItemProps) {
 }
 function CopyGuid(props: RecordContextualMenuItemProps) {
     const { onClose, recordId } = props;
-    const [, copy] = useCopyToClipboard();
+    const copy = useCopyWithSnack();
     const onClick = useCallback(() => {
         recordId && copy(recordId);
     }, [copy, recordId]);
@@ -101,7 +100,7 @@ function CopyGuid(props: RecordContextualMenuItemProps) {
 }
 function CopyEntityname(props: RecordContextualMenuItemProps) {
     const { onClose, entityName } = props;
-    const [, copy] = useCopyToClipboard();
+    const copy = useCopyWithSnack();
     const onClick = useCallback(() => {
         entityName && copy(entityName);
     }, [copy, entityName]);
