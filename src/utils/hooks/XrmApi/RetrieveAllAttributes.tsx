@@ -27,7 +27,7 @@ export function RetrieveAllAttributes(entityname: string, recordid: string | und
         setData({});
         fetchData();
 
-    }, [_recordid]);
+    }, [_entityname, _recordid]);
 
     return [data, isFetching];
 }

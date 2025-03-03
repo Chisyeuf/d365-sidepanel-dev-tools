@@ -108,7 +108,7 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
                             moreOptions={OPTION_NONE}
                         />
                         <FilterInput fullWidth returnFilterInput={setFilterMessageName} placeholder="Message Name" />
-                        <Tooltip title={<Typography variant='body2'>Display only logs in error</Typography>} placement='top-end' disableInteractive arrow >
+                        <Tooltip title={<Typography variant='body2'>Display only logs with errors</Typography>} placement='top-end' disableInteractive arrow >
                             <Checkbox
                                 checked={errorOnly}
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {

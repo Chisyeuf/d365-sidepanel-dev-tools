@@ -25,10 +25,11 @@ import { vscodeTheme } from '@uiw/react-json-view/vscode';
 import ReactDOM from 'react-dom';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
 import FilterInput from '../../utils/components/FilterInput';
-import { Typography } from '@mui/material';
+import { Checkbox, Tooltip, Typography } from '@mui/material';
 import DontShowInfo from '../../utils/components/DontShowInfo';
 import useCopyWithSnack from '../../utils/hooks/use/useCopyWithSnack';
-
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
 
 class AllFieldsButton extends ProcessButton {
     constructor() {
@@ -125,6 +126,8 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const [attributes, isFetching] = RetrieveAllAttributes(entityName ?? '', recordId);
 
+        const [notNullOnly, setNotNullOnly] = useState<boolean>(false);
+
         const [filter, setFilter] = useState<string>('');
         const [forceOpenAll, setForceOpenAll] = useState<boolean>(false);
         const [forceCloseAll, setForceCloseAll] = useState<boolean>(false);
@@ -146,14 +149,21 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         }, [setForceCloseAll]);
 
         const attributesRawFiltered = useMemo(() => {
+
             const filterLower = filter.toLowerCase();
+
             return Object.entries(attributes).reduce<{ [key: string]: any }>((acc, [key, value]) => {
-                if (key.toLowerCase().includes(filterLower) || value?.toString().toLowerCase().includes(filterLower)) {
+                if (
+                    (!notNullOnly || (value !== null && value !== undefined))
+                    &&
+                    (key.toLowerCase().includes(filterLower) || value?.toString().toLowerCase().includes(filterLower))
+                ) {
                     acc[key] = attributes[key];
                 }
                 return acc;
             }, {});
-        }, [attributes, filter]);
+
+        }, [attributes, filter, notNullOnly]);
 
         const attributesRawFilteredString = useMemo(() => {
             return JSON.stringify(attributesRawFiltered, null, 2);
@@ -215,9 +225,17 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
         const attributesSetFiltered = useMemo(() => {
             const lowerFilter = filter.toLowerCase();
             return Object.fromEntries(Object.entries(attributesSet).filter(([key, values]) =>
-                key.toLowerCase().includes(lowerFilter) || String(values.value.value).toLowerCase().includes(lowerFilter) || Object.entries(values).some(([innerKey, innerValue]) => String(innerValue.value).toLowerCase().includes(lowerFilter)))
-            );
-        }, [attributesSet, filter]);
+
+                (!notNullOnly || (values.value.value !== null && values.value.value !== undefined))
+                &&
+                (
+                    key.toLowerCase().includes(lowerFilter) ||
+                    String(values.value.value).toLowerCase().includes(lowerFilter) ||
+                    Object.entries(values).some(([innerKey, innerValue]) =>
+                        String(innerValue.value).toLowerCase().includes(lowerFilter))
+                )
+            ));
+        }, [attributesSet, filter, notNullOnly]);
 
 
         const openRawInTab = useCallback(() => {
@@ -269,6 +287,9 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                             toggleShowRaw={toggleShowRaw}
                             filter={filter}
                             setFilter={setFilter}
+                            notNullOnly={notNullOnly}
+                            setNotNullOnly={setNotNullOnly}
+
                         />
                         :
                         <AttributeList
@@ -283,6 +304,8 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
                             isFetching={isFetching}
                             filter={filter}
                             setFilter={setFilter}
+                            notNullOnly={notNullOnly}
+                            setNotNullOnly={setNotNullOnly}
                         />
                 }
             </ThemeProvider>
@@ -291,12 +314,36 @@ const AllFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
 );
 
 
+function AttributeListFilter(props: Pick<AttributeListCommonProps, 'filter' | 'setFilter' | 'notNullOnly' | 'setNotNullOnly'>) {
+    const { filter, setFilter, notNullOnly, setNotNullOnly } = props;
+
+    return (
+        <Stack direction='row' spacing={0.5} width='100%' alignItems='center'>
+            <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
+
+            <Tooltip title={<Typography>Show only fields with values</Typography>}>
+                <Checkbox
+                    checked={notNullOnly}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setNotNullOnly(event.target.checked)
+                    }}
+                    icon={<FactCheckOutlinedIcon />}
+                    checkedIcon={<FactCheckIcon color='primary' />}
+                />
+            </Tooltip>
+        </Stack>
+    );
+}
+
+
 interface AttributeListCommonProps {
     forceRefresh: () => void
     toggleShowRaw: () => void
     isFetching: boolean
     filter: string
     setFilter: React.Dispatch<React.SetStateAction<string>>
+    notNullOnly: boolean
+    setNotNullOnly: React.Dispatch<React.SetStateAction<boolean>>
 }
 interface AttributeListProps {
     processId: string
@@ -324,7 +371,7 @@ interface AttributeListRawProps {
     attributesRawFiltered: { [key: string]: any; }
 }
 const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeListCommonProps) => {
-    const { attributesRawFiltered, copyRawInClipboard, forceRefresh, isFetching, openRawInTab, toggleShowRaw, copying, filter, setFilter } = props;
+    const { attributesRawFiltered, copyRawInClipboard, forceRefresh, isFetching, openRawInTab, toggleShowRaw, copying, filter, setFilter, notNullOnly, setNotNullOnly } = props;
 
     return (
         <ThemeProvider theme={theme}>
@@ -336,7 +383,8 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
                     <Button onClick={forceRefresh}>Refresh</Button>
                     <Button onClick={toggleShowRaw}>Hide Raw</Button>
                 </ButtonGroup>
-                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
+
+                <AttributeListFilter filter={filter} setFilter={setFilter} notNullOnly={notNullOnly} setNotNullOnly={setNotNullOnly} />
 
                 <Box height='calc(100% - 80px)' width='100%'>
                     <JsonView
@@ -359,7 +407,7 @@ const AttributeListRaw = React.memo((props: AttributeListRawProps & AttributeLis
 });
 
 const AttributeList = React.memo((props: AttributeListProps & AttributeListCommonProps) => {
-    const { processId, attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll, filter, setFilter } = props;
+    const { processId, attributesSetFiltered, forceRefresh, isFetching, toggleShowRaw, toggleForceClose, toggleForceOpen, forceCloseAll, forceOpenAll, filter, setFilter, notNullOnly, setNotNullOnly } = props;
 
     return (
         <ThemeProvider theme={theme}>
@@ -371,7 +419,8 @@ const AttributeList = React.memo((props: AttributeListProps & AttributeListCommo
                     <Button onClick={forceRefresh}>Refresh</Button>
                     <Button onClick={toggleShowRaw}>Show Raw</Button>
                 </ButtonGroup>
-                <FilterInput fullWidth placeholder='Search by Attribute Name or Value' defaultValue={filter} returnFilterInput={setFilter} />
+
+                <AttributeListFilter filter={filter} setFilter={setFilter} notNullOnly={notNullOnly} setNotNullOnly={setNotNullOnly} />
 
                 <DontShowInfo storageName={`${processId}-maininfo`}>
                     <Typography variant='body2'>A context menu is available when right-clicking on any item in the list, offering copy options.</Typography>
