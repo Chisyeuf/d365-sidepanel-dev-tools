@@ -37,7 +37,7 @@ export function waitForElm<T extends HTMLElement>(_document: Document, selector:
             }
         });
 
-        if (infiniteWait) {
+        if (!infiniteWait) {
             timeout = setTimeout(() => {
                 console.error("SidePanel Tools - waitForElm: the DOM element", selector, "is not found on document", _document);
                 observer.disconnect();

@@ -98,10 +98,12 @@ const OptionsScreen: React.FunctionComponent = () => {
 
 
 waitForElm(document, '#root').then((rootDiv) => {
-    ReactDOM.render(
-        <OptionsScreen />,
-        rootDiv
-    );
+    if (rootDiv) {
+        ReactDOM.render(
+            <OptionsScreen />,
+            rootDiv
+        );
+    }
 });
 
 debugLog("Option loaded");
