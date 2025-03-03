@@ -49,7 +49,6 @@ export default Processes;
 
 
 //* Workflow Activities Explorer
-//* allfields: not null button
 //! related records: errors during retreiving (Account - OneToMany)
 //! metadata: actions menu don't close on clickaway
 //! dirty: oldValue issue on complex email fields
