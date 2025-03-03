@@ -162,7 +162,7 @@ const DirtyFieldsButtonProcess = forwardRef<ProcessRef, ProcessProps>(
     }
 );
 
-function getAttributeValueString(attribute: Xrm.Attributes.Attribute<any>): string | undefined {
+function getAttributeValueString(attribute: Xrm.Attributes.Attribute<any>): string | null {
     switch (attribute.getAttributeType()) {
         case 'boolean':
         case 'decimal':
@@ -172,14 +172,21 @@ function getAttributeValueString(attribute: Xrm.Attributes.Attribute<any>): stri
         case 'money':
         case 'optionset':
         case 'string':
-            return '' + attribute.getValue();
+            return attribute.getValue() ?? null;
 
         case 'lookup':
-            return attribute.getValue() ? attribute.getValue()[0].id.replace('{', '').replace('}', '') : 'null';
+            if (!attribute.getValue() || attribute.getValue()?.length === 0) {
+                return null;
+            }
+            else if (attribute.getValue()?.length === 1) {
+                return attribute.getValue()[0].id.replace('{', '').replace('}', '');
+            }
+            return `[${attribute.getValue().map((value: any) => value?.id.replace('{', '').replace('}', '')).join(", ")}]`;
 
         case 'datetime':
-            return attribute.getValue() ? attribute.getValue().toISOString() : '' + attribute.getValue();
+            return attribute.getValue()?.toISOString() ?? null;
     }
+    return null;
 }
 
 interface DirtyAttributeItemProps {
@@ -210,8 +217,8 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
     const copyContent = useMemo(() => {
         return [
             { title: 'logicalname', content: name },
-            { title: 'new value', content: value },
-            { title: 'old value', content: oldValue },
+            { title: 'new value', content: value ?? "null" },
+            { title: 'old value', content: oldValue ?? "null" },
         ]
     }, [name, oldValue, value]);
 
@@ -253,7 +260,7 @@ function ValueDisplay(props: ValueDisplayProps) {
                 variant="body2"
                 color="text.primary"
             >
-                {props.value !== null ? props.value : <i>null</i>}
+                {props.value !== null && props.value !== undefined ? props.value : <i>null</i>}
             </Typography>
         </Typography>
     )

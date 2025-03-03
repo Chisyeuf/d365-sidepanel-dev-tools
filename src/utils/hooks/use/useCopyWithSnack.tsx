@@ -23,7 +23,7 @@ function useCopyWithSnack(options: useCopyWithSnackOptions = {}) {
             enqueueSnackbar(`${textPrefix} "${text}" copied.`, { variant: 'default' });
         }
         else {
-            enqueueSnackbar("Text to copied undefined!", { variant: 'error' });
+            enqueueSnackbar("Undefined text to copy!", { variant: 'error' });
         }
         callback?.();
     }, [callback, copytoClipboard, enqueueSnackbar, textPrefix]);
