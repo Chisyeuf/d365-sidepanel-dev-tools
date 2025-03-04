@@ -18,8 +18,8 @@ class MetadataBrowserButton extends ProcessButton {
         this.process = MetadataBrowserProcess;
         this.description = <>
             <Typography><i>Explore hidden data.</i></Typography>
-            <Typography>This tool lets you see all metadata in this environnment.</Typography>
-            <Typography><i>Not all columns are displayed by default but are available.</i></Typography>
+            <Typography>This tool lets you see all metadata in this environment.</Typography>
+            <Typography><i>Not all columns are displayed by default, but they are available.</i></Typography>
         </>
     }
 }

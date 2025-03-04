@@ -156,11 +156,11 @@ To view a record in detail, click on it to open a dialog. Alternatively, you can
 ## 7\. Entities List
 <img align="right" src="screenshots/jpg/7.EntitiesList.jpg">
 
-Explore hidden datas.
+Navigate without worries.
 
-This tool let you see all metadata on this environnment.
+This tool shows all entities in your environment.
 
-All columns is not display by default but are available.
+Clicking an item opens the entity list with its existing views.
 
 <img height="500px" width="0px">
 
@@ -217,11 +217,11 @@ The Plugin Trace Logs Explorer provides a streamlined way to view and analyze lo
 ## 11\. Metadata Browser
 <img align="right" width="50%" src="screenshots/jpg/11.MetadataBrowser.jpg">
 
-Explore hidden datas.
+Explore hidden data.
 
-This tool let you see all metadata on this environnment.
+This tool lets you see all metadata in this environment.
 
-All columns is not display by default but are available.
+Not all columns are displayed by default, but they are available.
 
 <img height="280px" width="0px">
 

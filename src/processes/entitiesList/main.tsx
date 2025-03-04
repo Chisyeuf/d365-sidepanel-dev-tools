@@ -24,9 +24,9 @@ class EntityListButton extends ProcessButton {
         );
         this.process = EntityListProcess;
         this.description = <>
-            <Typography><i>Navigate with no worries.</i></Typography>
-            <Typography>This tool displays all entities in the environment.</Typography>
-            <Typography>Clicking on an entity will open an entity list with the existing views.</Typography>
+            <Typography><i>Navigate without worries.</i></Typography>
+            <Typography>This tool shows all entities in your environment.</Typography>
+            <Typography>Clicking an item opens the entity list with its existing views.</Typography>
         </>
     }
 }
