@@ -1,13 +1,10 @@
 
-import { forwardRef } from 'react';
-import { ProcessButton, ProcessProps, ProcessRef } from '../../utils/global/.processClass';
+import { ProcessButton } from '../../utils/global/.processClass';
 
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
-import SearchOffIcon from '@mui/icons-material/SearchOff';
-import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 import { Typography } from '@mui/material';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 
 class CommandDebugger extends ProcessButton {
     constructor() {
@@ -19,7 +16,7 @@ class CommandDebugger extends ProcessButton {
             false
         );
         this.panelButtonName = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <><Typography>Command Checker is <i><b>Active</b></i></Typography><Typography><b>Click here to turn OFF</b></Typography></> : <><Typography>Command Checker is <i><b>Inactive</b></i></Typography><Typography><b>Click here to turn ON</b></Typography></>;
-        this.panelButtonIcon = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <TroubleshootIcon /> : <SearchIcon />
+        this.panelButtonIcon = new URL(window.location.href).searchParams.get('ribbondebug') === 'true' ? <TroubleshootIcon color='primary' /> : <SearchOffIcon />
         this.description = <>
             <Typography>This button enable or disable the debugger for model-app ribbons.</Typography>
         </>
