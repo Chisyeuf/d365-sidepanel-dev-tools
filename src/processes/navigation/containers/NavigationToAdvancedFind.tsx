@@ -5,6 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import { Textfit } from 'react-textfit';
+import DirectNavigationButton from '../components/NavigationButton';
 
 function AdvancedFind(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -22,28 +23,12 @@ function AdvancedFind(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Original Advanced Find' disableInteractive arrow>
-            <Button
-                variant='outlined'
-                onClick={handleClick}
-                startIcon={<FilterAltIcon />}
-                sx={{
-                    width: '100%',
-                    maxWidth: 'calc(100% - 10px)',
-                    gap: '0.4em',
-                    padding: '5px 10px',
-                    justifyContent: 'flex-start',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single'>
-                        Advanced Find
-                    </Textfit>
-                </Box>
-            </Button>
-        </Tooltip>
+        <DirectNavigationButton
+            icon={<FilterAltIcon />}
+            label='Advanced Find'
+            onClick={handleClick}
+            tooltip='Original Advanced Find'
+        />
     )
 }
 

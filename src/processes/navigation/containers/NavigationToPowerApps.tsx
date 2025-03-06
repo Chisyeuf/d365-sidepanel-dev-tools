@@ -5,6 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import { Textfit } from 'react-textfit';
 import { PowerAppsIcon } from '../icons';
+import DirectNavigationButton from '../components/NavigationButton';
 
 function ToPowerApps(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
@@ -14,28 +15,12 @@ function ToPowerApps(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Power Apps - Home' disableInteractive arrow>
-            <Button
-                variant='outlined'
-                onClick={handleClick}
-                startIcon={<PowerAppsIcon />}
-                sx={{
-                    width: '100%',
-                    maxWidth: 'calc(100% - 10px)',
-                    gap: '0.4em',
-                    padding: '5px 10px',
-                    justifyContent: 'flex-start',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single'>
-                        Power Apps
-                    </Textfit>
-                </Box>
-            </Button>
-        </Tooltip>
+        <DirectNavigationButton
+            icon={<PowerAppsIcon />}
+            label='Power Apps'
+            onClick={handleClick}
+            tooltip='Power Apps - Home'
+        />
     )
 }
 

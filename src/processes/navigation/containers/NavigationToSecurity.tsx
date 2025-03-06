@@ -1,10 +1,8 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 
 import { NavigationButton } from '../../../utils/types/NavigationButton';
 import D365NavBarIcon from '../../../utils/components/D365NavBarIcon';
-import { Textfit } from 'react-textfit';
+import DirectNavigationButton from '../components/NavigationButton';
 
 
 function NavigationToSecurity(props: NavigationButton) {
@@ -49,29 +47,12 @@ function NavigationToSecurity(props: NavigationButton) {
     }
 
     return (
-        <Tooltip placement='left' title='Legacy Interface - Security Panel' disableInteractive arrow>
-            <Button
-                variant='outlined'
-                onClick={handleClick}
-                startIcon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
-                sx={{
-                    width: '100%',
-                    maxWidth: 'calc(100% - 10px)',
-                    gap: '0.4em',
-                    padding: '5px 10px',
-                    justifyContent: 'flex-start',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                }}
-
-            >
-                <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single'>
-                        Legacy Security
-                    </Textfit>
-                </Box>
-            </Button>
-        </Tooltip>
+        <DirectNavigationButton
+            icon={<D365NavBarIcon iconX={-273} iconY={-103} width={20} />}
+            label='Legacy Security'
+            onClick={handleClick}
+            tooltip='Legacy Interface - Security Panel'
+        />
     )
 }
 

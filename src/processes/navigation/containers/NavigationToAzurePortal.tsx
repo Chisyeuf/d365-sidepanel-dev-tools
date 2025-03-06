@@ -2,39 +2,46 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 
-import { AzurePortalIcon } from '../icons';
-import { NavigationButton } from '../../../utils/types/NavigationButton';
+import { AzurePortalIcon, EntraIcon, Microsoft365AdminCenterIcon } from '../icons';
 import { Textfit } from 'react-textfit';
+import { NavigationButton } from '../../../utils/types/NavigationButton';
+import DirectNavigationButton from '../components/NavigationButton';
 
 function AzurePortal(props: NavigationButton) {
     const { environmentId, clientUrl } = props;
 
-    function handleClick() {
+    function handleClickAzure() {
         window.open(`https://portal.azure.com/`, '_blank');
     }
+    function handleClickEntra() {
+        window.open(`https://entra.microsoft.com/#home`, '_blank');
+    }
+    function handleClickAdmin() {
+        window.open(`https://admin.microsoft.com/#/homepage`, '_blank');
+    }
     return (
-        <Tooltip placement='left' title='Azure Portal' disableInteractive arrow>
-            <Button
-                variant='outlined'
-                onClick={handleClick}
-                startIcon={<AzurePortalIcon />}
-                sx={{
-                    width: '100%',
-                    maxWidth: 'calc(100% - 10px)',
-                    gap: '0.4em',
-                    padding: '5px 10px',
-                    justifyContent: 'flex-start',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                <Box width='calc(100% - 20px)'>
-                    <Textfit mode='single'>
-                        Azure Portal
-                    </Textfit>
-                </Box>
-            </Button>
-        </Tooltip>
+        <>
+            <DirectNavigationButton
+                icon={<AzurePortalIcon />}
+                label='Azure Portal'
+                onClick={handleClickAzure}
+                tooltip='Microsoft Azure Portal'
+            />
+
+            <DirectNavigationButton
+                icon={<EntraIcon />}
+                label='Microsoft Entra'
+                onClick={handleClickEntra}
+                tooltip='Microsoft Entra Admin Center'
+            />
+
+            <DirectNavigationButton
+                icon={<Microsoft365AdminCenterIcon />}
+                label='Admin Center'
+                onClick={handleClickAdmin}
+                tooltip='Microsoft 365 Admin Center'
+            />
+        </>
     )
 }
 
