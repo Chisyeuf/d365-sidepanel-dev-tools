@@ -44,7 +44,8 @@ const ToolButtonStandard = forwardRef<any, IToolButton & { controlled: false }>(
         const { refresh } = useContext(FormToolContext);
 
         const refreshContextThenClick = useCallback(() => {
-            refresh().then(onClick);
+            refresh();
+            onClick();
         }, [onClick, refresh]);
 
 

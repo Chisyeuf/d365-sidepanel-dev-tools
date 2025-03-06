@@ -20,8 +20,8 @@ function FormEditor(props: NavigationButton) {
 
     const [defaultSolution, isFetchingDefaultSolution] = RetrieveFirstRecordInterval('solution', ['solutionid'], 'isvisible eq true', 'installedon asc');
 
-    const currentFormName = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem().getLabel(), [formContext]);
-    const currentFormId = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem().getId(), [formContext]);
+    const currentFormName = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem()?.getLabel(), [formContext]);
+    const currentFormId = useMemo(() => formContext?.ui?.formSelector?.getCurrentItem()?.getId(), [formContext]);
     const currentEntityName = useMemo(() => formContext?.data?.entity?.getEntityName(), [formContext]);
     const defaultSolutionId = useMemo(() => defaultSolution?.solutionid as string | undefined, [defaultSolution]);
     const [currentEntityTypeCode, isFetchingTypeCode] = RetrieveObjectTypeCodeByName(currentEntityName ?? '');

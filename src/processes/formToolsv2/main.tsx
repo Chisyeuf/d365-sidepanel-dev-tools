@@ -92,7 +92,7 @@ function DebugIndicator() {
     const { formContext, isRefreshing } = useContext(FormToolContext);
 
     return (
-        <Tooltip title={formContext ? `Context found for ${formContext?.data?.entity.getEntityName()}` : 'Context not found.'} disableInteractive arrow>
+        <Tooltip title={formContext ? `Context found for ${formContext?.data?.entity?.getEntityName()}` : 'Context not found.'} disableInteractive arrow>
             <Stack alignItems='center' pr='25%'>
                 {formContext ? <WifiIcon color='success' /> : <WifiOffIcon color='error' />}
                 <Typography

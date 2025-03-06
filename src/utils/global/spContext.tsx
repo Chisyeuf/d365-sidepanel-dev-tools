@@ -25,7 +25,7 @@ export const useSpDevTools = function () {
 
 export default function SpDevToolsContextProvider(props: PropsWithChildren) {
 
-    const isDebug = useBoolean();
+    const isDebug = useBoolean(false);
 
     useEffect(() => {
         Env.DEBUG = isDebug.value;

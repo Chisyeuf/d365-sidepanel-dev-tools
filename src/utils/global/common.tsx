@@ -21,15 +21,25 @@ export function setStyle(_document: Document, stylesheetid: string, style: { [qu
     styleNode.innerText = styleText;
 }
 
-export function waitForElm<T extends HTMLElement>(_document: Document, selector: string, infiniteWait: boolean = false, waitingTime: number = 4000) {
-    return new Promise<T | null>(resolve => {
-        if (_document.querySelector(selector)) {
-            return resolve(_document.querySelector<T>(selector));
+export function waitForElm<T extends HTMLElement>(_document: Document, selector: string, options: { infiniteWait?: boolean, waitingTime?: number, signal?: AbortSignal } = {}) {
+    return new Promise<T | null>((resolve, reject) => {
+        const { infiniteWait = false, waitingTime = 4000, signal } = options;
+
+        if (signal?.aborted) {
+            return reject(new DOMException(`waitForElm ${selector} - Aborted when starting`));
+        }
+
+        const existing = _document.querySelector<T>(selector);
+        if (existing) {
+            return resolve(existing);
         }
 
         let timeout: NodeJS.Timeout;
         const observer = new MutationObserver(mutations => {
-
+            if (signal?.aborted) {
+                observer.disconnect();
+                return reject(new DOMException(`waitForElm ${selector} - Aborted after mutation`));
+            }
             if (_document.querySelector(selector)) {
                 clearTimeout(timeout);
                 observer.disconnect();
@@ -39,11 +49,17 @@ export function waitForElm<T extends HTMLElement>(_document: Document, selector:
 
         if (!infiniteWait) {
             timeout = setTimeout(() => {
-                console.error("SidePanel Tools - waitForElm: the DOM element", selector, "is not found on document", _document);
+                console.warn("SidePanel Tools - waitForElm: the DOM element", selector, "is not found on document", _document);
                 observer.disconnect();
                 resolve(null);
             }, waitingTime);
         }
+
+        signal?.addEventListener("abort", () => {
+            clearTimeout(timeout);
+            observer.disconnect();
+            reject(new DOMException(`waitForElm ${selector} - Aborted with signal event`));
+        });
 
         observer.observe(_document.body, {
             childList: true,
@@ -179,6 +195,11 @@ export function actionWithDisabledSaving(action?: () => any) {
 export function debugLog(...args: any[]) {
     if (Env.DEBUG) {
         console.log(...args);
+    }
+}
+export function debugError(...args: any[]) {
+    if (Env.DEBUG) {
+        console.error(...args);
     }
 }
 

@@ -35,6 +35,7 @@ interface PluginTraceLogsPaneProps {
     setBadge: (number: number | null) => void
 }
 const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
+    const { setBadge } = props;
 
     const [decount, setDecount] = useState<number>(refreshInterval);
     const [firstPluginTraceLogs, isFetchingFirst, refreshFirst]: [PluginTraceLog | undefined, boolean, () => void] = RetrieveFirstRecordInterval('plugintracelog', ['plugintracelogid'], '', 'performanceexecutionstarttime desc');
@@ -74,13 +75,12 @@ const PluginTraceLogsPane = React.memo((props: PluginTraceLogsPaneProps) => {
     }, []);
 
     useEffect(() => {
-        props.setBadge(decount);
+        setBadge(decount);
 
-        if (decount === 0) {
+        if (decount <= 0) {
             refreshFirst();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [decount]);
+    }, [decount, refreshFirst, setBadge]);
 
     useEffect(() => {
         if (isFetchingPluginTraceLogs) return;

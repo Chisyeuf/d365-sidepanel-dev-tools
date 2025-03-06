@@ -35,9 +35,10 @@ const MainScreen: React.FunctionComponent = () => {
         // <React.StrictMode>
         <StyledEngineProvider injectFirst>
             <SnackbarProvider
+                dense
                 maxSnack={5}
                 Components={{
-                    detailsFile: DetailsSnackbar
+                    detailsFile: DetailsSnackbar,
                 }}
             >
                 <SpDevToolsContextProvider>
@@ -52,19 +53,9 @@ const MainScreen: React.FunctionComponent = () => {
 const DRAWER_BUTTON_CONTAINER_WIDTH = 47;
 const MAIN_MENU_WIDTH = 322;
 
-
-let clickCount = 0;
-let timer: NodeJS.Timeout;
-const clickThreshold = 15;
-const timeThreshold = 8000;
-
 const MainScreenCustomPanel: React.FunctionComponent = () => {
 
     const extensionId = GetExtensionId();
-
-    const { enqueueSnackbar } = useSnackbar();
-
-    const { isDebug } = useSpDevTools();
 
     const [panelOpenedId, setPanelOpenedId] = useState<string | null>(null);
 
@@ -73,25 +64,6 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
     const [openedProcessesBadge, setOpenedProcessesBadge] = useState<{ [processId: string]: (React.ReactNode | null) }>({});
 
     const [isForegroundPanes, setIsForegroundPanes] = useState<boolean>(false);
-
-
-    const handleHiddenAction = useCallback(() => {
-        clickCount++;
-
-        if (clickCount === 1) {
-            timer = setTimeout(() => {
-                clickCount = 0;
-            }, timeThreshold);
-        } else if (clickCount >= clickThreshold) {
-            enqueueSnackbar(
-                `Debug Mode ${!isDebug.value ? "activated" : "deactivated"}.`,
-                { variant: 'info' }
-            )
-            isDebug.toggle();
-            clearTimeout(timer);
-            clickCount = 0;
-        }
-    }, [isDebug, enqueueSnackbar]);
 
 
     useEffect(() => {
@@ -351,7 +323,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
             <PanelDrawerItem width={MAIN_MENU_WIDTH} open={panelOpenedId === MAIN_MENU_ID}>
 
-                <Typography variant='h5' padding={'15px 15px 5px 15px'} sx={{ userSelect: 'none' }} onClick={handleHiddenAction}>{APPLICATION_NAME}</Typography>
+                <Typography variant='h5' padding={'15px 15px 5px 15px'} sx={{ userSelect: 'none' }}>{APPLICATION_NAME}</Typography>
 
                 <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' pb='5px' height='calc(100% - 63px)' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
@@ -391,7 +363,34 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 }
 
 
+let clickCount = 0;
+let timer: NodeJS.Timeout;
+const clickThreshold = 15;
+const timeThreshold = 8000;
+
 function MainScreenFooter() {
+
+    const { enqueueSnackbar } = useSnackbar();
+    const { isDebug } = useSpDevTools();
+
+    const handleHiddenAction = useCallback(() => {
+        clickCount++;
+
+        if (clickCount === 1) {
+            timer = setTimeout(() => {
+                clickCount = 0;
+            }, timeThreshold);
+        } else if (clickCount >= clickThreshold) {
+            enqueueSnackbar(
+                `Debug Mode ${!isDebug.value ? "activated" : "deactivated"}.`,
+                { variant: 'info' }
+            )
+            isDebug.toggle();
+            clearTimeout(timer);
+            clickCount = 0;
+        }
+    }, [isDebug, enqueueSnackbar]);
+
 
     const navigatorType = useMemo(() => {
         if (navigator.userAgent.includes('Firefox')) {
@@ -450,7 +449,7 @@ function MainScreenFooter() {
                         </a>
                     </Tooltip>
                     <Divider orientation='vertical' flexItem />
-                    <Typography variant='caption' color='grey' textAlign='end'>v{packageJson.version}</Typography>
+                    <Typography variant='caption' color='grey' textAlign='end' sx={{ userSelect: 'none' }} onClick={handleHiddenAction}>v{packageJson.version}</Typography>
                 </Stack>
             </Stack>
         </Paper>
@@ -525,7 +524,7 @@ if (window.top && window.top.window === window) {
 
 function initExtension() {
 
-    waitForElm(document, '#mainContent', true).then((mainNode) => {
+    waitForElm(document, '#mainContent', { infiniteWait: true }).then((mainNode) => {
         const drawerContainer = document.createElement('div');
         drawerContainer.setAttribute('id', ProcessButton.prefixId + DRAWER_CONTAINER_ID);
         mainNode?.append(drawerContainer);

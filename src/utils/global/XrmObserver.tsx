@@ -11,7 +11,7 @@ export default class XrmObserver {
     }
 
     ObservePageChanges() {
-        waitForElm(document, XrmObserverSelector, true).then((mainContainer) => {
+        waitForElm(document, XrmObserverSelector, { infiniteWait: true }).then((mainContainer) => {
             const observer = new MutationObserver(mutations => {
                 this.Xrm = Xrm;
                 document.dispatchEvent(new CustomEvent('xrmupdated', { detail: { Xrm } }));
@@ -33,8 +33,11 @@ export default class XrmObserver {
         xrmUpdatedCallback && document.removeEventListener('xrmupdated', xrmUpdatedCallback, false);
     }
 
+    static getPageInfo(): (ReturnType<typeof Xrm.Utility.getPageContext>)['input'] | null {
+        return Xrm.Utility.getPageContext().input;
+    }
     static getPageType() {
-        return Xrm.Utility.getPageContext().input?.pageType;
+        return this.getPageInfo()?.pageType;
     }
     static isEntityList() {
         return this.getPageType() === 'entitylist';
@@ -43,4 +46,7 @@ export default class XrmObserver {
         return this.getPageType() === 'entityrecord';
     }
 
+    static getEntityName() {
+        return this.getPageInfo()?.entityName;
+    }
 }
