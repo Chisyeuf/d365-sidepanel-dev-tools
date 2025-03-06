@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
-const baseWidth = 16;
-const navbarImagesWidth = 590;
+const BASE_WIDTH = 16;
+const NAV_BAR_IMAGES_WIDTH = 590;
 
 interface D365RibbonHomePageIconProps {
     iconX: number,
@@ -11,10 +11,10 @@ interface D365RibbonHomePageIconProps {
 function D365RibbonHomePageIcon(props: D365RibbonHomePageIconProps) {
     const { iconX, iconY, width } = props;
 
-    const ratio = useMemo(() => width / baseWidth, [width, baseWidth]);
+    const ratio = useMemo(() => width / BASE_WIDTH, [width]);
     const trueIconX = useMemo(() => iconX * ratio, [ratio, iconX]);
     const trueIconY = useMemo(() => iconY * ratio, [ratio, iconY]);
-    const backgroundSize = useMemo(() => navbarImagesWidth * ratio, [navbarImagesWidth, ratio]);
+    const backgroundSize = useMemo(() => NAV_BAR_IMAGES_WIDTH * ratio, [ratio]);
     
 
     return (

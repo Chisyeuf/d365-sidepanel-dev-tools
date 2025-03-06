@@ -21,15 +21,8 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
     const onChangeRef = useRef<IDisposable>();
     const onMouseLeaveRef = useRef<IDisposable>();
 
-    let timer: NodeJS.Timeout;
-    const handleEditorChangeWithDelay = () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            if (editorRef.current) {
-                sendNewContent();
-            }
-        }, 500);
-    }
+    let timer = useRef<NodeJS.Timeout>();
+
     const sendNewContentValue = useCallback(
         (newValue: string | undefined) => {
             onContentChange?.(newValue);
@@ -61,33 +54,43 @@ const CodeEditorWindow = React.forwardRef<editor.IStandaloneCodeEditor, CodeEdit
     );
 
     useEffect(() => {
+
+        const handleEditorChangeWithDelay = () => {
+            clearTimeout(timer.current);
+            timer.current = setTimeout(() => {
+                if (editorRef.current) {
+                    sendNewContent();
+                }
+            }, 500);
+        }
+
+        function handleEditorMountGeneric(editor: editor.IStandaloneCodeEditor) {
+            setRef(ref, editor);
+            editor.focus();
+
+            const sendNewContentValue = (_: any) => {
+                sendNewContentValue(editor.getValue());
+            }
+            onChangeRef.current?.dispose();
+            onChangeRef.current = editor.onDidChangeModelContent(handleEditorChangeWithDelay);
+
+            onMouseLeaveRef.current?.dispose();
+            onMouseLeaveRef.current = editor.onMouseLeave(sendNewContentValue);
+
+            editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => {
+                sendNewContent();
+                handleEditorSave();
+            });
+
+            editor.addCommand(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP, () => {
+                handlePublish();
+            });
+        }
+
         if (editorRef.current)
             handleEditorMountGeneric(editorRef.current);
-    }, [editorMount]);
+    }, [editorMount, handleEditorSave, handlePublish, ref, sendNewContent]);
 
-
-    function handleEditorMountGeneric(editor: editor.IStandaloneCodeEditor) {
-        setRef(ref, editor);
-        editor.focus();
-
-        const sendNewContentValue = (_: any) => {
-            sendNewContentValue(editor.getValue());
-        }
-        onChangeRef.current?.dispose();
-        onChangeRef.current = editor.onDidChangeModelContent(handleEditorChangeWithDelay);
-
-        onMouseLeaveRef.current?.dispose();
-        onMouseLeaveRef.current = editor.onMouseLeave(sendNewContentValue);
-
-        editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyS, () => {
-            sendNewContent();
-            handleEditorSave();
-        });
-
-        editor.addCommand(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP, () => {
-            handlePublish();
-        });
-    }
 
     function handleEditorMount(editor: editor.IStandaloneCodeEditor, monaco: Monaco) {
         editorRef.current = editor;

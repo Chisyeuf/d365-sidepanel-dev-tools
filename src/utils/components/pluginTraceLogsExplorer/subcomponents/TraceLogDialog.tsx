@@ -53,7 +53,7 @@ const TraceLogDialog = React.memo((props: DialogProps) => {
 
     const imagesEnabled = useMemo(() => relatedSdkMessageProcessingStepImages.length > 0, [relatedSdkMessageProcessingStepImages]);
 
-    const traceLogsCorrelated = useMemo(() => pluginTraceLogs.filter(p => p.correlationid === selectedPluginTraceLog?.correlationid), [selectedPluginTraceLog?.correlationid]);
+    const traceLogsCorrelated = useMemo(() => pluginTraceLogs.filter(p => p.correlationid === selectedPluginTraceLog?.correlationid), [pluginTraceLogs, selectedPluginTraceLog?.correlationid]);
 
     return (
         <ThemeProvider theme={theme}>

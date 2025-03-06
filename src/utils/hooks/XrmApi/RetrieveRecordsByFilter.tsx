@@ -38,7 +38,7 @@ export function RetrieveRecordsByFilter(entityname: string, attributesList: stri
         setFetching(true);
         fetchData();
 
-    }, [attributes, filter, orderby, launchFlag]);
+    }, [_entityname, _filter, attributes, data, launchFlag, orderby]);
 
     useEffect(() => {
         setData([]);

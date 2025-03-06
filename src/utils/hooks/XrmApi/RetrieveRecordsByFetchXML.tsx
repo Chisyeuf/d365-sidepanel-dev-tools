@@ -10,13 +10,13 @@ export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) 
 
     useEffect(() => {
         debugLog("RetrieveRecordsByFetchXML");
-        if (!_entityname || _fetchXML == "?fetchXml=") {
+        if (!_entityname || _fetchXML === "?fetchXml=") {
             setFetching(false)
             setData([])
             return
         }
         async function fetchData() {                        
-            const results = await Xrm.WebApi.retrieveMultipleRecords(entityname, _fetchXML);
+            const results = await Xrm.WebApi.retrieveMultipleRecords(_entityname, _fetchXML);
 
             for (let i = 0; i < results.entities.length; i++) {
                 results.entities[i].id = i;
@@ -28,7 +28,7 @@ export function RetrieveRecordsByFetchXML(entityname: string, fetchXML: string) 
         setData([])
         fetchData()
 
-    }, [_fetchXML]);
+    }, [_entityname, _fetchXML]);
 
     return [data, isFetching];
 }

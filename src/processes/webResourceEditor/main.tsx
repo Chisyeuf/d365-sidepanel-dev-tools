@@ -1,19 +1,34 @@
-import { Button, ButtonGroup, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Slide, Stack, Switch, Typography } from '@mui/material';
-import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState, } from 'react';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import Slide from '@mui/material/Slide';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { TransitionProps } from '@mui/material/transitions';
+import RestoreIcon from '@mui/icons-material/Restore';
+import CodeIcon from '@mui/icons-material/Code';
+import { SvgIconComponent } from '@mui/icons-material';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 import { useDictionnary } from '../../utils/hooks/use/useDictionnary';
 import { ScriptNodeContent } from '../../utils/types/ScriptNodeContent';
 import { CodeEditorCommon, CodeEditorDirectory, CodeEditorFile, CodeEditorForwardRef } from '../../utils/components/CodeEditorComponent/utils/types';
 import CodeEditor from '../../utils/components/CodeEditorComponent/CodeEditor';
 import { buildFileTree, getAllFiles, getFiles } from '../../utils/components/CodeEditorComponent/utils/fileManagement';
-import { TransitionProps } from '@mui/material/transitions';
-import RestoreIcon from '@mui/icons-material/Restore';
 import { GetExtensionId, debugLog, waitForElmList } from '../../utils/global/common';
 import { MessageType } from '../../utils/types/Message';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { ScriptOverride, ScriptOverrideContent } from '../../utils/types/ScriptOverride';
-import CodeIcon from '@mui/icons-material/Code';
-import { SvgIconComponent } from '@mui/icons-material';
 import { useBoolean } from 'usehooks-ts';
 import CircularProgressOverflow from '../../utils/components/CircularProgressOverflow';
 
@@ -63,7 +78,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-        }, []);
+        }, [setScriptsOverride]);
 
 
         useEffect(() => {
@@ -93,6 +108,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                                         ))
                                     } as ScriptNodeContent;
                                 });
+                        return null;
                     })).then((scriptNodeContents) => {
                         if (!scriptNodeContents) return;
                         const scriptNodeContentsDistinctNotNull: ScriptNodeContent[] = scriptNodeContents.filter((i, index, array) => i && array.findIndex(a => a?.srcRegex === i.srcRegex) === index) as any;
@@ -111,7 +127,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
             setRoot(root);
         }, [scriptNodeContent]);
 
-        const overridedFiles = useMemo(() => root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1)) || [], [root, scriptsOverridedSrc, getFiles]);
+        const overridedFiles = useMemo(() => (root && getFiles(root, (file => scriptsOverridedSrc.indexOf(file.src) !== -1))) || [], [root, scriptsOverridedSrc]);
         const unloadOverridedFiles = useMemo(() => scriptsOverridedSrc.filter(scriptSrc => !overridedFiles.some(file => file.src === scriptSrc)), [scriptsOverridedSrc, overridedFiles]);
 
         const handleOnSave = useCallback(
@@ -137,7 +153,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             },
-            [scriptsOverrided, scriptNodeContent, setScriptOverrideItem, removeScriptOverrideItem, setRoot]
+            [scriptsOverridedSrc, scriptNodeContent, setScriptOverrideItem, removeScriptOverrideItem, scriptsOverrided]
         );
         const handleOnChange = useCallback((fileUnsaved: CodeEditorFile, rootCopy: CodeEditorDirectory) => {
             setRoot(rootCopy);
@@ -324,7 +340,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
                     >
                         <ScriptList
                             text='Scripts found on this page:'
-                            items={root && getAllFiles(root) || []}
+                            items={(root && getAllFiles(root)) || []}
                             primaryLabel={(item) => scriptsOverrided[item.src] ? <strong>{item.name}</strong> : item.name}
                             primaryAction={selectFile}
                         />

@@ -22,15 +22,15 @@ export function RetrieveAttributes(entityname: string, recordid: string | undefi
             delete result["@odata.context"];
             delete result["@odata.etag"];
 
-            if (!isObjectEquals(result, data)) {
-                setData(result);
-            }
+            // if (!isObjectEquals(result, data)) {
+            setData(result);
+            // }
             setIsFetching(false);
         }
         setIsFetching(true);
         fetchData();
 
-    }, [attributes, _recordid]);
+    }, [attributes, _recordid, _entityname]);
 
     return [data, isFetching];
 }

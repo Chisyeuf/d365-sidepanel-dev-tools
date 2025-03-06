@@ -31,7 +31,7 @@ export function RetrieveRecordsDisplayNames(entityname: string, recordsid: strin
                 setFetching(false)
                 return;
             }
-            const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, "?$select=" + primaryAttribute + "&$filter=" + _recordsid);
+            const result = await Xrm.WebApi.online.retrieveMultipleRecords(_entityname, `?$select=${primaryAttribute}&$filter=${_recordsid}`);
             
             const dataProcessed: RecordsDisplayNamesResponse[] = []
             for (let i = 0; i < result?.entities?.length; i++) {
@@ -44,7 +44,7 @@ export function RetrieveRecordsDisplayNames(entityname: string, recordsid: strin
         setFetching(true)
         fetchData()
 
-    }, [primaryAttribute, _recordsid, idAttribute]);
+    }, [primaryAttribute, _recordsid, idAttribute, _entityname]);
 
     return [data, fetching]
 }

@@ -13,7 +13,6 @@ export function useChromeStorage<T>(key: string, defaultData: T): [T | null, (da
 
     useEffect(() => {
         async function getData() {
-
             const dataStored = await chrome.storage.sync.get(key);
             debugLog(key, dataStored);
             if (dataStored && dataStored[key]) {
@@ -25,7 +24,7 @@ export function useChromeStorage<T>(key: string, defaultData: T): [T | null, (da
         }
         setData(null);
         getData();
-    }, [key])
+    }, [defaultData, key])
 
     return [data, set];
 }

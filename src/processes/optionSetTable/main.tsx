@@ -185,7 +185,7 @@ const OptionSetTableProcess = forwardRef<ProcessRef, ProcessProps>(
 
                     <Stack direction='column' width='95%' spacing={0.5}>
                         <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>
-                            <EntitySelector fullWidth entityname={entityName} setEntityname={setEntityName} sx={{ lineHeight: 0 }} />
+                            <EntitySelector fullWidth entityname={entityName} setEntityname={setEntityName} />
                             <Button variant='contained' onClick={forceRefresh} sx={{ whiteSpace: 'nowrap', width: '25%' }}>Refresh</Button>
                         </Stack>
                         <Stack direction='row' spacing={1} mt={1} mb={1} alignItems='center'>

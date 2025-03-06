@@ -14,6 +14,7 @@ export function useStateArray<T>(length: number, initialState: T): [T[], React.D
                 ]);
             }
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const setAllStates = (value: T) => {

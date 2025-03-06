@@ -58,7 +58,7 @@ export function RetrieveAllRecordsByPage(entityname: string, select: string[], p
         setFetching(true)
         fetchData();
 
-    }, [_select, _page, _pageSize, _filter, _orderBy]);
+    }, [_select, _page, _pageSize, _filter, _orderBy, _entityname]);
 
     useEffect(() => {
         setData([])

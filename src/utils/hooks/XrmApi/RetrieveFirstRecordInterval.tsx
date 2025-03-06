@@ -37,7 +37,7 @@ export function RetrieveFirstRecordInterval(entityname: string, attributesList: 
         setFetching(true);
         fetchData();
 
-    }, [attributes, launchFlag]);
+    }, [_entityname, _filter, attributes, launchFlag, orderby]);
 
     useEffect(() => {
         setData(undefined);

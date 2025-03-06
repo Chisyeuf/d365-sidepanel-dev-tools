@@ -179,6 +179,7 @@ const MuiCalculator: React.FunctionComponent<MuiCalculatorProps> = (props: MuiCa
             }
             props.onChange && props.onChange(outputNumber);
         }, 0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [input]);
 
     useEffect(() => {
@@ -223,21 +224,21 @@ type NumPadProps = {
     integer: boolean
 }
 const NumPad: React.FunctionComponent<NumPadProps> = (props: NumPadProps) => {
-
+    const { onChange } = props;
 
     const [input, setInput] = React.useState<number | Action | null>(null);
 
     const buttonsList = props.integer ? buttonsInt : buttonsFloat;
 
     useEffect(() => {
-        props.onChange && props.onChange(input);
-    }, [input])
+        onChange && onChange(input);
+    }, [input, onChange])
 
 
     return (
         <Grid container spacing={1} columns={5} height='calc(100% - 100px)'>
             {buttonsList.map((button, index) => (
-                <Grid size={{ xs:button.sizeX ?? 1 }} key={button.label}>
+                <Grid size={{ xs: button.sizeX ?? 1 }} key={button.label}>
                     {
                         !button.empty &&
                         <NumPadButton label={button.label} value={button.value} setInput={setInput} height={button.sizeY} />

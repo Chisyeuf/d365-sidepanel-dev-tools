@@ -28,9 +28,6 @@ function FillFields(props: IToolButtonStandard) {
     // ---------- Fill on click mode ----------
     const [fillOnClickEnable, setFillOnClick] = useState<boolean>(false);
 
-    const toggleMode = () => {
-        setFillOnClick(!fillOnClickEnable);
-    }
 
     const fieldsControls = useMemo(() => {
         if (formContext) {
@@ -66,7 +63,7 @@ function FillFields(props: IToolButtonStandard) {
 
     useEffect(() => {
         const toggle = async () => {
-            fieldsControls?.map((c) => {
+            fieldsControls?.forEach((c) => {
                 const controlName = c.getName();
                 const controlNodeT = (formDocument ?? document).querySelector(`[data-id="${controlName}"] > div`);
                 controlNodeT?.removeEventListener('click', onClickField);
@@ -76,7 +73,7 @@ function FillFields(props: IToolButtonStandard) {
         }
 
         toggle();
-    }, [formContext, formDocument, domUpdated, fillOnClickEnable, fieldsControls]);
+    }, [formContext, formDocument, domUpdated, fillOnClickEnable, fieldsControls, onClickField]);
     // ---------- END Fill on click mode ----------
 
 
@@ -161,7 +158,7 @@ function FillFields(props: IToolButtonStandard) {
         {
             divider: true,
             label: fillOnClickEnable ? "Disable Fill on Click" : "Enable Fill on Click",
-            action: toggleMode,
+            action: () => setFillOnClick(!fillOnClickEnable),
         },
         {
             divider: true,
@@ -190,7 +187,7 @@ function FillFields(props: IToolButtonStandard) {
 
             }
         },
-    ], [attributeMetadata, formContext, originalValues, fillOnClickEnable]);
+    ], [fillOnClickEnable, attributeMetadata, formContext, originalValues]);
 
     // ---------- END Fill on menu ----------
 

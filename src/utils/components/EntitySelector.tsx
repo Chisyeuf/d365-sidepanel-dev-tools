@@ -1,9 +1,12 @@
-import { Autocomplete, Box, createTheme, FilterOptionsState, FormControl, ListItem, ListItemText, SxProps, TextField, Theme, Tooltip, Typography } from "@mui/material"
+import Autocomplete from '@mui/material/Autocomplete';
+import ListItemText from '@mui/material/ListItemText';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import React, { useMemo } from "react"
 import { useEffect, useState } from "react"
 import { RetrieveEntities } from "../hooks/XrmApi/RetrieveEntities"
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import { Virtuoso } from "react-virtuoso";
 
 
 const filterOptions = createFilterOptions<EntityOption>({
@@ -14,38 +17,18 @@ const filterOptions = createFilterOptions<EntityOption>({
 });
 
 
-// Adapter for react-window
-const ListboxComponent = React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLElement>
->(function ListboxComponent(props, ref) {
-    const { children, ...other } = props;
-
-    return (
-        <Box ref={ref} {...other} sx={{ height: '50vh' }}>
-            <Virtuoso
-                data={children as React.ReactElement<unknown>[]}
-                itemContent={(index, child) => child}
-                height={'100px'}
-            />
-        </Box>
-    );
-});
-
-
 type EntitySelectorProps = {
     setEntityname: (str: string) => void,
     entityname: string,
     moreOptions?: EntityOption[],
     fullWidth?: boolean,
-    sx?: SxProps<Theme>
 }
 type EntityOption = {
     id: string,
     label: string
 }
 const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => {
-    const { entityname, moreOptions, setEntityname, fullWidth, sx } = props;
+    const { entityname, moreOptions, setEntityname, fullWidth } = props;
 
     const [value, setValue] = useState<EntityOption>({ id: entityname, label: "" });
 
@@ -91,11 +74,6 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
                 }}
                 value={value}
                 fullWidth={fullWidth}
-                slotProps={{
-                    listbox: {
-                        component: ListboxComponent
-                    },
-                }}
             />
         </Tooltip>
     );

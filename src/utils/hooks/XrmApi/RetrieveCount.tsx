@@ -12,13 +12,13 @@ export function RetrieveCount(entityname: string): number {
         debugLog("RetrieveCount");
         if (!_entityname || !idAttribute) return;
         async function fetchData() {
-            const result = await Xrm.WebApi.retrieveMultipleRecords(_entityname, "?fetchXml=" + "<fetch aggregate=\"true\"> <entity name=\"" + _entityname + "\"> <attribute name=\"" + idAttribute + "\" alias=\"count\" aggregate=\"count\" distinct=\"true\" /> </entity> </fetch>");
+            const result = await Xrm.WebApi.retrieveMultipleRecords(_entityname, `?fetchXml=<fetch aggregate="true"> <entity name="${_entityname}"> <attribute name="${idAttribute}" alias="count" aggregate="count" distinct="true" /> </entity> </fetch>`);
             setData(result?.entities?.at(0)?.count ?? -1);
         }
         setData(0);
         fetchData();
 
-    }, [idAttribute]);
+    }, [_entityname, idAttribute]);
 
     return data;
 }

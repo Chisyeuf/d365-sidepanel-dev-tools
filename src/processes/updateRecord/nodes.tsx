@@ -1,3 +1,5 @@
+// Old module: react hooks are not well done but still work. A rework need to be done
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import '../../utils/global/extensions';
 
@@ -806,7 +808,7 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
     }, [props.attributeToUpdateManager, props.remove]);
 
     const onChange = (event: SelectChangeEvent<number>, checked: ReactNode) => {
-        const result = event.target.value == 1 ? true : event.target.value == 0 ? false : null;
+        const result = event.target.value === 1 ? true : event.target.value === 0 ? false : null;
         setValue(result);
         setDirty(result);
     }
@@ -821,7 +823,7 @@ export function BooleanNode(props: AttributeProps & { entityname: string }) {
         <FormControl fullWidth>
             <Select
                 open={open}
-                value={value == true ? 1 : value == false ? 0 : -1}
+                value={value === true ? 1 : value === false ? 0 : -1}
                 onChange={onChange}
                 onClick={handleOnClick}
                 size={"small"}
@@ -958,7 +960,7 @@ export function PicklistNode(props: AttributeProps & { nullable?: boolean, entit
 
     useEffect(() => {
         if (!props.disabled)
-            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null);
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value !== -1 ? value : null);
     }, [value])
 
     const setDirty = (newOption: typeof value) => {
@@ -1034,7 +1036,7 @@ export function GroupedPicklistNode(props: AttributeProps & { nullable?: boolean
 
     useEffect(() => {
         if (!props.disabled)
-            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value != -1 ? value : null);
+            props.attributeToUpdateManager.setAttributesValue(props.attribute.LogicalName, value !== -1 ? value : null);
     }, [value])
 
     const setDirty = (newOption: typeof value) => {

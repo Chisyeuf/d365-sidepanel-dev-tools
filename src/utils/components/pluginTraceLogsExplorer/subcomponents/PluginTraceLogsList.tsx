@@ -5,7 +5,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 import HorizontalSlider from '../../HorizontalSlider';
@@ -80,7 +80,7 @@ function TraceLogsListItem(props: LittleListItemProps) {
                     <WorkflowActivityTraceLogsListItem {...props} />
                 );
         }
-    }, [pluginTraceLog]);
+    }, [pluginTraceLog.operationtype, props]);
 
     return (
         <ListItem
@@ -111,9 +111,9 @@ function PluginTraceLogsListItem(props: LittleListItemProps) {
     const { sdkMessageProcessingSteps: sdkMessageProcessingStepsStore,  sdkMessageProcessingStepImages: sdkMessageProcessingStepImagesStore, addStepToFetchingQueue } = useContext(TraceLogsAPIContext);
     
 
-    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = useMemo(() => sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid]]);
+    const sdkMessageProcessingStep: SdkMessageProcessingStep | null = useMemo(() => sdkMessageProcessingStepsStore[pluginTraceLog.plugintracelogid] ?? null, [pluginTraceLog.plugintracelogid, sdkMessageProcessingStepsStore]);
 
-    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = useMemo(() => sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null, [sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid]]);
+    const sdkMessageProcessingStepImages: SdkMessageProcessingStepImage[] | null = useMemo(() => sdkMessageProcessingStepImagesStore[pluginTraceLog.plugintracelogid] ?? null, [pluginTraceLog.plugintracelogid, sdkMessageProcessingStepImagesStore]);
 
     useEffectOnce(() => {
         addStepToFetchingQueue(pluginTraceLog);

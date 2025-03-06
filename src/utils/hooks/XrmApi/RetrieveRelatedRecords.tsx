@@ -25,7 +25,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
         })).then(() => {
             setInit(true);
         });
-    }, [relatedRecords]);
+    }, [relatedRecords, setRelatedRecordPrimaryAttributes, setRelatedRecordPrimaryAttributesItem]);
 
     const primaryIdReferencedEntity = RetrievePrimaryIdAttribute(_referencedEntityName);
 
@@ -83,6 +83,7 @@ export function RetrieveRelatedRecords(entityName: string, recordId: string | un
         setData({});
         fetchData();
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [_referencedRecordid, primaryIdReferencedEntity, init]);
 
     return [data, isFetching];

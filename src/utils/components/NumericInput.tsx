@@ -1,7 +1,7 @@
 import type { TextFieldProps } from '@mui/material';
 import { TextField } from '@mui/material';
 import AutoNumeric, { Options } from 'autonumeric';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface HTMLNumericElement
     extends Omit<HTMLInputElement, 'value' | 'name'> {
@@ -35,7 +35,7 @@ function NumericInput(props: NumericInputProps) {
                 setAutonumeric(new AutoNumeric(inputRef.current, value, numericOptions));
             }
         }
-    }, [inputRef])
+    }, [inputRef, numericOptions, value])
 
     useEffect(() => {
         if (!inputValue) {
@@ -52,7 +52,7 @@ function NumericInput(props: NumericInputProps) {
                 autonumeric?.set(inputValue);
             }
         }
-    }, [inputValue])
+    }, [autonumeric, inputValue, numericOptions?.maximumValue, numericOptions?.minimumValue])
 
     useEffect(() => {
         setInputValue(value || value === 0 ? "" + value : '');
