@@ -265,3 +265,7 @@ This tool lets you select which tools automatically open when a page loads. You 
 A "foreground" option is available to disable automatic width adjustments of the main Dynamics screen.
 
 <img height="0px" width="0px">
+
+## License
+
+This project is licensed under the MIT License. You are free to use, modify, distribute, and copy it, provided you comply with the terms of the license. The MIT License is available here.
