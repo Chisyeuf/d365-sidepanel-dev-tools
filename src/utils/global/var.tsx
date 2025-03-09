@@ -15,5 +15,5 @@ export type TYPE_DontShowInfo = { [infoName: string]: boolean };
 
 export const DRAWER_CONTAINER_ID = 'drawercontainer';
 
-export const APPLICATION_NAME = 'D365 SidePanel Dev Tools';
+export const APPLICATION_NAME = 'Dynamics SideKick';
 export const MAIN_MENU_ID = 'sidepanel-mainmenu';

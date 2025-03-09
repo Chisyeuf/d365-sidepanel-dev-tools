@@ -1,6 +1,6 @@
 {
-    "name": "D365 SidePanel Dev Tools",
-    "description": "Enhance your Dynamics 365 experience with D365 SidePanel Tools — a custom side panel packed with utilities for form editing, record updates, attribute browsing, and log analysis.",
+    "name": "Dynamics SideKick",
+    "description": "Enhance your Dynamics 365 experience with Dynamics SideKick — a custom side panel packed with utilities for form editing, record updates, attribute browsing, and log analysis.",
     "version": "1.0",
     "manifest_version": 3,
     "background": {

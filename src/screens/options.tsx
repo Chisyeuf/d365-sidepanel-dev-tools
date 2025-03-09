@@ -63,7 +63,7 @@ const OptionsScreen: React.FunctionComponent = () => {
                         This section is not where you can use this extension:
                     </Typography>
                     <Typography component='p' fontSize='0.95rem'>
-                        D365 SidePanel Tools adds a panel at the right of Dynamics 365 pages.
+                        Dynamics SideKick adds a panel at the right of Dynamics 365 pages.
                     </Typography>
                 </Alert>
 
