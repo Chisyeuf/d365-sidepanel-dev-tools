@@ -25,7 +25,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import OpenOptionsButton from '../utils/components/OpenOptionsButton';
 import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/spContext';
-import { BuyMeACoffeeIcon } from '../icons/BuyMeACoffee';
+import { KoFiIcon } from '../icons/BuyMeACoffee';
 import StarIcon from '@mui/icons-material/Star';
 import BlackWhiteIconButton from '../utils/components/BlackWhiteIconButton';
 
@@ -427,13 +427,20 @@ function MainScreenFooter() {
                             </BlackWhiteIconButton>
                         </a>
                     </Tooltip>
-                    <Tooltip title={<Typography fontFamily="'Cookie',cursive">Buy me a coffee</Typography>} arrow disableInteractive>
+                    <Tooltip title={<Typography fontFamily="'Cookie',cursive">Buy me a Ko-fi</Typography>} arrow disableInteractive>
+                        <a href='https://ko-fi.com/sofianeguezzar' target="_blank" rel="noreferrer">
+                            <BlackWhiteIconButton size="small" color='#0388a6'>
+                                <KoFiIcon fontSize="inherit" sx={{ height: '15px' }} />
+                            </BlackWhiteIconButton>
+                        </a>
+                    </Tooltip>
+                    {/* <Tooltip title={<Typography fontFamily="'Cookie',cursive">Buy me a coffee</Typography>} arrow disableInteractive>
                         <a href='https://buymeacoffee.com/sofiane.guezzar' target="_blank" rel="noreferrer">
                             <BlackWhiteIconButton size="small" color='#0388a6'>
                                 <BuyMeACoffeeIcon fontSize="inherit" sx={{ height: '15px' }} />
                             </BlackWhiteIconButton>
                         </a>
-                    </Tooltip>
+                    </Tooltip> */}
                     <Tooltip title={<Typography>Github project</Typography>} arrow disableInteractive>
                         <a href='https://github.com/Chisyeuf/d365-sidepanel-dev-tools' target="_blank" rel="noreferrer">
                             <BlackWhiteIconButton size="small" color='#2dba4e' >
