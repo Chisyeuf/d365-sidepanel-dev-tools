@@ -23,7 +23,7 @@ export function OptionalMode(props: IToolButtonControlled) {
         const allcontrols: OptionalModeStateType[] = controls?.map<OptionalModeStateType>(c => {
             return {
                 name: c.getName(),
-                defaultState: formContext.getAttribute(c.getName())?.getRequiredLevel(),
+                defaultState: formContext.getAttribute(c.getName())?.getRequiredLevel() ?? 'none',
             }
         });
         return allcontrols;

@@ -100,14 +100,12 @@ const DetailsSnackbar = forwardRef<HTMLDivElement, DetailsSnackbarProps>(
             element.remove();
         }
 
-        const splitedMessage = useMemo(() => props.message?.split("**"), [props.message]);
-
         return (
             <SnackbarContent ref={ref} className={classes.root}>
                 <Alert variant='filled' severity={props.detailsVariant} iconMapping={{ error: <CancelIcon /> }} sx={{ [`&.${PROJECT_PREFIX}Alert-message`]: { pt: 1, pb: 1 } }}>
                     <AlertTitle>
                         <Stack width='100%' direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="body2">{splitedMessage?.map((partOfMessage, index) => index % 2 === 0 ? partOfMessage : <b>{partOfMessage}</b>)}</Typography>
+                            <Typography variant="body2">{props.message}</Typography>
                             <IconButton
                                 aria-label="Show more"
                                 size="small"

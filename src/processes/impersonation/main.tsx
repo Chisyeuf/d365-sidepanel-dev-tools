@@ -80,7 +80,7 @@ class ImpersonationButton extends ProcessButton {
                         if (result.entities.length > 0) {
                             const user: ActiveUser = await ConvertToActiveUserObject(result.entities[0]);
 
-                            snackbarProviderContext.enqueueSnackbar(`You are impersonating **${user.fullname}** (${user.systemuserid})`, {
+                            snackbarProviderContext.enqueueSnackbar(<>You are impersonating <b>user.fullname</b> (user.systemuserid)</>, {
                                 variant: 'detailsFile',
                                 detailsVariant: 'info',
                                 persist: true,

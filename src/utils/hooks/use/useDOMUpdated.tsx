@@ -8,7 +8,7 @@ const DELAY = 1500;
 export function useDOMUpdated(_document: FormDocument, eventName: string, elementSelector: string) {
 
     const [observer, setObserver] = useState<DOMObserver | null>(null);
-    const [, setTimer] = useState<NodeJS.Timer>();
+    const [, setTimer] = useState<NodeJS.Timeout>();
 
     const [domUpdated, setDomUpdated] = useState<boolean>(false);
 

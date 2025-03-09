@@ -1,5 +1,3 @@
-import '../utils/components/DetailsSnackbar';
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 

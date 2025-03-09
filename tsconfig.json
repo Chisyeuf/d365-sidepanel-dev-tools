@@ -44,7 +44,7 @@
   ],
   "exclude": [
     "node_modules", 
-    "archives",
+    "archives/*",
     "**/.*/"
   ]
 }

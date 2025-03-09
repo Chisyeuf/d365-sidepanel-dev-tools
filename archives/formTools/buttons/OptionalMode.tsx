@@ -27,7 +27,7 @@ export function OptionalMode(props: SubProcessProps & GodModeSubProcess) {
             const allcontrols: OptionalModeStateType[] = controls?.map<OptionalModeStateType>(c => {
                 return {
                     name: c.getName(),
-                    defaultState: currentFormContext.getAttribute(c.getName())?.getRequiredLevel(),
+                    defaultState: currentFormContext.getAttribute(c.getName())?.getRequiredLevel() ?? 'none',
                 }
             });
             return allcontrols;

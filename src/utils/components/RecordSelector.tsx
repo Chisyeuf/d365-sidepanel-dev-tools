@@ -13,7 +13,6 @@ import { RecordsDisplayNamesResponse, RetrieveRecordsDisplayNames } from '../hoo
 import ClearIcon from '@mui/icons-material/Clear';
 import '../global/extensions';
 import CircularProgressOverflow from './CircularProgressOverflow'
-import './DetailsSnackbar'
 import { RetrieveCount } from '../hooks/XrmApi/RetrieveCount'
 import { RetrieveAllRecordsByPage } from '../hooks/XrmApi/RetrieveAllRecordsByPage'
 import { GridToolbarFilterXMLButton } from './GridToolbarFilterXMLButton'

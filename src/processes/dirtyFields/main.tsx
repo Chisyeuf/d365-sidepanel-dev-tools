@@ -201,7 +201,7 @@ const DirtyAttributeItem = React.memo((props: DirtyAttributeItemProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleClick = useCallback(() => {
-        currentFormContext?.getAttribute<Xrm.Attributes.Attribute>(name).controls.get(0)?.setFocus?.()
+        currentFormContext?.getAttribute<Xrm.Attributes.Attribute>(name)?.controls.get(0)?.setFocus?.()
     }, [currentFormContext, name]);
 
     const handleOpenContextualMenu = useCallback((e: React.MouseEvent<HTMLDivElement>) => {

@@ -58,10 +58,9 @@ const EntitySelector: React.FunctionComponent<EntitySelectorProps> = (props) => 
                 filterOptions={filterOptions}
                 getOptionLabel={(option: EntityOption) => option.label}
                 size='small'
-                placeholder='Search entity'
                 key='entityselector'
                 onChange={(event, option, index) => { setEntityname(option?.id.toString() ?? "") }}
-                renderInput={(params) => <TextField {...params} label="Entity Name" />}
+                renderInput={(params) => <TextField {...params} label="Entity" />}
                 renderOption={(props, item) => {
                     return (
                         <li {...props} key={item.id} style={{ paddingTop: 0, paddingBottom: 0 }}>

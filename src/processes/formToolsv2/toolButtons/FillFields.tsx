@@ -52,7 +52,7 @@ function FillFields(props: IToolButtonStandard) {
         const attribute = formContext.getAttribute(attributeName);
         const metadata = attributeMetadata.find(meta => meta.LogicalName === attributeName);
 
-        if (!metadata) return;
+        if (!metadata || !attribute) return;
 
         getRandomValue(formContext, attribute, metadata).then((randomValue) => {
             attribute.setValue(randomValue);
