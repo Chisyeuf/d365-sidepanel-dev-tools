@@ -1,5 +1,5 @@
 
-Dynamics 365 SidePanel Tools
+Dynamics SideKick
 ============================
 
 ## Summary
@@ -25,7 +25,7 @@ Dynamics 365 SidePanel Tools
 
 # Introduction
 
-The Dynamics 365 SidePanel Tools extension provides a powerful set of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
+Dynamics SideKick provides a powerful set of utilities that can enhance your productivity. This chromium extension adds a panel to the right side of Dynamics 365 pages, giving you easy access to a variety of tools that can display useful informations or edit data. These tools are designed to be user-friendly and can be opened independently.
 
 A configuration tool is available to customize the extension's loading settings.
 
