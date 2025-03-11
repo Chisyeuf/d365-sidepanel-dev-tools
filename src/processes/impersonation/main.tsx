@@ -1,10 +1,7 @@
-import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -18,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.processClass';
 
-import { GetExtensionId, debugLog } from '../../utils/global/common';
+import { debugLog } from '../../utils/global/common';
 
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { ConvertToActiveUserObject, RetrieveActiveUsersWithSecurityRoles } from '../../utils/hooks/XrmApi/RetrieveActiveUsersWithSecurityRoles';
@@ -35,12 +32,11 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AvatarColor from '../../utils/components/AvatarColor';
 import { ProviderContext } from 'notistack';
 import { NoMaxWidthTooltip } from '../../utils/components/NoMaxWidthTooltip';
-import OpenOptionsButton from '../../utils/components/OpenOptionsButton';
 import MuiVirtuoso from '../../utils/components/MuiVirtuoso';
-import { useEffectOnce } from '../../utils/hooks/use/useEffectOnce';
 import { useSpDevTools } from '../../utils/global/spContext';
 import { LinearProgress } from '@mui/material';
 import DontShowInfo from '../../utils/components/DontShowInfo';
+import MessageManager from '../../utils/global/MessageManager';
 
 class ImpersonationButton extends ProcessButton {
     constructor() {
@@ -64,12 +60,11 @@ class ImpersonationButton extends ProcessButton {
     }
 
     onExtensionLoad(snackbarProviderContext: ProviderContext): void {
-        const extensionId = GetExtensionId();
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
-            async function (existingRules: chrome.declarativeNetRequest.Rule[]) {
+        MessageManager.sendMessage(MessageType.GETIMPERSONATION).then(
+            async function (existingRules: chrome.declarativeNetRequest.Rule[] | null) {
                 const url = Xrm.Utility.getGlobalContext().getClientUrl();
-                const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url) && !r.condition.urlFilter.includes('RemovedAction'));
+                const currentRule = existingRules?.find(r => r.condition.urlFilter?.includes(url) && !r.condition.urlFilter.includes('RemovedAction'));
 
                 if (currentRule) {
                     const currentAzureIdOrUserId = currentRule.action.requestHeaders?.at(0)?.value;
@@ -80,7 +75,7 @@ class ImpersonationButton extends ProcessButton {
                         if (result.entities.length > 0) {
                             const user: ActiveUser = await ConvertToActiveUserObject(result.entities[0]);
 
-                            snackbarProviderContext.enqueueSnackbar(<>You are impersonating <b>user.fullname</b> (user.systemuserid)</>, {
+                            snackbarProviderContext.enqueueSnackbar(<>You are impersonating <b>{user.fullname}</b> ({user.systemuserid})</>, {
                                 variant: 'detailsFile',
                                 detailsVariant: 'info',
                                 persist: true,
@@ -98,6 +93,7 @@ const rowHeight = 35;
 
 const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
     function ImpersonationProcess(props: ProcessProps, ref) {
+        const { setBadge } = props;
 
         const { isDebug } = useSpDevTools();
 
@@ -110,9 +106,6 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const { activeUsers, isFetching } = RetrieveActiveUsersWithSecurityRoles(!isOnPrem);
 
-        const extensionId = GetExtensionId();
-
-
         const loadedActiveUsers = useMemo(() => activeUsers.filter(user => user.teamsRoles).length, [activeUsers]);
         const totalActiveUsers = useMemo(() => activeUsers.length, [activeUsers.length]);
         const completion = useMemo(() => totalActiveUsers > 0 ? Math.round((loadedActiveUsers / totalActiveUsers) * 100) : 0, [loadedActiveUsers, totalActiveUsers]);
@@ -120,13 +113,8 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         const sendNewUserToBackground = useCallback((newUser: ActiveUser | null) => {
             const data = { userSelected: newUser, selectedon: new Date(), url: Xrm.Utility.getGlobalContext().getClientUrl(), isOnPrem: isOnPrem };
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.IMPERSONATE, data: data },
-                function (response) {
-                    if (response.success) {
-                    }
-                }
-            );
-        }, [extensionId, isOnPrem]);
+            MessageManager.sendMessage(MessageType.IMPERSONATE, data);
+        }, [isOnPrem]);
 
         const handleSelect = useCallback((user: typeof activeUsers[0]) => () => {
             setUserSelected(
@@ -138,10 +126,10 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
 
         useEffect(() => {
             if (!activeUsers) return;
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
-                function (existingRules: chrome.declarativeNetRequest.Rule[]) {
+            MessageManager.sendMessage(MessageType.GETIMPERSONATION).then(
+                function (existingRules: chrome.declarativeNetRequest.Rule[] | null) {
                     const url = Xrm.Utility.getGlobalContext().getClientUrl();
-                    const currentRule = existingRules.find(r => r.condition.urlFilter?.includes(url) && !r.condition.urlFilter.includes('RemovedAction'));
+                    const currentRule = existingRules?.find(r => r.condition.urlFilter?.includes(url) && !r.condition.urlFilter.includes('RemovedAction'));
 
                     if (currentRule) {
                         const currentAzureId = currentRule.action.requestHeaders?.at(0)?.value;
@@ -149,7 +137,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                             const impersonateUser = activeUsers.find(u => u.azureObjectId === currentAzureId || u.systemuserid === currentAzureId);
                             setUserSelected(impersonateUser ?? null);
 
-                            props.setBadge(
+                            setBadge(
                                 <AvatarColor
                                     fullname={impersonateUser?.fullname}
                                     size={20}
@@ -161,8 +149,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
                     }
                 }
             );
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [activeUsers, setUserSelected]);
+        }, [activeUsers, setUserSelected, setBadge]);
 
 
         const filteredActiveUsers = useMemo(() => {
@@ -189,12 +176,12 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
         const debugFn = useCallback(() => {
             debugLog("DEBUG: Impersonation - activeUsers object:", activeUsers);
 
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETIMPERSONATION },
-                function (existingRules: Promise<chrome.declarativeNetRequest.Rule[]>) {
+            MessageManager.sendMessage(MessageType.GETIMPERSONATION).then(
+                function (existingRules: chrome.declarativeNetRequest.Rule[] | null) {
                     debugLog('DEBUG: Impersonation - session rule currently applied:', existingRules);
                 }
             );
-        }, [activeUsers, extensionId]);
+        }, [activeUsers]);
 
 
         return (

@@ -4,7 +4,7 @@ import { StorageConfiguration } from '../utils/types/StorageConfiguration';
 import impersonation from './impersonation/main';
 import createConfiguration from './setConfiguration/main';
 import updateRecord from './updateRecord/main';
-import webResourceEditor from './webResourceEditor/main';
+// import webResourceEditor from './webResourceEditor/main';
 import allFields from './allFields/main';
 import relatedRecords from './relatedRecords/main';
 import commandDebugger from './commandDebugger/main';
@@ -16,8 +16,9 @@ import entitiesList from './entitiesList/main';
 import metadataBrowser from './metadataBrowser/main';
 import formToolsV2 from './formToolsv2/main';
 
+const target = process.env.REACT_APP_TARGET;
+
 const Processes: ProcessButton[] = [
-    // formTools,
     formToolsV2,
     updateRecord,
     allFields,
@@ -26,7 +27,7 @@ const Processes: ProcessButton[] = [
     relatedRecords,
     entitiesList,
     impersonation,
-    webResourceEditor,
+    // ...(target === 'chrome' ? [webResourceEditor] : []),
     pluginTraceLogsExplorer,
     metadataBrowser,
     navigation,

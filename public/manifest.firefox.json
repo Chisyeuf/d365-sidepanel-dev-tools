@@ -1,0 +1,54 @@
+{
+    "name": "Dynamics SideKick",
+    "description": "Enhance your Dynamics 365 experience with Dynamics SideKick — a custom side panel packed with utilities for form editing, record updates, attribute browsing, and log analysis.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "scripts": [
+            "/static/js/background.js"
+        ]
+    },
+    "action": {
+        "default_popup": "options.html",
+        "default_title": "Options"
+    },
+    "icons": {
+        "16": "icons/muiwand.png",
+        "48": "icons/muiwand.png",
+        "128": "icons/muiwand.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "/static/js/spdevtools.content.js"
+            ]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "/static/js/spdevtools.js",
+                "/icons/*"
+            ],
+            "matches": [
+                "*://*/*",
+                "*://*/*"
+            ]
+        }
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "permissions": [
+        "storage",
+        "declarativeNetRequestWithHostAccess"
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "sofiane.guezzar.dynamics.sidekick@gmail.com"
+        }
+    }
+}

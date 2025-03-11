@@ -3,10 +3,10 @@ import OpenOptionsButton from "./OpenOptionsButton";
 import { PropsWithChildren, useState } from "react";
 import { MessageType } from "../types/Message";
 import { STORAGE_DontShowInfo, TYPE_DontShowInfo } from "../global/var";
-import { GetExtensionId } from "../global/common";
 import { useEffectOnce } from "../hooks/use/useEffectOnce";
 import { useDictionnary } from "../hooks/use/useDictionnary";
 import { useSpDevTools } from "../global/spContext";
+import MessageManager from "../global/MessageManager";
 
 
 
@@ -18,14 +18,13 @@ function DontShowInfo(props: DontShowInfoProps & PropsWithChildren) {
     const { storageName, displayOpenOptionButton = false, children } = props;
 
     const { isDebug } = useSpDevTools();
-    const extensionId = GetExtensionId();
 
     const { dict: dontShowInfos, setValue: setDontShowInfo, setDict: setDontShowInfos } = useDictionnary<TYPE_DontShowInfo['']>({});
-    const [closeInfo, setCloseInfo] = useState<boolean>(false);
+    const [closeInfo, setCloseInfo] = useState<boolean>(true);
 
     useEffectOnce(
         () => {
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_DontShowInfo } },
+            MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_DontShowInfo }).then(
                 function (response: TYPE_DontShowInfo | null) {
                     setDontShowInfos(response ?? {});
                     setCloseInfo(response?.[storageName] ?? false);
@@ -37,15 +36,14 @@ function DontShowInfo(props: DontShowInfoProps & PropsWithChildren) {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const dontShowInfoValue = event.target.checked;
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_DontShowInfo } },
+        MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_DontShowInfo }).then(
             function (response: TYPE_DontShowInfo | null) {
                 setDontShowInfo(storageName, dontShowInfoValue);
                 setTimeout(() => {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_DontShowInfo, configurations: { [storageName]: dontShowInfoValue, ...response } } });
+                    MessageManager.sendMessage(MessageType.SETCONFIGURATION, { key: STORAGE_DontShowInfo, configurations: { [storageName]: dontShowInfoValue, ...response } });
                 }, 1000);
             }
         );
-
     };
 
 

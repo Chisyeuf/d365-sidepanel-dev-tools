@@ -17,19 +17,31 @@
     },
     "content_scripts": [
         {
-            "matches": ["*://*/*", "*://*/*"],
-            "js": ["/static/js/spdevtools.content.js"]
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "/static/js/spdevtools.content.js"
+            ]
         }
     ],
     "web_accessible_resources": [
         {
-            "resources": ["/static/js/spdevtools.js", "/icons/*"],
-            "matches": ["*://*/*", "*://*/*"]
+            "resources": [
+                "/static/js/spdevtools.js",
+                "/icons/*"
+            ],
+            "matches": [
+                "*://*/*"
+            ]
         }
     ],
-    "host_permissions": ["*://*/*"],
-    "permissions": ["storage", "declarativeNetRequest", "debugger"],
-    "externally_connectable": {
-        "matches": ["*://*/*", "*://*/*"]
-    }
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "permissions": [
+        "storage",
+        "declarativeNetRequestWithHostAccess"
+        // "debugger"
+    ]
 }

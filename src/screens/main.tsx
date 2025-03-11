@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import Stack from '@mui/material/Stack';
 
 import Processes, { defaultProcessesList } from '../processes/.list';
-import { debugLog, GetExtensionId, GetUrl, isArraysEquals, setStyle, waitForElm } from '../utils/global/common';
+import { debugLog, GetUrl, isArraysEquals, setStyle, waitForElm } from '../utils/global/common';
 import XrmObserver from '../utils/global/XrmObserver';
 
 import { StorageConfiguration } from '../utils/types/StorageConfiguration';
@@ -26,6 +26,7 @@ import SpDevToolsContextProvider, { useSpDevTools } from '../utils/global/spCont
 import { KoFiIcon } from '../icons/BuyMeACoffee';
 import StarIcon from '@mui/icons-material/Star';
 import BlackWhiteIconButton from '../utils/components/BlackWhiteIconButton';
+import MessageManager from '../utils/global/MessageManager';
 
 
 const MainScreen: React.FunctionComponent = () => {
@@ -53,8 +54,6 @@ const MAIN_MENU_WIDTH = 322;
 
 const MainScreenCustomPanel: React.FunctionComponent = () => {
 
-    const extensionId = GetExtensionId();
-
     const [panelOpenedId, setPanelOpenedId] = useState<string | null>(null);
 
     const [processesList, setProcessesList] = useState<StorageConfiguration[]>([]);
@@ -65,26 +64,26 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
 
 
     useEffect(() => {
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ListName } },
+
+        MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_ListName }).then(
             function (response: StorageConfiguration[]) {
                 if (response && isArraysEquals(response.map(t => t.id), defaultProcessesList.map(t => t.id))) {
                     setProcessesList(response);
                     return;
                 }
                 else {
-                    chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_ListName, configurations: defaultProcessesList } });
+                    MessageManager.sendMessage(MessageType.SETCONFIGURATION, { key: STORAGE_ListName, configurations: defaultProcessesList });
                     setProcessesList(defaultProcessesList);
                 }
-
             }
         );
 
-        chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ForegroundPanes } },
+        MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_ForegroundPanes }).then(
             function (response: boolean | null) {
                 setIsForegroundPanes(response ?? false);
             }
         );
-    }, [extensionId]);
+    }, []);
 
 
     useEffect(() => {

@@ -1,18 +1,19 @@
+import { getSessionRules } from "../../utils/global/DeclarativeNetRequestManager";
 import { ActiveUser } from "../../utils/types/ActiveUser";
 
 const prefixId: number = 56850000;
 
 const createImpersonationRule = async (azureObjectId: string, headerItem: string, url: string) => {
-    const exitingRules = await getSessionRules();
+    const exitingRules = await getSessionRules() ?? [];
 
     const rule: chrome.declarativeNetRequest.Rule = {
         id: prefixId + Object.keys(exitingRules).length + 1,
         priority: 1,
         action: {
-            type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+            type: chrome.declarativeNetRequest.RuleActionType?.MODIFY_HEADERS ?? 'modifyHeaders',
             requestHeaders: [
                 {
-                    operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                    operation: chrome.declarativeNetRequest.HeaderOperation?.SET ?? 'set',
                     header: headerItem,
                     value: azureObjectId
                 },
@@ -26,7 +27,7 @@ const createImpersonationRule = async (azureObjectId: string, headerItem: string
 }
 
 const updateImpersonationRules = async (azureObjectId: string, headerItem: string, url: string) => {
-    const exitingRules = await getSessionRules();
+    const exitingRules = await getSessionRules() ?? [];
 
     const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
 
@@ -46,7 +47,7 @@ const updateImpersonationRules = async (azureObjectId: string, headerItem: strin
 const removeImpersonationRules = async (url: string) => {
     const exitingRules = await getSessionRules();
 
-    const ruleByUrl = exitingRules.find(rule => rule.condition.urlFilter?.startsWith(url));
+    const ruleByUrl = exitingRules?.find(rule => rule.condition.urlFilter?.startsWith(url));
 
     if (ruleByUrl) {
         ruleByUrl.condition.urlFilter = url + "/_RemovedAction_";
@@ -55,15 +56,11 @@ const removeImpersonationRules = async (url: string) => {
     return exitingRules;
 }
 
-export function getSessionRules() {
-    return chrome.declarativeNetRequest.getSessionRules();
-}
-
 
 export async function manageImpersonation(data: { userSelected: ActiveUser, selectedon: Date, url: string, isOnPrem: boolean }, sender: chrome.runtime.MessageSender) {
     let ruleList: chrome.declarativeNetRequest.Rule[];
     if (!data.userSelected) {
-        ruleList = await removeImpersonationRules(data.url);
+        ruleList = await removeImpersonationRules(data.url) ?? [];
     }
     else {
         if (data.isOnPrem) {

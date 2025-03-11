@@ -1,7 +1,8 @@
 
-import { getSessionRules, manageImpersonation } from "./processes/impersonation/background";
+import {  manageImpersonation } from "./processes/impersonation/background";
 import { getExtensionConfiguration, setExtensionConfiguration } from "./processes/setConfiguration/background";
-import { debuggerAttached, disbaleScriptOverride as disbaleScriptOverriding, enableScriptOverride as enableScriptOverriding, getScriptOverride as getScriptOverriding } from "./processes/webResourceEditor/background";
+import { debuggerAttached, disableScriptOverride, enableScriptOverride as enableScriptOverriding, getScriptOverride as getScriptOverriding } from "./processes/webResourceEditor/background";
+import { getSessionRules } from "./utils/global/DeclarativeNetRequestManager";
 import { MessageType } from "./utils/types/Message";
 
 chrome.runtime.onMessageExternal.addListener(messagesStation);
@@ -33,7 +34,7 @@ function messagesStation(message: { type: string, data: any }, sender: chrome.ru
             enableScriptOverriding(message.data, sender);
             return false;
         case MessageType.DISABLESCRIPTOVERRIDING:
-            disbaleScriptOverriding(sender);
+            disableScriptOverride(sender);
             return false;
         case MessageType.GETCURRENTSCRIPTOVERRIDING:
             getScriptOverriding(sender).then(sendResponse);

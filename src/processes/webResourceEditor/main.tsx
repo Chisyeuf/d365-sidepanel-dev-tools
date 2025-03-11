@@ -25,12 +25,13 @@ import { ScriptNodeContent } from '../../utils/types/ScriptNodeContent';
 import { CodeEditorCommon, CodeEditorDirectory, CodeEditorFile, CodeEditorForwardRef } from '../../utils/components/CodeEditorComponent/utils/types';
 import CodeEditor from '../../utils/components/CodeEditorComponent/CodeEditor';
 import { buildFileTree, getAllFiles, getFiles } from '../../utils/components/CodeEditorComponent/utils/fileManagement';
-import { GetExtensionId, debugLog, waitForElmList } from '../../utils/global/common';
+import { debugLog, waitForElmList } from '../../utils/global/common';
 import { MessageType } from '../../utils/types/Message';
 import { useXrmUpdated } from '../../utils/hooks/use/useXrmUpdated';
 import { ScriptOverride, ScriptOverrideContent } from '../../utils/types/ScriptOverride';
 import { useBoolean } from 'usehooks-ts';
 import CircularProgressOverflow from '../../utils/components/CircularProgressOverflow';
+import MessageManager from '../../utils/global/MessageManager';
 
 const separationOfUrlAndFileName = 'webresources/';
 
@@ -70,8 +71,7 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
         const { value: confirmPublishOpen, setTrue: openConfirmPublish, setFalse: closeConfirmPublish } = useBoolean(false);
 
         useEffect(() => {
-            const extensionId = GetExtensionId();
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCURRENTSCRIPTOVERRIDING },
+            MessageManager.sendMessage(MessageType.GETCURRENTSCRIPTOVERRIDING).then(
                 function (response: ScriptOverride | null) {
                     if (response) {
                         setScriptsOverride(response);
@@ -221,21 +221,8 @@ const WebResourceEditorProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         const launchLiveTest = useCallback(() => {
-            const extensionId = GetExtensionId();
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.ENABLESCRIPTOVERRIDING, data: scriptsOverrided },
-                function (response) {
-                    debugLog("WebRessourceEditorProcess ", MessageType.ENABLESCRIPTOVERRIDING, response);
-                    if (response.success) {
-                    }
-                }
-            );
-
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.REFRESHBYPASSCACHE },
-                function (response) {
-                    if (response.success) {
-                    }
-                }
-            );
+            MessageManager.sendMessage(MessageType.ENABLESCRIPTOVERRIDING, scriptsOverrided);
+            MessageManager.sendMessage(MessageType.REFRESHBYPASSCACHE);
         }, [scriptsOverrided]);
 
 

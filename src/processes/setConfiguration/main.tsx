@@ -14,7 +14,7 @@ import { ProcessProps, ProcessButton, ProcessRef } from '../../utils/global/.pro
 
 import Processes, { defaultProcessesList } from '../.list';
 import { MessageType } from '../../utils/types/Message';
-import { GetExtensionId, debugLog } from '../../utils/global/common';
+import { debugLog } from '../../utils/global/common';
 import { StorageConfiguration } from '../../utils/types/StorageConfiguration';
 import { DragDropContext, Draggable, DropResult, Droppable } from '@hello-pangea/dnd';
 import { STORAGE_ForegroundPanes, STORAGE_ListName } from '../../utils/global/var';
@@ -23,6 +23,7 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import MessageManager from '../../utils/global/MessageManager';
 
 class SetConfigurationButton extends ProcessButton {
     constructor() {
@@ -191,8 +192,6 @@ function sortProcessesByStartOnPosition(processA: StorageConfiguration, processB
 const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
     function SetConfigurationProcess(props: ProcessProps, ref) {
 
-        const extensionId = GetExtensionId();
-
         const [processesList, setProcessesList] = useState<StorageConfiguration[]>(defaultProcessesList);
         const [configurationSaved, setConfigurationSaved] = useState<boolean>(false);
 
@@ -202,17 +201,17 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
 
 
         useEffect(() => {
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ListName } },
+            MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_ListName }).then(
                 function (response: StorageConfiguration[] | null) {
                     setProcessesList(response ?? []);
                 }
             );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.GETCONFIGURATION, data: { key: STORAGE_ForegroundPanes } },
+            MessageManager.sendMessage(MessageType.GETCONFIGURATION, { key: STORAGE_ForegroundPanes }).then(
                 function (response: boolean | null) {
                     setIsForegroundPanes(response ?? false);
                 }
             );
-        }, [extensionId]);
+        }, []);
 
 
         const createConfiguration = useCallback(() => {
@@ -232,17 +231,9 @@ const SetConfigurationProcess = forwardRef<ProcessRef, ProcessProps>(
             });
 
             debugLog(processConfigurations);
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_ListName, configurations: processConfigurations } },
-                function (response) {
-                    if (response.success) { }
-                }
-            );
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.SETCONFIGURATION, data: { key: STORAGE_ForegroundPanes, configurations: isForegroundPanes } },
-                function (response) {
-                    if (response.success) { }
-                }
-            );
-        }, [extensionId, isForegroundPanes, processesList]);
+            MessageManager.sendMessage(MessageType.SETCONFIGURATION, { key: STORAGE_ListName, configurations: processConfigurations });
+            MessageManager.sendMessage(MessageType.SETCONFIGURATION, { key: STORAGE_ForegroundPanes, configurations: isForegroundPanes });
+        }, [isForegroundPanes, processesList]);
 
         const saveConfiguration = useCallback(() => {
             debugLog("saveConfiguration", processesList);

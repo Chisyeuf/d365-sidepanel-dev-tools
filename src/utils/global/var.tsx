@@ -17,3 +17,6 @@ export const DRAWER_CONTAINER_ID = 'drawercontainer';
 
 export const APPLICATION_NAME = 'Dynamics SideKick';
 export const MAIN_MENU_ID = 'sidepanel-mainmenu';
+
+export const MESSAGE_SOURCE_WebPage = `${APPLICATION_NAME}_webPage`;
+export const MESSAGE_SOURCE_Content = `${APPLICATION_NAME}_content`;

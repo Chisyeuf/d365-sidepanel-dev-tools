@@ -4,11 +4,18 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 // const smp = new SpeedMeasurePlugin()
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
+
 module.exports = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
+            
+            const target = process.env.REACT_APP_TARGET || 'chrome';
+            console.log('TARGET', target);
+            
             const isEnvDevelopment = env === 'development'
-            console.log('isDev', isEnvDevelopment)
+            console.log('isDev', isEnvDevelopment);
             // console.log(webpackConfig.plugins.map((p) => p.constructor))
 
             webpackConfig.plugins = webpackConfig.plugins.map((p) => {
@@ -19,28 +26,37 @@ module.exports = {
                     fileName: 'asset-manifest.json',
                     publicPath: paths.publicUrlOrPath,
                     generate: (seed, files, entrypoints) => {
-                      const manifestFiles = files.reduce((manifest, file) => {
-                        manifest[file.name] = file.path;
-                        return manifest;
-                      }, seed);
-                      // const entrypointFiles = entrypoints.main.filter(
-                      //     (fileName) => !fileName.endsWith('.map')
-                      // )
-                      const entrypointFiles = {}
-                      console.log("entrypoints",entrypoints)
-                      Object.keys(entrypoints).forEach((entrypoint) => {
-                          entrypointFiles[entrypoint] = entrypoints[entrypoint].filter(
-                              (fileName) => !fileName.endsWith('.map')
-                          )
-                      })
-            
-                      return {
-                        files: manifestFiles,
-                        entrypoints: entrypointFiles,
-                      };
+                        const manifestFiles = files.reduce((manifest, file) => {
+                            manifest[file.name] = file.path;
+                            return manifest;
+                        }, seed);
+                        // const entrypointFiles = entrypoints.main.filter(
+                        //     (fileName) => !fileName.endsWith('.map')
+                        // )
+                        const entrypointFiles = {}
+                        console.log("entrypoints", entrypoints)
+                        Object.keys(entrypoints).forEach((entrypoint) => {
+                            entrypointFiles[entrypoint] = entrypoints[entrypoint].filter(
+                                (fileName) => !fileName.endsWith('.map')
+                            )
+                        })
+
+                        return {
+                            files: manifestFiles,
+                            entrypoints: entrypointFiles,
+                        };
                     },
-                  })
-            })
+                })
+            });
+
+            const copyWebpackPlugin = new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: path.resolve(__dirname, 'public', `manifest.${target}.json`),
+                        to: path.resolve(webpackConfig.output.path, 'manifest.json'),
+                    },
+                ],
+            });
 
             const newWebpack = {
                 ...webpackConfig,
@@ -61,7 +77,7 @@ module.exports = {
                         webpackConfig.module.rules[1]
                     ]
                 },
-                plugins: [...webpackConfig.plugins, new ForkTsCheckerWebpackPlugin()].filter(
+                plugins: [...webpackConfig.plugins, new ForkTsCheckerWebpackPlugin(), copyWebpackPlugin].filter(
                     Boolean
                 ),
                 entry: {

@@ -1,9 +1,8 @@
 import type { ButtonPropsVariantOverrides } from '@mui/material';
 import type { OverridableStringUnion } from '@mui/types';
 import { Button } from '@mui/material';
-import React, {  } from 'react';
 import { MessageType } from '../types/Message';
-import { GetExtensionId } from '../global/common';
+import MessageManager from '../global/MessageManager';
 
 export type OpenOptionsButtonProps = {
     text?: string | null;
@@ -13,11 +12,9 @@ export type OpenOptionsButtonProps = {
 function OpenOptionsButton(props: OpenOptionsButtonProps) {
     const { text, variant } = props;
 
-    const extensionId = GetExtensionId();
-
     return (
         <Button variant={variant} onClick={() => {
-            chrome.runtime.sendMessage(extensionId, { type: MessageType.OPENOPTIONS });
+            MessageManager.sendMessage(MessageType.OPENOPTIONS);
         }}>
             {text ?? 'Open option screen'}
         </Button>

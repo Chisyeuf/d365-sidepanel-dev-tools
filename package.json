@@ -42,7 +42,8 @@
     },
     "scripts": {
         "start": "craco start",
-        "build": "craco build",
+        "build:chrome": "cross-env REACT_APP_TARGET=chrome craco build",
+        "build:firefox": "cross-env REACT_APP_TARGET=firefox craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "commit": "commit"
@@ -88,9 +89,11 @@
         "@types/react-dom": "^18.0.11",
         "@types/react-textfit": "^1.1.4",
         "@types/react-window": "^1.8.8",
-        "@wixc3/react-board": "2.3.0",
         "@types/xrm": "file:types/xrm",
+        "@wixc3/react-board": "2.3.0",
         "babel-plugin-import": "^1.13.6",
+        "copy-webpack-plugin": "^13.0.0",
+        "cross-env": "^7.0.3",
         "customize-cra": "^1.0.0",
         "fork-ts-checker-webpack-plugin": "^8.0.0",
         "husky": "^8.0.3",
