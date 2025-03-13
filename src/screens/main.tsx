@@ -327,7 +327,7 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' pb='5px' height='calc(100% - 63px)' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
                         {
-                            toolsButton.every(t => t) && false ?
+                            toolsButton.every(t => t) ?
 
                                 toolsButton
 
