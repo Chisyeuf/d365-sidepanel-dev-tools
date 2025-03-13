@@ -169,6 +169,7 @@ Clicking an item opens the entity list with its existing views.
 <img align="right" src="screenshots/jpg/7.WebResourcesEditor.jpg">
 
 THIS TOOL HAS BEEN DEACTIVATED. We are working on it.
+
 Edit, test, and publish - all within your browser!
 
 This tool adds an editor directly to your browser, allowing you to modify web resources with ease. No more tedious updates and publishing. You can test your changes live locally, seeing the results instantly.
