@@ -28,6 +28,8 @@ import StarIcon from '@mui/icons-material/Star';
 import BlackWhiteIconButton from '../utils/components/BlackWhiteIconButton';
 import MessageManager from '../utils/global/MessageManager';
 
+import ExtensionIcon from '@mui/icons-material/Extension';
+
 
 const MainScreen: React.FunctionComponent = () => {
     return (
@@ -325,14 +327,14 @@ const MainScreenCustomPanel: React.FunctionComponent = () => {
                 <Stack spacing={0.5} width='-webkit-fill-available' padding='10px' pb='5px' height='calc(100% - 63px)' justifyContent='space-between'>
                     <Stack spacing={0.5} width='-webkit-fill-available' overflow='auto'>
                         {
-                            toolsButton.every(t => t) ?
+                            toolsButton.every(t => t) && false ?
 
                                 toolsButton
 
                                 :
                                 <>
                                     <Typography>
-                                        It seems there was a problem retrieving the tools list. Try resetting the tools list in the options screen.
+                                        It seems there was a problem retrieving the tools list. Try resetting the tools list by clicking on the extensions button (<ExtensionIcon fontSize='inherit' />) in your browser toolbar and opening the extension, which will show you the options.
                                     </Typography>
                                     <OpenOptionsButton variant='contained' />
                                 </>

@@ -38,6 +38,8 @@ import { LinearProgress } from '@mui/material';
 import DontShowInfo from '../../utils/components/DontShowInfo';
 import MessageManager from '../../utils/global/MessageManager';
 
+import ExtensionIcon from '@mui/icons-material/Extension';
+
 class ImpersonationButton extends ProcessButton {
     constructor() {
         super(
@@ -188,7 +190,7 @@ const ImpersonationProcess = forwardRef<ProcessRef, ProcessProps>(
             <Stack direction='column' spacing={0.5} padding="10px" height='calc(100% - 20px)'>
 
                 <DontShowInfo storageName={`${props.id}-maininfo`} displayOpenOptionButton>
-                    <Typography variant='body2'>If you made a mistake and you can no longer access this tool, you can reset the impersonation by going to the options screen.</Typography>
+                    <Typography variant='body2'>If you made a mistake and can no longer access this tool, you can reset the impersonation by clicking on the extensions button (<ExtensionIcon fontSize='inherit' />) in your browser toolbar and opening the extension, which will show you the options.</Typography>
                 </DontShowInfo>
 
                 <Stack direction='row' spacing={0.5} width="-webkit-fill-available">
