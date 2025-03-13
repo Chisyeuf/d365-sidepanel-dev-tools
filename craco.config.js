@@ -34,7 +34,7 @@ module.exports = {
                         //     (fileName) => !fileName.endsWith('.map')
                         // )
                         const entrypointFiles = {}
-                        console.log("entrypoints", entrypoints)
+                        
                         Object.keys(entrypoints).forEach((entrypoint) => {
                             entrypointFiles[entrypoint] = entrypoints[entrypoint].filter(
                                 (fileName) => !fileName.endsWith('.map')
@@ -59,7 +59,6 @@ module.exports = {
                             Object.entries(process.env).forEach(([key, value]) => {
                                 jsonString = jsonString.replaceAll(`{${key}}`, value);
                             });
-                            console.log(jsonString);
                             return jsonString;
                         }
                     },

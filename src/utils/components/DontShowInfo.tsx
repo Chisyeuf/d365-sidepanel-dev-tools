@@ -7,6 +7,7 @@ import { useEffectOnce } from "../hooks/use/useEffectOnce";
 import { useDictionnary } from "../hooks/use/useDictionnary";
 import { useSpDevTools } from "../global/spContext";
 import MessageManager from "../global/MessageManager";
+import { debugLog } from "../global/common";
 
 
 
@@ -59,7 +60,7 @@ function DontShowInfo(props: DontShowInfoProps & PropsWithChildren) {
                     </Stack>
                     <Stack direction='row' spacing={1}>
                         {displayOpenOptionButton && <OpenOptionsButton variant='contained' />}
-                        {isDebug.value && <Button variant="contained" onClick={() => console.log("DontShowInfo - Storage Content", dontShowInfos)}>Log Storage Content</Button>}
+                        {isDebug.value && <Button variant="contained" onClick={() => debugLog("DontShowInfo - Storage Content", dontShowInfos)}>Log Storage Content</Button>}
                     </Stack>
                 </Stack>
             </Alert>

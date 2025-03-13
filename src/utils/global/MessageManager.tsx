@@ -1,4 +1,5 @@
 import { MessageType } from "../types/Message";
+import { debugLog } from "./common";
 import { MESSAGE_SOURCE_Content, MESSAGE_SOURCE_WebPage } from "./var";
 
 
@@ -16,7 +17,7 @@ class MessageManager {
         if (event.data.source !== MESSAGE_SOURCE_Content) return;
         
         const data = event.data;
-        console.log('onMessage', data);
+        debugLog('onMessage', data);
         if (data && data.id && this.messageCallbacks[data.id]) {
             this.messageCallbacks[data.id](data.response);
             delete this.messageCallbacks[data.id];
@@ -24,7 +25,7 @@ class MessageManager {
     }
 
     sendMessage(type: MessageType, data: any = null): Promise<any> {
-        console.log('sendMessage', type, data);
+        debugLog('sendMessage', type, data);
         return new Promise((resolve, reject) => {
             this.messageId++;
             const id = this.messageId;

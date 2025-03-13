@@ -1,28 +1,4 @@
-import { Alert, paperClasses, styled, Theme, Tooltip, tooltipClasses, TooltipProps } from "@mui/material";
-import React from "react";
-
-// export const TooltipInfo2: React.ComponentType<TooltipProps> = styled(({ className, ...props }: TooltipProps) => {
-//     console.log("TooltipInfo", className, tooltipClasses, paperClasses);
-//     return <Tooltip {...props} classes={{ popper: className }} />;
-// })
-//     (({ theme }) => ({
-//         [`& .${tooltipClasses.tooltip}`]: {
-//             maxWidth: '540px',
-//             p: 0,
-
-//         },
-//         [`& .${paperClasses.root}`]: {
-//             fontSize: '1.2rem',
-//             p: 0.5,
-//             bgcolor: 'background.paper',
-//             borderColor: theme.palette.primary.main
-//         },
-//         [`& .${tooltipClasses.arrow}`]: {
-//             "::before": {
-//                 bgcolor: theme.palette.primary.main
-//             }
-//         },
-//     }));
+import { Alert, paperClasses, Tooltip, TooltipProps } from "@mui/material";
 
 function TooltipInfo({ maxWidth, title, ...props }: TooltipProps & { maxWidth?: number | false }) {
     return (

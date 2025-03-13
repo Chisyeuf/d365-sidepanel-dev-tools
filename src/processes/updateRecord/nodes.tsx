@@ -353,6 +353,7 @@ export function DecimalNode(props: AttributeProps) {
         setValue(newValue)
         setDirty(newValue)
     }
+    
 
     return (
         <>

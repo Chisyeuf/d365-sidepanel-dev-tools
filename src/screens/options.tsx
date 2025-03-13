@@ -97,7 +97,7 @@ const OptionsScreen: React.FunctionComponent = () => {
 }
 
 
-waitForElm(document, '#root').then((rootDiv) => {
+waitForElm(document, '#root', { infiniteWait: true }).then((rootDiv) => {
     if (rootDiv) {
         ReactDOM.render(
             <OptionsScreen />,

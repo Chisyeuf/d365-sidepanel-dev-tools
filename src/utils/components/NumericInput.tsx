@@ -13,29 +13,32 @@ export type NumericInputProps = Omit<TextFieldProps, 'onChange'> & {
     value?: number | null;
     onChange?(e: number | null): void;
 
-    numericOptions?: Options;
+    numericOptions?: Omit<Options, 'overrideMinMaxLimits'>;
 };
 
 function NumericInput(props: NumericInputProps) {
     const { value, numericOptions, ...inputProps } = props;
+
+    const [initialized, setInitialized] = useState<boolean>(false);
 
     const [inputValue, setInputValue] = useState<string>('')
     const inputRef = useRef<HTMLInputElement>()
     const [autonumeric, setAutonumeric] = useState<AutoNumeric>()
 
     useEffect(() => {
-        if (inputRef.current) {
-            if (numericOptions?.maximumValue && value && value > Number(numericOptions?.maximumValue)) {
-                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.maximumValue, numericOptions));
+        if (!initialized && inputRef.current) {
+            if (numericOptions?.maximumValue && value !== null && value !== undefined && value > Number(numericOptions?.maximumValue)) {
+                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.maximumValue, { ...numericOptions, overrideMinMaxLimits: 'invalid' }));
             }
-            else if (numericOptions?.minimumValue && value && value < Number(numericOptions?.minimumValue)) {
-                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.minimumValue, numericOptions));
+            else if (numericOptions?.minimumValue && value !== null && value !== undefined && value < Number(numericOptions?.minimumValue)) {
+                setAutonumeric(new AutoNumeric(inputRef.current, numericOptions?.minimumValue, { ...numericOptions, overrideMinMaxLimits: 'invalid' }));
             }
             else {
-                setAutonumeric(new AutoNumeric(inputRef.current, value, numericOptions));
+                setAutonumeric(new AutoNumeric(inputRef.current, value,  { ...numericOptions, overrideMinMaxLimits: 'invalid' }));
             }
+            setInitialized(true);
         }
-    }, [inputRef, numericOptions, value])
+    }, [inputRef, numericOptions, value, initialized]);
 
     useEffect(() => {
         if (!inputValue) {
@@ -52,11 +55,11 @@ function NumericInput(props: NumericInputProps) {
                 autonumeric?.set(inputValue);
             }
         }
-    }, [autonumeric, inputValue, numericOptions?.maximumValue, numericOptions?.minimumValue])
+    }, [autonumeric, inputValue, numericOptions?.maximumValue, numericOptions?.minimumValue]);
 
     useEffect(() => {
         setInputValue(value || value === 0 ? "" + value : '');
-    }, [value])
+    }, [value]);
 
     function handleChange() {
         if (!autonumeric) return;

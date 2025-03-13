@@ -7,17 +7,8 @@ import { useDictionnary } from '../use/useDictionnary';
 
 export function RetrieveActiveUsersWithSecurityRoles(islicensed: boolean) {
 
-    // const [data, setData] = useState<ActiveUser[]>([]);
-
     const { values: activeUsers, setValue: setActiveUser, setDict: setActiveUsers } = useDictionnary<ActiveUser>({});
     const [isFetching, setFetching] = useState<boolean>(false);
-    // const [totalActiveUsers, setTotalActiveUsers] = useState<number>(-1);
-    // const [loadedActiveUsers, setLoadedActiveUsers] = useState<number>(-1);
-
-
-    // useEffect(() => {
-    //     setFetching(totalActiveUsers !== loadedActiveUsers)
-    // }, [loadedActiveUsers, totalActiveUsers]);
 
     useEffect(() => {
 
@@ -44,44 +35,14 @@ export function RetrieveActiveUsersWithSecurityRoles(islicensed: boolean) {
                     teamsRoles: undefined
                 }]
             ))));
-            // setTotalActiveUsers(retrievedUsers.length);
+
             setFetching(false);
 
             retrievedUsers.forEach(async (user) => {
                 const activeUser = await ConvertToActiveUserObject(user);
                 setActiveUser(activeUser.systemuserid, activeUser);
-                // setLoadedActiveUsers(old => old + 1);
             });
-
-            // const data = await Promise.allSettled(
-            //     result.entities.filter(user => user.systemuserroles_association.length > 0 || user.teammembership_association.length > 0).map<Promise<ActiveUser>>(async (user) => {
-            //         return new Promise(async (resolve, reject) => {
-
-            //             // const timeout = setTimeout(() => {
-            //             //     reject(`RetrieveActiveUsersWithSecurityRoles - fetching teams for user ${user["fullname"]}(${user["systemuserid"]}) timeout.`);
-            //             // }, 5000);
-
-            //             const result = await ConvertToActiveUserObject(user);
-            //             // clearTimeout(timeout);
-            //             resolve(result);
-            //         });
-
-            //     })
-            // ).then(results => {
-            //     const fulfilledResults: PromiseFulfilledResult<ActiveUser>[] = results.filter(r => r.status === 'fulfilled') as any;
-            //     const rejectedResults: PromiseRejectedResult[] = results.filter(r => r.status === 'rejected') as any;
-            //     rejectedResults.forEach((r) => console.error(r.reason));
-
-            //     return fulfilledResults.map((r) => r.value);
-            // });
-
-            // setData(data);
-            // setFetching(false);
         }
-        // setData([]);
-        // setFetching(true);
-        // setTotalActiveUsers(-1);
-        // setLoadedActiveUsers(0);
         setFetching(true);
         setActiveUsers({});
         fetchData();
