@@ -9,10 +9,12 @@ const allowedScripts = ['/uclient/scripts/cdnEndpointCheck.js', '/uclient/script
 //     );
 //     console.log('This page is CRM:', isCRMD365);
 //     if (isCRMD365) {
-//         injectScript(chrome.runtime.getURL("static/js/spdevtools.js"));
+//         injectScript(chrome.runtime.getURL("static/js/d365-sidekick.js"));
 //         SaveData(chrome.runtime.getURL(""), "extensionURL");
 //     }
 // }
+
+const fileName = "d365-sidekick";
 
 var injectScript = function (file: string): void {
     var existingScript = document.querySelector("script[src='" + file + "']");
@@ -46,7 +48,7 @@ setTimeout(async () => {
     );
     console.log('This page is CRM:', isCRMD365);
     if (isCRMD365) {
-        injectScript(chrome.runtime.getURL("static/js/spdevtools.js"));
+        injectScript(chrome.runtime.getURL(`static/js/${fileName}.js`));
         SaveData(chrome.runtime.getURL(""), "extensionURL");
     }
 }, 2000);

@@ -10,10 +10,10 @@ const path = require('path');
 module.exports = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
-            
+
             const target = process.env.REACT_APP_TARGET || 'chrome';
             console.log('TARGET', target);
-            
+
             const isEnvDevelopment = env === 'development'
             console.log('isDev', isEnvDevelopment);
             // console.log(webpackConfig.plugins.map((p) => p.constructor))
@@ -54,6 +54,14 @@ module.exports = {
                     {
                         from: path.resolve(__dirname, 'public', `manifest.${target}.json`),
                         to: path.resolve(webpackConfig.output.path, 'manifest.json'),
+                        transform: (content) => {
+                            let jsonString = content.toString();
+                            Object.entries(process.env).forEach(([key, value]) => {
+                                jsonString = jsonString.replaceAll(`{${key}}`, value);
+                            });
+                            console.log(jsonString);
+                            return jsonString;
+                        }
                     },
                 ],
             });
@@ -81,11 +89,11 @@ module.exports = {
                     Boolean
                 ),
                 entry: {
-                    spdevtools: [
+                    [process.env.FILE_NAME]: [
                         isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'),
                         paths.appIndexJs
                     ].filter(Boolean),
-                    'spdevtools.content': './src/content.tsx',
+                    [`${process.env.FILE_NAME}.content`]: './src/content.tsx',
                     options: './src/screens/options.tsx',
                     background: './src/background.tsx'
                 },

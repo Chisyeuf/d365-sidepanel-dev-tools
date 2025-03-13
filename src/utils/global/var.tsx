@@ -5,7 +5,7 @@ export class Env {
 
 export const DEBUG_MODE = false;
 
-export const PROJECT_PREFIX = 'spdevtools-';
+export const PROJECT_PREFIX = 'd365-sidekick-';
 
 export const STORAGE_ListName = 'processListOrdered';
 export const STORAGE_ForegroundPanes = 'isPanesForeground';
@@ -16,7 +16,7 @@ export type TYPE_DontShowInfo = { [infoName: string]: boolean };
 export const DRAWER_CONTAINER_ID = 'drawercontainer';
 
 export const APPLICATION_NAME = 'Dynamics SideKick';
-export const MAIN_MENU_ID = 'sidepanel-mainmenu';
+export const MAIN_MENU_ID = 'd365-sidekick-mainmenu';
 
-export const MESSAGE_SOURCE_WebPage = `${APPLICATION_NAME}_webPage`;
-export const MESSAGE_SOURCE_Content = `${APPLICATION_NAME}_content`;
+export const MESSAGE_SOURCE_WebPage = `${PROJECT_PREFIX}-webPage`;
+export const MESSAGE_SOURCE_Content = `${PROJECT_PREFIX}-content`;

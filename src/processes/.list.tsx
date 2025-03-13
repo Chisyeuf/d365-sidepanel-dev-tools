@@ -16,7 +16,7 @@ import entitiesList from './entitiesList/main';
 import metadataBrowser from './metadataBrowser/main';
 import formToolsV2 from './formToolsv2/main';
 
-const target = process.env.REACT_APP_TARGET;
+// const target = process.env.REACT_APP_TARGET;
 
 const Processes: ProcessButton[] = [
     formToolsV2,
